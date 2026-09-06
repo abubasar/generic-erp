@@ -403,7 +403,7 @@
     <p class="standfirst">How to turn the existing Feed ERP and Pharmacy POS into a multi-tenant, template-driven ERP that a business owner can sign up for, configure by answering plain questions, and pay for by what they switch on.</p>
     <div class="mast-meta">
       <span><b>Scope</b> GenericERP (the src repo — Application.Api + Application.Client, formerly BUTSERP_API + ERPAngular) · ButsPosDotnet6 · PMSAdminReact · PMSShopAngular</span>
-      <span><b>Prepared</b> 2026-09-06 · rev. 2026-09-06 (repo consolidation)</span>
+      <span><b>Prepared</b> 2026-09-06 · rev. 2026-09-06 (repo consolidation; verified vs code + local generic-erp-db)</span>
       <span><b>Target</b> Modular monolith · pooled multi-tenancy</span>
     </div>
   </div>
@@ -614,7 +614,7 @@
   <div class="col">
     <p class="lead">You are not building a generic ERP. You are building a configurable ERP SaaS where a tenant tells you about their business, gets a recommended setup, sees a price, and starts working — with no developer in the loop per customer.</p>
 
-    <p>The good news from the code review: <strong>the Feed ERP backend (<code>Application.Api</code>) is already ~70% of the way to the right architecture</strong> — and it now shares one repo (<code>GenericERP</code>) with its Angular client (<code>Application.Client</code>), so "one codebase" has already begun. It is a .NET 9 modular monolith with per-domain Autofac modules, a <code>TenantId</code> discriminator column on nearly every entity, a tenant claim carried in the JWT, audit + soft-delete + tenant stamping centralised in <code>UnitOfWork</code>, and — crucially — it <strong>already runs two industries from one codebase</strong>: a per-tenant <code>BusinessType</code> (1&nbsp;=&nbsp;Pharmaceutical, 2&nbsp;=&nbsp;Feed) drives a three-way permission catalog (shared <code>Permissions</code> + <code>PrimaryPermissions</code> + <code>SecondaryPermissions</code>) and ~30 runtime branches for dashboards, PDF layouts and business rules. What it lacks is the <em>platform layer</em> — module catalog, subscriptions, entitlements, pricing, business templates, self-service onboarding — and the industry split needs to move off scattered <code>if</code> statements onto that module layer.</p>
+    <p>The good news from the code review: <strong>the Feed ERP backend (<code>Application.Api</code>) is already ~70% of the way to the right architecture</strong> — and it now shares one repo (<code>GenericERP</code>) with its Angular client (<code>Application.Client</code>), so "one codebase" has already begun. It is a .NET 9 modular monolith with per-domain Autofac modules, a <code>TenantId</code> discriminator column on nearly every entity, a tenant claim carried in the JWT, audit + soft-delete + tenant stamping centralised in <code>UnitOfWork</code>, and — crucially — it <strong>already runs two industries from one codebase</strong>: a per-tenant <code>BusinessType</code> (<code>Primary</code>&nbsp;=&nbsp;1&nbsp;=&nbsp;Pharmaceutical, <code>Secondary</code>&nbsp;=&nbsp;2&nbsp;=&nbsp;Feed) drives a three-way permission catalog (shared <code>Permissions</code> + <code>PrimaryPermissions</code> + <code>SecondaryPermissions</code>) and ~32 runtime branches for dashboards, PDF layouts, unit conversion and business rules. What it lacks is the <em>platform layer</em> — module catalog, subscriptions, entitlements, pricing, business templates, self-service onboarding — and the industry split needs to move off scattered <code>if</code> statements onto that module layer.</p>
 
     <div class="call rec">
       <span class="call-tag">The recommendation in one line</span>
@@ -692,13 +692,18 @@
 
     <h4>Assets worth reusing as-is</h4>
     <ul>
-      <li><strong>Permission model</strong> — <code>[Authorize("Permissions.X.Y")]</code> + <code>RoleClaim</code> table + reflection-based permission catalog, already business-type aware (<code>ClaimsHelper.GetAllPermissions(businessType)</code> merges the shared set with the pharma or feed set).</li>
-      <li><strong>Per-industry behaviour switching</strong> — the tenant's <code>BusinessType</code> is a JWT claim; services and report controllers branch on it for dashboard KPIs, PDF layouts (paired <code>PrintSaleOrderPrimaryReportToPdfAsync</code> / <code>…SecondaryReportToPdfAsync</code> methods), and rules like Feed's mandatory customer-wise discount. The <em>mechanism</em> for industry modules already exists — it just needs formalising.</li>
+      <li><strong>Permission model</strong> — <code>[Authorize("Permissions.X.Y")]</code> + <code>RoleClaims</code> table + reflection-based permission catalog, already business-type aware (<code>ClaimsHelper.GetAllPermissions(this List&lt;RoleClaimModel&gt;, int businessType)</code> adds the shared <code>Permissions</code> set plus <em>either</em> <code>PrimaryPermissions</code> (pharma) <em>or</em> <code>SecondaryPermissions</code> (feed)).</li>
+      <li><strong>Per-industry behaviour switching</strong> — the tenant's <code>BusinessType</code> is a JWT claim (<code>enum BusinessType { Primary = 1 /*Pharmaceutical*/, Secondary = 2 /*Feed*/ }</code>); ~32 sites in services and report controllers branch on it for dashboard KPIs, PDF layouts (paired <code>PrintSaleOrderPrimaryReportToPdfAsync</code> / <code>…SecondaryReportToPdfAsync</code> — also DeliveryNote, SaleInvoice, SaleReturn), and rules like Feed's mandatory customer-wise discount. The <em>mechanism</em> for industry modules already exists — it just needs formalising.</li>
+      <li><strong>Dual unit-of-measure model</strong> — every sale-detail table already carries a <code>Primary*</code> quantity (bags, as entered) and a plain quantity (the sellable unit): for Feed the plain quantity is <code>Primary × Product.BagWeight</code> (Kg); for Pharma it is a straight copy. See §05.</li>
       <li><strong>Audit pipeline</strong> — <code>OnBeforeSaveChangesAsync</code> writes <code>EventLog</code> with old/new JSON, stamps tenant + audit fields, and does per-type hard vs soft delete.</li>
       <li><strong>Generic CRUD</strong> — <code>BaseService&lt;TEntity,TCreationDto,TUpdateDto,TRequestModel,TViewModel&gt;</code> with search/filter/order/paginate.</li>
       <li><strong>Accounting engine</strong> — chart of accounts, journal entries, vouchers, fund transfers, COGS reporting. This is the hardest thing to build and it already exists.</li>
       <li><strong>POS domain logic</strong> — batch/expiry stock (<code>StockItem.BatchNo/ExpiryDate</code>, <code>IsExpiryItem</code>), COGS-per-sale, branch transfers, customer dues.</li>
     </ul>
+    <div class="call warn">
+      <span class="call-tag">Two things are not as the earlier draft implied</span>
+      <p>(1) The <code>Tenant</code> table <strong>already exists</strong> (Id, Code, Name, TimeZoneId, Address, ContactNo, BINNo, Email, <code>BusinessType</code> int, Logo + audit + <code>Deleted</code>) — the platform work <em>extends</em> it, it is not a new table. (2) A stale <strong>net6.0</strong> copy of <code>BaseRepository.cs</code> / <code>UnitOfWork.cs</code> lives in an orphan <code>Application.Infrastructure/</code> folder that is <strong>not in <code>Application.sln</code></strong>; the live code is <code>Application.Repository/Application.Infrastructure.csproj</code> (net9.0). Delete the orphan before an edit lands in the wrong file.</p>
+    </div>
   </div>
 </section>
 
@@ -766,7 +771,7 @@
   <div class="col">
     <div class="call rec">
       <span class="call-tag">Concrete first change</span>
-      <p>Introduce <code>ITenantContext</code> (scoped) and an <code>ITenantScoped</code> marker interface. Move the <code>WHERE TenantId</code> logic out of <code>BaseRepository.TableNoTracking()</code> into <code>modelBuilder</code> global query filters applied to every <code>ITenantScoped</code> entity. This removes an entire class of "someone forgot to filter" data-leak bugs and is a mechanical, testable change.</p>
+      <p>Grow <code>ITenantContext</code> (scoped) from the existing <code>IWorkContext</code> / <code>WorkContext</code> (already injected into ~every controller) and the <code>ClaimsHelper</code> <code>HttpContext</code> extensions, and add an <code>ITenantScoped</code> marker interface. Move the <code>WHERE TenantId</code> logic out of <code>BaseRepository.TableNoTracking()</code> (and delete the <code>TableWithoutTenant()</code> bypass) into <code>modelBuilder</code> global query filters on every <code>ITenantScoped</code> entity. Today <code>UnitOfWork.OnBeforeSaveChangesAsync</code> throws when there is <em>no</em> ambient tenant, but on <code>Modified</code>/<code>Deleted</code> it just stamps <code>TenantId = current tenant</code> without checking the row already belonged to it — so an update-by-Id across tenants silently succeeds. This removes an entire class of "someone forgot to filter" data-leak bugs and is a mechanical, testable change.</p>
     </div>
 
     <h3>Configuration lives at three levels</h3>
@@ -816,7 +821,7 @@
     <div class="adr-head"><span class="adr-id">D2</span><h3>Shared database vs database per tenant</h3></div>
     <p class="verdict"><b>Shared database by default</b> (pool model). Dedicated database available as a per-tenant override (bridge model). <b>Never</b> schema-per-tenant.</p>
     <p>Shared keeps operational cost flat and migrations single-shot. Row-level filters + a fail-closed <code>SaveChanges</code> guard + a dedicated tenant-isolation integration test suite are the safety net. Schema-per-tenant multiplies migration pain by the tenant count for no real isolation gain over a discriminator column.</p>
-    <p><strong>Indexing:</strong> every tenant-scoped table gets a leading <code>TenantId</code> in its main indexes — some already exist (<code>IX_ReceivePayment_TenantId_Deleted</code>, <code>idx_stock_tenantid</code>); make it a scaffolding rule so it is not ad-hoc.</p>
+    <p><strong>Indexing:</strong> every tenant-scoped table needs a leading <code>TenantId</code> in its main indexes. Today this is effectively absent — of ~110 tenant-scoped tables, exactly <strong>one</strong> (<code>ReceivePayment</code>) has a <code>TenantId</code>-leading index and only one other (<code>Stock</code>) has any <code>TenantId</code> index at all. Treat this as a from-scratch pass plus a scaffolding rule, not a tidy-up.</p>
   </div>
 
   <div class="adr">
@@ -855,7 +860,7 @@
   <div class="adr">
     <div class="adr-head"><span class="adr-id">D6</span><h3>Business configuration</h3></div>
     <p class="verdict"><b>Template-driven.</b> A <code>BusinessTemplate</code> (Pharmacy, Feed, Super Shop, Wholesale, Retail, Buying House) maps to recommended module keys + default settings + a <b>seed pack</b> (chart of accounts, units, roles, document numbering). A plain-language questionnaire adjusts the recommendation.</p>
-    <p>Settings are stored as typed setting classes backed by a <code>TenantSetting</code> key/value table (the existing <code>Setting</code> entity, scoped to tenant). Reads go through strongly-typed accessors, never raw strings scattered in services.</p>
+    <p>Settings are stored as typed setting classes backed by a <code>TenantSetting</code> key/value table. (The existing <code>Setting</code> table is <em>not</em> tenant-scoped today — no <code>TenantId</code> column — so this adds one or replaces it.) Reads go through strongly-typed accessors, never raw strings scattered in services.</p>
     <p>The customer can override the recommendation before finishing, and change most toggles later from Settings. What they cannot do is invent new document types or workflows — that stays in code. <em>Stable code, configurable features.</em></p>
   </div>
 </section>
@@ -877,8 +882,8 @@
     <div class="adr" style="margin:8px 0">
       <div class="adr-head"><span class="adr-id">AXIS 2</span><h3>User permission</h3></div>
       <p class="verdict"><b>May this person do it?</b></p>
-      <p>A property of the <em>user's role within the tenant</em>. Set by the tenant admin: roles (Owner, Sales Manager, Cashier, Accountant…) each hold a set of permission strings in <code>RoleClaim</code>. The Cashier can use POS but not Purchase; the Sales Manager can see customers but not System Settings.</p>
-      <p class="where">enforced by the existing <code>[Authorize("Permissions.Sales.Create")]</code> attribute + <code>RoleClaim</code> table</p>
+      <p>A property of the <em>user's role within the tenant</em>. Set by the tenant admin: roles (Owner, Sales Manager, Cashier, Accountant…) each hold a set of permission strings in <code>RoleClaims</code>. The Cashier can use POS but not Purchase; the Sales Manager can see customers but not System Settings.</p>
+      <p class="where">enforced by the existing <code>[Authorize("Permissions.Sales.Create")]</code> attribute + <code>RoleClaims</code> table</p>
     </div>
   </div>
 
@@ -887,7 +892,7 @@
       <span class="call-tag">Effective access = the intersection</span>
       <p>A user can reach a feature only if <strong>the tenant has the module</strong> <em>and</em> <strong>the user's role has the permission</strong>. Module gate is checked first (cheaper, coarser, returns "not on your plan"); permission gate second (returns "ask your administrator"). The permission catalog is filtered to a tenant's enabled modules, so a tenant admin setting up roles only ever sees permissions for modules they actually own — they never assign a permission for POS if POS is off.</p>
     </div>
-    <p>The codebase already has the raw material for both axes: <code>Permissions.AccessModules.*</code> constants map cleanly onto Axis 1's module keys, and the per-feature <code>Permissions.&lt;Area&gt;.&lt;Action&gt;</code> constants + <code>RoleClaim</code> are Axis 2 as-is. The new work is the tenant/subscription layer that decides which <code>AccessModules</code> a tenant gets, and filtering the role-setup screen by it.</p>
+    <p>The codebase already has the raw material for both axes: <code>Permissions.AccessModules.*</code> constants map cleanly onto Axis 1's module keys, and the per-feature <code>Permissions.&lt;Area&gt;.&lt;Action&gt;</code> constants + <code>RoleClaims</code> are Axis 2 as-is. The new work is the tenant/subscription layer that decides which <code>AccessModules</code> a tenant gets, and filtering the role-setup screen by it.</p>
   </div>
 </section>
 
@@ -898,15 +903,29 @@
     <p>The dividing line: if two different business types would both want it and mean the same thing by it, it is <strong>generic</strong>. If it only makes sense for one industry, or the same word means different things (a "batch" in pharma vs a "production batch" in feed), it is an <strong>industry module</strong>.</p>
     <div class="call rec">
       <span class="call-tag">You already have two industry modules — as <code>if</code> statements</span>
-      <p>The Feed ERP's <code>BusinessType</code> split <em>is</em> a Pharmacy module and a Feed module in embryo: a shared permission set plus <code>PrimaryPermissions</code> (9 groups: Territories, PackSizes, ProductAudits, primary sales &amp; inventory reports…) and <code>SecondaryPermissions</code> (6 groups: customer-wise discounts, delivery notes, receive payments…), and ~30 <code>if (BusinessType == …)</code> branches. Formalising this means: (1) each of those permission classes becomes a module's permission group; (2) each <code>if</code> branch becomes either a module check or a call into an injected <code>IIndustryProfile</code> chosen by the tenant's template; (3) the paired <code>…Primary…</code> / <code>…Secondary…</code> PDF methods become per-industry report packs. Do this <em>before</em> adding Super Shop, or industry #3 means editing all 30 sites again — see §08 Phase 1 and §11.</p>
+      <p>The Feed ERP's <code>BusinessType</code> split (<code>Primary = 1</code> = Pharmaceutical, <code>Secondary = 2</code> = Feed) <em>is</em> a Pharmacy module and a Feed module in embryo: a shared permission set plus <code>PrimaryPermissions</code> (8 nested groups: Territories, PackSizes, ProductAudits, primary sales &amp; inventory report modules…) and <code>SecondaryPermissions</code> (5 nested groups: customer-wise discounts, delivery notes, receive payments…), and ~32 <code>if (BusinessType == …)</code> branches. Formalising this means: (1) each of those permission classes becomes a module's permission group; (2) each <code>if</code> branch becomes either a module check or a call into an injected <code>IIndustryProfile</code> chosen by the tenant's template; (3) the paired <code>…Primary…</code> / <code>…Secondary…</code> PDF methods become per-industry report packs. Do this <em>before</em> adding Super Shop, or industry #3 means editing all 32 sites again — see §08 Phase 1 and §11.</p>
     </div>
+
+    <h3>The dual unit-of-measure model (feed vs pharma)</h3>
+    <p>The single biggest behavioural difference between the two industries is already in the schema, on every sale-detail table (<code>SaleQuotationDetail</code>, <code>SaleOrderDetail</code>, <code>DeliveryNoteDetail</code>, <code>SaleInvoiceDetail</code>, <code>SaleReturnDetail</code>). Each line stores <strong>two</strong> quantities:</p>
+    <div class="tbl-scroll" style="box-shadow:none">
+      <table>
+        <thead><tr><th>Field family</th><th>Meaning</th><th>Feed</th><th>Pharma</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">Primary* (PrimaryQuantity, PrimaryBonusQuantity, DeliveredPrimaryQuantity, ReturnPrimaryQuantity…)</td><td>what the user enters — <b>bags</b></td><td>as entered</td><td>as entered</td></tr>
+          <tr><td class="mono">plain (Quantity, BonusQuantity, DeliveryQuantity, ReturnQuantity…)</td><td>the sellable / reportable unit</td><td><code>Primary × Product.BagWeight</code> → <b>Kg</b></td><td>straight <b>copy</b> of the <code>Primary*</code> value</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><code>Product.BagWeight</code> (int, Kg per bag) is the conversion factor. The conversion is done today in scattered service code (e.g. <code>DeliveryNoteService</code> computes <code>DeliveryQuantity + DeliveryPrimaryBonusQuantity × BagWeight</code>). Under the plan this belongs in the industry profile — an <code>IUomPolicy</code> on <code>IIndustryProfile</code>: Feed multiplies by <code>BagWeight</code>, Pharma is identity. The quantity columns are all <code>int</code>, so partial bags truncate — a real precision decision to make when the feed module is formalised. <code>SaleReturnDetail</code> also has newly-added bonus fields (<code>PrimaryBonusQuantity</code>, <code>ReturnPrimaryBonusQuantity</code>, <code>BonusQuantity</code>, <code>ReturnBonusQuantity</code>) following the same rule.</p>
   </div>
 
   <div class="tbl-scroll">
     <table>
       <thead><tr><th>Capability</th><th>Layer</th><th>Source today</th><th>Notes</th></tr></thead>
       <tbody>
-        <tr><td>Identity, roles, permissions</td><td class="mono">Core</td><td>Application.Api</td><td>Keep the <code>RoleClaim</code> model; add platform-admin roles above tenant roles.</td></tr>
+        <tr><td>Identity, roles, permissions</td><td class="mono">Core</td><td>Application.Api</td><td>Keep the <code>RoleClaims</code> model; add platform-admin roles above tenant roles.</td></tr>
+        <tr><td>Unit-of-measure conversion (bags ⇄ Kg)</td><td class="mono">Industry (profile)</td><td>Application.Api (scattered)</td><td><code>Primary*</code> = bags; plain qty = Kg for Feed (<code>× Product.BagWeight</code>) / copy for Pharma. Move to <code>IUomPolicy</code> on <code>IIndustryProfile</code>.</td></tr>
         <tr><td>Organisation, branches, warehouses</td><td class="mono">Core</td><td>Both (ERP <code>Store</code>, POS <code>Branch</code>)</td><td>Unify <code>Branch</code>/<code>Store</code> into one org-unit concept.</td></tr>
         <tr><td>Product / item master</td><td class="mono">Core</td><td>Both</td><td>Superset of fields; industry modules add extension tables (drug schedule, formula flag).</td></tr>
         <tr><td>Customer, supplier</td><td class="mono">Core</td><td>Both</td><td>ERP models these as <code>Account</code> sub-types; reconcile with POS's flat <code>Customer</code>.</td></tr>
@@ -1108,7 +1127,7 @@ YOUR TEAM & LOCATIONS
       <div class="goal">goal — one hardened, fail-closed isolation model in Application.Api</div>
       <ul>
         <li>Add <code>ITenantContext</code> (scoped) + <code>ITenantScoped</code> marker interface on all tenant entities.</li>
-        <li>Replace manual <code>WHERE TenantId</code> in <code>BaseRepository</code> with EF global query filters; add a <code>SaveChanges</code> guard that throws on a scoped entity with an empty <code>TenantId</code>.</li>
+        <li>Replace manual <code>WHERE TenantId</code> in <code>BaseRepository</code> with EF global query filters; remove the <code>TableWithoutTenant()</code> bypass. Harden the <code>UnitOfWork.OnBeforeSaveChangesAsync</code> guard: today it only checks an ambient tenant exists — make it also reject any <code>Modified</code>/<code>Deleted</code> scoped entity whose stored <code>TenantId</code> differs from the current one (not blindly re-stamp it).</li>
         <li>Write the tenant-isolation integration test suite (every endpoint, two tenants, assert no bleed).</li>
         <li>Tenant-resolution middleware: JWT claim first, host fallback.</li>
         <li>Re-scaffold rule: leading <code>TenantId</code> on all main indexes.</li>
@@ -1122,9 +1141,9 @@ YOUR TEAM & LOCATIONS
       <h3>Platform layer + module gating</h3>
       <div class="goal">goal — modules and subscriptions exist; internal admin console</div>
       <ul>
-        <li>New <code>Platform</code> Autofac module: <code>Tenant</code>, <code>BusinessTemplate</code>, <code>Module</code>, <code>TenantModule</code>, <code>Plan</code>, <code>PriceBook</code>, <code>Subscription</code>, <code>Entitlement</code>, <code>TenantSetting</code>.</li>
+        <li>New <code>Platform</code> Autofac module: <strong>extend</strong> the existing <code>Tenant</code> entity (add <code>Subdomain</code>, <code>BusinessTemplateKey</code>, <code>Status</code>, <code>Currency</code>, <code>DbConnectionKey?</code>…); add <code>BusinessTemplate</code>, <code>Module</code>, <code>TenantModule</code>, <code>Plan</code>, <code>PriceBook</code>, <code>Subscription</code>, <code>Entitlement</code>, <code>TenantSetting</code>.</li>
         <li>Seed the module catalog from existing <code>Permissions.AccessModules.*</code>; fold <code>PrimaryPermissions</code> → a <b>Pharmacy</b> module and <code>SecondaryPermissions</code> → a <b>Feed</b> module.</li>
-        <li><b>Retire <code>BusinessType</code> branching.</b> Introduce <code>IIndustryProfile</code> (resolved from the tenant's template) and replace the ~30 <code>if (BusinessType == …)</code> sites with a module check or a profile call; keep the <code>businesstype</code> claim only as a compatibility shim during the transition.</li>
+        <li><b>Retire <code>BusinessType</code> branching.</b> Introduce <code>IIndustryProfile</code> (resolved from the tenant's template) and replace the ~32 <code>if (BusinessType == …)</code> sites with a module check or a profile call; keep the <code>businesstype</code> JWT claim and <code>Tenant.BusinessType</code> column only as a compatibility shim during the transition.</li>
         <li><code>[RequiresModule]</code> / <code>[RequiresFeature]</code> filters; apply to all existing controllers.</li>
         <li><code>GET /api/me</code> returns modules + quotas + subscription state.</li>
         <li>Internal platform-admin console (Angular) — tenants, modules, pricing, overrides.</li>
@@ -1252,12 +1271,13 @@ YOUR TEAM & LOCATIONS
     <table>
       <thead><tr><th>Risk</th><th>Why it bites here</th><th>Guardrail</th></tr></thead>
       <tbody>
-        <tr><td><b>Cross-tenant data leak</b></td><td>Filtering is currently hand-written in <code>BaseRepository</code>; one missed <code>.Where</code> exposes another tenant.</td><td>EF global query filters on <code>ITenantScoped</code>; fail-closed <code>SaveChanges</code> guard; per-endpoint two-tenant integration tests in CI.</td></tr>
+        <tr><td><b>Cross-tenant data leak</b></td><td>Reads: filtering is hand-written in <code>BaseRepository.TableNoTracking()</code> and fully bypassed by <code>TableWithoutTenant()</code>; one missed <code>.Where</code> exposes another tenant. Writes: <code>UnitOfWork</code> re-stamps <code>TenantId</code> on every <code>Modified</code>/<code>Deleted</code> entity without an ownership check, so an update-by-Id crosses tenants silently.</td><td>EF global query filters on <code>ITenantScoped</code>; delete <code>TableWithoutTenant()</code>; <code>SaveChanges</code> guard that compares stored vs current <code>TenantId</code>; per-endpoint two-tenant integration tests in CI.</td></tr>
         <tr><td><b>Dual-backend drift</b></td><td>Running <code>Application.Api</code> and ButsPosDotnet6 in parallel indefinitely doubles every fix.</td><td>Phase 3 has a hard cutover; ButsPosDotnet6 goes read-only then off. .NET 6 is already out of support — this is also a security deadline.</td></tr>
         <tr><td><b>Pricing complexity creep</b></td><td>"Just one more pricing rule" is how SaaS billing becomes unmaintainable.</td><td>Three metered dimensions, flat module prices, one engine. New pricing ideas need an explicit decision, not a config toggle.</td></tr>
         <tr><td><b>Provisioning half-failures</b></td><td>A tenant created without a chart of accounts is a broken tenant.</td><td>Idempotent, transactional, re-runnable provisioning keyed on <code>(TenantId, stepKey)</code>; a "provisioning failed" queue in the console.</td></tr>
-        <tr><td><b><code>BusinessType</code> branching spread across ~30 files</b></td><td>Industry differences are currently <code>if (BusinessType == 1/2)</code> in services, dashboards and report controllers, plus paired <code>…Primary…</code>/<code>…Secondary…</code> PDF methods. Adding a third industry as a new int value means finding and editing every site — and the flag also collides in name with the unrelated "primary/secondary quantity" (bags vs weight) concept.</td><td>Phase 1 converts these to module checks + an injected <code>IIndustryProfile</code>; rename the concept to <code>Pharmacy</code>/<code>Feed</code>. After that, a new industry is a new profile + report pack, touching no existing branch.</td></tr>
-        <tr><td><b>Scaffolded DbContext friction</b></td><td>EF Core Power Tools re-scaffold overwrites hand edits; adding platform tables fights the generator.</td><td>Keep platform entities in a hand-authored context partial / separate configuration; document the re-scaffold procedure.</td></tr>
+        <tr><td><b><code>BusinessType</code> branching spread across ~32 sites</b></td><td>Industry differences are <code>if (BusinessType == Primary/Secondary)</code> in ~32 places (services, dashboards, report controllers) plus paired <code>…Primary…</code>/<code>…Secondary…</code> PDF methods. The enum members are literally named <code>Primary</code> (1, pharma) / <code>Secondary</code> (2, feed) — which <strong>collides with the <code>Primary*</code> vs plain quantity (bags vs Kg) field concept</strong> on every sale-detail row, an easy source of wrong edits. A third industry as a new int value means finding and editing every site.</td><td>Phase 1 converts these to module checks + an injected <code>IIndustryProfile</code> (with <code>IUomPolicy</code>, <code>ISalesPolicy</code>, <code>IReportPack</code>); rename <code>BusinessType.Primary/Secondary</code> → <code>Pharmacy</code>/<code>Feed</code>. After that, a new industry is a new profile + report pack, touching no existing branch.</td></tr>
+        <tr><td><b>Scaffolded DbContext friction</b></td><td>EF Core Power Tools re-scaffold overwrites hand edits; adding platform tables fights the generator. The global <code>Deleted</code> filter is re-applied via a custom <code>ApplyGlobalFilter</code> call at the end of <code>OnModelCreating</code> — a TenantId filter needs the same treatment.</td><td>Keep platform entities in a hand-authored context partial / separate configuration; document the re-scaffold procedure.</td></tr>
+        <tr><td><b>Stale duplicate infrastructure project</b></td><td>An orphan net6.0 <code>Application.Infrastructure/</code> folder holds an out-of-date copy of <code>BaseRepository.cs</code> / <code>UnitOfWork.cs</code> that is not in the solution; edits can land in the wrong file.</td><td>Delete it in Phase 0. The live project is <code>Application.Repository/Application.Infrastructure.csproj</code>.</td></tr>
         <tr><td><b>The temptation to go dynamic</b></td><td>"Configurable" slides into "user-defined entities and forms", which is a different (much larger) product.</td><td>Written principle: <em>stable code + configurable features</em>. Configuration selects and parametrises code paths; it never defines them.</td></tr>
         <tr><td><b>Angular 14 age</b></td><td>Shell is two-plus LTS versions behind; upgrade cost grows monthly.</td><td>Budget the upgrade into Phase 2 before piling new screens on.</td></tr>
         <tr><td><b>Seed-data divergence</b></td><td>Feed and Pharmacy charts of accounts / units drift apart over time.</td><td>Seed packs are versioned artifacts owned by the platform team, not copy-pasted per template.</td></tr>
@@ -1321,7 +1341,7 @@ YOUR TEAM & LOCATIONS
     <table>
       <thead><tr><th>Table</th><th>Key fields</th><th>Purpose</th></tr></thead>
       <tbody>
-        <tr><td class="mono">Tenant</td><td class="mono">Id · Code · Name · Subdomain · CustomDomain? · BusinessTemplateKey · Status · CountryId · Currency · TimeZoneId · DbConnectionKey? · CreatedOn</td><td>The customer. <code>DbConnectionKey</code> null = shared pool.</td></tr>
+        <tr><td class="mono">Tenant <i>(exists — extend)</i></td><td class="mono"><i>today:</i> Id · Code · Name · TimeZoneId · Address · ContactNo · BINNo · Email · BusinessType · Logo + audit + Deleted &nbsp;•&nbsp; <i>add:</i> Subdomain · CustomDomain? · BusinessTemplateKey · Status · CountryId · Currency · DbConnectionKey?</td><td>The customer. <code>DbConnectionKey</code> null = shared pool. <code>BusinessType</code> (1 = Pharmaceutical, 2 = Feed) stays as a shim until <code>BusinessTemplateKey</code> replaces it.</td></tr>
         <tr><td class="mono">BusinessTemplate</td><td class="mono">Key · Name · Description · DefaultModuleKeys[] · SeedPackKey · QuestionnaireKey</td><td>Pharmacy, Feed, Super Shop, …</td></tr>
         <tr><td class="mono">Module</td><td class="mono">Key · Name · Category {Core|Business|Industry} · DependsOn[] · MeteredBy? · PermissionGroup</td><td>The catalog. Seeded from code.</td></tr>
         <tr><td class="mono">TenantModule</td><td class="mono">TenantId · ModuleKey · Status · ActivatedOn · ExpiresOn?</td><td>What this tenant has switched on.</td></tr>
@@ -1330,7 +1350,7 @@ YOUR TEAM & LOCATIONS
         <tr><td class="mono">Subscription</td><td class="mono">Id · TenantId · PlanKey? · Status · PriceBookVersion · PeriodStart · PeriodEnd · TrialEndsOn</td><td>One active per tenant. <code>PlanKey</code> null = build-your-own.</td></tr>
         <tr><td class="mono">SubscriptionItem</td><td class="mono">SubscriptionId · Sku · Quantity · UnitPriceSnapshot</td><td>Frozen line items = the tenant's locked price.</td></tr>
         <tr><td class="mono">Entitlement</td><td class="mono">TenantId · Key {max_users, max_branches, max_pos_terminals, storage_mb} · Limit</td><td>Derived from plan + items; checked on create.</td></tr>
-        <tr><td class="mono">TenantSetting</td><td class="mono">TenantId · Key · Value</td><td>Typed setting store (tenant-scoped <code>Setting</code>).</td></tr>
+        <tr><td class="mono">TenantSetting</td><td class="mono">TenantId · Key · Value</td><td>Typed setting store. The current <code>Setting</code> table is <strong>not</strong> tenant-scoped — add a <code>TenantId</code> or supersede it.</td></tr>
         <tr><td class="mono">UsageRecord</td><td class="mono">TenantId · Meter · Quantity · PeriodDate</td><td>Metering input for billing.</td></tr>
         <tr><td class="mono">Invoice / InvoiceLine</td><td class="mono">TenantId · Number · PeriodStart/End · Status · Total &nbsp;•&nbsp; Sku · Description · Qty · Amount</td><td>Phase 4.</td></tr>
         <tr><td class="mono">OnboardingSession</td><td class="mono">Id · Email · Answers(json) · RecommendedTemplateKey · SelectedModuleKeys[] · Quote(json) · Step · ConvertedTenantId?</td><td>Pre-tenant signup state.</td></tr>
@@ -1354,21 +1374,28 @@ public interface ITenantContext {
 
 public interface ITenantScoped { Guid TenantId { get; set; } }
 
-// Replaces the scattered `if (BusinessType == 1/2)` branches.
+// Replaces the scattered `if (BusinessType == Primary/Secondary)` branches.
 // One implementation per industry, resolved from ITenantContext.BusinessTemplateKey.
 public interface IIndustryProfile {
     string Key { get; }
-    IReportPack Reports { get; }                   // per-industry PDF/report set
-    ISalesPolicy SalesPolicy { get; }              // e.g. Feed: require approved
-    IDashboardSpec Dashboard { get; }              //       customer-wise discount
+    IReportPack    Reports     { get; }  // per-industry PDF/report set (Primary/Secondary packs)
+    ISalesPolicy   SalesPolicy { get; }  // e.g. Feed: require approved customer-wise discount
+    IDashboardSpec Dashboard   { get; }  // which KPIs the dashboard computes
+    IUomPolicy     Uom         { get; }  // bags -> sellable unit
+}
+
+// Feed:   ToSellable(primaryQty, product) => primaryQty * product.BagWeight;   // Kg
+// Pharma: ToSellable(primaryQty, product) => primaryQty;                       // identity
+public interface IUomPolicy {
+    decimal ToSellable(decimal primaryQuantity, Product product);
 }
 
 [RequiresModule(ModuleKeys.Pos)]        // 403 + "module not enabled"
 [RequiresFeature("expiry_alerts")]      // finer-grained than a module
 [EnforceQuota("max_branches")]          // checked before Add
 </pre>
-    <p>EF wiring: in <code>OnModelCreating</code>, for every <code>ITenantScoped</code> type apply <code>HasQueryFilter(e =&gt; e.TenantId == _tenantContext.TenantId)</code> alongside the existing <code>Deleted</code> filter; in <code>SaveChanges</code>, throw if any added <code>ITenantScoped</code> entry has <code>TenantId == Guid.Empty</code>.</p>
-    <p><strong>Industry profile migration:</strong> the ~30 current <code>BusinessType</code> checks each move to one of — a <code>[RequiresModule]</code> gate (feature only exists for that industry), a <code>_tenant.Industry.SalesPolicy</code> call (rule differs), or a <code>_tenant.Industry.Reports</code> lookup (layout differs). The <code>PrimaryPermissions</code> / <code>SecondaryPermissions</code> classes become the <code>PermissionGroup</code> of the Pharmacy / Feed modules.</p>
+    <p>EF wiring: in <code>OnModelCreating</code>, for every <code>ITenantScoped</code> type apply <code>HasQueryFilter(e =&gt; e.TenantId == _tenantContext.TenantId)</code> alongside the existing <code>Deleted</code> filter (which is applied via a custom <code>ApplyGlobalFilter</code> helper, not per-entity); in <code>SaveChanges</code>, throw if any <em>added</em> <code>ITenantScoped</code> entry has <code>TenantId == Guid.Empty</code> <em>or</em> any <em>modified/deleted</em> entry's stored <code>TenantId</code> differs from the current tenant.</p>
+    <p><strong>Industry profile migration:</strong> the ~32 current <code>BusinessType</code> checks each move to one of — a <code>[RequiresModule]</code> gate (feature only exists for that industry), a <code>_tenant.Industry.SalesPolicy</code> call (rule differs), a <code>_tenant.Industry.Reports</code> lookup (layout differs), or a <code>_tenant.Industry.Uom.ToSellable(…)</code> call (the bags→Kg conversion now scattered through <code>SaleOrderService</code>, <code>DeliveryNoteService</code>, <code>SaleInvoiceService</code>, <code>SaleReturnService</code>, <code>SaleQuotationService</code>). The <code>PrimaryPermissions</code> / <code>SecondaryPermissions</code> classes become the <code>PermissionGroup</code> of the Pharmacy / Feed modules, and the <code>BusinessType.Primary/Secondary</code> members should be renamed <code>Pharmacy</code> / <code>Feed</code> to end the collision with the <code>Primary*</code> quantity fields.</p>
   </div>
 </section>
 

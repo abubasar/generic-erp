@@ -9,7 +9,7 @@ answering plain questions, and pay for by what they switch on.
 | | |
 |---|---|
 | **Scope** | `GenericERP` (the `src` repo — .NET `Application.Api` + Angular `Application.Client`, formerly BUTSERP_API + ERPAngular) · ButsPosDotnet6 · PMSAdminReact · PMSShopAngular |
-| **Prepared** | 2026-09-06 · rev. 2026-09-06 (repo consolidation) |
+| **Prepared** | 2026-09-06 · rev. 2026-09-06 (repo consolidation; verified against code + local `generic-erp-db`) |
 | **Target** | Modular monolith · pooled multi-tenancy |
 | **Interactive version** | https://claude.ai/code/artifact/52c83647-f44f-433b-ae51-3a21d4950465 |
 
@@ -233,10 +233,10 @@ has already begun. It is a .NET 9 modular monolith with per-domain Autofac
 modules, a `TenantId` discriminator column on nearly every entity, a tenant
 claim carried in the JWT, audit + soft-delete + tenant stamping centralised in
 `UnitOfWork`, and — crucially — it **already runs two industries from one codebase**: a
-per-tenant `BusinessType` (1 = Pharmaceutical, 2 = Feed) drives a three-way
-permission catalog (shared `Permissions` + `PrimaryPermissions` +
-`SecondaryPermissions`) and ~30 runtime branches for dashboards, PDF layouts and
-business rules. What it lacks is the *platform layer* — module catalog,
+per-tenant `BusinessType` (`Primary` = 1 = Pharmaceutical, `Secondary` = 2 =
+Feed) drives a three-way permission catalog (shared `Permissions` +
+`PrimaryPermissions` + `SecondaryPermissions`) and ~32 runtime branches for
+dashboards, PDF layouts, unit conversion and business rules. What it lacks is the *platform layer* — module catalog,
 subscriptions, entitlements, pricing, business templates, self-service
 onboarding — and the industry split needs to move off scattered `if` statements
 onto that module layer.
@@ -288,16 +288,22 @@ of multi-tenancy are still in play.
 
 ### Assets worth reusing as-is
 
-- **Permission model** — `[Authorize("Permissions.X.Y")]` + `RoleClaim` table +
+- **Permission model** — `[Authorize("Permissions.X.Y")]` + `RoleClaims` table +
   reflection-based permission catalog, already business-type aware
-  (`ClaimsHelper.GetAllPermissions(businessType)` merges the shared set with the
-  pharma or feed set).
+  (`ClaimsHelper.GetAllPermissions(this List<RoleClaimModel>, int businessType)`
+  adds the shared `Permissions` set plus *either* `PrimaryPermissions` (pharma)
+  *or* `SecondaryPermissions` (feed) by reflecting over their nested types).
 - **Per-industry behaviour switching** — the tenant's `BusinessType` is a JWT
-  claim; services and report controllers branch on it for dashboard KPIs, PDF
-  layouts (paired `PrintSaleOrderPrimaryReportToPdfAsync` /
-  `…SecondaryReportToPdfAsync` methods), and rules like Feed's mandatory
-  customer-wise discount. The *mechanism* for industry modules already exists —
-  it just needs formalising.
+  claim (`enum BusinessType { Primary = 1 /*Pharmaceutical*/, Secondary = 2
+  /*Feed*/ }`); ~32 sites in services and report controllers branch on it for
+  dashboard KPIs, PDF layouts (paired `PrintSaleOrderPrimaryReportToPdfAsync` /
+  `…SecondaryReportToPdfAsync` methods — also for DeliveryNote, SaleInvoice,
+  SaleReturn), and rules like Feed's mandatory customer-wise discount. The
+  *mechanism* for industry modules already exists — it just needs formalising.
+- **Dual unit-of-measure model** — every sale-detail table already carries a
+  `Primary*` quantity (bags, as entered) and a plain quantity (the sellable
+  unit): for Feed the plain quantity is `Primary × Product.BagWeight` (Kg); for
+  Pharma it is a straight copy of the `Primary*` value. See §05.
 - **Audit pipeline** — `OnBeforeSaveChangesAsync` writes `EventLog` with old/new
   JSON, stamps tenant + audit fields, and does per-type hard vs soft delete.
 - **Generic CRUD** —
@@ -308,6 +314,16 @@ of multi-tenancy are still in play.
   exists.
 - **POS domain logic** — batch/expiry stock (`StockItem.BatchNo/ExpiryDate`,
   `IsExpiryItem`), COGS-per-sale, branch transfers, customer dues.
+
+> **Two things are *not* as the earlier draft implied.** (1) The `Tenant` table
+> **already exists** (Id, Code, Name, TimeZoneId, Address, ContactNo, BINNo,
+> Email, `BusinessType` int, Logo + audit + `Deleted`) — the platform work
+> *extends* it, it is not a new table. (2) A stale **net6.0** copy of
+> `BaseRepository.cs` / `UnitOfWork.cs` lives in an orphan `Application.Infrastructure/`
+> folder that is **not in `Application.sln`**; the live code is
+> `Application.Repository/Application.Infrastructure.csproj` (net9.0, namespace
+> `Application.Infrastructure`). Delete the orphan before it causes an edit in
+> the wrong file.
 
 ---
 
@@ -358,12 +374,18 @@ module gates, quota checks — reads from it.
 5. **Gate the endpoint** — `[RequiresModule]` / `[RequiresFeature]` / quota
    filters check entitlements; subscription state can force read-only.
 
-> **Concrete first change:** introduce `ITenantContext` (scoped) and an
-> `ITenantScoped` marker interface. Move the `WHERE TenantId` logic out of
-> `BaseRepository.TableNoTracking()` into `modelBuilder` global query filters
-> applied to every `ITenantScoped` entity. This removes an entire class of
-> "someone forgot to filter" data-leak bugs and is a mechanical, testable
-> change.
+> **Concrete first change:** grow `ITenantContext` (scoped) from the existing
+> `IWorkContext` / `WorkContext` (already injected into ~every controller) and
+> the `ClaimsHelper` `HttpContext` extensions, and add an `ITenantScoped` marker
+> interface. Move the `WHERE TenantId` logic out of
+> `BaseRepository.TableNoTracking()` (and delete the `TableWithoutTenant()`
+> bypass) into `modelBuilder` global query filters applied to every
+> `ITenantScoped` entity. Today `UnitOfWork.OnBeforeSaveChangesAsync` throws when
+> there is *no* ambient tenant, but on `Modified`/`Deleted` it simply stamps
+> `TenantId = current tenant` without checking the row already belonged to that
+> tenant — so an update-by-Id across tenants silently succeeds. This removes an
+> entire class of "someone forgot to filter" data-leak bugs and is a mechanical,
+> testable change.
 
 ### Configuration lives at three levels
 
@@ -436,9 +458,12 @@ Shared keeps operational cost flat and migrations single-shot. Row-level filters
 test suite are the safety net. Schema-per-tenant multiplies migration pain by
 the tenant count for no real isolation gain over a discriminator column.
 
-**Indexing:** every tenant-scoped table gets a leading `TenantId` in its main
-indexes — some already exist (`IX_ReceivePayment_TenantId_Deleted`,
-`idx_stock_tenantid`); make it a scaffolding rule so it is not ad-hoc.
+**Indexing:** every tenant-scoped table needs a leading `TenantId` in its main
+indexes. Today this is effectively absent — of ~110 tenant-scoped tables, exactly
+**one** (`ReceivePayment`, via `IX_ReceivePayment_TenantId_Deleted`) has a
+`TenantId`-leading index and only one other (`Stock`, `idx_stock_tenantid`) has
+any `TenantId` index at all. Treat this as a from-scratch pass plus a scaffolding
+rule, not a tidy-up.
 
 ### D3 · Module activation
 
@@ -505,7 +530,8 @@ settings + a **seed pack** (chart of accounts, units, roles, document
 numbering). A plain-language questionnaire adjusts the recommendation.
 
 Settings are stored as typed setting classes backed by a `TenantSetting`
-key/value table (the existing `Setting` entity, scoped to tenant). Reads go
+key/value table. (The existing `Setting` table is *not* tenant-scoped today —
+it has no `TenantId` column — so this either adds one or replaces it.) Reads go
 through strongly-typed accessors, never raw strings scattered in services.
 
 The customer can override the recommendation before finishing, and change most
@@ -533,11 +559,11 @@ from `/api/me`.
 
 A property of the *user's role within the tenant*. Set by the tenant admin:
 roles (Owner, Sales Manager, Cashier, Accountant…) each hold a set of permission
-strings in `RoleClaim`. The Cashier can use POS but not Purchase; the Sales
+strings in `RoleClaims`. The Cashier can use POS but not Purchase; the Sales
 Manager can see customers but not System Settings.
 
 *Enforced by* the existing `[Authorize("Permissions.Sales.Create")]` attribute +
-`RoleClaim` table.
+`RoleClaims` table.
 
 > **Effective access = the intersection.** A user can reach a feature only if
 > **the tenant has the module** *and* **the user's role has the permission**.
@@ -549,7 +575,7 @@ Manager can see customers but not System Settings.
 
 The codebase already has the raw material for both axes:
 `Permissions.AccessModules.*` constants map cleanly onto Axis 1's module keys,
-and the per-feature `Permissions.<Area>.<Action>` constants + `RoleClaim` are
+and the per-feature `Permissions.<Area>.<Action>` constants + `RoleClaims` are
 Axis 2 as-is. The new work is the tenant/subscription layer that decides which
 `AccessModules` a tenant gets, and filtering the role-setup screen by it.
 
@@ -563,21 +589,47 @@ industry, or the same word means different things (a "batch" in pharma vs a
 "production batch" in feed), it is an **industry module**.
 
 > **You already have two industry modules — as `if` statements.** The Feed ERP's
-> `BusinessType` split *is* a Pharmacy module and a Feed module in embryo: a
-> shared permission set plus `PrimaryPermissions` (9 groups: Territories,
-> PackSizes, ProductAudits, primary sales & inventory reports…) and
-> `SecondaryPermissions` (6 groups: customer-wise discounts, delivery notes,
-> receive payments…), and ~30 `if (BusinessType == …)` branches. Formalising
-> this means: (1) each permission class becomes a module's permission group;
-> (2) each `if` branch becomes a module check or a call into an injected
+> `BusinessType` split (`Primary = 1` = Pharmaceutical, `Secondary = 2` = Feed)
+> *is* a Pharmacy module and a Feed module in embryo: a shared permission set
+> plus `PrimaryPermissions` (8 nested groups: Territories, PackSizes,
+> ProductAudits, primary sales & inventory report modules…) and
+> `SecondaryPermissions` (5 nested groups: customer-wise discounts, delivery
+> notes, receive payments…), and ~32 `if (BusinessType == …)` branches.
+> Formalising this means: (1) each permission class becomes a module's permission
+> group; (2) each `if` branch becomes a module check or a call into an injected
 > `IIndustryProfile` chosen by the tenant's template; (3) the paired
 > `…Primary…` / `…Secondary…` PDF methods become per-industry report packs. Do
-> this *before* adding Super Shop, or industry #3 means editing all 30 sites
+> this *before* adding Super Shop, or industry #3 means editing all 32 sites
 > again — see §08 Phase 1 and §11.
+
+### The dual unit-of-measure model (feed vs pharma)
+
+The single biggest behavioural difference between the two industries is already
+in the schema, on every sale-detail table (`SaleQuotationDetail`,
+`SaleOrderDetail`, `DeliveryNoteDetail`, `SaleInvoiceDetail`, `SaleReturnDetail`).
+Each line stores **two** quantities:
+
+| Field family | Meaning | Feed | Pharma |
+|---|---|---|---|
+| `Primary*` (`PrimaryQuantity`, `PrimaryBonusQuantity`, `DeliveredPrimaryQuantity`, `ReturnPrimaryQuantity`, …) | what the user enters — **bags** | as entered | as entered |
+| plain (`Quantity`, `BonusQuantity`, `DeliveryQuantity`, `ReturnQuantity`, …) | the sellable/reportable unit | `Primary × Product.BagWeight` → **Kg** | straight **copy** of the `Primary*` value |
+
+`Product.BagWeight` (int, Kg per bag) is the conversion factor. The conversion is
+done today in scattered service code (e.g. `DeliveryNoteService` computes
+`DeliveryQuantity + DeliveryPrimaryBonusQuantity × BagWeight`). Under the plan
+this belongs in the industry profile — an `IUomPolicy` on `IIndustryProfile`:
+Feed's implementation multiplies by `BagWeight`, Pharma's is identity. Note the
+quantity columns are all `int`, so partial bags truncate — a real precision
+decision to make when the feed module is formalised.
+
+> **`SaleReturnDetail`** additionally has newly-added bonus fields
+> (`PrimaryBonusQuantity`, `ReturnPrimaryBonusQuantity`, `BonusQuantity`,
+> `ReturnBonusQuantity`) following the same rule.
 
 | Capability | Layer | Source today | Notes |
 |---|---|---|---|
-| Identity, roles, permissions | Core | `Application.Api` | Keep the `RoleClaim` model; add platform-admin roles above tenant roles. |
+| Identity, roles, permissions | Core | `Application.Api` | Keep the `RoleClaims` model; add platform-admin roles above tenant roles. |
+| Unit-of-measure conversion (bags ⇄ Kg) | Industry (profile) | `Application.Api` (scattered) | `Primary*` = bags; plain qty = Kg for Feed (`× Product.BagWeight`) / copy for Pharma. Move to `IUomPolicy` on `IIndustryProfile`. |
 | Organisation, branches, warehouses | Core | Both (ERP `Store`, POS `Branch`) | Unify `Branch`/`Store` into one org-unit concept. |
 | Product / item master | Core | Both | Superset of fields; industry modules add extension tables (drug schedule, formula flag). |
 | Customer, supplier | Core | Both | ERP models these as `Account` sub-types; reconcile with POS's flat `Customer`. |
@@ -759,8 +811,11 @@ something usable.
 - Add `ITenantContext` (scoped) + `ITenantScoped` marker interface on all tenant
   entities.
 - Replace manual `WHERE TenantId` in `BaseRepository` with EF global query
-  filters; add a `SaveChanges` guard that throws on a scoped entity with an
-  empty `TenantId`.
+  filters; remove the `TableWithoutTenant()` bypass. Harden the
+  `UnitOfWork.OnBeforeSaveChangesAsync` guard: today it only checks an ambient
+  tenant exists — make it also reject any `Modified`/`Deleted` scoped entity
+  whose stored `TenantId` differs from the current one (not just blindly
+  re-stamp it).
 - Write the tenant-isolation integration test suite (every endpoint, two
   tenants, assert no bleed).
 - Tenant-resolution middleware: JWT claim first, host fallback.
@@ -770,16 +825,18 @@ something usable.
 
 *Goal — modules and subscriptions exist; internal admin console.*
 
-- New `Platform` Autofac module: `Tenant`, `BusinessTemplate`, `Module`,
-  `TenantModule`, `Plan`, `PriceBook`, `Subscription`, `Entitlement`,
-  `TenantSetting`.
+- New `Platform` Autofac module: **extend** the existing `Tenant` entity
+  (add `Subdomain`, `BusinessTemplateKey`, `Status`, `Currency`,
+  `DbConnectionKey?`, …); add `BusinessTemplate`, `Module`, `TenantModule`,
+  `Plan`, `PriceBook`, `Subscription`, `Entitlement`, `TenantSetting`.
 - Seed the module catalog from existing `Permissions.AccessModules.*`; fold
   `PrimaryPermissions` → a **Pharmacy** module and `SecondaryPermissions` → a
   **Feed** module.
 - **Retire `BusinessType` branching.** Introduce `IIndustryProfile` (resolved
-  from the tenant's template) and replace the ~30 `if (BusinessType == …)` sites
-  with a module check or a profile call; keep the `businesstype` claim only as a
-  compatibility shim during the transition.
+  from the tenant's template) and replace the ~32 `if (BusinessType == …)` sites
+  with a module check or a profile call; keep the `businesstype` JWT claim and
+  `Tenant.BusinessType` column only as a compatibility shim during the
+  transition.
 - `[RequiresModule]` / `[RequiresFeature]` filters; apply to all existing
   controllers.
 - `GET /api/me` returns modules + quotas + subscription state.
@@ -921,12 +978,13 @@ different performance/SEO needs) — it just talks to the onboarding API.
 
 | Risk | Why it bites here | Guardrail |
 |---|---|---|
-| **Cross-tenant data leak** | Filtering is currently hand-written in `BaseRepository`; one missed `.Where` exposes another tenant. | EF global query filters on `ITenantScoped`; fail-closed `SaveChanges` guard; per-endpoint two-tenant integration tests in CI. |
+| **Cross-tenant data leak** | Reads: filtering is hand-written in `BaseRepository.TableNoTracking()` and fully bypassed by `TableWithoutTenant()`; one missed `.Where` exposes another tenant. Writes: `UnitOfWork` re-stamps `TenantId` on every `Modified`/`Deleted` entity without an ownership check, so an update-by-Id crosses tenants silently. | EF global query filters on `ITenantScoped`; delete `TableWithoutTenant()`; `SaveChanges` guard that compares stored vs current `TenantId`; per-endpoint two-tenant integration tests in CI. |
 | **Dual-backend drift** | Running `Application.Api` and ButsPosDotnet6 in parallel indefinitely doubles every fix. | Phase 3 has a hard cutover; ButsPosDotnet6 goes read-only then off. .NET 6 is already out of support — this is also a security deadline. |
 | **Pricing complexity creep** | "Just one more pricing rule" is how SaaS billing becomes unmaintainable. | Three metered dimensions, flat module prices, one engine. New pricing ideas need an explicit decision, not a config toggle. |
 | **Provisioning half-failures** | A tenant created without a chart of accounts is a broken tenant. | Idempotent, transactional, re-runnable provisioning keyed on `(TenantId, stepKey)`; a "provisioning failed" queue in the console. |
-| **`BusinessType` branching spread across ~30 files** | Industry differences are currently `if (BusinessType == 1/2)` in services, dashboards and report controllers, plus paired `…Primary…`/`…Secondary…` PDF methods. A third industry as a new int value means finding and editing every site — and the flag also collides in name with the unrelated "primary/secondary quantity" (bags vs weight) concept. | Phase 1 converts these to module checks + an injected `IIndustryProfile`; rename the concept to `Pharmacy`/`Feed`. After that, a new industry is a new profile + report pack, touching no existing branch. |
-| **Scaffolded DbContext friction** | EF Core Power Tools re-scaffold overwrites hand edits; adding platform tables fights the generator. | Keep platform entities in a hand-authored context partial / separate configuration; document the re-scaffold procedure. |
+| **`BusinessType` branching spread across ~32 sites** | Industry differences are `if (BusinessType == Primary/Secondary)` in ~32 places (services, dashboards, report controllers) plus paired `…Primary…`/`…Secondary…` PDF methods. The enum members are literally named `Primary` (1, pharma) / `Secondary` (2, feed) — which **collides with the `Primary*` vs plain quantity (bags vs Kg) field concept** on every sale-detail row, an easy source of wrong edits. A third industry as a new int value means finding and editing every site. | Phase 1 converts these to module checks + an injected `IIndustryProfile` (with `IUomPolicy`, `ISalesPolicy`, `IReportPack`); rename `BusinessType.Primary/Secondary` → `Pharmacy`/`Feed`. After that, a new industry is a new profile + report pack, touching no existing branch. |
+| **Scaffolded DbContext friction** | EF Core Power Tools re-scaffold overwrites hand edits; adding platform tables fights the generator. The global `Deleted` filter is re-applied via a custom `ApplyGlobalFilter` call at the end of `OnModelCreating` — a TenantId filter would need the same treatment. | Keep platform entities in a hand-authored context partial / separate configuration; document the re-scaffold procedure. |
+| **Stale duplicate infrastructure project** | An orphan net6.0 `Application.Infrastructure/` folder holds an out-of-date copy of `BaseRepository.cs` / `UnitOfWork.cs` that is not in the solution; edits can land in the wrong file. | Delete it in Phase 0. The live project is `Application.Repository/Application.Infrastructure.csproj`. |
 | **The temptation to go dynamic** | "Configurable" slides into "user-defined entities and forms", which is a different (much larger) product. | Written principle: *stable code + configurable features*. Configuration selects and parametrises code paths; it never defines them. |
 | **Angular 14 age** | Shell is two-plus LTS versions behind; upgrade cost grows monthly. | Budget the upgrade into Phase 2 before piling new screens on. |
 | **Seed-data divergence** | Feed and Pharmacy charts of accounts / units drift apart over time. | Seed packs are versioned artifacts owned by the platform team, not copy-pasted per template. |
@@ -980,7 +1038,7 @@ New tables, all *cross-tenant* (owned by the Platform layer, not filtered by
 
 | Table | Key fields | Purpose |
 |---|---|---|
-| `Tenant` | Id · Code · Name · Subdomain · CustomDomain? · BusinessTemplateKey · Status · CountryId · Currency · TimeZoneId · DbConnectionKey? · CreatedOn | The customer. `DbConnectionKey` null = shared pool. |
+| `Tenant` *(exists — extend)* | *today:* Id · Code · Name · TimeZoneId · Address · ContactNo · BINNo · Email · BusinessType · Logo + audit + Deleted &nbsp;•&nbsp; *add:* Subdomain · CustomDomain? · BusinessTemplateKey · Status · CountryId · Currency · DbConnectionKey? | The customer. `DbConnectionKey` null = shared pool. `BusinessType` (1 = Pharmaceutical, 2 = Feed) stays as a compatibility shim until `BusinessTemplateKey` fully replaces it. |
 | `BusinessTemplate` | Key · Name · Description · DefaultModuleKeys[] · SeedPackKey · QuestionnaireKey | Pharmacy, Feed, Super Shop, … |
 | `Module` | Key · Name · Category {Core\|Business\|Industry} · DependsOn[] · MeteredBy? · PermissionGroup | The catalog. Seeded from code. |
 | `TenantModule` | TenantId · ModuleKey · Status · ActivatedOn · ExpiresOn? | What this tenant has switched on. |
@@ -989,7 +1047,7 @@ New tables, all *cross-tenant* (owned by the Platform layer, not filtered by
 | `Subscription` | Id · TenantId · PlanKey? · Status · PriceBookVersion · PeriodStart · PeriodEnd · TrialEndsOn | One active per tenant. `PlanKey` null = build-your-own. |
 | `SubscriptionItem` | SubscriptionId · Sku · Quantity · UnitPriceSnapshot | Frozen line items = the tenant's locked price. |
 | `Entitlement` | TenantId · Key {max_users, max_branches, max_pos_terminals, storage_mb} · Limit | Derived from plan + items; checked on create. |
-| `TenantSetting` | TenantId · Key · Value | Typed setting store (tenant-scoped `Setting`). |
+| `TenantSetting` | TenantId · Key · Value | Typed setting store. The current `Setting` table is **not** tenant-scoped (no `TenantId` column) — either add one or supersede it with this. |
 | `UsageRecord` | TenantId · Meter · Quantity · PeriodDate | Metering input for billing. |
 | `Invoice` / `InvoiceLine` | TenantId · Number · PeriodStart/End · Status · Total • Sku · Description · Qty · Amount | Phase 4. |
 | `OnboardingSession` | Id · Email · Answers(json) · RecommendedTemplateKey · SelectedModuleKeys[] · Quote(json) · Step · ConvertedTenantId? | Pre-tenant signup state. |
@@ -1011,13 +1069,20 @@ public interface ITenantContext {
 
 public interface ITenantScoped { Guid TenantId { get; set; } }
 
-// Replaces the scattered `if (BusinessType == 1/2)` branches.
+// Replaces the scattered `if (BusinessType == Primary/Secondary)` branches.
 // One implementation per industry, resolved from ITenantContext.BusinessTemplateKey.
 public interface IIndustryProfile {
     string Key { get; }
-    IReportPack Reports { get; }        // per-industry PDF/report set
-    ISalesPolicy SalesPolicy { get; }   // e.g. Feed: require approved discount
-    IDashboardSpec Dashboard { get; }
+    IReportPack   Reports     { get; }  // per-industry PDF/report set (Primary/Secondary packs)
+    ISalesPolicy  SalesPolicy { get; }  // e.g. Feed: require approved customer-wise discount
+    IDashboardSpec Dashboard  { get; }  // which KPIs the dashboard computes
+    IUomPolicy    Uom         { get; }  // bags -> sellable unit
+}
+
+// Feed:   ToSellable(primaryQty, product) => primaryQty * product.BagWeight;   // Kg
+// Pharma: ToSellable(primaryQty, product) => primaryQty;                       // identity
+public interface IUomPolicy {
+    decimal ToSellable(decimal primaryQuantity, Product product);
 }
 
 [RequiresModule(ModuleKeys.Pos)]        // 403 + "module not enabled"
@@ -1027,15 +1092,21 @@ public interface IIndustryProfile {
 
 EF wiring: in `OnModelCreating`, for every `ITenantScoped` type apply
 `HasQueryFilter(e => e.TenantId == _tenantContext.TenantId)` alongside the
-existing `Deleted` filter; in `SaveChanges`, throw if any added `ITenantScoped`
-entry has `TenantId == Guid.Empty`.
+existing `Deleted` filter (which is applied through a custom `ApplyGlobalFilter`
+helper at the end of `OnModelCreating`, not per-entity); in `SaveChanges`, throw
+if any *added* `ITenantScoped` entry has `TenantId == Guid.Empty` *or* any
+*modified/deleted* entry's stored `TenantId` differs from the current tenant.
 
-**Industry profile migration:** the ~30 current `BusinessType` checks each move
+**Industry profile migration:** the ~32 current `BusinessType` checks each move
 to one of — a `[RequiresModule]` gate (feature only exists for that industry), a
-`_tenant.Industry.SalesPolicy` call (rule differs), or a
-`_tenant.Industry.Reports` lookup (layout differs). The `PrimaryPermissions` /
-`SecondaryPermissions` classes become the `PermissionGroup` of the Pharmacy /
-Feed modules.
+`_tenant.Industry.SalesPolicy` call (rule differs), a `_tenant.Industry.Reports`
+lookup (layout differs), or a `_tenant.Industry.Uom.ToSellable(...)` call (the
+bags→Kg conversion now scattered through `SaleOrderService`,
+`DeliveryNoteService`, `SaleInvoiceService`, `SaleReturnService`,
+`SaleQuotationService`). The `PrimaryPermissions` / `SecondaryPermissions`
+classes become the `PermissionGroup` of the Pharmacy / Feed modules, and the
+`BusinessType.Primary/Secondary` enum members should be renamed `Pharmacy` /
+`Feed` to end the collision with the `Primary*` quantity fields.
 
 ---
 
