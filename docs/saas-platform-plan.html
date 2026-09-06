@@ -676,10 +676,10 @@
         </tr>
         <tr>
           <td><b>PMSShopAngular</b></td>
-          <td class="mono">Angular 12 · Material · module + layout architecture</td>
-          <td>Customer-facing shop + <b>POS terminal</b> — <code>modules/{admin,pos,home,auth}</code>, <code>layouts/{pos,admin,home,auth}</code></td>
-          <td>Single deployment per customer.</td>
-          <td><span class="pill port">Port → POS terminal in tenant shell</span></td>
+          <td class="mono">Angular 12 (scaffold from 11) · Material · module + layout architecture · hash routing</td>
+          <td><b>Staff POS terminal</b> (not a customer shop) — <code>modules/{admin,pos,home,auth}</code> + matching <code>layouts/</code>, but only <code>pos</code> is real: <code>home</code> is a one-page welcome, <code>admin</code> is an empty stub. 18 of 33 components are the terminal: catalog → cart → discount (flat/%) → cash / card / credit → checkout, plus customer selection &amp; registration. One <code>PosComponent</code> composes them; online-only (no service worker / offline store); no shift / cash-drawer.</td>
+          <td>Single deployment per customer; hardcoded <code>environment.ts</code> API URL.</td>
+          <td><span class="pill port">Port <code>modules/pos</code> + <code>pos-layout</code> → terminal mode</span></td>
         </tr>
       </tbody>
     </table>
@@ -937,7 +937,7 @@
         <tr><td>Inventory &amp; stock ledger</td><td class="mono">Business</td><td>Both</td><td>Batch/expiry-aware valuation from the POS; weighted-average COGS.</td></tr>
         <tr><td>Purchase — PO, GRN, returns, LC</td><td class="mono">Business</td><td>Application.Api (richer)</td><td>LC / import costing is optional sub-feature.</td></tr>
         <tr><td>Sales — SO, invoice, delivery note</td><td class="mono">Business</td><td>Application.Api</td><td>Credit limit / discount validation already present.</td></tr>
-        <tr><td>POS — fast sale, returns, customer payments</td><td class="mono">Business</td><td>ButsPosDotnet6 + PMSShopAngular</td><td>Port the fast-sale flow, per-line COGS, returns, customer dues. <b>Shift / cash-drawer / register does not exist yet</b> — design it fresh (or lift from <code>PMSShopAngular</code>).</td></tr>
+        <tr><td>POS — fast sale, returns, customer payments</td><td class="mono">Business</td><td>ButsPosDotnet6 + PMSShopAngular</td><td>Port the fast-sale flow, per-line COGS, returns, customer dues; the <code>PMSShopAngular</code> terminal (catalog/cart/discount/cash-card-credit/checkout) is the UI reference. <b>Shift / cash-drawer / register exists in neither the backend nor the terminal — design it fresh.</b> No offline mode today either.</td></tr>
         <tr><td>Accounting — CoA, journals, vouchers</td><td class="mono">Business</td><td>Application.Api (full)</td><td>The keystone asset. POS's light ledger retires into this.</td></tr>
         <tr><td>Barcode / label printing</td><td class="mono">Business</td><td>New (thin)</td><td>Optional module; super shop &amp; pharmacy retail.</td></tr>
         <tr><td>Advanced reporting / analytics</td><td class="mono">Business</td><td>Application.Api report controllers</td><td>Metered/priced tier.</td></tr>
@@ -1180,9 +1180,9 @@ YOUR TEAM & LOCATIONS
       <div class="goal">goal — the Pharmacy POS lives inside the platform, not as a second backend</div>
       <ul>
         <li>Port POS domain from ButsPosDotnet6 → <code>Pos</code> business module. A <strong>re-platform, not a lift</strong>: .NET 6→9, string PK→Guid, add <code>TenantId</code> + global query filters, silo→pool, <em>and</em> adopt the ERP patterns it lacks — Autofac module, <code>BaseService</code>, <code>UnitOfWork</code> audit/soft-delete (the POS has none; ~40 controllers call generic command/query services directly, no <code>Deleted</code> filter).</li>
-        <li>Design the missing <strong>shift / cash-drawer / register</strong> model — not in the POS backend today.</li>
+        <li>Design the missing <strong>shift / cash-drawer / register</strong> model — in neither the POS backend nor the <code>PMSShopAngular</code> terminal. Decide whether the terminal needs an <strong>offline mode</strong> (today it is online-only) while rebuilding it.</li>
         <li>Port batch/expiry → <code>Pharmacy</code> industry module (extension tables on Product/Stock).</li>
-        <li>POS terminal UI: port <code>PMSShopAngular</code> <code>modules/pos</code> + <code>pos-layout</code> into the tenant shell as a terminal mode.</li>
+        <li>POS terminal UI: port <code>PMSShopAngular</code> <code>modules/pos</code> + <code>pos-layout</code> into the tenant shell as a terminal mode — a contained lift (~18 components under one <code>PosComponent</code>; the app's <code>admin</code>/<code>home</code> modules are stubs, nothing to bring).</li>
         <li>Migration tooling for existing POS customers (per-DB → tenant rows).</li>
         <li>Retire <code>PMSAdminReact</code>; migrate its back-office screens into the Angular shell.</li>
       </ul>

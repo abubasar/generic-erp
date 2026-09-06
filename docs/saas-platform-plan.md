@@ -281,7 +281,7 @@ of multi-tenancy are still in play.
 | **`GenericERP` → `Application.Client`** (was ERPAngular) | Angular 14.2 · MatX template · Material · SignalR · Node 16 | ERP admin UI — views split by domain (accounts, configuration, dashboard, inventory, production, purchase, sales, report) + sessions/utilities | Single deployment. Menu is a 523-line hardcoded array in `navigation.service.ts`, each item carrying a `permission` string, filtered in the sidenav by an `*appHasPermission` structural directive; per-route `canMatch: hasPermission([...])` guards; API URL hardcoded in `config.ts` (re-exported through `environments/environment.ts`). Decodes a `businesstype` JWT claim and branches on it in **315 places across 109 component files**. No `/api/me` / profile call — `checkTokenIsValid()` returns a hardcoded `DEMO_USER`. | Evolve → tenant shell |
 | **ButsPosDotnet6** | .NET 6 · EF Core (scaffolded, `GHP_POS_DBContext`) · permission-policy auth (`[Authorize(Policy = Permissions.X.Y)]` via a custom `PermissionPolicyProvider`) · no Autofac · Api / Core / Repository / Services + RequestModel / ViewModel | Pharmacy POS backend — fast sale (`Sale`/`SaleItem`), sale returns, purchase, multi-branch + branch transfers, batch/expiry stock, customer payments, lightweight accounting (journal, account heads, expenses, fiscal year); CQRS-lite (generic `BaseCommandService` / `BaseQueryService` called straight from ~40 controllers; only ~7 real services) | **Silo.** One DB (`GHP_POS_DB`) via `DefaultConnection`; a separate deployment + subdomain per customer (CORS: ghppos, vetmedpos, demopos, vet, ghp, demo…). `AddClientDbContext` (Referer sub-domain → `__DBNAME__`, strips "pos") exists but is **commented out**. `Branch` entity handles multi-location *within* one customer. **String PKs everywhere. No `TenantId`. No query filters at all — not even `Deleted`.** | Port → POS + Pharmacy modules |
 | **PMSAdminReact** | React 16.8 · MUI v4 · react-scripts 3 · redux · formik | Pharmacy back-office UI — configuration, transactions, accounts, reports | Single deployment per customer, pointed at that customer's POS API. | Retire — dead-end stack |
-| **PMSShopAngular** | Angular 12 · Material · module + layout architecture | Customer-facing shop + **POS terminal** — `modules/{admin,pos,home,auth}`, `layouts/{pos,admin,home,auth}` | Single deployment per customer. | Port → POS terminal in tenant shell |
+| **PMSShopAngular** | Angular 12 (scaffold from 11) · Material · module + layout architecture · hash routing | **Staff POS terminal** (not a customer shop) — `modules/{admin,pos,home,auth}` + matching `layouts/`, but only `pos` is real: `home` is a one-page welcome, `admin` is an empty stub. 18 of 33 components are the terminal: catalog → cart → discount (flat/%) → cash / card / credit payment → checkout, plus customer selection & registration. One `PosComponent` composes them; online-only (no service worker / offline store); no shift / cash-drawer. | Single deployment per customer; hardcoded `environment.ts` API URL. | Port `modules/pos` + `pos-layout` → terminal mode in tenant shell |
 
 > **The core tension to resolve:** the ERP already runs **pooled** (many
 > tenants, one DB, row filter). The POS runs **siloed** (one deploy per
@@ -657,7 +657,7 @@ decision to make when the feed module is formalised.
 | Inventory & stock ledger | Business | Both | Batch/expiry-aware valuation from the POS; weighted-average COGS. |
 | Purchase — PO, GRN, returns, LC | Business | `Application.Api` (richer) | LC / import costing is optional sub-feature. |
 | Sales — SO, invoice, delivery note | Business | `Application.Api` | Credit limit / discount validation already present. |
-| POS — fast sale, returns, customer payments | Business | ButsPosDotnet6 + PMSShopAngular | Port the fast-sale flow, per-line COGS, returns, customer dues. **Shift / cash-drawer / register does not exist yet** — design it fresh (or lift from `PMSShopAngular` if the terminal UI has it). |
+| POS — fast sale, returns, customer payments | Business | ButsPosDotnet6 + PMSShopAngular | Port the fast-sale flow, per-line COGS, returns, customer dues; the `PMSShopAngular` terminal (catalog/cart/discount/cash-card-credit/checkout) is the UI reference. **Shift / cash-drawer / register exists in neither the backend nor the terminal — design it fresh.** No offline mode today either. |
 | Accounting — CoA, journals, vouchers | Business | `Application.Api` (full) | The keystone asset. POS's light ledger retires into this. |
 | Barcode / label printing | Business | New (thin) | Optional module; super shop & pharmacy retail. |
 | Advanced reporting / analytics | Business | `Application.Api` report controllers | Metered/priced tier. |
@@ -892,12 +892,15 @@ something usable.
   Autofac per-domain module, `BaseService`, `UnitOfWork` audit/soft-delete
   pipeline (the POS has none of these; ~40 controllers call generic
   command/query services directly, no `Deleted` filter).
-- Design the missing **shift / cash-drawer / register** model — it is not in the
-  POS backend today.
+- Design the missing **shift / cash-drawer / register** model — it exists in
+  neither the POS backend nor the `PMSShopAngular` terminal. Decide whether the
+  terminal needs an **offline mode** (today it is online-only) while you are
+  rebuilding it.
 - Port batch/expiry → `Pharmacy` industry module (extension tables on
   Product/Stock; reuse `StockItem.BatchNo/.ExpiryDate`, `Product.IsExpiryItem`).
 - POS terminal UI: port `PMSShopAngular` `modules/pos` + `pos-layout` into the
-  tenant shell as a terminal mode.
+  tenant shell as a terminal mode — a contained lift (~18 components under one
+  `PosComponent`; the app's `admin`/`home` modules are stubs, nothing to bring).
 - Migration tooling for existing POS customers (per-DB → tenant rows).
 - Retire `PMSAdminReact`; migrate its back-office screens into the Angular
   shell.
