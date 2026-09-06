@@ -628,6 +628,7 @@
       <li>No free-form workflow builder for customers. Templates + module toggles + settings only, at least for v1–v2.</li>
       <li>No per-tenant branches of code. Ever.</li>
       <li>No payment-gateway integration on day one. Manual invoicing first; automate billing once tenants exist.</li>
+      <li>No feature locked to Pharma or Feed. Both industries reuse every existing domain — the industry is a behaviour profile (units, report layout, dashboard metric, one sales rule), not an entitlement. See §05.</li>
     </ul>
   </div>
 </section>
@@ -900,10 +901,14 @@
 <section id="modules">
   <div class="sec-head"><span class="sec-no">05</span><h2>Generic vs industry-specific</h2></div>
   <div class="col">
-    <p>The dividing line: if two different business types would both want it and mean the same thing by it, it is <strong>generic</strong>. If it only makes sense for one industry, or the same word means different things (a "batch" in pharma vs a "production batch" in feed), it is an <strong>industry module</strong>.</p>
+    <div class="call warn">
+      <span class="call-tag">Pharma and Feed reuse 100% of the existing features</span>
+      <p>A hard constraint, not an aspiration: every domain the ERP has today — configuration, inventory, purchase, production/BOM/MO, sales, full accounting, every report — is used by <strong>both</strong> industries. No existing feature is, or becomes, locked to one of them. For these two, "industry" is a <strong>behaviour profile</strong> (units, report layout, which dashboard metric, one sales rule) over the shared feature set — never an entitlement that turns a feature on or off. An <code>IIndustryProfile</code> call is fine; a <code>[RequiresModule("Feed")]</code> gate on an existing screen is not.</p>
+    </div>
+    <p>The dividing line for <em>new</em> verticals: if two business types would both want a capability and mean the same thing by it, it is <strong>generic</strong> (a shared Core or Business module). If it only makes sense for one industry, it is an <strong>industry module</strong> — but that granularity is for Super Shop, Buying House and the like, not for splitting today's shared ERP.</p>
     <div class="call rec">
-      <span class="call-tag">You already have two industry modules — as <code>if</code> statements</span>
-      <p>The Feed ERP's <code>BusinessType</code> split (<code>Primary = 1</code> = Pharmaceutical, <code>Secondary = 2</code> = Feed) <em>is</em> a Pharmacy module and a Feed module in embryo: a shared permission set plus <code>PrimaryPermissions</code> (8 nested groups: Territories, PackSizes, ProductAudits, primary sales &amp; inventory report modules…) and <code>SecondaryPermissions</code> (5 nested groups: customer-wise discounts, delivery notes, receive payments…), and ~32 <code>if (BusinessType == …)</code> branches. Formalising this means: (1) each of those permission classes becomes a module's permission group; (2) each <code>if</code> branch becomes either a module check or a call into an injected <code>IIndustryProfile</code> chosen by the tenant's template; (3) the paired <code>…Primary…</code> / <code>…Secondary…</code> PDF methods become per-industry report packs. Do this <em>before</em> adding Super Shop, or industry #3 means editing all 32 sites again — see §08 Phase 1 and §11.</p>
+      <span class="call-tag">You already have the two-industry mechanism — as <code>if</code> statements</span>
+      <p>The Feed ERP's <code>BusinessType</code> split (<code>Primary = 1</code> = Pharmaceutical, <code>Secondary = 2</code> = Feed) drives ~32 <code>if (BusinessType == …)</code> branches plus permission-visibility subsets — <code>PrimaryPermissions</code> (8 nested groups: Territories, PackSizes, ProductAudits, primary sales &amp; inventory report modules…) and <code>SecondaryPermissions</code> (5 nested groups: customer-wise discounts, delivery notes, receive payments…). These subsets <strong>hide/show parts of shared features per industry; they are not separate feature sets.</strong> Formalising means: (1) each permission class becomes a permission <em>group</em> surfaced by the industry profile (not a paid module); (2) each <code>if</code> branch becomes a call into an injected <code>IIndustryProfile</code> chosen by the tenant's template; (3) the paired <code>…Primary…</code> / <code>…Secondary…</code> PDF methods become the profile's report pack. Do this <em>before</em> adding Super Shop, or industry #3 means editing all 32 sites again — see §08 Phase 1 and §11.</p>
     </div>
 
     <h3>The dual unit-of-measure model (feed vs pharma)</h3>
@@ -936,8 +941,9 @@
         <tr><td>Accounting — CoA, journals, vouchers</td><td class="mono">Business</td><td>Application.Api (full)</td><td>The keystone asset. POS's light ledger retires into this.</td></tr>
         <tr><td>Barcode / label printing</td><td class="mono">Business</td><td>New (thin)</td><td>Optional module; super shop &amp; pharmacy retail.</td></tr>
         <tr><td>Advanced reporting / analytics</td><td class="mono">Business</td><td>Application.Api report controllers</td><td>Metered/priced tier.</td></tr>
-        <tr><td><b>Pharmacy</b> — batch, expiry, near-expiry alerts, drug schedule</td><td class="mono">Industry</td><td>ButsPosDotnet6</td><td>Extension entities + POS retail defaults + expiry report pack.</td></tr>
-        <tr><td><b>Feed</b> — formula/BOM, manufacturing order, raw material, by-product yield</td><td class="mono">Industry</td><td>Application.Api (Production)</td><td>Already isolated in the Production Autofac module.</td></tr>
+        <tr><td>Production — BOM, manufacturing orders, raw material</td><td class="mono">Business</td><td>Application.Api (Production module)</td><td><b>Used by both</b> pharma and feed today (pharma reports value, feed reports qty) — a shared Business module, <em>not</em> feed-only.</td></tr>
+        <tr><td><b>Pharmacy profile</b> — expiry emphasis, drug schedule, A5 invoice layout</td><td class="mono">Industry (profile + optional sub-features)</td><td>Application.Api (<code>Primary</code> branches) + ButsPosDotnet6 (batch/expiry)</td><td>Behaviour + report pack over shared features; batch/expiry tracking is an optional sub-feature any tenant can enable.</td></tr>
+        <tr><td><b>Feed profile</b> — bags↔Kg conversion, by-product yield, mandatory customer-wise discount, feed report layouts</td><td class="mono">Industry (profile)</td><td>Application.Api (<code>Secondary</code> branches)</td><td>Pure behaviour over shared features — units, one sales rule, report layouts. No feature is feed-exclusive.</td></tr>
         <tr><td><b>Super Shop</b> — promotions, combo/gift items, shelf, weigh-scale</td><td class="mono">Industry</td><td>Partly POS (<code>GifItem</code>)</td><td>New thin module over POS + Barcode.</td></tr>
         <tr><td><b>Buying House</b> — style costing, order tracking, export documentation</td><td class="mono">Industry</td><td>New</td><td>Reuses Purchase + Sales + Accounting; adds style/costing entities only.</td></tr>
         <tr><td><b>Wholesale</b> — routes/territory, van sales, credit control</td><td class="mono">Industry</td><td>Application.Api (territory, MO-wise collection)</td><td>Mostly config over Sales; small module.</td></tr>
@@ -1142,7 +1148,7 @@ YOUR TEAM & LOCATIONS
       <div class="goal">goal — modules and subscriptions exist; internal admin console</div>
       <ul>
         <li>New <code>Platform</code> Autofac module: <strong>extend</strong> the existing <code>Tenant</code> entity (add <code>Subdomain</code>, <code>BusinessTemplateKey</code>, <code>Status</code>, <code>Currency</code>, <code>DbConnectionKey?</code>…); add <code>BusinessTemplate</code>, <code>Module</code>, <code>TenantModule</code>, <code>Plan</code>, <code>PriceBook</code>, <code>Subscription</code>, <code>Entitlement</code>, <code>TenantSetting</code>.</li>
-        <li>Seed the module catalog from existing <code>Permissions.AccessModules.*</code>; fold <code>PrimaryPermissions</code> → a <b>Pharmacy</b> module and <code>SecondaryPermissions</code> → a <b>Feed</b> module.</li>
+        <li>Seed the module catalog from existing <code>Permissions.AccessModules.*</code> (the seven shared domains — Configuration, Purchase, Production, Inventory, Sales, Accounts, Report — which <strong>both</strong> pharma and feed get). <code>PrimaryPermissions</code> / <code>SecondaryPermissions</code> become the <b>Pharmacy / Feed industry-profile permission groups</b> — visibility subsets <em>within</em> those shared modules, not separate paid modules.</li>
         <li><b>Retire <code>BusinessType</code> branching.</b> Introduce <code>IIndustryProfile</code> (resolved from the tenant's template) and replace the ~32 <code>if (BusinessType == …)</code> sites with a module check or a profile call; keep the <code>businesstype</code> JWT claim and <code>Tenant.BusinessType</code> column only as a compatibility shim during the transition.</li>
         <li><code>[RequiresModule]</code> / <code>[RequiresFeature]</code> filters; apply to all existing controllers.</li>
         <li><code>GET /api/me</code> returns modules + quotas + subscription state.</li>
@@ -1259,7 +1265,7 @@ YOUR TEAM & LOCATIONS
 
   <div class="qa"><p class="qa-q"><span class="qn">10</span>How is the Pharmacy POS reused?</p><p class="qa-a"><b>Ported into <code>Pos</code> + <code>Pharmacy</code> modules</b> (.NET 6→9, string PK→Guid, add TenantId, silo→pool). <code>PMSShopAngular</code>'s POS module/layout is the reference for the terminal UI. The second backend is decommissioned, not maintained in parallel.</p></div>
 
-  <div class="qa"><p class="qa-q"><span class="qn">11</span>What is generic vs industry-specific?</p><p class="qa-a"><b>Generic:</b> identity, org, product, customer, supplier, inventory, purchase, sales, POS, accounting, reporting, pricing. <b>Industry:</b> pharmacy (batch/expiry/schedule), feed (formula/MO/by-product), super shop (promotions), buying house (style costing), wholesale (routes/credit). See §05.</p></div>
+  <div class="qa"><p class="qa-q"><span class="qn">11</span>What is generic vs industry-specific?</p><p class="qa-a"><b>Generic (all of it, for pharma and feed):</b> identity, org, product, customer, supplier, inventory, purchase, production, sales, POS, accounting, reporting, pricing — both industries reuse every existing feature. Pharma vs feed is a <b>behaviour profile</b> only (units, report layout, dashboard metric, one sales rule). Genuinely industry-specific <em>modules</em> start with new verticals: super shop (promotions), buying house (style costing), wholesale (routes/credit). See §05.</p></div>
 
   <div class="qa"><p class="qa-q"><span class="qn">12</span>How do we avoid over-engineering?</p><p class="qa-a"><b>One deployable, one DB, no no-code engine, no per-tenant code, templates not workflow builders, manual billing before automated.</b> Ship Feed + Pharmacy first; add breadth only once those two pay. See §11.</p></div>
 </section>
