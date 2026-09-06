@@ -279,7 +279,7 @@ of multi-tenancy are still in play.
 |---|---|---|---|---|
 | **`GenericERP` → `Application.Api`** (was BUTSERP_API) | .NET 9 · EF Core · Autofac · Clean Arch (Api / Core / Services / Repository + Infrastructure) | **Two-industry** distribution / manufacturing ERP backend — purchase, production (BOM, MO), sales, inventory, full accounting, ~77 controllers, ~200 services. Serves **Pharmaceutical** (`BusinessType 1`) and **Feed** (`BusinessType 2`) tenants from the same code. | **Row-level.** `TenantId` Guid on entities; value from JWT claim → `HttpContext.Items`; `BaseRepository.TableNoTracking()` appends `WHERE TenantId=` by hand; `UnitOfWork` stamps tenant + audit + soft-delete + `EventLog`. Global query filter only on `Deleted`. Dormant DB-per-tenant path via subdomain → `__DBNAME__`. | Evolve → platform core |
 | **`GenericERP` → `Application.Client`** (was ERPAngular) | Angular 14.2 · MatX template · Material · SignalR · Node 16 | ERP admin UI — views split by domain (accounts, configuration, dashboard, inventory, production, purchase, sales, report) + sessions/utilities | Single deployment. Menu is a 523-line hardcoded array in `navigation.service.ts`, each item carrying a `permission` string, filtered in the sidenav by an `*appHasPermission` structural directive; per-route `canMatch: hasPermission([...])` guards; API URL hardcoded in `config.ts` (re-exported through `environments/environment.ts`). Decodes a `businesstype` JWT claim and branches on it in **315 places across 109 component files**. No `/api/me` / profile call — `checkTokenIsValid()` returns a hardcoded `DEMO_USER`. | Evolve → tenant shell |
-| **ButsPosDotnet6** | .NET 6 · EF Core · policy-based auth · Api / Core / Repository / Services + RequestModel / ViewModel | Pharmacy POS backend — POS sales, batch & expiry stock, purchase, multi-branch, lightweight accounting; CQRS-lite (`BaseCommandService` / `BaseQueryService`) | **Silo.** One DB (`GHP_POS_DB`); a separate deployment + subdomain per customer (CORS list shows ghppos, vetmedpos, demopos…). `Branch` entity handles multi-location *within* one customer. String PKs. No `TenantId`. | Port → POS + Pharmacy modules |
+| **ButsPosDotnet6** | .NET 6 · EF Core (scaffolded, `GHP_POS_DBContext`) · permission-policy auth (`[Authorize(Policy = Permissions.X.Y)]` via a custom `PermissionPolicyProvider`) · no Autofac · Api / Core / Repository / Services + RequestModel / ViewModel | Pharmacy POS backend — fast sale (`Sale`/`SaleItem`), sale returns, purchase, multi-branch + branch transfers, batch/expiry stock, customer payments, lightweight accounting (journal, account heads, expenses, fiscal year); CQRS-lite (generic `BaseCommandService` / `BaseQueryService` called straight from ~40 controllers; only ~7 real services) | **Silo.** One DB (`GHP_POS_DB`) via `DefaultConnection`; a separate deployment + subdomain per customer (CORS: ghppos, vetmedpos, demopos, vet, ghp, demo…). `AddClientDbContext` (Referer sub-domain → `__DBNAME__`, strips "pos") exists but is **commented out**. `Branch` entity handles multi-location *within* one customer. **String PKs everywhere. No `TenantId`. No query filters at all — not even `Deleted`.** | Port → POS + Pharmacy modules |
 | **PMSAdminReact** | React 16.8 · MUI v4 · react-scripts 3 · redux · formik | Pharmacy back-office UI — configuration, transactions, accounts, reports | Single deployment per customer, pointed at that customer's POS API. | Retire — dead-end stack |
 | **PMSShopAngular** | Angular 12 · Material · module + layout architecture | Customer-facing shop + **POS terminal** — `modules/{admin,pos,home,auth}`, `layouts/{pos,admin,home,auth}` | Single deployment per customer. | Port → POS terminal in tenant shell |
 
@@ -315,8 +315,12 @@ of multi-tenancy are still in play.
 - **Accounting engine** — chart of accounts, journal entries, vouchers, fund
   transfers, COGS reporting. This is the hardest thing to build and it already
   exists.
-- **POS domain logic** — batch/expiry stock (`StockItem.BatchNo/ExpiryDate`,
-  `IsExpiryItem`), COGS-per-sale, branch transfers, customer dues.
+- **POS domain logic** — batch/expiry stock (`StockItem.BatchNo` / `.ExpiryDate`;
+  `Product.IsExpiryItem`; `StockAdjustmentBatch`), COGS-per-sale carried on the
+  data (`Sale.Cogs`, `SaleItem.CogsPerItem`, `SaleReturn.TotalCogsOfReturnItems`),
+  branch transfers (`Transfer` / `TransferMultiple`), customer payments/dues.
+  Note: there is **no shift / cash-drawer / register** entity in the POS backend
+  — the "terminal" is `Sale` + `SaleItem` only.
 
 > **Two things are *not* as the earlier draft implied.** (1) The `Tenant` table
 > **already exists** (Id, Code, Name, TimeZoneId, Address, ContactNo, BINNo,
@@ -653,14 +657,14 @@ decision to make when the feed module is formalised.
 | Inventory & stock ledger | Business | Both | Batch/expiry-aware valuation from the POS; weighted-average COGS. |
 | Purchase — PO, GRN, returns, LC | Business | `Application.Api` (richer) | LC / import costing is optional sub-feature. |
 | Sales — SO, invoice, delivery note | Business | `Application.Api` | Credit limit / discount validation already present. |
-| POS — terminal sale, shift, cash drawer | Business | ButsPosDotnet6 + PMSShopAngular | Port the fast-sale flow, COGS-per-sale, returns, customer dues. |
+| POS — fast sale, returns, customer payments | Business | ButsPosDotnet6 + PMSShopAngular | Port the fast-sale flow, per-line COGS, returns, customer dues. **Shift / cash-drawer / register does not exist yet** — design it fresh (or lift from `PMSShopAngular` if the terminal UI has it). |
 | Accounting — CoA, journals, vouchers | Business | `Application.Api` (full) | The keystone asset. POS's light ledger retires into this. |
 | Barcode / label printing | Business | New (thin) | Optional module; super shop & pharmacy retail. |
 | Advanced reporting / analytics | Business | `Application.Api` report controllers | Metered/priced tier. |
 | Production — BOM, manufacturing orders, raw material | Business | `Application.Api` (Production module) | **Used by both** pharma and feed today (pharma reports value, feed reports qty) — a shared Business module, *not* feed-only. |
 | **Pharmacy profile** — expiry/near-expiry emphasis, drug schedule, A5 invoice layout | Industry (profile + optional sub-features) | `Application.Api` (`Primary` branches) + ButsPosDotnet6 (batch/expiry) | Behaviour + report pack over the shared features; batch/expiry tracking is an optional sub-feature any tenant can enable. |
 | **Feed profile** — bags↔Kg conversion, by-product yield, mandatory customer-wise discount, feed report layouts | Industry (profile) | `Application.Api` (`Secondary` branches) | Pure behaviour over the shared features — units, one sales rule, report layouts. No feature is feed-exclusive. |
-| **Super Shop** — promotions, combo/gift items, shelf, weigh-scale | Industry | Partly POS (`GifItem`) | New thin module over POS + Barcode. |
+| **Super Shop** — promotions, combo/gift items, shelf, weigh-scale | Industry | Effectively new (POS has only `GifItem`: `Id·Name·Quantity·PurchaseItemId` — a gift-with-purchase line, no promo engine) | New thin module over POS + Barcode. |
 | **Buying House** — style costing, order tracking, export documentation | Industry | New | Reuses Purchase + Sales + Accounting; adds style/costing entities only. |
 | **Wholesale** — routes/territory, van sales, credit control | Industry | `Application.Api` (territory, MO-wise collection) | Mostly config over Sales; small module. |
 
@@ -882,10 +886,16 @@ something usable.
 
 *Goal — the Pharmacy POS lives inside the platform, not as a second backend.*
 
-- Port POS domain from ButsPosDotnet6 → `Pos` business module (.NET 6→9, string
-  PK→Guid, add `TenantId`, silo→pool).
+- Port POS domain from ButsPosDotnet6 → `Pos` business module. This is a
+  **re-platform, not a lift**: .NET 6→9, string PK→Guid, add `TenantId` + the
+  global query filters, silo→pool, *and* adopt the ERP's patterns it lacks —
+  Autofac per-domain module, `BaseService`, `UnitOfWork` audit/soft-delete
+  pipeline (the POS has none of these; ~40 controllers call generic
+  command/query services directly, no `Deleted` filter).
+- Design the missing **shift / cash-drawer / register** model — it is not in the
+  POS backend today.
 - Port batch/expiry → `Pharmacy` industry module (extension tables on
-  Product/Stock).
+  Product/Stock; reuse `StockItem.BatchNo/.ExpiryDate`, `Product.IsExpiryItem`).
 - POS terminal UI: port `PMSShopAngular` `modules/pos` + `pos-layout` into the
   tenant shell as a terminal mode.
 - Migration tooling for existing POS customers (per-DB → tenant rows).
@@ -992,8 +1002,11 @@ different performance/SEO needs) — it just talks to the onboarding API.
    replace `BusinessType` branches with modules + an industry profile, backfill
    current customers onto their templates. Zero rewrite; they never stop
    working.
-10. **How is the Pharmacy POS reused?** — **Ported into `Pos` + `Pharmacy`
-    modules** (.NET 6→9, string PK→Guid, add TenantId, silo→pool).
+10. **How is the Pharmacy POS reused?** — **Re-platformed into `Pos` + `Pharmacy`
+    modules** (.NET 6→9, string PK→Guid, add TenantId + query filters, silo→pool,
+    and adopt Autofac / `BaseService` / `UnitOfWork` — the POS has none of them).
+    Domain logic worth keeping: fast sale, per-line COGS, returns, batch/expiry,
+    branch transfers, customer payments. Shift/cash-drawer is new work.
     `PMSShopAngular`'s POS module/layout is the reference for the terminal UI. The
     second backend is decommissioned, not maintained in parallel.
 11. **What is generic vs industry-specific?** — **Generic (all of it, for pharma
@@ -1015,7 +1028,7 @@ different performance/SEO needs) — it just talks to the onboarding API.
 | Risk | Why it bites here | Guardrail |
 |---|---|---|
 | **Cross-tenant data leak** | Reads: filtering is hand-written in `BaseRepository.TableNoTracking()` and fully bypassed by `TableWithoutTenant()`; one missed `.Where` exposes another tenant. Writes: `UnitOfWork` re-stamps `TenantId` on every `Modified`/`Deleted` entity without an ownership check, so an update-by-Id crosses tenants silently. | EF global query filters on `ITenantScoped`; delete `TableWithoutTenant()`; `SaveChanges` guard that compares stored vs current `TenantId`; per-endpoint two-tenant integration tests in CI. |
-| **Dual-backend drift** | Running `Application.Api` and ButsPosDotnet6 in parallel indefinitely doubles every fix. | Phase 3 has a hard cutover; ButsPosDotnet6 goes read-only then off. .NET 6 is already out of support — this is also a security deadline. |
+| **Dual-backend drift** | Running `Application.Api` and ButsPosDotnet6 in parallel indefinitely doubles every fix — and they have diverged architecturally (the POS has no Autofac, no `BaseService`, no `UnitOfWork` audit pipeline, no query filters, string PKs), so the port is a re-platform, not a merge. | Phase 3 has a hard cutover; ButsPosDotnet6 goes read-only then off. .NET 6 is already out of support — this is also a security deadline. |
 | **Pricing complexity creep** | "Just one more pricing rule" is how SaaS billing becomes unmaintainable. | Three metered dimensions, flat module prices, one engine. New pricing ideas need an explicit decision, not a config toggle. |
 | **Provisioning half-failures** | A tenant created without a chart of accounts is a broken tenant. | Idempotent, transactional, re-runnable provisioning keyed on `(TenantId, stepKey)`; a "provisioning failed" queue in the console. |
 | **`BusinessType` branching — ~32 sites backend, ~315 across ~109 files frontend** | Backend: `if (BusinessType == Primary/Secondary)` in ~32 places + paired `…Primary…`/`…Secondary…` PDF methods. Frontend: `businessType === '1'|'2'` in ~315 places across ~109 Angular components, plus a parallel pharma-only `primary-*-module-report` screen tree — **the larger migration.** The enum members are literally named `Primary` (1, pharma) / `Secondary` (2, feed) — which **collides with the `Primary*` vs plain quantity (bags vs Kg) field concept** on every sale-detail row. A third industry as a new int value means editing every site, both tiers. | Backend: `IIndustryProfile` (`IUomPolicy`, `ISalesPolicy`, `IReportPack`); rename `BusinessType.Primary/Secondary` → `Pharmacy`/`Feed`. Frontend: a client-side industry-profile service the components read, done as part of the Angular upgrade — not scattered `*ngIf`. |
