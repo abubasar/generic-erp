@@ -278,7 +278,7 @@ of multi-tenancy are still in play.
 | Repo / project | Stack | Role | Tenancy model today | Disposition |
 |---|---|---|---|---|
 | **`GenericERP` → `Application.Api`** (was BUTSERP_API) | .NET 9 · EF Core · Autofac · Clean Arch (Api / Core / Services / Repository + Infrastructure) | **Two-industry** distribution / manufacturing ERP backend — purchase, production (BOM, MO), sales, inventory, full accounting, ~77 controllers, ~200 services. Serves **Pharmaceutical** (`BusinessType 1`) and **Feed** (`BusinessType 2`) tenants from the same code. | **Row-level.** `TenantId` Guid on entities; value from JWT claim → `HttpContext.Items`; `BaseRepository.TableNoTracking()` appends `WHERE TenantId=` by hand; `UnitOfWork` stamps tenant + audit + soft-delete + `EventLog`. Global query filter only on `Deleted`. Dormant DB-per-tenant path via subdomain → `__DBNAME__`. | Evolve → platform core |
-| **`GenericERP` → `Application.Client`** (was ERPAngular) | Angular 14 · MatX template · Material · SignalR | ERP admin UI — views split by domain (accounts, configuration, inventory, production, purchase, report) | Single deployment. Menu is a hardcoded array in `navigation.service.ts` filtered by permission strings; `hasPermission` route guard; API URL hardcoded in `config.ts`. | Evolve → tenant shell |
+| **`GenericERP` → `Application.Client`** (was ERPAngular) | Angular 14.2 · MatX template · Material · SignalR · Node 16 | ERP admin UI — views split by domain (accounts, configuration, dashboard, inventory, production, purchase, sales, report) + sessions/utilities | Single deployment. Menu is a 523-line hardcoded array in `navigation.service.ts`, each item carrying a `permission` string, filtered in the sidenav by an `*appHasPermission` structural directive; per-route `canMatch: hasPermission([...])` guards; API URL hardcoded in `config.ts` (re-exported through `environments/environment.ts`). Decodes a `businesstype` JWT claim and branches on it in **315 places across 109 component files**. No `/api/me` / profile call — `checkTokenIsValid()` returns a hardcoded `DEMO_USER`. | Evolve → tenant shell |
 | **ButsPosDotnet6** | .NET 6 · EF Core · policy-based auth · Api / Core / Repository / Services + RequestModel / ViewModel | Pharmacy POS backend — POS sales, batch & expiry stock, purchase, multi-branch, lightweight accounting; CQRS-lite (`BaseCommandService` / `BaseQueryService`) | **Silo.** One DB (`GHP_POS_DB`); a separate deployment + subdomain per customer (CORS list shows ghppos, vetmedpos, demopos…). `Branch` entity handles multi-location *within* one customer. String PKs. No `TenantId`. | Port → POS + Pharmacy modules |
 | **PMSAdminReact** | React 16.8 · MUI v4 · react-scripts 3 · redux · formik | Pharmacy back-office UI — configuration, transactions, accounts, reports | Single deployment per customer, pointed at that customer's POS API. | Retire — dead-end stack |
 | **PMSShopAngular** | Angular 12 · Material · module + layout architecture | Customer-facing shop + **POS terminal** — `modules/{admin,pos,home,auth}`, `layouts/{pos,admin,home,auth}` | Single deployment per customer. | Port → POS terminal in tenant shell |
@@ -479,7 +479,9 @@ Enforced in three places, defence in depth:
 1. **API** — a `[RequiresModule(ModuleKeys.Pos)]` authorization filter on
    controllers/actions, reading `ITenantContext.Modules`.
 2. **Navigation** — the Angular shell builds its menu from
-   `GET /api/me/modules` instead of a hardcoded array.
+   `GET /api/me/modules` instead of the hardcoded `navigation.service.ts` array,
+   and the existing `*appHasPermission` directive gains a sibling entitlement
+   check. (There is no `/api/me` today — the client never fetches a profile.)
 3. **Service layer** — guard clauses on cross-module calls.
 
 Modules declare dependencies (`Pos` needs `Inventory` + `Sales`); activation
@@ -921,7 +923,7 @@ sits in the same `GenericERP` repo as the platform API, so the shell and the
 
 | App | Built from | Purpose |
 |---|---|---|
-| **Tenant shell** (Angular, current LTS) | `Application.Client` (was ERPAngular, already in the `GenericERP` repo), upgraded from 14; POS screens ported from PMSShopAngular | The whole product for a logged-in tenant: ERP modules lazy-loaded by entitlement, plus a POS terminal mode. Menu, routes and guards driven by `/api/me`. |
+| **Tenant shell** (Angular, current LTS) | `Application.Client` (was ERPAngular, already in the `GenericERP` repo), upgraded from **14.2 → current (≈4 majors)**; POS screens ported from PMSShopAngular | The whole product for a logged-in tenant: ERP modules lazy-loaded by entitlement, plus a POS terminal mode. Menu, routes and guards driven by `/api/me`. |
 | **Platform console** (Angular) | New, small | Internal ops: tenants, modules, pricing, metrics, support impersonation. |
 | ~~PMSAdminReact~~ (retire) | — | React 16 + MUI 4 + react-scripts 3 is a dead-end toolchain. Rebuild its handful of unique screens in the shell. |
 
@@ -932,7 +934,20 @@ different performance/SEO needs) — it just talks to the onboarding API.
 > delete the hardcoded `navigation.service.ts` array and build the sidenav from
 > an endpoint that already knows the tenant's modules and the user's
 > permissions. Everything about "configurable ERP" on the frontend follows from
-> that.
+> that. (The `*appHasPermission` directive already does per-item permission
+> filtering; it just needs an entitlement check alongside it, and a real
+> `/api/me` behind it — today there is none: `JwtAuthService.checkTokenIsValid()`
+> returns a hardcoded `DEMO_USER` and token-refresh / expiry handling is
+> commented out.)
+
+> **The frontend `BusinessType` split is the bigger half of §11.** The Angular
+> app decodes a `businesstype` claim and branches `businessType === '1' | '2'`
+> in **~315 places across ~109 component files** — every domain — plus a
+> parallel pharma-only screen tree (`views/report/components/primary-sales-module-report/`,
+> `…/primary-inventory-module-report/`). Retiring this is a much larger job than
+> the backend's ~32 branches, and it must land the same way: a client-side
+> industry-profile service the components read, not scattered `*ngIf`. Budget it
+> into the Angular upgrade, not after.
 
 ---
 
@@ -1003,11 +1018,11 @@ different performance/SEO needs) — it just talks to the onboarding API.
 | **Dual-backend drift** | Running `Application.Api` and ButsPosDotnet6 in parallel indefinitely doubles every fix. | Phase 3 has a hard cutover; ButsPosDotnet6 goes read-only then off. .NET 6 is already out of support — this is also a security deadline. |
 | **Pricing complexity creep** | "Just one more pricing rule" is how SaaS billing becomes unmaintainable. | Three metered dimensions, flat module prices, one engine. New pricing ideas need an explicit decision, not a config toggle. |
 | **Provisioning half-failures** | A tenant created without a chart of accounts is a broken tenant. | Idempotent, transactional, re-runnable provisioning keyed on `(TenantId, stepKey)`; a "provisioning failed" queue in the console. |
-| **`BusinessType` branching spread across ~32 sites** | Industry differences are `if (BusinessType == Primary/Secondary)` in ~32 places (services, dashboards, report controllers) plus paired `…Primary…`/`…Secondary…` PDF methods. The enum members are literally named `Primary` (1, pharma) / `Secondary` (2, feed) — which **collides with the `Primary*` vs plain quantity (bags vs Kg) field concept** on every sale-detail row, an easy source of wrong edits. A third industry as a new int value means finding and editing every site. | Phase 1 converts these to module checks + an injected `IIndustryProfile` (with `IUomPolicy`, `ISalesPolicy`, `IReportPack`); rename `BusinessType.Primary/Secondary` → `Pharmacy`/`Feed`. After that, a new industry is a new profile + report pack, touching no existing branch. |
+| **`BusinessType` branching — ~32 sites backend, ~315 across ~109 files frontend** | Backend: `if (BusinessType == Primary/Secondary)` in ~32 places + paired `…Primary…`/`…Secondary…` PDF methods. Frontend: `businessType === '1'|'2'` in ~315 places across ~109 Angular components, plus a parallel pharma-only `primary-*-module-report` screen tree — **the larger migration.** The enum members are literally named `Primary` (1, pharma) / `Secondary` (2, feed) — which **collides with the `Primary*` vs plain quantity (bags vs Kg) field concept** on every sale-detail row. A third industry as a new int value means editing every site, both tiers. | Backend: `IIndustryProfile` (`IUomPolicy`, `ISalesPolicy`, `IReportPack`); rename `BusinessType.Primary/Secondary` → `Pharmacy`/`Feed`. Frontend: a client-side industry-profile service the components read, done as part of the Angular upgrade — not scattered `*ngIf`. |
 | **Scaffolded DbContext friction** | EF Core Power Tools re-scaffold overwrites hand edits; adding platform tables fights the generator. The global `Deleted` filter is re-applied via a custom `ApplyGlobalFilter` call at the end of `OnModelCreating` — a TenantId filter would need the same treatment. | Keep platform entities in a hand-authored context partial / separate configuration; document the re-scaffold procedure. |
 | **Stale duplicate infrastructure project** | An orphan net6.0 `Application.Infrastructure/` folder holds an out-of-date copy of `BaseRepository.cs` / `UnitOfWork.cs` that is not in the solution; edits can land in the wrong file. | Delete it in Phase 0. The live project is `Application.Repository/Application.Infrastructure.csproj`. |
 | **The temptation to go dynamic** | "Configurable" slides into "user-defined entities and forms", which is a different (much larger) product. | Written principle: *stable code + configurable features*. Configuration selects and parametrises code paths; it never defines them. |
-| **Angular 14 age** | Shell is two-plus LTS versions behind; upgrade cost grows monthly. | Budget the upgrade into Phase 2 before piling new screens on. |
+| **Angular 14 age** | Shell is Angular 14.2 on Node 16 — roughly **four majors** behind current, and Node 16 is EOL. Upgrade cost grows monthly, and the `businesstype` de-scatter (above) rides on the same pass. Demo scaffolding (`DEMO_USER`, `publishNavigationChange`, `MATX_USER`) is still in place. | Budget the upgrade into Phase 2 before piling new screens on; fold in the `/api/me` wiring, the industry-profile service, and token-refresh (currently commented out). |
 | **Seed-data divergence** | Feed and Pharmacy charts of accounts / units drift apart over time. | Seed packs are versioned artifacts owned by the platform team, not copy-pasted per template. |
 
 ---
