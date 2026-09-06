@@ -1,0 +1,1403 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>BUTS ERP SaaS Platform Plan</title>
+<meta name="description" content="Architecture and migration plan for turning the Feed ERP and Pharmacy POS into a multi-tenant, configurable ERP SaaS.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root{
+    --paper:#f5f4f0;
+    --surface:#fbfaf7;
+    --sunk:#eceae1;
+    --ink:#23262b;
+    --ink-soft:#565a61;
+    --ink-faint:#8b8e93;
+    --rule:#dad8ce;
+    --rule-soft:#e6e4da;
+    --accent:#0f6d5f;
+    --accent-ink:#0b5348;
+    --accent-soft:#dbeae5;
+    --signal:#a5661a;
+    --signal-soft:#f0e4d1;
+    --ok:#2f7d4f;
+    --warn:#a5661a;
+    --crit:#a23b2e;
+    --shadow:0 1px 2px rgba(35,38,43,.06),0 8px 24px -12px rgba(35,38,43,.18);
+
+    --font-display:"Archivo","Segoe UI",system-ui,sans-serif;
+    --font-body:"Newsreader",Georgia,"Times New Roman",serif;
+    --font-mono:"IBM Plex Mono",ui-monospace,"Cascadia Code",Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --paper:#15171b;
+      --surface:#1b1e23;
+      --sunk:#111316;
+      --ink:#e7e4dc;
+      --ink-soft:#a8a69d;
+      --ink-faint:#7c7f85;
+      --rule:#33363c;
+      --rule-soft:#282b30;
+      --accent:#54b5a3;
+      --accent-ink:#7fcbbd;
+      --accent-soft:#123a34;
+      --signal:#d29a56;
+      --signal-soft:#3a2c17;
+      --ok:#6bbd88;
+      --warn:#d29a56;
+      --crit:#d97b6b;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#15171b;
+    --surface:#1b1e23;
+    --sunk:#111316;
+    --ink:#e7e4dc;
+    --ink-soft:#a8a69d;
+    --ink-faint:#7c7f85;
+    --rule:#33363c;
+    --rule-soft:#282b30;
+    --accent:#54b5a3;
+    --accent-ink:#7fcbbd;
+    --accent-soft:#123a34;
+    --signal:#d29a56;
+    --signal-soft:#3a2c17;
+    --ok:#6bbd88;
+    --warn:#d29a56;
+    --crit:#d97b6b;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:19px;
+    line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 clamp(18px,4vw,48px)}
+  .col{max-width:72ch}
+
+  /* ---------- masthead ---------- */
+  header.mast{
+    border-bottom:2px solid var(--ink);
+    padding:clamp(40px,7vw,88px) 0 28px;
+  }
+  .kicker{
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--accent-ink);
+    margin:0 0 18px;
+  }
+  h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:clamp(2.1rem,5.4vw,3.5rem);
+    line-height:1.04;
+    letter-spacing:-.02em;
+    margin:0 0 20px;
+    text-wrap:balance;
+  }
+  .standfirst{
+    font-size:clamp(1.05rem,2.4vw,1.32rem);
+    color:var(--ink-soft);
+    max-width:60ch;
+    margin:0;
+  }
+  .mast-meta{
+    display:flex;flex-wrap:wrap;gap:8px 26px;
+    margin-top:30px;
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    color:var(--ink-faint);
+  }
+  .mast-meta b{color:var(--ink-soft);font-weight:500}
+
+  /* ---------- section nav ---------- */
+  nav.toc{
+    position:sticky;top:0;z-index:20;
+    background:color-mix(in srgb,var(--paper) 92%,transparent);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--rule);
+    margin-bottom:clamp(36px,6vw,64px);
+  }
+  nav.toc ol{
+    list-style:none;margin:0;padding:11px 0;
+    display:flex;gap:4px;overflow-x:auto;
+    font-family:var(--font-mono);font-size:12px;
+    scrollbar-width:thin;
+  }
+  nav.toc a{
+    white-space:nowrap;
+    color:var(--ink-soft);
+    text-decoration:none;
+    padding:5px 10px;border-radius:4px;
+    letter-spacing:.03em;
+  }
+  nav.toc a:hover{background:var(--sunk);color:var(--ink)}
+  nav.toc a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+  /* ---------- sections ---------- */
+  section{margin:0 0 clamp(52px,8vw,86px);scroll-margin-top:64px}
+  .sec-head{
+    display:flex;gap:16px;align-items:baseline;
+    border-top:1px solid var(--ink);
+    padding-top:14px;margin-bottom:26px;
+  }
+  .sec-no{
+    font-family:var(--font-mono);
+    font-size:13px;color:var(--accent-ink);
+    letter-spacing:.05em;flex:none;padding-top:6px;
+  }
+  h2{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:clamp(1.5rem,3.4vw,2.1rem);
+    line-height:1.12;letter-spacing:-.015em;
+    margin:0;text-wrap:balance;
+  }
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.16rem;
+    letter-spacing:-.01em;
+    margin:34px 0 10px;
+  }
+  h4{
+    font-family:var(--font-mono);
+    font-weight:500;font-size:12.5px;
+    letter-spacing:.12em;text-transform:uppercase;
+    color:var(--ink-faint);
+    margin:26px 0 8px;
+  }
+  p{margin:0 0 16px}
+  a{color:var(--accent-ink)}
+  strong{font-weight:600}
+  em{font-style:italic}
+  ul,ol.list{margin:0 0 18px;padding-left:1.3em}
+  li{margin:0 0 7px}
+  code{
+    font-family:var(--font-mono);
+    font-size:.82em;
+    background:var(--sunk);
+    padding:.12em .4em;border-radius:3px;
+    color:var(--ink);
+  }
+  .lead{font-size:1.14rem;color:var(--ink-soft)}
+
+  /* ---------- callouts ---------- */
+  .call{
+    border-left:3px solid var(--accent);
+    background:var(--surface);
+    padding:16px 20px;border-radius:0 6px 6px 0;
+    margin:22px 0;box-shadow:var(--shadow);
+    max-width:72ch;
+  }
+  .call.rec{border-color:var(--accent)}
+  .call.warn{border-color:var(--signal)}
+  .call.warn .call-tag{color:var(--signal)}
+  .call-tag{
+    font-family:var(--font-mono);font-size:11px;
+    letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent-ink);display:block;margin-bottom:6px;
+  }
+  .call p:last-child{margin-bottom:0}
+  .call p{font-size:.95rem;line-height:1.55}
+
+  /* ---------- tables ---------- */
+  .tbl-scroll{overflow-x:auto;margin:22px 0;box-shadow:var(--shadow);border-radius:8px;border:1px solid var(--rule)}
+  table{border-collapse:collapse;width:100%;background:var(--surface);font-size:14.5px;line-height:1.45}
+  th,td{text-align:left;padding:11px 15px;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+  thead th{
+    font-family:var(--font-mono);font-weight:500;
+    font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-faint);background:var(--sunk);
+    border-bottom:1px solid var(--rule);
+    position:sticky;top:0;
+  }
+  tbody tr:last-child td{border-bottom:none}
+  td b{font-weight:600}
+  .mono{font-family:var(--font-mono);font-size:.9em}
+  td.mono{color:var(--ink-soft)}
+
+  /* status pills */
+  .pill{
+    display:inline-block;font-family:var(--font-mono);
+    font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+    padding:2px 8px;border-radius:999px;white-space:nowrap;
+    border:1px solid currentColor;
+  }
+  .pill.keep{color:var(--ok)}
+  .pill.evolve{color:var(--accent-ink)}
+  .pill.port{color:var(--warn)}
+  .pill.retire{color:var(--crit)}
+
+  /* ---------- layer stack diagram ---------- */
+  .stack{
+    margin:26px 0;display:flex;flex-direction:column;gap:6px;
+    font-family:var(--font-display);
+  }
+  .layer{
+    border:1px solid var(--rule);border-radius:8px;
+    background:var(--surface);padding:14px 18px;
+    box-shadow:var(--shadow);
+  }
+  .layer .lyr-name{
+    font-weight:700;font-size:.95rem;letter-spacing:-.01em;
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+  }
+  .layer .lyr-tag{
+    font-family:var(--font-mono);font-size:10px;font-weight:400;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);
+  }
+  .layer .chips{
+    margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;
+    font-family:var(--font-mono);
+  }
+  .chip{
+    font-size:11.5px;padding:3px 9px;border-radius:5px;
+    background:var(--sunk);color:var(--ink-soft);
+  }
+  .chip.core{background:var(--accent-soft);color:var(--accent-ink)}
+  .chip.ind{background:var(--signal-soft);color:var(--signal)}
+  .layer.platform{border-color:var(--accent);border-width:1.5px}
+  .stack-rail{
+    text-align:center;font-family:var(--font-mono);font-size:11px;
+    color:var(--ink-faint);letter-spacing:.1em;padding:2px 0;
+  }
+
+  /* ---------- flow diagram ---------- */
+  .flow{
+    display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;
+    margin:24px 0;
+  }
+  .flow-step{
+    flex:1 1 150px;min-width:140px;
+    border:1px solid var(--rule);border-radius:8px;
+    background:var(--surface);padding:13px 15px;
+    box-shadow:var(--shadow);position:relative;
+  }
+  .flow-step .fs-no{
+    font-family:var(--font-mono);font-size:10.5px;
+    color:var(--accent-ink);letter-spacing:.08em;
+  }
+  .flow-step .fs-t{
+    font-family:var(--font-display);font-weight:600;
+    font-size:.92rem;margin:4px 0 3px;line-height:1.2;
+  }
+  .flow-step .fs-d{font-size:12.5px;color:var(--ink-soft);line-height:1.4}
+
+  /* ---------- decision cards ---------- */
+  .adr{
+    border:1px solid var(--rule);border-radius:10px;
+    background:var(--surface);box-shadow:var(--shadow);
+    padding:20px 22px;margin:18px 0;
+  }
+  .adr-head{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;margin-bottom:8px}
+  .adr-id{
+    font-family:var(--font-mono);font-size:12px;
+    color:#fff;background:var(--accent);
+    padding:2px 8px;border-radius:5px;flex:none;
+  }
+  .adr-head h3{margin:0;font-size:1.12rem}
+  .adr .verdict{
+    font-family:var(--font-body);font-size:1.02rem;
+    color:var(--ink);margin:0 0 10px;
+  }
+  .adr .verdict b{color:var(--accent-ink)}
+  .adr p{font-size:.95rem;line-height:1.55}
+  .adr p:last-child{margin-bottom:0}
+
+  /* ---------- roadmap ---------- */
+  .phase{
+    display:grid;grid-template-columns:auto 1fr;gap:0 22px;
+    border-top:1px solid var(--rule);padding:18px 0;
+  }
+  .phase:last-child{border-bottom:1px solid var(--rule)}
+  .phase-tag{
+    font-family:var(--font-mono);font-size:12px;
+    color:var(--accent-ink);letter-spacing:.04em;
+    padding-top:3px;white-space:nowrap;
+  }
+  .phase h3{margin:0 0 4px;font-size:1.08rem}
+  .phase .goal{font-size:.9rem;color:var(--ink-faint);font-family:var(--font-mono);margin-bottom:9px}
+  .phase ul{margin:0;font-size:.95rem}
+
+  /* ---------- Q&A ---------- */
+  .qa{border-top:1px solid var(--rule);padding:16px 0}
+  .qa:last-child{border-bottom:1px solid var(--rule)}
+  .qa-q{
+    font-family:var(--font-display);font-weight:600;
+    font-size:1.05rem;margin:0 0 6px;display:flex;gap:10px;
+  }
+  .qa-q .qn{color:var(--accent-ink);font-family:var(--font-mono);font-size:.85em;padding-top:2px;flex:none}
+  .qa-a{font-size:.98rem;color:var(--ink-soft);margin:0}
+  .qa-a b{color:var(--ink)}
+
+  hr.rule{border:none;border-top:1px solid var(--rule);margin:40px 0}
+
+  pre.ascii{
+    overflow-x:auto;background:var(--surface);
+    border:1px solid var(--rule);border-radius:8px;
+    padding:16px 18px;margin:22px 0;
+    font-family:var(--font-mono);font-size:12.5px;line-height:1.55;
+    color:var(--ink-soft);box-shadow:var(--shadow);
+  }
+  .cov-y{color:var(--ok);font-weight:600}
+  .cov-p{color:var(--warn);font-weight:600}
+  td .where{font-family:var(--font-mono);font-size:.82em;color:var(--ink-faint)}
+
+  .donewhen{
+    font-size:.86rem;color:var(--ink-soft);
+    border-left:2px solid var(--ok);
+    padding:2px 0 2px 10px;margin:8px 0 0;
+  }
+  .donewhen b{font-family:var(--font-mono);font-size:.8em;letter-spacing:.06em;text-transform:uppercase;color:var(--ok)}
+  .analogy{
+    display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0;
+  }
+  @media(max-width:640px){.analogy{grid-template-columns:1fr}}
+  .analogy > div{
+    border:1px solid var(--rule);border-radius:9px;background:var(--surface);
+    padding:15px 17px;box-shadow:var(--shadow);
+  }
+  .analogy h4{margin:0 0 7px;color:var(--accent-ink)}
+  .analogy p{font-size:.93rem;margin:0}
+  .big3{counter-reset:b3}
+  .big3 li{margin-bottom:10px}
+
+  footer{
+    border-top:2px solid var(--ink);
+    padding:26px 0 60px;
+    font-family:var(--font-mono);font-size:12px;
+    color:var(--ink-faint);
+  }
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:20px 34px}
+  @media(max-width:760px){.two{grid-template-columns:1fr}}
+
+  .toggle{
+    position:fixed;right:14px;bottom:14px;z-index:40;
+    font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;
+    background:var(--surface);color:var(--ink-soft);
+    border:1px solid var(--rule);border-radius:999px;
+    padding:8px 13px;cursor:pointer;box-shadow:var(--shadow);
+  }
+  .toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+
+<button class="toggle" id="themeToggle" aria-label="Toggle light or dark theme">◐ theme</button>
+
+<header class="mast">
+  <div class="wrap">
+    <p class="kicker">Architecture &amp; Migration Plan — v1.1 draft</p>
+    <h1>From two products to one ERP SaaS platform</h1>
+    <p class="standfirst">How to turn the existing Feed ERP and Pharmacy POS into a multi-tenant, template-driven ERP that a business owner can sign up for, configure by answering plain questions, and pay for by what they switch on.</p>
+    <div class="mast-meta">
+      <span><b>Scope</b> GenericERP (the src repo — Application.Api + Application.Client, formerly BUTSERP_API + ERPAngular) · ButsPosDotnet6 · PMSAdminReact · PMSShopAngular</span>
+      <span><b>Prepared</b> 2026-09-06 · rev. 2026-09-06 (repo consolidation)</span>
+      <span><b>Target</b> Modular monolith · pooled multi-tenancy</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sections">
+  <div class="wrap">
+    <ol>
+      <li><a href="#start">Start here</a></li>
+      <li><a href="#summary">00 · Summary</a></li>
+      <li><a href="#today">01 · What exists</a></li>
+      <li><a href="#target">02 · Target architecture</a></li>
+      <li><a href="#decisions">03 · Key decisions</a></li>
+      <li><a href="#access">04 · Access vs permissions</a></li>
+      <li><a href="#modules">05 · Generic vs industry</a></li>
+      <li><a href="#onboarding">06 · Onboarding &amp; pricing</a></li>
+      <li><a href="#platform-admin">07 · Platform admin</a></li>
+      <li><a href="#roadmap">08 · Migration roadmap</a></li>
+      <li><a href="#frontend">09 · Frontend consolidation</a></li>
+      <li><a href="#questions">10 · The 12 questions</a></li>
+      <li><a href="#risks">11 · Risks &amp; guardrails</a></li>
+      <li><a href="#coverage">12 · Requirements coverage</a></li>
+      <li><a href="#appendix">A · Platform data model</a></li>
+    </ol>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- ============ START HERE ============ -->
+<section id="start">
+  <div class="sec-head"><span class="sec-no">▶</span><h2>Start here — the plain version</h2></div>
+  <div class="col">
+    <p class="lead">The rest of this document is the detailed architecture. This section is the whole idea in plain language, and a step-by-step way to get there. Read this first.</p>
+
+    <h3>What you have today</h3>
+    <ul>
+      <li>Two separate products — the <strong>Feed ERP</strong> (which already serves <em>two</em> industries, Pharmaceutical and Feed, from one codebase) and the <strong>Pharmacy POS</strong>.</li>
+      <li>Every new customer means a developer sets up a database, deploys a copy, and configures it by hand.</li>
+      <li>How fast you can grow is capped by how many installations your team can look after.</li>
+    </ul>
+    <div class="call rec">
+      <span class="call-tag">A head start you already built</span>
+      <p>The Feed ERP is <strong>not single-industry</strong>. Every tenant carries a <code>BusinessType</code> — <strong>1&nbsp;=&nbsp;Pharmaceutical</strong>, <strong>2&nbsp;=&nbsp;Feed</strong> — and the app already changes its behaviour per tenant: which permissions load, which dashboard figures show, which invoice / delivery-note / production PDF layout prints, even different business rules (Feed sales require an approved customer-wise discount; Pharmaceutical don't). So "one app, many business types" is already proven in your code — this plan formalises the pattern so a <em>third</em> and <em>fourth</em> industry don't each mean editing 30 files. See §01 and §05.</p>
+    </div>
+
+    <h3>What you want</h3>
+    <p>One website. A shop owner signs up on their own, answers a few simple questions, sees a price, and starts using the system the same day — with no developer involved. Think <strong>"Shopify, but for ERP"</strong>: Shopify never builds a new app per store; every store is just data inside one system. Same idea here.</p>
+
+    <h3>The core concept</h3>
+    <p>One application runs everything. Each customer is a <strong>tenant</strong> — a walled-off space inside that one app. A pharmacy and a feed mill use the same software but can never see each other's data.</p>
+    <p>Two independent switches decide what a person sees on screen:</p>
+    <div class="analogy">
+      <div>
+        <h4>1 · Did the business pay for this?</h4>
+        <p>Their subscription decides which <strong>modules</strong> are on — POS, Production, Batch tracking, and so on. Applies to everyone in that business.</p>
+      </div>
+      <div>
+        <h4>2 · Is this staff member allowed?</h4>
+        <p>The owner sets <strong>permissions</strong> per role — a cashier can sell but not change prices. Applies to one person.</p>
+      </div>
+    </div>
+    <p>You can use a feature only when <strong>both</strong> switches are on. Behind the scenes it is still your existing, tested code — configuration only flips switches; it does not build the ERP out of a database.</p>
+
+    <div class="call rec">
+      <span class="call-tag">Why this is achievable</span>
+      <p>Your Feed ERP backend is already about <strong>70% built for this</strong> — it already tags every record with a tenant and carries the tenant identity in the login token. The missing piece is the "business layer": plans, modules, subscriptions, pricing, and the signup wizard.</p>
+    </div>
+
+    <h3>Step by step to get there</h3>
+    <p>Each stage delivers something real, and you never stop serving current customers.</p>
+  </div>
+
+  <div class="phase">
+    <div class="phase-tag">STAGE 0</div>
+    <div>
+      <h3>Decide and prepare</h3>
+      <div class="goal">agree the target · nobody writes tenant code yet</div>
+      <ul>
+        <li>Lock the big decisions (all recommended in §03): one app + one shared database; modules are code with on/off flags; price = base + modules + per user / branch / terminal; templates, not customer-built workflows.</li>
+        <li>Choose the backend that <em>becomes</em> the platform — the Feed ERP API (<code>Application.Api</code>). It and its Angular admin UI (<code>Application.Client</code>) already live in one repo (<code>GenericERP</code>); everything else folds into that.</li>
+        <li>Set up a staging environment, a CI pipeline, and a rule: every new table starts with <code>TenantId</code>.</li>
+      </ul>
+      <p class="donewhen"><b>done when</b> the team agrees on the target and staging is running.</p>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-tag">STAGE 1</div>
+    <div>
+      <h3>Make the ERP genuinely tenant-safe</h3>
+      <div class="goal">no customer can ever see another's data — provably</div>
+      <ul>
+        <li>Add one central "who is this tenant" object filled from the login token on every request.</li>
+        <li>Replace the hand-written "filter by tenant" code (repeated in many places today, easy to forget) with <strong>one automatic rule</strong> applied to every query.</li>
+        <li>Add a safety catch: saving any record without a tenant is a hard error.</li>
+        <li>Write automated tests — log in as Tenant A, try to read Tenant B's data, assert it is impossible — for every screen.</li>
+      </ul>
+      <p class="donewhen"><b>done when</b> tests prove no tenant can reach another's data.</p>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-tag">STAGE 2</div>
+    <div>
+      <h3>Add the business layer</h3>
+      <div class="goal">plans, modules and subscriptions exist; your team manages tenants from one screen</div>
+      <ul>
+        <li>Create the new tables: <code>Tenant</code>, <code>Module</code> catalog, <code>TenantModule</code>, <code>Plan</code>, <code>PriceBook</code>, <code>Subscription</code>, <code>Entitlement</code> (limits).</li>
+        <li>Fill the module catalog from what already exists — Inventory, Purchase, Sales, Production, Accounting…</li>
+        <li>Build a small <strong>internal admin console</strong> (your team only): create a tenant, toggle modules, set a price.</li>
+        <li>Move your current live Feed customers in — each becomes a tenant on the Feed template with an active subscription.</li>
+      </ul>
+      <p class="donewhen"><b>done when</b> existing customers run as tenants, managed from one console.</p>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-tag">STAGE 3</div>
+    <div>
+      <h3>Put a switch on every feature</h3>
+      <div class="goal">turning a module off makes it disappear for that tenant</div>
+      <ul>
+        <li>Add a check to every part of the API: "is this module on for this tenant?" If not → a clear "not on your plan" message.</li>
+        <li>Build the app menu <strong>from the tenant's active modules</strong>, not a hardcoded list.</li>
+        <li>When a tenant admin sets up staff roles, show only permissions for modules they actually own.</li>
+      </ul>
+      <p class="donewhen"><b>done when</b> a module toggled off in the console vanishes from that tenant's app.</p>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-tag">STAGE 4</div>
+    <div>
+      <h3>Self-service signup — first public launch</h3>
+      <div class="goal">a stranger signs up for a Feed ERP with no developer involved</div>
+      <ul>
+        <li>Build the <strong>wizard</strong>: account → business details → 6–8 plain questions → recommended setup with editable tick-boxes → live price → confirm.</li>
+        <li>Build <strong>provisioning</strong>: on confirm, auto-create the tenant, switch on chosen modules, load starter data (chart of accounts, units, one branch, owner login). Must be safely re-runnable if it fails halfway.</li>
+        <li>Put a simple marketing / signup site in front.</li>
+        <li>Invoicing stays <strong>manual</strong> here — your team issues the bill and marks it paid.</li>
+      </ul>
+      <p class="donewhen"><b>done when</b> someone signs up and is working in ~10 minutes, untouched by your team. <em>This is the SaaS milestone.</em></p>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-tag">STAGE 5</div>
+    <div>
+      <h3>Bring in the Pharmacy POS</h3>
+      <div class="goal">one platform, not two backends</div>
+      <ul>
+        <li>Port the POS logic (counter sale, cash drawer, returns) from the old .NET 6 POS into a <strong>POS module</strong>.</li>
+        <li>Port batch / expiry tracking into a <strong>Pharmacy module</strong>.</li>
+        <li>Port the POS terminal screen from the Angular shop app into the main app as a "terminal mode".</li>
+        <li>Migrate existing pharmacy customers — each old database becomes one tenant.</li>
+        <li>Switch off the old POS backend; retire the old React admin app.</li>
+      </ul>
+      <p class="donewhen"><b>done when</b> a pharmacy can sign up and run their counter entirely inside the new platform.</p>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-tag">STAGE 6</div>
+    <div>
+      <h3>Automate the money</h3>
+      <div class="goal">subscriptions renew and collect themselves</div>
+      <ul>
+        <li>Track usage (users, branches, terminals) automatically each month.</li>
+        <li>Auto-generate invoices; handle mid-month plan changes.</li>
+        <li>Add online payment — bKash / SSLCOMMERZ for Bangladesh, card for others.</li>
+        <li>Add automatic dunning: payment fails → grace period → read-only → suspended, with emails.</li>
+        <li>Let tenants upgrade / downgrade themselves.</li>
+      </ul>
+      <p class="donewhen"><b>done when</b> billing runs with nobody lifting a finger.</p>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-tag">STAGE 7</div>
+    <div>
+      <h3>Grow the range</h3>
+      <div class="goal">a new industry is days of config, not a new project</div>
+      <ul>
+        <li>Add Super Shop, Wholesale, Retail, Buying House as <strong>new templates</strong> — reuse existing modules, build only the small industry-specific piece each genuinely needs.</li>
+        <li>Offer a dedicated database as an Enterprise upgrade for large customers.</li>
+      </ul>
+      <p class="donewhen"><b>done when</b> adding a business type is template + config work only.</p>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="call rec">
+      <span class="call-tag">If you only start with three things</span>
+      <ol class="list big3">
+        <li><strong>Stage 1</strong> — automatic tenant filtering + isolation tests. The foundation, and the biggest risk right now.</li>
+        <li><strong>Stage 2</strong> — the module / subscription tables + internal admin console.</li>
+        <li><strong>Stage 3</strong> — feature switches + a menu built from active modules.</li>
+      </ol>
+      <p>Those three turn the Feed ERP into a real multi-tenant platform. Stage 4 then makes it a <em>SaaS</em>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SUMMARY ============ -->
+<section id="summary">
+  <div class="sec-head"><span class="sec-no">00</span><h2>Executive summary</h2></div>
+  <div class="col">
+    <p class="lead">You are not building a generic ERP. You are building a configurable ERP SaaS where a tenant tells you about their business, gets a recommended setup, sees a price, and starts working — with no developer in the loop per customer.</p>
+
+    <p>The good news from the code review: <strong>the Feed ERP backend (<code>Application.Api</code>) is already ~70% of the way to the right architecture</strong> — and it now shares one repo (<code>GenericERP</code>) with its Angular client (<code>Application.Client</code>), so "one codebase" has already begun. It is a .NET 9 modular monolith with per-domain Autofac modules, a <code>TenantId</code> discriminator column on nearly every entity, a tenant claim carried in the JWT, audit + soft-delete + tenant stamping centralised in <code>UnitOfWork</code>, and — crucially — it <strong>already runs two industries from one codebase</strong>: a per-tenant <code>BusinessType</code> (1&nbsp;=&nbsp;Pharmaceutical, 2&nbsp;=&nbsp;Feed) drives a three-way permission catalog (shared <code>Permissions</code> + <code>PrimaryPermissions</code> + <code>SecondaryPermissions</code>) and ~30 runtime branches for dashboards, PDF layouts and business rules. What it lacks is the <em>platform layer</em> — module catalog, subscriptions, entitlements, pricing, business templates, self-service onboarding — and the industry split needs to move off scattered <code>if</code> statements onto that module layer.</p>
+
+    <div class="call rec">
+      <span class="call-tag">The recommendation in one line</span>
+      <p>Make the <strong>Feed ERP backend (<code>Application.Api</code>, in the <code>GenericERP</code> repo) the platform</strong>. Add a Platform module (tenants, modules, subscriptions, pricing, templates). Convert the manual <code>WHERE TenantId</code> filtering to EF global query filters that fail closed. Gate every existing domain behind a module flag. Fold the Pharmacy POS in as a <strong>POS + Pharmacy module</strong> rather than running a second backend. Ship the <strong>Feed</strong> and <strong>Pharmacy</strong> templates first; add Super Shop, Wholesale and Buying House by composing existing modules.</p>
+    </div>
+
+    <h4>What we are deliberately not doing</h4>
+    <ul>
+      <li>No microservices. One deployable, one database (with a dedicated-DB escape hatch for Enterprise).</li>
+      <li>No no-code / dynamic-form engine. Business logic stays in code — <em>stable code + configurable features</em>.</li>
+      <li>No free-form workflow builder for customers. Templates + module toggles + settings only, at least for v1–v2.</li>
+      <li>No per-tenant branches of code. Ever.</li>
+      <li>No payment-gateway integration on day one. Manual invoicing first; automate billing once tenants exist.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ TODAY ============ -->
+<section id="today">
+  <div class="sec-head"><span class="sec-no">01</span><h2>What exists today</h2></div>
+  <div class="col">
+    <p>Originally five repositories. The Feed ERP backend and its Angular admin UI have now been merged into a <strong>single repo — <code>GenericERP</code>, the <code>src</code> scope</strong> (.NET solution <code>Application.Api</code> + Angular <code>Application.Client</code>), so what follows is four repos, two backends, three frontends. Two different and incompatible ideas of multi-tenancy are still in play.</p>
+  </div>
+
+  <div class="tbl-scroll">
+    <table>
+      <thead>
+        <tr><th>Repo / project</th><th>Stack</th><th>Role</th><th>Tenancy model today</th><th>Disposition</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b><code>GenericERP</code> → <code>Application.Api</code></b><div class="where">was BUTSERP_API</div></td>
+          <td class="mono">.NET 9 · EF Core · Autofac · Clean Arch (Api/Core/Services/Repository+Infrastructure)</td>
+          <td><b>Two-industry</b> distribution / manufacturing ERP backend — purchase, production (BOM, MO), sales, inventory, full accounting, ~77 controllers, ~200 services. Serves <b>Pharmaceutical</b> (<code>BusinessType 1</code>) and <b>Feed</b> (<code>BusinessType 2</code>) tenants from the same code.</td>
+          <td><b>Row-level.</b> <code>TenantId</code> Guid on entities; value from JWT claim → <code>HttpContext.Items</code>; <code>BaseRepository.TableNoTracking()</code> appends <code>WHERE TenantId=</code> by hand; <code>UnitOfWork</code> stamps tenant + audit + soft-delete + <code>EventLog</code>. Global query filter only on <code>Deleted</code>. Dormant DB-per-tenant path via subdomain → <code>__DBNAME__</code>.</td>
+          <td><span class="pill evolve">Evolve → platform core</span></td>
+        </tr>
+        <tr>
+          <td><b><code>GenericERP</code> → <code>Application.Client</code></b><div class="where">was ERPAngular</div></td>
+          <td class="mono">Angular 14 · MatX template · Material · SignalR</td>
+          <td>ERP admin UI — views split by domain (accounts, configuration, inventory, production, purchase, sales, report)</td>
+          <td>Single deployment. Menu is a hardcoded array in <code>navigation.service.ts</code> filtered by permission strings; <code>hasPermission</code> route guard; API URL hardcoded in <code>config.ts</code>.</td>
+          <td><span class="pill evolve">Evolve → tenant shell</span></td>
+        </tr>
+        <tr>
+          <td><b>ButsPosDotnet6</b></td>
+          <td class="mono">.NET 6 · EF Core · policy-based auth · Api/Core/Repository/Services + RequestModel/ViewModel</td>
+          <td>Pharmacy POS backend — POS sales, batch &amp; expiry stock, purchase, multi-branch, lightweight accounting; CQRS-lite (<code>BaseCommandService</code> / <code>BaseQueryService</code>)</td>
+          <td><b>Silo.</b> One DB (<code>GHP_POS_DB</code>); a separate deployment + subdomain per customer (CORS list shows ghppos, vetmedpos, demopos…). <code>Branch</code> entity handles multi-location <em>within</em> one customer. String PKs. No <code>TenantId</code>.</td>
+          <td><span class="pill port">Port → POS + Pharmacy modules</span></td>
+        </tr>
+        <tr>
+          <td><b>PMSAdminReact</b></td>
+          <td class="mono">React 16.8 · MUI v4 · react-scripts 3 · redux · formik</td>
+          <td>Pharmacy back-office UI — configuration, transactions, accounts, reports</td>
+          <td>Single deployment per customer, pointed at that customer's POS API.</td>
+          <td><span class="pill retire">Retire — dead-end stack</span></td>
+        </tr>
+        <tr>
+          <td><b>PMSShopAngular</b></td>
+          <td class="mono">Angular 12 · Material · module + layout architecture</td>
+          <td>Customer-facing shop + <b>POS terminal</b> — <code>modules/{admin,pos,home,auth}</code>, <code>layouts/{pos,admin,home,auth}</code></td>
+          <td>Single deployment per customer.</td>
+          <td><span class="pill port">Port → POS terminal in tenant shell</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <div class="call warn">
+      <span class="call-tag">The core tension to resolve</span>
+      <p>The ERP already runs <strong>pooled</strong> (many tenants, one DB, row filter). The POS runs <strong>siloed</strong> (one deploy per customer). You cannot keep both. The plan standardises on <strong>pooled</strong>, because that is what makes self-service signup, central module management and usage-based billing possible — a new tenant is a row, not a deployment.</p>
+    </div>
+
+    <h4>Assets worth reusing as-is</h4>
+    <ul>
+      <li><strong>Permission model</strong> — <code>[Authorize("Permissions.X.Y")]</code> + <code>RoleClaim</code> table + reflection-based permission catalog, already business-type aware (<code>ClaimsHelper.GetAllPermissions(businessType)</code> merges the shared set with the pharma or feed set).</li>
+      <li><strong>Per-industry behaviour switching</strong> — the tenant's <code>BusinessType</code> is a JWT claim; services and report controllers branch on it for dashboard KPIs, PDF layouts (paired <code>PrintSaleOrderPrimaryReportToPdfAsync</code> / <code>…SecondaryReportToPdfAsync</code> methods), and rules like Feed's mandatory customer-wise discount. The <em>mechanism</em> for industry modules already exists — it just needs formalising.</li>
+      <li><strong>Audit pipeline</strong> — <code>OnBeforeSaveChangesAsync</code> writes <code>EventLog</code> with old/new JSON, stamps tenant + audit fields, and does per-type hard vs soft delete.</li>
+      <li><strong>Generic CRUD</strong> — <code>BaseService&lt;TEntity,TCreationDto,TUpdateDto,TRequestModel,TViewModel&gt;</code> with search/filter/order/paginate.</li>
+      <li><strong>Accounting engine</strong> — chart of accounts, journal entries, vouchers, fund transfers, COGS reporting. This is the hardest thing to build and it already exists.</li>
+      <li><strong>POS domain logic</strong> — batch/expiry stock (<code>StockItem.BatchNo/ExpiryDate</code>, <code>IsExpiryItem</code>), COGS-per-sale, branch transfers, customer dues.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ TARGET ============ -->
+<section id="target">
+  <div class="sec-head"><span class="sec-no">02</span><h2>Target architecture</h2></div>
+  <div class="col">
+    <p>A single modular-monolith .NET application. One deployable unit, internally organised into layers whose boundaries are enforced by project references and Autofac modules — the structure <code>Application.Api</code> already has, plus a Platform layer above it and Industry modules beside the business modules.</p>
+  </div>
+
+  <div class="stack">
+    <div class="layer platform">
+      <div class="lyr-name">Platform layer <span class="lyr-tag">cross-tenant · admin-only</span></div>
+      <div class="chips">
+        <span class="chip">Tenant management</span><span class="chip">Business templates</span>
+        <span class="chip">Module catalog</span><span class="chip">Subscriptions &amp; entitlements</span>
+        <span class="chip">Pricing engine</span><span class="chip">Usage metering</span>
+        <span class="chip">Onboarding / signup</span><span class="chip">Billing &amp; invoices</span>
+      </div>
+    </div>
+    <div class="stack-rail">↓ resolves ITenantContext for every request ↓</div>
+    <div class="layer">
+      <div class="lyr-name">Core ERP <span class="lyr-tag">generic · always on</span></div>
+      <div class="chips">
+        <span class="chip core">Identity &amp; roles</span><span class="chip core">Organisation / branch</span>
+        <span class="chip core">Product / item</span><span class="chip core">Customer</span>
+        <span class="chip core">Supplier</span><span class="chip core">Settings</span>
+        <span class="chip core">Numbering &amp; documents</span><span class="chip core">Reporting framework</span>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="lyr-name">Business modules <span class="lyr-tag">generic · toggled per tenant</span></div>
+      <div class="chips">
+        <span class="chip">Inventory / stock</span><span class="chip">Purchase (PO · GRN)</span>
+        <span class="chip">Sales (SO · invoice · delivery)</span><span class="chip">POS</span>
+        <span class="chip">Accounting</span><span class="chip">Pricing &amp; discounts</span>
+        <span class="chip">Barcode / labels</span><span class="chip">Advanced reporting</span>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="lyr-name">Industry modules <span class="lyr-tag">specific · one per business type</span></div>
+      <div class="chips">
+        <span class="chip ind">Pharmacy — batch, expiry, drug schedule</span>
+        <span class="chip ind">Feed — formula/BOM, manufacturing orders, by-products</span>
+        <span class="chip ind">Super Shop — promotions, shelf, weigh-scale</span>
+        <span class="chip ind">Buying House — style costing, export docs</span>
+        <span class="chip ind">Wholesale — routes, credit control</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <h3>How a request is scoped</h3>
+    <p>One piece of middleware turns an incoming request into a fully-resolved tenant context before any controller runs. Everything downstream — query filters, module gates, quota checks — reads from it.</p>
+  </div>
+
+  <div class="flow">
+    <div class="flow-step"><div class="fs-no">STEP 1</div><div class="fs-t">Identify tenant</div><div class="fs-d">JWT <code>tenantId</code> claim (app) or sub-domain / custom domain (marketing &amp; POS terminal).</div></div>
+    <div class="flow-step"><div class="fs-no">STEP 2</div><div class="fs-t">Load context</div><div class="fs-d">From cache: tenant status, enabled module keys, quotas, subscription state, DB connection key, settings.</div></div>
+    <div class="flow-step"><div class="fs-no">STEP 3</div><div class="fs-t">Bind DbContext</div><div class="fs-d">Pooled connection by default; swap to the tenant's dedicated connection if one is set.</div></div>
+    <div class="flow-step"><div class="fs-no">STEP 4</div><div class="fs-t">Filter every query</div><div class="fs-d">EF global query filter on <code>ITenantScoped.TenantId</code>; <code>SaveChanges</code> guard rejects any scoped entity missing a tenant.</div></div>
+    <div class="flow-step"><div class="fs-no">STEP 5</div><div class="fs-t">Gate the endpoint</div><div class="fs-d"><code>[RequiresModule]</code> / <code>[RequiresFeature]</code> / quota filters check entitlements; subscription state can force read-only.</div></div>
+  </div>
+
+  <div class="col">
+    <div class="call rec">
+      <span class="call-tag">Concrete first change</span>
+      <p>Introduce <code>ITenantContext</code> (scoped) and an <code>ITenantScoped</code> marker interface. Move the <code>WHERE TenantId</code> logic out of <code>BaseRepository.TableNoTracking()</code> into <code>modelBuilder</code> global query filters applied to every <code>ITenantScoped</code> entity. This removes an entire class of "someone forgot to filter" data-leak bugs and is a mechanical, testable change.</p>
+    </div>
+
+    <h3>Configuration lives at three levels</h3>
+    <p>Nothing about a tenant's setup is generated code — it is all rows hanging off the tenant, read into <code>ITenantContext</code> at request time.</p>
+  </div>
+
+  <pre class="ascii">Platform
+ │
+ ├── Module catalog ........ every module that exists, its category &amp; dependencies
+ ├── Business templates .... Pharmacy · Feed · Super Shop · Wholesale · Retail · Buying House · Other
+ ├── Plans &amp; price book .... Starter / Business / Enterprise + per-module / per-unit prices
+ │
+ └── Tenant  (one row per customer)
+      ├── Subscription ...... plan or "build your own", status, locked price, period
+      ├── Business type ..... which template it was created from
+      ├── Enabled modules ... TenantModule rows  (bought ✓ / not ✗)
+      ├── Entitlements ...... max users · branches · POS terminals · storage
+      ├── Users &amp; roles ..... tenant-scoped; each role = a set of permissions
+      ├── Branches .......... organisation units, up to quota
+      └── Settings .......... typed key/value: currency, timezone, numbering, tax, toggles</pre>
+
+  <div class="col">
+    <h3>How it scales</h3>
+    <p>Pooled tenancy scales <em>up</em> cheaply and <em>out</em> when it has to:</p>
+    <ul>
+      <li><strong>Stateless app tier</strong> — no session state; scale horizontally behind a load balancer. <code>ITenantContext</code> is rebuilt per request from a short-TTL cache (Redis in production, in-memory today).</li>
+      <li><strong>Database</strong> — one primary carries many tenants; add read replicas for reporting queries; move the heaviest / largest tenants to a dedicated database via <code>DbConnectionKey</code> without any code change.</li>
+      <li><strong>Background work</strong> — provisioning, metering, invoicing, PDF/Excel exports and emails run on a queue, not in the request.</li>
+      <li><strong>Noisy-neighbour control</strong> — the existing per-IP rate limiting becomes per-tenant; heavy exports are throttled per plan tier.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ DECISIONS ============ -->
+<section id="decisions">
+  <div class="sec-head"><span class="sec-no">03</span><h2>Key architectural decisions</h2></div>
+  <div class="col"><p>Six decisions carry the design. Each is stated as a verdict with the reasoning and the escape hatch. A seventh — the split between what a tenant <em>bought</em> and what a user <em>may do</em> — is important enough to get its own section (§04).</p></div>
+
+  <div class="adr">
+    <div class="adr-head"><span class="adr-id">D1</span><h3>Multi-tenancy strategy</h3></div>
+    <p class="verdict">One application instance, <b>pooled</b> tenancy, row-level isolation by <code>TenantId</code>, enforced by EF global query filters. Tenant resolved from JWT claim (app) or host (public surfaces).</p>
+    <p>This is where <code>Application.Api</code> already is — the work is hardening it, not replacing it. A separate app/instance per tenant (today's POS model) makes self-service signup, central upgrades and cross-tenant analytics all but impossible. Pooled means a new customer is an <code>INSERT</code>.</p>
+    <p><strong>Escape hatch:</strong> a per-tenant <code>DbConnectionKey</code>. Null = shared pool. Set = dedicated database, provisioned from a template. Sold as an Enterprise option for tenants with data-residency or scale needs. The subdomain → <code>__DBNAME__</code> plumbing for this already exists in <code>TenantDataContextExtension</code>.</p>
+  </div>
+
+  <div class="adr">
+    <div class="adr-head"><span class="adr-id">D2</span><h3>Shared database vs database per tenant</h3></div>
+    <p class="verdict"><b>Shared database by default</b> (pool model). Dedicated database available as a per-tenant override (bridge model). <b>Never</b> schema-per-tenant.</p>
+    <p>Shared keeps operational cost flat and migrations single-shot. Row-level filters + a fail-closed <code>SaveChanges</code> guard + a dedicated tenant-isolation integration test suite are the safety net. Schema-per-tenant multiplies migration pain by the tenant count for no real isolation gain over a discriminator column.</p>
+    <p><strong>Indexing:</strong> every tenant-scoped table gets a leading <code>TenantId</code> in its main indexes — some already exist (<code>IX_ReceivePayment_TenantId_Deleted</code>, <code>idx_stock_tenantid</code>); make it a scaffolding rule so it is not ad-hoc.</p>
+  </div>
+
+  <div class="adr">
+    <div class="adr-head"><span class="adr-id">D3</span><h3>Module activation</h3></div>
+    <p class="verdict">Modules are <b>code</b>, compiled in. Activation is <b>data</b>: a platform <code>Module</code> catalog (seeded) plus per-tenant <code>TenantModule</code> rows with status and optional expiry.</p>
+    <p>Enforced in three places, defence in depth:</p>
+    <p>1 — API: a <code>[RequiresModule(ModuleKeys.Pos)]</code> authorization filter on controllers/actions, reading <code>ITenantContext.Modules</code>. 2 — Navigation: the Angular shell builds its menu from <code>GET /api/me/modules</code> instead of a hardcoded array. 3 — Service layer: guard clauses on cross-module calls.</p>
+    <p>Modules declare dependencies (<code>Pos</code> needs <code>Inventory</code> + <code>Sales</code>); activation resolves them. The generic <code>Permissions.AccessModules.*</code> constants already in the codebase become the seed for this catalog.</p>
+  </div>
+
+  <div class="adr">
+    <div class="adr-head"><span class="adr-id">D4</span><h3>Subscription enforcement</h3></div>
+    <p class="verdict">Middleware loads the active <code>Subscription</code> + <code>Entitlements</code> into <code>ITenantContext</code> (cached ~60&nbsp;s). Attributes and create-time checks read from it. Expiry degrades gracefully through a grace period.</p>
+    <div class="tbl-scroll" style="margin:12px 0 6px">
+      <table>
+        <thead><tr><th>State</th><th>Behaviour</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">Trial</td><td>Full access to template modules; countdown shown in shell.</td></tr>
+          <tr><td class="mono">Active</td><td>Access = enabled modules ∩ paid entitlements.</td></tr>
+          <tr><td class="mono">PastDue</td><td>Grace window (e.g. 7 days): full access + banner. Then → read-only.</td></tr>
+          <tr><td class="mono">Suspended</td><td>Login allowed; all writes blocked; export + billing pages only.</td></tr>
+          <tr><td class="mono">Cancelled</td><td>Data retained 90 days for reactivation, then purged.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>Quotas</strong> (max users, branches, POS terminals, storage) are checked at the point of creation — a clear "upgrade to add another branch" message, not a silent failure.</p>
+  </div>
+
+  <div class="adr">
+    <div class="adr-head"><span class="adr-id">D5</span><h3>Pricing calculation</h3></div>
+    <p class="verdict">A deterministic <code>PricingEngine</code>:&nbsp; <code>total = planBase + Σ modulePrice + Σ (meteredQty × unitPrice)</code>. Prices come from a <b>versioned price book</b>; a tenant keeps the version they signed up on until they actively change plan.</p>
+    <p>Keep the model boring and legible: monthly, in BDT. <strong>Ship with three metered dimensions</strong> — additional users, additional branches, additional POS terminals — because those are the ones tenants understand and can predict. Storage and "advanced features" stay in the price-book <em>schema</em> (any SKU can be metered) but are not billed until there is a real reason to; storage overage in particular waits for Phase 4 when you can actually measure it. Everything else is included in a module's flat price. The wizard shows a live line-item quote as the user toggles.</p>
+    <p><strong>Plans</strong> (Starter / Business / Enterprise) are just named bundles: a set of included module keys + included quotas + a base price. "Build your own" is the same engine with an empty bundle. One code path, not two. See §06 for the plan table and the build-your-own flow.</p>
+  </div>
+
+  <div class="adr">
+    <div class="adr-head"><span class="adr-id">D6</span><h3>Business configuration</h3></div>
+    <p class="verdict"><b>Template-driven.</b> A <code>BusinessTemplate</code> (Pharmacy, Feed, Super Shop, Wholesale, Retail, Buying House) maps to recommended module keys + default settings + a <b>seed pack</b> (chart of accounts, units, roles, document numbering). A plain-language questionnaire adjusts the recommendation.</p>
+    <p>Settings are stored as typed setting classes backed by a <code>TenantSetting</code> key/value table (the existing <code>Setting</code> entity, scoped to tenant). Reads go through strongly-typed accessors, never raw strings scattered in services.</p>
+    <p>The customer can override the recommendation before finishing, and change most toggles later from Settings. What they cannot do is invent new document types or workflows — that stays in code. <em>Stable code, configurable features.</em></p>
+  </div>
+</section>
+
+<!-- ============ ACCESS ============ -->
+<section id="access">
+  <div class="sec-head"><span class="sec-no">04</span><h2>Module access vs user permissions</h2></div>
+  <div class="col">
+    <p>These are two independent questions and the architecture must never conflate them:</p>
+  </div>
+
+  <div class="two">
+    <div class="adr" style="margin:8px 0">
+      <div class="adr-head"><span class="adr-id" style="background:var(--signal)">AXIS 1</span><h3>Module access</h3></div>
+      <p class="verdict"><b>Did the tenant buy this?</b></p>
+      <p>A property of the <em>tenant's subscription</em>. Set by the platform: template + plan + build-your-own choices + admin overrides → <code>TenantModule</code> rows and <code>Entitlement</code> limits. Changes when they upgrade, downgrade, or a payment lapses. Applies to every user in the tenant equally.</p>
+      <p class="where">enforced by <code>[RequiresModule]</code> · <code>[RequiresFeature]</code> · quota checks · menu from <code>/api/me</code></p>
+    </div>
+    <div class="adr" style="margin:8px 0">
+      <div class="adr-head"><span class="adr-id">AXIS 2</span><h3>User permission</h3></div>
+      <p class="verdict"><b>May this person do it?</b></p>
+      <p>A property of the <em>user's role within the tenant</em>. Set by the tenant admin: roles (Owner, Sales Manager, Cashier, Accountant…) each hold a set of permission strings in <code>RoleClaim</code>. The Cashier can use POS but not Purchase; the Sales Manager can see customers but not System Settings.</p>
+      <p class="where">enforced by the existing <code>[Authorize("Permissions.Sales.Create")]</code> attribute + <code>RoleClaim</code> table</p>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="call rec">
+      <span class="call-tag">Effective access = the intersection</span>
+      <p>A user can reach a feature only if <strong>the tenant has the module</strong> <em>and</em> <strong>the user's role has the permission</strong>. Module gate is checked first (cheaper, coarser, returns "not on your plan"); permission gate second (returns "ask your administrator"). The permission catalog is filtered to a tenant's enabled modules, so a tenant admin setting up roles only ever sees permissions for modules they actually own — they never assign a permission for POS if POS is off.</p>
+    </div>
+    <p>The codebase already has the raw material for both axes: <code>Permissions.AccessModules.*</code> constants map cleanly onto Axis 1's module keys, and the per-feature <code>Permissions.&lt;Area&gt;.&lt;Action&gt;</code> constants + <code>RoleClaim</code> are Axis 2 as-is. The new work is the tenant/subscription layer that decides which <code>AccessModules</code> a tenant gets, and filtering the role-setup screen by it.</p>
+  </div>
+</section>
+
+<!-- ============ MODULES ============ -->
+<section id="modules">
+  <div class="sec-head"><span class="sec-no">05</span><h2>Generic vs industry-specific</h2></div>
+  <div class="col">
+    <p>The dividing line: if two different business types would both want it and mean the same thing by it, it is <strong>generic</strong>. If it only makes sense for one industry, or the same word means different things (a "batch" in pharma vs a "production batch" in feed), it is an <strong>industry module</strong>.</p>
+    <div class="call rec">
+      <span class="call-tag">You already have two industry modules — as <code>if</code> statements</span>
+      <p>The Feed ERP's <code>BusinessType</code> split <em>is</em> a Pharmacy module and a Feed module in embryo: a shared permission set plus <code>PrimaryPermissions</code> (9 groups: Territories, PackSizes, ProductAudits, primary sales &amp; inventory reports…) and <code>SecondaryPermissions</code> (6 groups: customer-wise discounts, delivery notes, receive payments…), and ~30 <code>if (BusinessType == …)</code> branches. Formalising this means: (1) each of those permission classes becomes a module's permission group; (2) each <code>if</code> branch becomes either a module check or a call into an injected <code>IIndustryProfile</code> chosen by the tenant's template; (3) the paired <code>…Primary…</code> / <code>…Secondary…</code> PDF methods become per-industry report packs. Do this <em>before</em> adding Super Shop, or industry #3 means editing all 30 sites again — see §08 Phase 1 and §11.</p>
+    </div>
+  </div>
+
+  <div class="tbl-scroll">
+    <table>
+      <thead><tr><th>Capability</th><th>Layer</th><th>Source today</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Identity, roles, permissions</td><td class="mono">Core</td><td>Application.Api</td><td>Keep the <code>RoleClaim</code> model; add platform-admin roles above tenant roles.</td></tr>
+        <tr><td>Organisation, branches, warehouses</td><td class="mono">Core</td><td>Both (ERP <code>Store</code>, POS <code>Branch</code>)</td><td>Unify <code>Branch</code>/<code>Store</code> into one org-unit concept.</td></tr>
+        <tr><td>Product / item master</td><td class="mono">Core</td><td>Both</td><td>Superset of fields; industry modules add extension tables (drug schedule, formula flag).</td></tr>
+        <tr><td>Customer, supplier</td><td class="mono">Core</td><td>Both</td><td>ERP models these as <code>Account</code> sub-types; reconcile with POS's flat <code>Customer</code>.</td></tr>
+        <tr><td>Inventory &amp; stock ledger</td><td class="mono">Business</td><td>Both</td><td>Batch/expiry-aware valuation from the POS; weighted-average COGS.</td></tr>
+        <tr><td>Purchase — PO, GRN, returns, LC</td><td class="mono">Business</td><td>Application.Api (richer)</td><td>LC / import costing is optional sub-feature.</td></tr>
+        <tr><td>Sales — SO, invoice, delivery note</td><td class="mono">Business</td><td>Application.Api</td><td>Credit limit / discount validation already present.</td></tr>
+        <tr><td>POS — terminal sale, shift, cash drawer</td><td class="mono">Business</td><td>ButsPosDotnet6 + PMSShopAngular</td><td>Port the fast-sale flow, COGS-per-sale, returns, customer dues.</td></tr>
+        <tr><td>Accounting — CoA, journals, vouchers</td><td class="mono">Business</td><td>Application.Api (full)</td><td>The keystone asset. POS's light ledger retires into this.</td></tr>
+        <tr><td>Barcode / label printing</td><td class="mono">Business</td><td>New (thin)</td><td>Optional module; super shop &amp; pharmacy retail.</td></tr>
+        <tr><td>Advanced reporting / analytics</td><td class="mono">Business</td><td>Application.Api report controllers</td><td>Metered/priced tier.</td></tr>
+        <tr><td><b>Pharmacy</b> — batch, expiry, near-expiry alerts, drug schedule</td><td class="mono">Industry</td><td>ButsPosDotnet6</td><td>Extension entities + POS retail defaults + expiry report pack.</td></tr>
+        <tr><td><b>Feed</b> — formula/BOM, manufacturing order, raw material, by-product yield</td><td class="mono">Industry</td><td>Application.Api (Production)</td><td>Already isolated in the Production Autofac module.</td></tr>
+        <tr><td><b>Super Shop</b> — promotions, combo/gift items, shelf, weigh-scale</td><td class="mono">Industry</td><td>Partly POS (<code>GifItem</code>)</td><td>New thin module over POS + Barcode.</td></tr>
+        <tr><td><b>Buying House</b> — style costing, order tracking, export documentation</td><td class="mono">Industry</td><td>New</td><td>Reuses Purchase + Sales + Accounting; adds style/costing entities only.</td></tr>
+        <tr><td><b>Wholesale</b> — routes/territory, van sales, credit control</td><td class="mono">Industry</td><td>Application.Api (territory, MO-wise collection)</td><td>Mostly config over Sales; small module.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <h3>Adding a new business type later</h3>
+    <ol class="list">
+      <li>Analyse the requirement against the capability table above.</li>
+      <li>Create a <code>BusinessTemplate</code> row + seed pack + questionnaire branch.</li>
+      <li>Reuse Core + whichever Business modules fit.</li>
+      <li>Write <em>only</em> the missing Industry module — extension entities, a handful of services, a few screens, a report pack.</li>
+      <li>Add its price-book entries. Ship.</li>
+    </ol>
+    <p>No forking, no per-customer code. A "Restaurant" or "Auto Workshop" template is a weekend of template + seed work plus however much genuinely new domain logic it needs.</p>
+  </div>
+</section>
+
+<!-- ============ ONBOARDING ============ -->
+<section id="onboarding">
+  <div class="sec-head"><span class="sec-no">06</span><h2>Onboarding &amp; pricing experience</h2></div>
+  <div class="col">
+    <p>The customer's whole experience is: <strong>tell us about your business → get a recommendation → choose what you need → see your price → start.</strong> No ERP vocabulary on screen.</p>
+  </div>
+
+  <div class="flow">
+    <div class="flow-step"><div class="fs-no">1 · ACCOUNT</div><div class="fs-t">Name, email, password</div><div class="fs-d">Creates the owner user + an <code>OnboardingSession</code>. No tenant yet.</div></div>
+    <div class="flow-step"><div class="fs-no">2 · BUSINESS</div><div class="fs-t">Business name, type, country, currency, time zone</div><div class="fs-d">Country/currency/TZ default from IP; type drives everything next.</div></div>
+    <div class="flow-step"><div class="fs-no">3 · QUESTIONS</div><div class="fs-t">6–8 plain questions</div><div class="fs-d">Answers map to module toggles (see below).</div></div>
+    <div class="flow-step"><div class="fs-no">4 · REVIEW</div><div class="fs-t">"Your recommended setup" + editable toggles + live price</div><div class="fs-d">Line-item quote updates on every change.</div></div>
+    <div class="flow-step"><div class="fs-no">5 · START</div><div class="fs-t">Confirm → provision → getting-started checklist</div><div class="fs-d">Tenant + seed pack created; owner lands in the app.</div></div>
+  </div>
+
+  <div class="two">
+    <div>
+      <h4>Questionnaire → configuration mapping</h4>
+      <div class="tbl-scroll" style="box-shadow:none">
+        <table>
+          <thead><tr><th>Plain question</th><th>If yes</th></tr></thead>
+          <tbody>
+            <tr><td>Do you sell directly to walk-in customers?</td><td class="mono">+ POS</td></tr>
+            <tr><td>Do you have more than one location?</td><td class="mono">+ Multi-branch, quota&nbsp;&gt;1</td></tr>
+            <tr><td>Do you make or assemble products yourself?</td><td class="mono">+ Production / Formula</td></tr>
+            <tr><td>Do you track expiry dates?</td><td class="mono">+ Expiry management</td></tr>
+            <tr><td>Do you track stock by batch or lot?</td><td class="mono">+ Batch management</td></tr>
+            <tr><td>Do you scan barcodes at the counter?</td><td class="mono">+ Barcode / labels</td></tr>
+            <tr><td>Do you give credit / track customer dues?</td><td class="mono">+ Receivables, credit limits</td></tr>
+            <tr><td>Do you import goods under LC?</td><td class="mono">+ Import &amp; LC costing</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <h4>Template defaults</h4>
+      <div class="tbl-scroll" style="box-shadow:none">
+        <table>
+          <thead><tr><th>Template</th><th>Modules seeded on</th></tr></thead>
+          <tbody>
+            <tr><td><b>Pharmacy</b></td><td class="mono">Inventory · Purchase · Sales · POS · Batch · Expiry · Accounting</td></tr>
+            <tr><td><b>Feed industry</b></td><td class="mono">Inventory · Purchase · Sales · Production/Formula · Raw material · Accounting</td></tr>
+            <tr><td><b>Super shop</b></td><td class="mono">Inventory · Purchase · POS · Barcode · Promotions · Accounting</td></tr>
+            <tr><td><b>Wholesale</b></td><td class="mono">Inventory · Purchase · Sales · Routes · Credit control · Accounting</td></tr>
+            <tr><td><b>Retail</b></td><td class="mono">Inventory · Purchase · Sales · POS · Accounting</td></tr>
+            <tr><td><b>Buying house</b></td><td class="mono">Purchase · Sales · Style costing · Export docs · Accounting</td></tr>
+            <tr><td><b>Other</b></td><td class="mono">Inventory · Purchase · Sales · Accounting (questionnaire fills the rest)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <h3>What the review step looks like</h3>
+    <p>Modules are shown in two groups, in plain terms, with the recommendation pre-ticked and the price moving as the customer changes anything.</p>
+  </div>
+
+  <pre class="ascii">Your recommended setup — Pharmacy                    ৳ 4,500 / month
+─────────────────────────────────────────────────────────────────
+ALWAYS INCLUDED                          included in base
+  ✓ Track stock              ✓ Purchases      ✓ Sales & customers
+  ✓ Money in / money out (accounting)
+
+CHOOSE WHAT YOU NEED
+  ☑ Counter sales (POS)                        + ৳ 1,200
+  ☑ Track batch / lot numbers                  + ৳   400
+  ☑ Track expiry dates                         + ৳   400
+  ☐ Barcode & label printing                   + ৳   300
+  ☐ Advanced reports & analytics               + ৳   800
+
+YOUR TEAM & LOCATIONS
+  Users                3   (2 included, +1 × ৳ 250)       + ৳ 250
+  Branches             1   (1 included)                        —
+  POS terminals        2   (1 included, +1 × ৳ 350)      + ৳ 350
+─────────────────────────────────────────────────────────────────
+  Base ৳ 2,000 + modules ৳ 2,000 + team ৳ 600  =  ৳ 4,600 / month
+  14-day free trial · cancel anytime · change your plan later</pre>
+
+  <div class="two">
+    <div>
+      <h4>Predefined plans</h4>
+      <div class="tbl-scroll" style="box-shadow:none">
+        <table>
+          <thead><tr><th>Plan</th><th>Included</th></tr></thead>
+          <tbody>
+            <tr><td><b>Starter</b><div class="where">small shop</div></td><td>Stock · Purchase · Sales · Accounting · 2 users · 1 branch. No POS.</td></tr>
+            <tr><td><b>Business</b><div class="where">growing</div></td><td>Everything in Starter + POS + Barcode + Advanced reports · 8 users · 3 branches · 2 POS terminals.</td></tr>
+            <tr><td><b>Enterprise</b><div class="where">large / group</div></td><td>All modules · custom user &amp; branch counts · optional dedicated database · priority support.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <h4>Build your own plan</h4>
+      <ol class="list" style="font-size:.95rem">
+        <li>Pick business type → gets a template recommendation.</li>
+        <li>Tick / untick modules.</li>
+        <li>Set number of users.</li>
+        <li>Set number of branches (and POS terminals).</li>
+        <li>See the calculated monthly price, itemised.</li>
+        <li>Start the free trial → subscribe.</li>
+      </ol>
+      <p style="font-size:.9rem;color:var(--ink-faint)">Same <code>PricingEngine</code>, same screen — a "plan" just pre-fills steps 2–4.</p>
+    </div>
+  </div>
+
+  <div class="col">
+    <h3>Provisioning (must be idempotent)</h3>
+    <p>On confirm, a single transactional job: create <code>Tenant</code> + <code>Subscription</code> (Trial) → assign subdomain → create <code>TenantModule</code> rows from the final selection → run the seed pack (CoA, units, roles, numbering, one branch, financial year) → create the owner's tenant user with the Owner role → send welcome email. If it fails partway, it can be safely re-run — key every step on <code>(TenantId, stepKey)</code>.</p>
+    <div class="call warn">
+      <span class="call-tag">Language discipline</span>
+      <p>Ban these words from customer-facing screens: <em>module, entity, permission, claim, discriminator, tenant, GRN, voucher, ledger posting</em>. Say "track stock", "your team", "what you can do", "goods received", "money in / money out". Keep the ERP terms for the platform-admin console and the developer docs.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PLATFORM ADMIN ============ -->
+<section id="platform-admin">
+  <div class="sec-head"><span class="sec-no">07</span><h2>Platform administration</h2></div>
+  <div class="col">
+    <p>A separate console — separate login, separate role hierarchy, never mixed into a tenant's UI. It operates <em>above</em> tenants and its own requests are not tenant-scoped (they explicitly select a tenant or run cross-tenant).</p>
+    <div class="two" style="margin-top:6px">
+      <div>
+        <h4>Platform admin can</h4>
+        <ul>
+          <li>Create, suspend, reactivate, delete tenants</li>
+          <li>Edit the module catalog &amp; dependencies</li>
+          <li>Publish price-book versions &amp; plans</li>
+          <li>Override a tenant's modules / quotas / price</li>
+          <li>See usage, MRR, churn, provisioning failures</li>
+          <li>Impersonate a tenant user for support (audited)</li>
+          <li>Manage business templates &amp; seed packs</li>
+          <li>Move a tenant to a dedicated database</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Tenant admin (the Owner role) can</h4>
+        <ul>
+          <li>Manage their team, roles &amp; what each person can do</li>
+          <li>Turn optional modules on/off (price updates live)</li>
+          <li>Add branches / users up to quota, or upgrade</li>
+          <li>Edit business settings &amp; document templates</li>
+          <li>See their own invoices &amp; usage</li>
+          <li>Export their data</li>
+        </ul>
+      </div>
+    </div>
+    <div class="call rec">
+      <span class="call-tag">Keep them apart in code</span>
+      <p>Two authorization surfaces: <code>[PlatformAuthorize]</code> (checks a platform-admin identity, ignores tenant context) and the existing <code>[Authorize("Permissions…")]</code> (tenant-scoped). A platform admin acting on a tenant does so through an explicit, audited "act as tenant X" path — not by holding tenant claims.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ROADMAP ============ -->
+<section id="roadmap">
+  <div class="sec-head"><span class="sec-no">08</span><h2>Migration roadmap</h2></div>
+  <div class="col">
+    <p>Incremental. Existing Pharmaceutical and Feed ERP customers keep working throughout — they are already tenants with a business type, so they become tenants #1..n on their templates. No big-bang rewrite. Each phase ships something usable.</p>
+  </div>
+
+  <div class="phase">
+    <div class="phase-tag">PHASE 0</div>
+    <div>
+      <h3>Tenancy foundation</h3>
+      <div class="goal">goal — one hardened, fail-closed isolation model in Application.Api</div>
+      <ul>
+        <li>Add <code>ITenantContext</code> (scoped) + <code>ITenantScoped</code> marker interface on all tenant entities.</li>
+        <li>Replace manual <code>WHERE TenantId</code> in <code>BaseRepository</code> with EF global query filters; add a <code>SaveChanges</code> guard that throws on a scoped entity with an empty <code>TenantId</code>.</li>
+        <li>Write the tenant-isolation integration test suite (every endpoint, two tenants, assert no bleed).</li>
+        <li>Tenant-resolution middleware: JWT claim first, host fallback.</li>
+        <li>Re-scaffold rule: leading <code>TenantId</code> on all main indexes.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-tag">PHASE 1</div>
+    <div>
+      <h3>Platform layer + module gating</h3>
+      <div class="goal">goal — modules and subscriptions exist; internal admin console</div>
+      <ul>
+        <li>New <code>Platform</code> Autofac module: <code>Tenant</code>, <code>BusinessTemplate</code>, <code>Module</code>, <code>TenantModule</code>, <code>Plan</code>, <code>PriceBook</code>, <code>Subscription</code>, <code>Entitlement</code>, <code>TenantSetting</code>.</li>
+        <li>Seed the module catalog from existing <code>Permissions.AccessModules.*</code>; fold <code>PrimaryPermissions</code> → a <b>Pharmacy</b> module and <code>SecondaryPermissions</code> → a <b>Feed</b> module.</li>
+        <li><b>Retire <code>BusinessType</code> branching.</b> Introduce <code>IIndustryProfile</code> (resolved from the tenant's template) and replace the ~30 <code>if (BusinessType == …)</code> sites with a module check or a profile call; keep the <code>businesstype</code> claim only as a compatibility shim during the transition.</li>
+        <li><code>[RequiresModule]</code> / <code>[RequiresFeature]</code> filters; apply to all existing controllers.</li>
+        <li><code>GET /api/me</code> returns modules + quotas + subscription state.</li>
+        <li>Internal platform-admin console (Angular) — tenants, modules, pricing, overrides.</li>
+        <li>Backfill: existing <b>Pharmaceutical</b> and <b>Feed</b> tenants onto their templates with an Active subscription (they already carry the right <code>BusinessType</code>).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-tag">PHASE 2</div>
+    <div>
+      <h3>Self-service onboarding — Feed template GA</h3>
+      <div class="goal">goal — a stranger can sign up for a Feed ERP and pay</div>
+      <ul>
+        <li>Marketing + signup site (lightweight, separate app).</li>
+        <li>5-step wizard, questionnaire, live pricing quote, "build your own".</li>
+        <li>Idempotent provisioning job + seed packs.</li>
+        <li>Angular tenant shell: menu from <code>/api/me</code>, subscription banners, quota prompts, self-serve module toggles.</li>
+        <li>Manual invoicing (platform admin issues invoices; mark paid).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-tag">PHASE 3</div>
+    <div>
+      <h3>POS + Pharmacy modules — Pharmacy template GA</h3>
+      <div class="goal">goal — the Pharmacy POS lives inside the platform, not as a second backend</div>
+      <ul>
+        <li>Port POS domain from ButsPosDotnet6 → <code>Pos</code> business module (.NET 6→9, string PK→Guid, add <code>TenantId</code>, silo→pool).</li>
+        <li>Port batch/expiry → <code>Pharmacy</code> industry module (extension tables on Product/Stock).</li>
+        <li>POS terminal UI: port <code>PMSShopAngular</code> <code>modules/pos</code> + <code>pos-layout</code> into the tenant shell as a terminal mode.</li>
+        <li>Migration tooling for existing POS customers (per-DB → tenant rows).</li>
+        <li>Retire <code>PMSAdminReact</code>; migrate its back-office screens into the Angular shell.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-tag">PHASE 4</div>
+    <div>
+      <h3>Billing automation</h3>
+      <div class="goal">goal — money collects itself</div>
+      <ul>
+        <li>Usage metering jobs (users, branches, terminals, storage) → <code>UsageRecord</code>.</li>
+        <li>Invoice generation on the billing cycle; proration on mid-cycle plan changes.</li>
+        <li>Payment gateway — bKash / SSLCOMMERZ for BD, card for international.</li>
+        <li>Dunning: PastDue → grace → read-only → suspend, with emails.</li>
+        <li>Self-serve plan upgrade/downgrade.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-tag">PHASE 5</div>
+    <div>
+      <h3>Breadth</h3>
+      <div class="goal">goal — the platform sells itself to new industries</div>
+      <ul>
+        <li>Super Shop, Wholesale, Retail, Buying House templates + any thin industry modules.</li>
+        <li>Dedicated-DB option for Enterprise tenants (activate the <code>DbConnectionKey</code> path).</li>
+        <li>Custom domains, white-label, tenant API keys.</li>
+        <li>Marketplace-style module discovery inside the app.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FRONTEND ============ -->
+<section id="frontend">
+  <div class="sec-head"><span class="sec-no">09</span><h2>Frontend consolidation</h2></div>
+  <div class="col">
+    <p>Three frontends collapse to two apps. The tenant shell (<code>Application.Client</code>) now sits in the same <code>GenericERP</code> repo as the platform API, so the shell and the <code>/api/me</code> contract it depends on version and deploy together.</p>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>App</th><th>Built from</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><b>Tenant shell</b> (Angular, current LTS)</td><td><code>Application.Client</code> (was ERPAngular, already in the <code>GenericERP</code> repo), upgraded from 14; POS screens ported from PMSShopAngular</td><td>The whole product for a logged-in tenant: ERP modules lazy-loaded by entitlement, plus a POS terminal mode. Menu, routes and guards driven by <code>/api/me</code>.</td></tr>
+          <tr><td><b>Platform console</b> (Angular)</td><td>New, small</td><td>Internal ops: tenants, modules, pricing, metrics, support impersonation.</td></tr>
+          <tr><td><span class="pill retire">retire</span> PMSAdminReact</td><td>—</td><td>React 16 + MUI 4 + react-scripts 3 is a dead-end toolchain. Rebuild its handful of unique screens in the shell.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The marketing + signup site is a separate, lighter codebase (it has no auth and different performance/SEO needs) — it just talks to the onboarding API.</p>
+    <div class="call rec">
+      <span class="call-tag">Menu is data, not code</span>
+      <p>The single highest-leverage frontend change: delete the hardcoded <code>navigation.service.ts</code> array and build the sidenav from an endpoint that already knows the tenant's modules and the user's permissions. Everything about "configurable ERP" on the frontend follows from that.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ QUESTIONS ============ -->
+<section id="questions">
+  <div class="sec-head"><span class="sec-no">10</span><h2>The twelve questions, answered</h2></div>
+
+  <div class="qa"><p class="qa-q"><span class="qn">1</span>Best multi-tenancy strategy?</p><p class="qa-a"><b>Pooled, single instance, row-level <code>TenantId</code> with EF global query filters.</b> It is where <code>Application.Api</code> already is and the only model that supports self-service signup and central billing. Harden it; don't replace it.</p></div>
+
+  <div class="qa"><p class="qa-q"><span class="qn">2</span>Shared or separate databases?</p><p class="qa-a"><b>Shared by default; dedicated DB as a per-tenant override for Enterprise.</b> Never schema-per-tenant — it multiplies migration cost with no isolation benefit over a discriminator column plus a fail-closed save guard.</p></div>
+
+  <div class="qa"><p class="qa-q"><span class="qn">3</span>How should module activation work?</p><p class="qa-a"><b>Code-defined modules, data-driven activation.</b> A seeded <code>Module</code> catalog with declared dependencies; per-tenant <code>TenantModule</code> rows; enforced at API (<code>[RequiresModule]</code>), navigation (<code>/api/me</code>), and service layer.</p></div>
+
+  <div class="qa"><p class="qa-q"><span class="qn">4</span>How is subscription access enforced?</p><p class="qa-a"><b>Middleware resolves subscription + entitlements into a cached <code>ITenantContext</code>;</b> attributes and create-time quota checks read it. Expiry flows Trial → Active → PastDue (grace) → read-only → Suspended, never an abrupt lockout.</p></div>
+
+  <div class="qa"><p class="qa-q"><span class="qn">5</span>How is pricing calculated?</p><p class="qa-a"><b><code>planBase + Σ modulePrice + Σ (meteredQty × unitPrice)</code></b> from a versioned price book; the tenant keeps their signup version until they change plan. Only three metered dimensions: users, branches, POS terminals. Plans are just named bundles over the same engine.</p></div>
+
+  <div class="qa"><p class="qa-q"><span class="qn">6</span>How does business configuration work?</p><p class="qa-a"><b>Templates + questionnaire + typed settings.</b> A <code>BusinessTemplate</code> supplies recommended modules, defaults and a seed pack; plain questions adjust it; the customer can override then, and change toggles later. No workflow invention by customers.</p></div>
+
+  <div class="qa"><p class="qa-q"><span class="qn">7</span>How does it stay simple for end users?</p><p class="qa-a"><b>Business language, not ERP language;</b> a 5-step wizard with IP-based defaults; recommendation before selection; a live line-item price; a getting-started checklist after signup. ERP vocabulary is confined to the platform console.</p></div>
+
+  <div class="qa"><p class="qa-q"><span class="qn">8</span>How are new industry types added?</p><p class="qa-a"><b>New template + seed pack + only the missing industry module.</b> Core and business modules are reused unchanged. No forking, no per-customer code.</p></div>
+
+  <div class="qa"><p class="qa-q"><span class="qn">9</span>How is the existing Feed ERP migrated?</p><p class="qa-a"><b>It becomes the platform</b> — and it is already multi-tenant and already two-industry (Pharmaceutical + Feed), so the Feed and Pharmacy templates are mostly extraction, not new build. Add the Platform layer, convert filtering to global query filters, replace <code>BusinessType</code> branches with modules + an industry profile, backfill current customers onto their templates. Zero rewrite; they never stop working.</p></div>
+
+  <div class="qa"><p class="qa-q"><span class="qn">10</span>How is the Pharmacy POS reused?</p><p class="qa-a"><b>Ported into <code>Pos</code> + <code>Pharmacy</code> modules</b> (.NET 6→9, string PK→Guid, add TenantId, silo→pool). <code>PMSShopAngular</code>'s POS module/layout is the reference for the terminal UI. The second backend is decommissioned, not maintained in parallel.</p></div>
+
+  <div class="qa"><p class="qa-q"><span class="qn">11</span>What is generic vs industry-specific?</p><p class="qa-a"><b>Generic:</b> identity, org, product, customer, supplier, inventory, purchase, sales, POS, accounting, reporting, pricing. <b>Industry:</b> pharmacy (batch/expiry/schedule), feed (formula/MO/by-product), super shop (promotions), buying house (style costing), wholesale (routes/credit). See §05.</p></div>
+
+  <div class="qa"><p class="qa-q"><span class="qn">12</span>How do we avoid over-engineering?</p><p class="qa-a"><b>One deployable, one DB, no no-code engine, no per-tenant code, templates not workflow builders, manual billing before automated.</b> Ship Feed + Pharmacy first; add breadth only once those two pay. See §11.</p></div>
+</section>
+
+<!-- ============ RISKS ============ -->
+<section id="risks">
+  <div class="sec-head"><span class="sec-no">11</span><h2>Risks &amp; guardrails</h2></div>
+  <div class="tbl-scroll">
+    <table>
+      <thead><tr><th>Risk</th><th>Why it bites here</th><th>Guardrail</th></tr></thead>
+      <tbody>
+        <tr><td><b>Cross-tenant data leak</b></td><td>Filtering is currently hand-written in <code>BaseRepository</code>; one missed <code>.Where</code> exposes another tenant.</td><td>EF global query filters on <code>ITenantScoped</code>; fail-closed <code>SaveChanges</code> guard; per-endpoint two-tenant integration tests in CI.</td></tr>
+        <tr><td><b>Dual-backend drift</b></td><td>Running <code>Application.Api</code> and ButsPosDotnet6 in parallel indefinitely doubles every fix.</td><td>Phase 3 has a hard cutover; ButsPosDotnet6 goes read-only then off. .NET 6 is already out of support — this is also a security deadline.</td></tr>
+        <tr><td><b>Pricing complexity creep</b></td><td>"Just one more pricing rule" is how SaaS billing becomes unmaintainable.</td><td>Three metered dimensions, flat module prices, one engine. New pricing ideas need an explicit decision, not a config toggle.</td></tr>
+        <tr><td><b>Provisioning half-failures</b></td><td>A tenant created without a chart of accounts is a broken tenant.</td><td>Idempotent, transactional, re-runnable provisioning keyed on <code>(TenantId, stepKey)</code>; a "provisioning failed" queue in the console.</td></tr>
+        <tr><td><b><code>BusinessType</code> branching spread across ~30 files</b></td><td>Industry differences are currently <code>if (BusinessType == 1/2)</code> in services, dashboards and report controllers, plus paired <code>…Primary…</code>/<code>…Secondary…</code> PDF methods. Adding a third industry as a new int value means finding and editing every site — and the flag also collides in name with the unrelated "primary/secondary quantity" (bags vs weight) concept.</td><td>Phase 1 converts these to module checks + an injected <code>IIndustryProfile</code>; rename the concept to <code>Pharmacy</code>/<code>Feed</code>. After that, a new industry is a new profile + report pack, touching no existing branch.</td></tr>
+        <tr><td><b>Scaffolded DbContext friction</b></td><td>EF Core Power Tools re-scaffold overwrites hand edits; adding platform tables fights the generator.</td><td>Keep platform entities in a hand-authored context partial / separate configuration; document the re-scaffold procedure.</td></tr>
+        <tr><td><b>The temptation to go dynamic</b></td><td>"Configurable" slides into "user-defined entities and forms", which is a different (much larger) product.</td><td>Written principle: <em>stable code + configurable features</em>. Configuration selects and parametrises code paths; it never defines them.</td></tr>
+        <tr><td><b>Angular 14 age</b></td><td>Shell is two-plus LTS versions behind; upgrade cost grows monthly.</td><td>Budget the upgrade into Phase 2 before piling new screens on.</td></tr>
+        <tr><td><b>Seed-data divergence</b></td><td>Feed and Pharmacy charts of accounts / units drift apart over time.</td><td>Seed packs are versioned artifacts owned by the platform team, not copy-pasted per template.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ COVERAGE ============ -->
+<section id="coverage">
+  <div class="sec-head"><span class="sec-no">12</span><h2>Requirements coverage check</h2></div>
+  <div class="col">
+    <p>Every requirement block from the brief, mapped to where this plan addresses it. <span class="cov-y">●</span> fully addressed &nbsp;·&nbsp; <span class="cov-p">◐</span> addressed with a deliberate narrowing (noted).</p>
+  </div>
+  <div class="tbl-scroll">
+    <table>
+      <thead><tr><th>Requirement</th><th></th><th>Where &amp; how</th></tr></thead>
+      <tbody>
+        <tr><td>SaaS product — self-service sign-up, configure, use, no per-customer dev</td><td><span class="cov-y">●</span></td><td>§00 recommendation · §06 wizard · §08 roadmap Phase 2</td></tr>
+        <tr><td>Multi-tenant · Configurable · Modular · Simple · Scalable · Subscription-based</td><td><span class="cov-y">●</span></td><td>D1 (multi-tenant) · D3/D6 (modular, configurable) · §06 + language callout (simple) · §02 "How it scales" · D4/D5 (subscription)</td></tr>
+        <tr><td>Tenant = customer; supported types: Feed, Pharmacy, Super Shop, Buying House, Wholesale, Retail, Other</td><td><span class="cov-y">●</span></td><td>§05 capability table · §06 template-defaults table (incl. "Other")</td></tr>
+        <tr><td>Tenant data isolated &amp; secure</td><td><span class="cov-y">●</span></td><td>D1 · D2 · §02 request-scoping flow · §11 leak guardrail</td></tr>
+        <tr><td>Setup wizard — Step 1 account, Step 2 business, Step 3 business type → recommended modules</td><td><span class="cov-y">●</span></td><td>§06 five-step flow (matches the brief's steps 1:1)</td></tr>
+        <tr><td>Per-business-type recommended module lists (Pharmacy / Feed / Super Shop shown)</td><td><span class="cov-y">●</span></td><td>§06 template-defaults table</td></tr>
+        <tr><td>Module configuration — Core vs Optional groups, enable/disable, auto price</td><td><span class="cov-y">●</span></td><td>§06 review-step mock-up (grouped, priced live) · D3</td></tr>
+        <tr><td>Pricing model — base + per-module + per-user + per-branch + per-POS-terminal + storage + advanced</td><td><span class="cov-p">◐</span></td><td>D5 + §06. <b>Narrowing:</b> bill 3 metered dimensions at launch (users, branches, terminals); storage &amp; advanced-feature metering kept in the schema, switched on in Phase 4 — per the brief's own "avoid complicated pricing rules".</td></tr>
+        <tr><td>Always show what was selected and the price; simple &amp; transparent</td><td><span class="cov-y">●</span></td><td>§06 itemised quote mock-up; live update on every toggle</td></tr>
+        <tr><td>Predefined plans (Starter / Business / Enterprise) + Build-Your-Own (6 steps)</td><td><span class="cov-y">●</span></td><td>§06 plans table + build-your-own 6-step list · D5 (one engine)</td></tr>
+        <tr><td>Extremely simple UX — no technical terms, business-friendly language</td><td><span class="cov-y">●</span></td><td>§06 "Language discipline" callout · §10 Q7</td></tr>
+        <tr><td>Questionnaire-based guided configuration (Q1–Q6 examples)</td><td><span class="cov-y">●</span></td><td>§06 questionnaire → configuration mapping table</td></tr>
+        <tr><td>Tenant configuration architecture (Platform → Tenant → Subscription / Type / Modules / Users / Branches / Settings)</td><td><span class="cov-y">●</span></td><td>§02 "Configuration lives at three levels" tree · Appendix A tables</td></tr>
+        <tr><td>Recommend architecture for: multi-tenancy, isolation, module activation, feature permissions, subscription mgmt, pricing</td><td><span class="cov-y">●</span></td><td>D1 · D1/D2 · D3 · §04 + D4 · D4 · D5</td></tr>
+        <tr><td><b>Separate</b> module/subscription access from user roles/permissions</td><td><span class="cov-y">●</span></td><td>§04 — the two-axis model, effective access = intersection</td></tr>
+        <tr><td>Separate Platform Administration area with the listed admin powers; tenant admin scoped to own business</td><td><span class="cov-y">●</span></td><td>§07 — split consoles, two authorization surfaces, capability lists</td></tr>
+        <tr><td>Principle: Stable Code + Configurable Features; not a DB-driven dynamic ERP</td><td><span class="cov-y">●</span></td><td>§00 · D6 · §11 "temptation to go dynamic"</td></tr>
+        <tr><td>Modular Monolith Multi-Tenant architecture (Platform / Core ERP / Business Modules / Industry Modules)</td><td><span class="cov-y">●</span></td><td>§02 layer stack — matches the brief's tree</td></tr>
+        <tr><td>Future scalability — new business type = analyse → reuse Core → reuse Business → build only missing Industry module</td><td><span class="cov-y">●</span></td><td>§05 "Adding a new business type later"</td></tr>
+        <tr><td>Final goal — "tell us → recommend → choose → price → start"; fast &amp; friendly</td><td><span class="cov-y">●</span></td><td>§06 opening line + flow</td></tr>
+        <tr><td>Answer the 12 specific questions</td><td><span class="cov-y">●</span></td><td>§10 — all twelve</td></tr>
+        <tr><td>Practical for a real product &amp; a small team; avoid over-engineering</td><td><span class="cov-y">●</span></td><td>§08 phased delivery · §11 · §00 "what we are not doing"</td></tr>
+        <tr><td>Templates + Modules + Feature config (not arbitrary customer-built workflows initially)</td><td><span class="cov-y">●</span></td><td>D6 · §00 · §11</td></tr>
+        <tr><td>Gradually migrate the existing Feed ERP; reuse the Pharmacy POS as a source</td><td><span class="cov-y">●</span></td><td>§08 Phases 0–3 · §10 Q9 &amp; Q10</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="col">
+    <div class="call rec">
+      <span class="call-tag">One open item for you to decide</span>
+      <p>The only place this plan deliberately says "not yet" rather than "yes" is <strong>metered storage and advanced-feature billing</strong> (Phase 4). If charging for storage from day one matters to your business model, say so and D5 changes — the engine already supports it, it is only a question of when you turn it on and how you measure it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ APPENDIX ============ -->
+<section id="appendix">
+  <div class="sec-head"><span class="sec-no">A</span><h2>Appendix — platform data model sketch</h2></div>
+  <div class="col">
+    <p>New tables, all <em>cross-tenant</em> (owned by the Platform layer, not filtered by <code>TenantId</code>). Field lists are indicative, not final.</p>
+  </div>
+  <div class="tbl-scroll">
+    <table>
+      <thead><tr><th>Table</th><th>Key fields</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">Tenant</td><td class="mono">Id · Code · Name · Subdomain · CustomDomain? · BusinessTemplateKey · Status · CountryId · Currency · TimeZoneId · DbConnectionKey? · CreatedOn</td><td>The customer. <code>DbConnectionKey</code> null = shared pool.</td></tr>
+        <tr><td class="mono">BusinessTemplate</td><td class="mono">Key · Name · Description · DefaultModuleKeys[] · SeedPackKey · QuestionnaireKey</td><td>Pharmacy, Feed, Super Shop, …</td></tr>
+        <tr><td class="mono">Module</td><td class="mono">Key · Name · Category {Core|Business|Industry} · DependsOn[] · MeteredBy? · PermissionGroup</td><td>The catalog. Seeded from code.</td></tr>
+        <tr><td class="mono">TenantModule</td><td class="mono">TenantId · ModuleKey · Status · ActivatedOn · ExpiresOn?</td><td>What this tenant has switched on.</td></tr>
+        <tr><td class="mono">Plan</td><td class="mono">Key · Name · IncludedModuleKeys[] · IncludedUsers · IncludedBranches · MonthlyBase · Public</td><td>Starter / Business / Enterprise bundles.</td></tr>
+        <tr><td class="mono">PriceBook / PriceBookItem</td><td class="mono">Version · Currency · EffectiveFrom &nbsp;•&nbsp; Sku · UnitPrice · Unit</td><td>Versioned prices for plans, modules, meters.</td></tr>
+        <tr><td class="mono">Subscription</td><td class="mono">Id · TenantId · PlanKey? · Status · PriceBookVersion · PeriodStart · PeriodEnd · TrialEndsOn</td><td>One active per tenant. <code>PlanKey</code> null = build-your-own.</td></tr>
+        <tr><td class="mono">SubscriptionItem</td><td class="mono">SubscriptionId · Sku · Quantity · UnitPriceSnapshot</td><td>Frozen line items = the tenant's locked price.</td></tr>
+        <tr><td class="mono">Entitlement</td><td class="mono">TenantId · Key {max_users, max_branches, max_pos_terminals, storage_mb} · Limit</td><td>Derived from plan + items; checked on create.</td></tr>
+        <tr><td class="mono">TenantSetting</td><td class="mono">TenantId · Key · Value</td><td>Typed setting store (tenant-scoped <code>Setting</code>).</td></tr>
+        <tr><td class="mono">UsageRecord</td><td class="mono">TenantId · Meter · Quantity · PeriodDate</td><td>Metering input for billing.</td></tr>
+        <tr><td class="mono">Invoice / InvoiceLine</td><td class="mono">TenantId · Number · PeriodStart/End · Status · Total &nbsp;•&nbsp; Sku · Description · Qty · Amount</td><td>Phase 4.</td></tr>
+        <tr><td class="mono">OnboardingSession</td><td class="mono">Id · Email · Answers(json) · RecommendedTemplateKey · SelectedModuleKeys[] · Quote(json) · Step · ConvertedTenantId?</td><td>Pre-tenant signup state.</td></tr>
+        <tr><td class="mono">PlatformUser / PlatformRole</td><td class="mono">Id · Email · PasswordHash · Role {SuperAdmin|Ops|Support|Billing}</td><td>Console identities. Separate from tenant <code>User</code>.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <h4>Enforcement primitives (C#)</h4>
+    <p>The whole gating model reduces to a small context object plus three attributes:</p>
+    <pre style="overflow-x:auto;background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:16px 18px;font-family:var(--font-mono);font-size:12.5px;line-height:1.6;color:var(--ink);box-shadow:var(--shadow)">
+public interface ITenantContext {
+    Guid TenantId { get; }
+    string BusinessTemplateKey { get; }            // "pharmacy" | "feed" | ...
+    IReadOnlySet&lt;string&gt; Modules { get; }          // enabled ∩ paid
+    IReadOnlyDictionary&lt;string,int&gt; Quotas { get; } // max_users, ...
+    SubscriptionStatus Status { get; }             // Trial|Active|PastDue|...
+    string? DbConnectionKey { get; }
+}
+
+public interface ITenantScoped { Guid TenantId { get; set; } }
+
+// Replaces the scattered `if (BusinessType == 1/2)` branches.
+// One implementation per industry, resolved from ITenantContext.BusinessTemplateKey.
+public interface IIndustryProfile {
+    string Key { get; }
+    IReportPack Reports { get; }                   // per-industry PDF/report set
+    ISalesPolicy SalesPolicy { get; }              // e.g. Feed: require approved
+    IDashboardSpec Dashboard { get; }              //       customer-wise discount
+}
+
+[RequiresModule(ModuleKeys.Pos)]        // 403 + "module not enabled"
+[RequiresFeature("expiry_alerts")]      // finer-grained than a module
+[EnforceQuota("max_branches")]          // checked before Add
+</pre>
+    <p>EF wiring: in <code>OnModelCreating</code>, for every <code>ITenantScoped</code> type apply <code>HasQueryFilter(e =&gt; e.TenantId == _tenantContext.TenantId)</code> alongside the existing <code>Deleted</code> filter; in <code>SaveChanges</code>, throw if any added <code>ITenantScoped</code> entry has <code>TenantId == Guid.Empty</code>.</p>
+    <p><strong>Industry profile migration:</strong> the ~30 current <code>BusinessType</code> checks each move to one of — a <code>[RequiresModule]</code> gate (feature only exists for that industry), a <code>_tenant.Industry.SalesPolicy</code> call (rule differs), or a <code>_tenant.Industry.Reports</code> lookup (layout differs). The <code>PrimaryPermissions</code> / <code>SecondaryPermissions</code> classes become the <code>PermissionGroup</code> of the Pharmacy / Feed modules.</p>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    BUTS ERP SaaS Platform Plan · v1.1 draft · 2026-09-06 · derived from review of GenericERP (Application.Api + Application.Client, formerly BUTSERP_API + ERPAngular), ButsPosDotnet6, PMSAdminReact, PMSShopAngular · figures and field lists indicative pending detailed design.
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var t=document.getElementById('themeToggle');
+    var root=document.documentElement;
+    function cur(){
+      if(root.dataset.theme) return root.dataset.theme;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+    }
+    t.addEventListener('click',function(){
+      var next=cur()==='dark'?'light':'dark';
+      root.dataset.theme=next;
+      try{localStorage.setItem('erp-plan-theme',next);}catch(e){}
+    });
+    try{
+      var s=localStorage.getItem('erp-plan-theme');
+      if(s)root.dataset.theme=s;
+    }catch(e){}
+  })();
+</script>
+
+</body></html>

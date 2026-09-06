@@ -1,6 +1,6 @@
 # From two products to one ERP SaaS platform
 
-**Architecture & Migration Plan — v1 draft**
+**Architecture & Migration Plan — v1.1 draft**
 
 How to turn the existing Feed ERP and Pharmacy POS into a multi-tenant,
 template-driven ERP that a business owner can sign up for, configure by
@@ -8,8 +8,8 @@ answering plain questions, and pay for by what they switch on.
 
 | | |
 |---|---|
-| **Scope** | BUTSERP_API · ERPAngular · ButsPosDotnet6 · PMSAdminReact · PMSShopAngular |
-| **Prepared** | 2026-09-06 |
+| **Scope** | `GenericERP` (the `src` repo — .NET `Application.Api` + Angular `Application.Client`, formerly BUTSERP_API + ERPAngular) · ButsPosDotnet6 · PMSAdminReact · PMSShopAngular |
+| **Prepared** | 2026-09-06 · rev. 2026-09-06 (repo consolidation) |
 | **Target** | Modular monolith · pooled multi-tenancy |
 | **Interactive version** | https://claude.ai/code/artifact/52c83647-f44f-433b-ae51-3a21d4950465 |
 
@@ -103,8 +103,9 @@ customers.
 - Lock the big decisions (all recommended in §03): one app + one shared
   database; modules are code with on/off flags; price = base + modules + per
   user / branch / terminal; templates, not customer-built workflows.
-- Choose the backend that *becomes* the platform — the Feed ERP
-  (`BUTSERP_API`). Everything else folds into it.
+- Choose the backend that *becomes* the platform — the Feed ERP API
+  (`Application.Api`). It and its Angular admin UI (`Application.Client`) already
+  live in one repo (`GenericERP`); everything else folds into that.
 - Set up a staging environment, a CI pipeline, and a rule: every new table
   starts with `TenantId`.
 
@@ -225,8 +226,10 @@ You are not building a generic ERP. You are building a configurable ERP SaaS
 where a tenant tells you about their business, gets a recommended setup, sees a
 price, and starts working — with no developer in the loop per customer.
 
-The good news from the code review: **BUTSERP_API is already ~70% of the way to
-the right architecture.** It is a .NET 9 modular monolith with per-domain Autofac
+The good news from the code review: **the Feed ERP backend (`Application.Api`) is
+already ~70% of the way to the right architecture** — and it now shares one repo
+(`GenericERP`) with its Angular client (`Application.Client`), so "one codebase"
+has already begun. It is a .NET 9 modular monolith with per-domain Autofac
 modules, a `TenantId` discriminator column on nearly every entity, a tenant
 claim carried in the JWT, audit + soft-delete + tenant stamping centralised in
 `UnitOfWork`, and — crucially — it **already runs two industries from one codebase**: a
@@ -238,7 +241,8 @@ subscriptions, entitlements, pricing, business templates, self-service
 onboarding — and the industry split needs to move off scattered `if` statements
 onto that module layer.
 
-> **The recommendation in one line:** make **BUTSERP_API the platform**. Add a
+> **The recommendation in one line:** make the **Feed ERP backend
+> (`Application.Api`, in the `GenericERP` repo) the platform**. Add a
 > Platform module (tenants, modules, subscriptions, pricing, templates). Convert
 > the manual `WHERE TenantId` filtering to EF global query filters that fail
 > closed. Gate every existing domain behind a module flag. Fold the Pharmacy POS
@@ -262,13 +266,16 @@ onto that module layer.
 
 ## 01 · What exists today
 
-Five repositories, two backends, three frontends. Two different and incompatible
-ideas of multi-tenancy are in play.
+Originally five repositories. The Feed ERP backend and its Angular admin UI have
+now been merged into a **single repo — `GenericERP`, the `src` scope** (.NET
+solution `Application.Api` + Angular `Application.Client`), so what follows is
+four repos, two backends, three frontends. Two different and incompatible ideas
+of multi-tenancy are still in play.
 
-| Repo | Stack | Role | Tenancy model today | Disposition |
+| Repo / project | Stack | Role | Tenancy model today | Disposition |
 |---|---|---|---|---|
-| **BUTSERP_API** | .NET 9 · EF Core · Autofac · Clean Arch (Api / Core / Services / Repository + Infrastructure) | **Two-industry** distribution / manufacturing ERP backend — purchase, production (BOM, MO), sales, inventory, full accounting, ~77 controllers, ~200 services. Serves **Pharmaceutical** (`BusinessType 1`) and **Feed** (`BusinessType 2`) tenants from the same code. | **Row-level.** `TenantId` Guid on entities; value from JWT claim → `HttpContext.Items`; `BaseRepository.TableNoTracking()` appends `WHERE TenantId=` by hand; `UnitOfWork` stamps tenant + audit + soft-delete + `EventLog`. Global query filter only on `Deleted`. Dormant DB-per-tenant path via subdomain → `__DBNAME__`. | Evolve → platform core |
-| **ERPAngular** | Angular 14 · MatX template · Material · SignalR | ERP admin UI — views split by domain (accounts, configuration, inventory, production, purchase, report) | Single deployment. Menu is a hardcoded array in `navigation.service.ts` filtered by permission strings; `hasPermission` route guard; API URL hardcoded in `config.ts`. | Evolve → tenant shell |
+| **`GenericERP` → `Application.Api`** (was BUTSERP_API) | .NET 9 · EF Core · Autofac · Clean Arch (Api / Core / Services / Repository + Infrastructure) | **Two-industry** distribution / manufacturing ERP backend — purchase, production (BOM, MO), sales, inventory, full accounting, ~77 controllers, ~200 services. Serves **Pharmaceutical** (`BusinessType 1`) and **Feed** (`BusinessType 2`) tenants from the same code. | **Row-level.** `TenantId` Guid on entities; value from JWT claim → `HttpContext.Items`; `BaseRepository.TableNoTracking()` appends `WHERE TenantId=` by hand; `UnitOfWork` stamps tenant + audit + soft-delete + `EventLog`. Global query filter only on `Deleted`. Dormant DB-per-tenant path via subdomain → `__DBNAME__`. | Evolve → platform core |
+| **`GenericERP` → `Application.Client`** (was ERPAngular) | Angular 14 · MatX template · Material · SignalR | ERP admin UI — views split by domain (accounts, configuration, inventory, production, purchase, report) | Single deployment. Menu is a hardcoded array in `navigation.service.ts` filtered by permission strings; `hasPermission` route guard; API URL hardcoded in `config.ts`. | Evolve → tenant shell |
 | **ButsPosDotnet6** | .NET 6 · EF Core · policy-based auth · Api / Core / Repository / Services + RequestModel / ViewModel | Pharmacy POS backend — POS sales, batch & expiry stock, purchase, multi-branch, lightweight accounting; CQRS-lite (`BaseCommandService` / `BaseQueryService`) | **Silo.** One DB (`GHP_POS_DB`); a separate deployment + subdomain per customer (CORS list shows ghppos, vetmedpos, demopos…). `Branch` entity handles multi-location *within* one customer. String PKs. No `TenantId`. | Port → POS + Pharmacy modules |
 | **PMSAdminReact** | React 16.8 · MUI v4 · react-scripts 3 · redux · formik | Pharmacy back-office UI — configuration, transactions, accounts, reports | Single deployment per customer, pointed at that customer's POS API. | Retire — dead-end stack |
 | **PMSShopAngular** | Angular 12 · Material · module + layout architecture | Customer-facing shop + **POS terminal** — `modules/{admin,pos,home,auth}`, `layouts/{pos,admin,home,auth}` | Single deployment per customer. | Port → POS terminal in tenant shell |
@@ -308,7 +315,7 @@ ideas of multi-tenancy are in play.
 
 A single modular-monolith .NET application. One deployable unit, internally
 organised into layers whose boundaries are enforced by project references and
-Autofac modules — the structure BUTSERP_API already has, plus a Platform layer
+Autofac modules — the structure `Application.Api` already has, plus a Platform layer
 above it and Industry modules beside the business modules.
 
 ```
@@ -409,7 +416,7 @@ what a user *may do* — is important enough to get its own section (§04).
 `TenantId`, enforced by EF global query filters. Tenant resolved from JWT claim
 (app) or host (public surfaces).
 
-This is where BUTSERP_API already is — the work is hardening it, not replacing
+This is where `Application.Api` already is — the work is hardening it, not replacing
 it. A separate app/instance per tenant (today's POS model) makes self-service
 signup, central upgrades and cross-tenant analytics all but impossible. Pooled
 means a new customer is an `INSERT`.
@@ -570,22 +577,22 @@ industry, or the same word means different things (a "batch" in pharma vs a
 
 | Capability | Layer | Source today | Notes |
 |---|---|---|---|
-| Identity, roles, permissions | Core | BUTSERP_API | Keep the `RoleClaim` model; add platform-admin roles above tenant roles. |
+| Identity, roles, permissions | Core | `Application.Api` | Keep the `RoleClaim` model; add platform-admin roles above tenant roles. |
 | Organisation, branches, warehouses | Core | Both (ERP `Store`, POS `Branch`) | Unify `Branch`/`Store` into one org-unit concept. |
 | Product / item master | Core | Both | Superset of fields; industry modules add extension tables (drug schedule, formula flag). |
 | Customer, supplier | Core | Both | ERP models these as `Account` sub-types; reconcile with POS's flat `Customer`. |
 | Inventory & stock ledger | Business | Both | Batch/expiry-aware valuation from the POS; weighted-average COGS. |
-| Purchase — PO, GRN, returns, LC | Business | BUTSERP_API (richer) | LC / import costing is optional sub-feature. |
-| Sales — SO, invoice, delivery note | Business | BUTSERP_API | Credit limit / discount validation already present. |
+| Purchase — PO, GRN, returns, LC | Business | `Application.Api` (richer) | LC / import costing is optional sub-feature. |
+| Sales — SO, invoice, delivery note | Business | `Application.Api` | Credit limit / discount validation already present. |
 | POS — terminal sale, shift, cash drawer | Business | ButsPosDotnet6 + PMSShopAngular | Port the fast-sale flow, COGS-per-sale, returns, customer dues. |
-| Accounting — CoA, journals, vouchers | Business | BUTSERP_API (full) | The keystone asset. POS's light ledger retires into this. |
+| Accounting — CoA, journals, vouchers | Business | `Application.Api` (full) | The keystone asset. POS's light ledger retires into this. |
 | Barcode / label printing | Business | New (thin) | Optional module; super shop & pharmacy retail. |
-| Advanced reporting / analytics | Business | BUTSERP_API report controllers | Metered/priced tier. |
+| Advanced reporting / analytics | Business | `Application.Api` report controllers | Metered/priced tier. |
 | **Pharmacy** — batch, expiry, near-expiry alerts, drug schedule | Industry | ButsPosDotnet6 | Extension entities + POS retail defaults + expiry report pack. |
-| **Feed** — formula/BOM, manufacturing order, raw material, by-product yield | Industry | BUTSERP_API (Production) | Already isolated in the Production Autofac module. |
+| **Feed** — formula/BOM, manufacturing order, raw material, by-product yield | Industry | `Application.Api` (Production) | Already isolated in the Production Autofac module. |
 | **Super Shop** — promotions, combo/gift items, shelf, weigh-scale | Industry | Partly POS (`GifItem`) | New thin module over POS + Barcode. |
 | **Buying House** — style costing, order tracking, export documentation | Industry | New | Reuses Purchase + Sales + Accounting; adds style/costing entities only. |
-| **Wholesale** — routes/territory, van sales, credit control | Industry | BUTSERP_API (territory, MO-wise collection) | Mostly config over Sales; small module. |
+| **Wholesale** — routes/territory, van sales, credit control | Industry | `Application.Api` (territory, MO-wise collection) | Mostly config over Sales; small module. |
 
 ### Adding a new business type later
 
@@ -747,7 +754,7 @@ something usable.
 
 ### Phase 0 — Tenancy foundation
 
-*Goal — one hardened, fail-closed isolation model in BUTSERP_API.*
+*Goal — one hardened, fail-closed isolation model in `Application.Api`.*
 
 - Add `ITenantContext` (scoped) + `ITenantScoped` marker interface on all tenant
   entities.
@@ -832,11 +839,13 @@ something usable.
 
 ## 09 · Frontend consolidation
 
-Three frontends collapse to two apps.
+Three frontends collapse to two apps. The tenant shell (`Application.Client`) now
+sits in the same `GenericERP` repo as the platform API, so the shell and the
+`/api/me` contract it depends on version and deploy together.
 
 | App | Built from | Purpose |
 |---|---|---|
-| **Tenant shell** (Angular, current LTS) | ERPAngular, upgraded from 14; POS screens ported from PMSShopAngular | The whole product for a logged-in tenant: ERP modules lazy-loaded by entitlement, plus a POS terminal mode. Menu, routes and guards driven by `/api/me`. |
+| **Tenant shell** (Angular, current LTS) | `Application.Client` (was ERPAngular, already in the `GenericERP` repo), upgraded from 14; POS screens ported from PMSShopAngular | The whole product for a logged-in tenant: ERP modules lazy-loaded by entitlement, plus a POS terminal mode. Menu, routes and guards driven by `/api/me`. |
 | **Platform console** (Angular) | New, small | Internal ops: tenants, modules, pricing, metrics, support impersonation. |
 | ~~PMSAdminReact~~ (retire) | — | React 16 + MUI 4 + react-scripts 3 is a dead-end toolchain. Rebuild its handful of unique screens in the shell. |
 
@@ -854,7 +863,7 @@ different performance/SEO needs) — it just talks to the onboarding API.
 ## 10 · The twelve questions, answered
 
 1. **Best multi-tenancy strategy?** — **Pooled, single instance, row-level
-   `TenantId` with EF global query filters.** It is where BUTSERP_API already is
+   `TenantId` with EF global query filters.** It is where `Application.Api` already is
    and the only model that supports self-service signup and central billing.
    Harden it; don't replace it.
 2. **Shared or separate databases?** — **Shared by default; dedicated DB as a
@@ -913,7 +922,7 @@ different performance/SEO needs) — it just talks to the onboarding API.
 | Risk | Why it bites here | Guardrail |
 |---|---|---|
 | **Cross-tenant data leak** | Filtering is currently hand-written in `BaseRepository`; one missed `.Where` exposes another tenant. | EF global query filters on `ITenantScoped`; fail-closed `SaveChanges` guard; per-endpoint two-tenant integration tests in CI. |
-| **Dual-backend drift** | Running BUTSERP_API and ButsPosDotnet6 in parallel indefinitely doubles every fix. | Phase 3 has a hard cutover; ButsPosDotnet6 goes read-only then off. .NET 6 is already out of support — this is also a security deadline. |
+| **Dual-backend drift** | Running `Application.Api` and ButsPosDotnet6 in parallel indefinitely doubles every fix. | Phase 3 has a hard cutover; ButsPosDotnet6 goes read-only then off. .NET 6 is already out of support — this is also a security deadline. |
 | **Pricing complexity creep** | "Just one more pricing rule" is how SaaS billing becomes unmaintainable. | Three metered dimensions, flat module prices, one engine. New pricing ideas need an explicit decision, not a config toggle. |
 | **Provisioning half-failures** | A tenant created without a chart of accounts is a broken tenant. | Idempotent, transactional, re-runnable provisioning keyed on `(TenantId, stepKey)`; a "provisioning failed" queue in the console. |
 | **`BusinessType` branching spread across ~30 files** | Industry differences are currently `if (BusinessType == 1/2)` in services, dashboards and report controllers, plus paired `…Primary…`/`…Secondary…` PDF methods. A third industry as a new int value means finding and editing every site — and the flag also collides in name with the unrelated "primary/secondary quantity" (bags vs weight) concept. | Phase 1 converts these to module checks + an injected `IIndustryProfile`; rename the concept to `Pharmacy`/`Feed`. After that, a new industry is a new profile + report pack, touching no existing branch. |
@@ -1030,6 +1039,7 @@ Feed modules.
 
 ---
 
-*BUTS ERP SaaS Platform Plan · v1 draft · 2026-09-06 · derived from review of
-BUTSERP_API, ERPAngular, ButsPosDotnet6, PMSAdminReact, PMSShopAngular · figures
+*BUTS ERP SaaS Platform Plan · v1.1 draft · 2026-09-06 · derived from review of
+`GenericERP` (`Application.Api` + `Application.Client`, formerly BUTSERP_API +
+ERPAngular), ButsPosDotnet6, PMSAdminReact, PMSShopAngular · figures
 and field lists indicative pending detailed design.*
