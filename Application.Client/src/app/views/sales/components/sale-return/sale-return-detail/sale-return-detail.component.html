@@ -1,0 +1,132 @@
+<table class="border border-1" mat-table [dataSource]="dataSource">
+  <ng-container matColumnDef="sl">
+    <th mat-header-cell *matHeaderCellDef>#</th>
+    <td mat-cell *matCellDef="let element; let i = index">{{ i + 1 }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="productId">
+    <th mat-header-cell *matHeaderCellDef>Product</th>
+    <td mat-cell *matCellDef="let element">{{ element?.product?.name }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="measurementUnitId">
+    <th mat-header-cell *matHeaderCellDef>Unit</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.product?.measurementUnit?.name }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="bagWeight">
+    <th mat-header-cell *matHeaderCellDef>Bag Weight</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.bagWeight }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="primaryQuantity">
+    <th mat-header-cell *matHeaderCellDef>
+      <ng-container *ngIf="businessType === '1'">Delivered Qty</ng-container>
+      <ng-container *ngIf="businessType === '2'"
+        >Delivered Bag Qty</ng-container
+      >
+    </th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.primaryQuantity }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="quantity">
+    <th mat-header-cell *matHeaderCellDef>Delivered Qty</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.quantity }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="primaryBonusQuantity">
+    <th mat-header-cell *matHeaderCellDef>
+      <ng-container *ngIf="businessType === '1'"
+        >Delivered Bonus Qty</ng-container
+      >
+      <ng-container *ngIf="businessType === '2'"
+        >Delivered Bonus Bag Qty</ng-container
+      >
+    </th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.primaryBonusQuantity }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="bonusQuantity">
+    <th mat-header-cell *matHeaderCellDef>Delivered Bonus Qty</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.bonusQuantity }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="rate">
+    <th mat-header-cell *matHeaderCellDef>Rate</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.rate }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="returnPrimaryQuantity">
+    <th mat-header-cell *matHeaderCellDef>
+      <ng-container *ngIf="businessType === '1'">Return Qty</ng-container>
+      <ng-container *ngIf="businessType === '2'">Return Bag Qty</ng-container>
+    </th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.returnPrimaryQuantity }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="returnQuantity">
+    <th mat-header-cell *matHeaderCellDef>Return Qty</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.returnQuantity }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="returnPrimaryBonusQuantity">
+    <th mat-header-cell *matHeaderCellDef>
+      <ng-container *ngIf="businessType === '1'">Return Bonus Qty</ng-container>
+      <ng-container *ngIf="businessType === '2'"
+        >Return Bonus Bag Qty</ng-container
+      >
+    </th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.returnPrimaryBonusQuantity }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="returnBonusQuantity">
+    <th mat-header-cell *matHeaderCellDef>Return Bonus Qty</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.returnBonusQuantity }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="discountPercentage">
+    <th mat-header-cell *matHeaderCellDef>Discount (%)</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.discountPercentage }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="percentageDiscountAmount">
+    <th mat-header-cell *matHeaderCellDef>DiscountAmount</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.percentageDiscountAmount }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="amount">
+    <th mat-header-cell *matHeaderCellDef>Amount</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.amount }}
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+</table>

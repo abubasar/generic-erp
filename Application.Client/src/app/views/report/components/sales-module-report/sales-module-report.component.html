@@ -1,0 +1,221 @@
+<div class="row">
+  <div class="col-md-4">
+    <div class="d-flex flex-column align-items-start row-gap-2">
+      <button
+        *appHasPermission="[
+          'Permissions.SalesModuleReports.Sales_Report_Warehouse_Wise',
+        ]"
+        [ngClass]="getButtonClasses('form1')"
+        (click)="loadForm('form1')"
+      >
+        Sales Report Warehouse Wise
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.SalesModuleReports.Customer_Discount_Report_Month_Wise',
+        ]"
+        [ngClass]="getButtonClasses('form2')"
+        (click)="loadForm('form2')"
+      >
+        Customer Discount Report (Month Wise)
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.SalesModuleReports.Customer_Discount_Report_Date_Wise',
+        ]"
+        [ngClass]="getButtonClasses('form13')"
+        (click)="loadForm('form13')"
+      >
+        Customer Discount Report (Date Wise)
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.SalesModuleReports.Sales_Customer_Item_Wise',
+        ]"
+        [ngClass]="getButtonClasses('form3')"
+        (click)="loadForm('form3')"
+      >
+        Sales: Customer, Item Wise
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.SalesModuleReports.Sales_Item_Customer_Wise',
+        ]"
+        [ngClass]="getButtonClasses('form6')"
+        (click)="loadForm('form6')"
+      >
+        Sales: Item, Customer Wise
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.SalesModuleReports.Sales_Report_Feed_Total_MO_Wise',
+        ]"
+        [ngClass]="getButtonClasses('form4')"
+        (click)="loadForm('form4')"
+      >
+        Sales Report : Feed Total (MO Wise)
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.SalesModuleReports.Sales_Report_Feed_Total_Customer_Wise',
+        ]"
+        [ngClass]="getButtonClasses('form5')"
+        (click)="loadForm('form5')"
+      >
+        Sales Report : Feed Total (Customer Wise)
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.SalesModuleReports.Customer_Ledger_Product_Wise',
+        ]"
+        [ngClass]="getButtonClasses('form7')"
+        (click)="loadForm('form7')"
+      >
+        Customer Ledger : Product Wise
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.SalesModuleReports.Customer_Ledger_Feed_Wise',
+        ]"
+        [ngClass]="getButtonClasses('form14')"
+        (click)="loadForm('form14')"
+      >
+        Customer Ledger : Feed
+      </button>
+
+      <button
+        *appHasPermission="['Permissions.SalesModuleReports.Sales_Report']"
+        [ngClass]="getButtonClasses('form8')"
+        (click)="loadForm('form8')"
+      >
+        Sales : Report
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.SalesModuleReports.Transit_Sales_Report',
+        ]"
+        [ngClass]="getButtonClasses('form15')"
+        (click)="loadForm('form15')"
+      >
+        Transit Sales Report
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.SalesModuleReports.Sales_Order_History_Report',
+        ]"
+        [ngClass]="getButtonClasses('form16')"
+        (click)="loadForm('form16')"
+      >
+        Sales Order History Report
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.SalesModuleReports.Sale_Total_Month_Wise',
+        ]"
+        [ngClass]="getButtonClasses('form9')"
+        (click)="loadForm('form9')"
+      >
+        Sale Total : Month Wise
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.SalesModuleReports.Sale_Total_Date_Wise',
+        ]"
+        [ngClass]="getButtonClasses('form10')"
+        (click)="loadForm('form10')"
+      >
+        Sale Total : Date Wise
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.SalesModuleReports.Sale_Total_Product_Wise',
+        ]"
+        [ngClass]="getButtonClasses('form11')"
+        (click)="loadForm('form11')"
+      >
+        Sale Total : Product Wise
+      </button>
+      <button
+        *appHasPermission="[
+          'Permissions.SalesModuleReports.Sales_Report_Month_Wise',
+        ]"
+        [ngClass]="getButtonClasses('form12')"
+        (click)="loadForm('form12')"
+      >
+        Month Wise Product Sales Report
+      </button>
+    </div>
+    <!-- Add more buttons as needed -->
+  </div>
+
+  <div class="col-md-8">
+    <div *ngIf="selectedForm === 'form1'">
+      <app-sales-warehouse-wise></app-sales-warehouse-wise>
+    </div>
+
+    <div *ngIf="selectedForm === 'form2'">
+      <app-customer-monthly-discount-report></app-customer-monthly-discount-report>
+    </div>
+
+    <div *ngIf="selectedForm === 'form13'">
+      <app-customer-date-wise-discount-report></app-customer-date-wise-discount-report>
+    </div>
+
+    <div *ngIf="selectedForm === 'form3'">
+      <app-sales-customer-item-wise></app-sales-customer-item-wise>
+    </div>
+    <div *ngIf="selectedForm === 'form6'">
+      <app-sales-item-customer-wise></app-sales-item-customer-wise>
+    </div>
+    <div *ngIf="selectedForm === 'form4'">
+      <app-sales-report-feed-total-mo-wise></app-sales-report-feed-total-mo-wise>
+    </div>
+    <div *ngIf="selectedForm === 'form5'">
+      <app-sales-report-feed-total-customer-wise></app-sales-report-feed-total-customer-wise>
+    </div>
+    <div *ngIf="selectedForm === 'form7'">
+      <app-customer-ledger-product-wise-report></app-customer-ledger-product-wise-report>
+    </div>
+    <div *ngIf="selectedForm === 'form14'">
+      <app-customer-ledger-feed-wise-report></app-customer-ledger-feed-wise-report>
+    </div>
+
+    <div *ngIf="selectedForm === 'form8'">
+      <app-sales-summary-report></app-sales-summary-report>
+    </div>
+
+    <div *ngIf="selectedForm === 'form15'">
+      <app-transit-sales-report></app-transit-sales-report>
+    </div>
+
+    <div *ngIf="selectedForm === 'form16'">
+      <app-sales-order-history-report></app-sales-order-history-report>
+    </div>
+
+    <div *ngIf="selectedForm === 'form9'">
+      <app-sales-total-month-wise-report></app-sales-total-month-wise-report>
+    </div>
+    <div *ngIf="selectedForm === 'form10'">
+      <app-sales-total-date-wise-report></app-sales-total-date-wise-report>
+    </div>
+    <div *ngIf="selectedForm === 'form11'">
+      <app-sale-total-product-wise-report></app-sale-total-product-wise-report>
+    </div>
+    <div *ngIf="selectedForm === 'form12'">
+      <app-sales-month-wise></app-sales-month-wise>
+    </div>
+  </div>
+</div>

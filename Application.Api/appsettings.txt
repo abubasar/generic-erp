@@ -1,0 +1,54 @@
+﻿{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "AllowedHosts": "*",
+  "IpRateLimiting": {
+    "EnableEndpointRateLimiting": true,
+    "StackBlockedRequests": false,
+    "RealIPHeader": "X-Real-IP",
+    "ClientIdHeader": "X-ClientId",
+    "HttpStatusCode": 429,
+    "GeneralRules": [
+      {
+        "Endpoint": "*:/api/*",
+        "Period": "10s",
+        "Limit": 10
+      }
+    ]
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=45.251.228.254;Database=PHARMACEUTICALERP_DB;User Id=sa;Password=Buts011220!;MultipleActiveResultSets=true;TrustServerCertificate=Yes;",
+    "TemplateConnection": "Server=45.251.228.254;Database=__DBNAME__DB;User Id=sa;Password=Buts011220!;MultipleActiveResultSets=true;TrustServerCertificate=Yes;"
+  },
+  "JwtSettings": {
+    "Secret": "my top secret key",
+    "Issuer": "https://butsbd.com",
+    "Audience": "https://butsbd.com",
+    "ExpiryMinutes": 1440,
+    "RefreshTokenExpirationDays": 30
+  },
+  "MailSettings": {
+    "Mail": "butsit20@gmail.com",
+    "DisplayName": "Buts IT",
+    "Password": "fokzplanktuzvpoh",
+    "Host": "smtp.gmail.com",
+    "Port": 587
+  },
+  "CacheSettings": {
+    "AbsoluteExpirationInHours": 12,
+    "SlidingExpirationInMinutes": 60
+  },
+  "SmsSend": {
+    "Allowed": true,
+    "BaseUrl": "http://103.91.229.22:83"
+  },
+  //"BaseApiUrl": "http://103.91.229.22:86/api/",
+  "BaseApiUrl": "http://localhost:5254/api/",
+  "AllowedOrigins": "http://localhost:4200,https://pharma.butsbd.com"
+
+}

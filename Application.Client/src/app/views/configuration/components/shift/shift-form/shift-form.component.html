@@ -1,0 +1,63 @@
+<h2 mat-dialog-title>{{ formTitle }}</h2>
+<form [formGroup]="shiftForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="mat-typography">
+    <input mat type="hidden" formControlName="id" />
+    <div class="row row-cols-3 gx-5 gy-3">
+      <div class="col">
+        <!-- Name -->
+        <mat-form-field>
+          <mat-label>Shift Name</mat-label>
+          <input
+            matInput
+            autocomplete="off"
+            placeholder="Enter shift name"
+            formControlName="name"
+          />
+          <mat-error>Shift name is required</mat-error>
+        </mat-form-field>
+      </div>
+      <!-- fromTime -->
+      <div class="col">
+        <mat-form-field>
+          <input
+            matInput
+            name="fromTime"
+            formControlName="fromTime"
+            [ngxMatTimepicker]="pickerA"
+            placeholder="From Time"
+            readonly
+          />
+          <mat-icon matSuffix (click)="pickerA.open()"> watch_later </mat-icon>
+        </mat-form-field>
+        <ngx-mat-timepicker #pickerA></ngx-mat-timepicker>
+      </div>
+      <!-- toTime -->
+      <div class="col">
+        <mat-form-field>
+          <input
+            matInput
+            name="toTime"
+            formControlName="toTime"
+            [ngxMatTimepicker]="pickerB"
+            placeholder="To Time"
+            readonly
+          />
+          <mat-icon matSuffix (click)="pickerB.open()"> watch_later </mat-icon>
+        </mat-form-field>
+        <ngx-mat-timepicker #pickerB></ngx-mat-timepicker>
+      </div>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-raised-button mat-dialog-close>Cancel</button>
+    <button
+      mat-raised-button
+      cdkFocusInitial
+      color="primary"
+      [disabled]="!shiftForm.dirty || !shiftForm.valid"
+      type="submit"
+    >
+      Save
+    </button>
+  </mat-dialog-actions>
+</form>

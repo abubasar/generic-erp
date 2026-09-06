@@ -1,0 +1,597 @@
+<ng-container *appHasPermission="['Permissions.Dashboard.DashboardStatistics']">
+  <!-- <div class="container-fluid"></div> -->
+  <mat-card>
+    <div fxLayout="row wrap">
+      <div fxFlex="100">
+        <mat-form-field class="full-width">
+          <mat-label>Select Option</mat-label>
+          <mat-select
+            [(value)]="filterType"
+            (selectionChange)="onSelectedFilterType()"
+          >
+            <mat-option *ngFor="let d of filterTypes" [value]="d?.value">
+              {{ d?.name?.replaceAll("_", " ") }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+  </mat-card>
+  <!-- <div fxLayout="row wrap">
+    <div fxFlex="100">
+      <mat-form-field class="full-width">
+        <mat-label>Select Option</mat-label>
+        <mat-select
+          [(value)]="filterType"
+          (selectionChange)="onSelectedFilterType()"
+        >
+          <mat-option *ngFor="let d of filterTypes" [value]="d?.value">
+            {{ d?.name?.replaceAll("_", " ") }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div> -->
+  <!-- Dashboard card row -->
+  <div fxLayout="row wrap">
+    <div
+      fxFlex="100"
+      fxFlex.gt-sm="100"
+      fxFlex.sm="100"
+      [@animate]="{ value: '*', params: { delay: '300ms', scale: '.9' } }"
+    >
+      <mat-card>
+        <mat-card-content class="text-center">
+          <div class="row">
+            <div class="col">
+              <h6 class="pt-2 text-24 bg-green">Total Sales (Value)</h6>
+              <h3 class="m-0 text-18 number-font">
+                {{
+                  cardData?.salesTotalValue
+                    | currency : "BDT " : "symbol" : "1.2-2"
+                }}
+              </h3>
+            </div>
+          </div>
+          <small class="muted-text">{{ filterTypeName }}</small>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+  <div fxLayout="row wrap">
+    <div
+      class="p-3"
+      fxFlex="100"
+      fxFlex.gt-sm="50"
+      fxFlex.sm="100"
+      fxLayout="row wrap"
+    >
+      <div
+        fxFlex="100"
+        fxFlex.gt-sm="100"
+        fxFlex.sm="100"
+        [@animate]="{ value: '*', params: { delay: '300ms', scale: '.9' } }"
+      >
+        <div class="row">
+          <div class="col">
+            <h6 class="text-24 pt-2 text-center bg-ripe-lemon">Receive</h6>
+          </div>
+        </div>
+      </div>
+      <div
+        fxFlex="100"
+        fxFlex.gt-lg="33.33"
+        fxFlex.gt-md="50"
+        fxFlex.sm="100"
+        [@animate]="{ value: '*', params: { delay: '300ms', scale: '.9' } }"
+      >
+        <mat-card class="card-border border-amber">
+          <mat-card-content>
+            <div class="row">
+              <div class="col">
+                <h6 class="title-font text-12">Customer</h6>
+                <h3 class="m-0 text-18 number-font">
+                  {{
+                    cardData?.receivedFromCustomerTotal
+                      | currency : "BDT " : "symbol" : "1.2-2"
+                  }}
+                </h3>
+              </div>
+              <div class="col-auto icon-container">
+                <div class="centered-element overlay overlay-amber">
+                  <div class="centered-element background bg-amber">
+                    <mat-icon class="centered-element icon text-amber"
+                      >group</mat-icon
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <small class="muted-text">{{ filterTypeName }}</small>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div
+        fxFlex="100"
+        fxFlex.gt-lg="33.33"
+        fxFlex.gt-md="50"
+        fxFlex.sm="100"
+        [@animate]="{ value: '*', params: { delay: '300ms', scale: '.9' } }"
+      >
+        <mat-card class="card-border border-lime">
+          <mat-card-content>
+            <div class="row">
+              <div class="col">
+                <h6 class="title-font text-12">Others</h6>
+                <h3 class="m-0 text-18 number-font">
+                  {{
+                    cardData?.receivedFromOtherSourceTotal
+                      | currency : "BDT " : "symbol" : "1.2-2"
+                  }}
+                </h3>
+              </div>
+              <div class="col-auto icon-container">
+                <div class="centered-element overlay overlay-lime">
+                  <div class="centered-element background bg-lime">
+                    <mat-icon class="centered-element icon text-lime"
+                      >price_check</mat-icon
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <small class="muted-text">{{ filterTypeName }}</small>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div
+        fxFlex="100"
+        fxFlex.gt-lg="33.33"
+        fxFlex.gt-md="50"
+        fxFlex.sm="100"
+        [@animate]="{ value: '*', params: { delay: '300ms', scale: '.9' } }"
+      >
+        <mat-card class="card-border border-orange">
+          <mat-card-content>
+            <div class="row">
+              <div class="col">
+                <small class="title-font text-12">Total</small>
+                <h3 class="m-0 text-18 number-font">
+                  {{
+                    cardData?.receivedFromCustomerTotal +
+                      cardData?.receivedFromOtherSourceTotal
+                      | currency : "BDT " : "symbol" : "1.2-2"
+                  }}
+                </h3>
+              </div>
+              <div class="col-auto icon-container">
+                <div class="centered-element overlay overlay-orange">
+                  <div class="centered-element background bg-orange">
+                    <mat-icon class="centered-element icon text-orange"
+                      >attach_money</mat-icon
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <small class="muted-text">{{ filterTypeName }}</small>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+    <div
+      class="p-3"
+      fxFlex="100"
+      fxFlex.gt-sm="50"
+      fxFlex.sm="100"
+      fxLayout="row wrap"
+    >
+      <div
+        fxFlex="100"
+        fxFlex.gt-sm="100"
+        fxFlex.sm="100"
+        [@animate]="{ value: '*', params: { delay: '300ms', scale: '.9' } }"
+      >
+        <div class="row">
+          <div class="col">
+            <h6 class="text-24 pt-2 text-center bg-valencia">
+              Raw Materials (Value)
+            </h6>
+          </div>
+        </div>
+      </div>
+      <div
+        fxFlex="100"
+        fxFlex.gt-lg="33.33"
+        fxFlex.gt-md="50"
+        fxFlex.sm="100"
+        [@animate]="{ value: '*', params: { scale: '.9', delay: '300ms' } }"
+      >
+        <mat-card class="card-border border-pink">
+          <mat-card-content>
+            <div class="row">
+              <div class="col">
+                <h6 class="title-font text-12">Purchases</h6>
+                <h3 class="m-0 text-18 number-font">
+                  {{
+                    businessType == 2
+                      ? (cardData?.purchaseTotal
+                        | currency : "BDT " : "symbol" : "1.2-2")
+                      : (cardData?.rmPurchaseValueTotal
+                        | currency : "BDT " : "symbol" : "1.2-2")
+                  }}
+                </h3>
+              </div>
+              <div class="col-auto icon-container">
+                <div class="centered-element overlay overlay-pink">
+                  <div class="centered-element background bg-pink">
+                    <mat-icon class="centered-element icon text-pink"
+                      >sell</mat-icon
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <small class="muted-text">{{ filterTypeName }}</small>
+          </mat-card-content>
+        </mat-card>
+      </div>
+      <div
+        fxFlex="100"
+        fxFlex.gt-lg="33.33"
+        fxFlex.gt-md="50"
+        fxFlex.sm="100"
+        [@animate]="{ value: '*', params: { scale: '.9', delay: '300ms' } }"
+      >
+        <mat-card class="card-border border-fuchsia">
+          <mat-card-content>
+            <div class="row">
+              <div class="col">
+                <h6 class="title-font text-12">Consumed</h6>
+                <h3 class="m-0 text-18 number-font">
+                  {{
+                    cardData?.rmConsumptionTotal
+                      | currency : "BDT " : "symbol" : "1.2-2"
+                  }}
+                </h3>
+              </div>
+              <div class="col-auto icon-container">
+                <div class="centered-element overlay overlay-fuchsia">
+                  <div class="centered-element background bg-fuchsia">
+                    <mat-icon class="centered-element icon text-fuchsia"
+                      >request_quote</mat-icon
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <small class="muted-text">{{ filterTypeName }}</small>
+          </mat-card-content>
+        </mat-card>
+      </div>
+      <div
+        fxFlex="100"
+        fxFlex.gt-lg="33.33"
+        fxFlex.gt-md="50"
+        fxFlex.sm="100"
+        [@animate]="{ value: '*', params: { delay: '300ms', scale: '.9' } }"
+      >
+        <mat-card class="card-border border-green">
+          <mat-card-content>
+            <div class="row">
+              <div class="col">
+                <h6 class="title-font text-12">Balance</h6>
+                <h3 class="m-0 text-18 number-font">
+                  {{
+                    cardData?.rmValueTotal
+                      | currency : "BDT " : "symbol" : "1.2-2"
+                  }}
+                </h3>
+              </div>
+              <div class="col-auto icon-container">
+                <div class="centered-element overlay overlay-green">
+                  <div class="centered-element background bg-green">
+                    <mat-icon class="centered-element icon text-green"
+                      >payments</mat-icon
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <small class="muted-text">{{ filterTypeName }}</small>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+
+  <div fxLayout="row wrap">
+    <div
+      class="p-3"
+      fxFlex="100"
+      fxFlex.gt-sm="50"
+      fxFlex.sm="100"
+      fxLayout="row wrap"
+    >
+      <div
+        fxFlex="100"
+        fxFlex.gt-sm="100"
+        fxFlex.sm="100"
+        [@animate]="{ value: '*', params: { delay: '300ms', scale: '.9' } }"
+      >
+        <div class="row">
+          <div class="col">
+            <h6 class="text-24 pt-2 text-center bg-blue">Payment</h6>
+          </div>
+        </div>
+      </div>
+      <div
+        fxFlex="100"
+        fxFlex.gt-lg="33.33"
+        fxFlex.gt-md="50"
+        fxFlex.sm="100"
+        [@animate]="{ value: '*', params: { delay: '300ms', scale: '.9' } }"
+      >
+        <mat-card class="card-border border-violet">
+          <mat-card-content>
+            <div class="row">
+              <div class="col">
+                <h6 class="title-font text-12">Supplier</h6>
+                <h3 class="m-0 text-18 number-font">
+                  {{
+                    cardData?.supplierPaymentTotal
+                      | currency : "BDT " : "symbol" : "1.2-2"
+                  }}
+                </h3>
+              </div>
+              <div class="col-auto icon-container">
+                <div class="centered-element overlay overlay-violet">
+                  <div class="centered-element background bg-violet">
+                    <mat-icon class="centered-element icon text-violet"
+                      >diversity_3</mat-icon
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <small class="muted-text">{{ filterTypeName }}</small>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div
+        fxFlex="100"
+        fxFlex.gt-lg="33.33"
+        fxFlex.gt-md="50"
+        fxFlex.sm="100"
+        [@animate]="{ value: '*', params: { delay: '300ms', scale: '.9' } }"
+      >
+        <mat-card class="card-border border-rose">
+          <mat-card-content>
+            <div class="row">
+              <div class="col">
+                <h6 class="title-font text-12">Others</h6>
+                <h3 class="m-0 text-18 number-font">
+                  {{
+                    cardData?.paymentForExpenseTotal
+                      | currency : "BDT " : "symbol" : "1.2-2"
+                  }}
+                </h3>
+              </div>
+              <div class="col-auto icon-container">
+                <div class="centered-element overlay overlay-rose">
+                  <div class="centered-element background bg-rose">
+                    <mat-icon class="centered-element icon text-rose"
+                      >credit_score</mat-icon
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <small class="muted-text">{{ filterTypeName }}</small>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div
+        fxFlex="100"
+        fxFlex.gt-lg="33.33"
+        fxFlex.gt-md="50"
+        fxFlex.sm="100"
+        [@animate]="{ value: '*', params: { delay: '300ms', scale: '.9' } }"
+      >
+        <mat-card class="card-border border-cyan">
+          <mat-card-content>
+            <div class="row">
+              <div class="col">
+                <h6 class="title-font text-12">Total</h6>
+                <h3 class="m-0 text-18 number-font">
+                  {{
+                    cardData?.supplierPaymentTotal +
+                      cardData?.paymentForExpenseTotal
+                      | currency : "BDT " : "symbol" : "1.2-2"
+                  }}
+                </h3>
+              </div>
+              <div class="col-auto icon-container">
+                <div class="centered-element overlay overlay-cyan">
+                  <div class="centered-element background bg-cyan">
+                    <mat-icon class="centered-element icon text-cyan"
+                      >credit_card</mat-icon
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <small class="muted-text">{{ filterTypeName }}</small>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+    <div
+      class="p-3"
+      fxFlex="100"
+      fxFlex.gt-sm="50"
+      fxFlex.sm="100"
+      fxLayout="row wrap"
+    >
+      <div
+        fxFlex="100"
+        fxFlex.gt-sm="100"
+        fxFlex.sm="100"
+        [@animate]="{ value: '*', params: { delay: '300ms', scale: '.9' } }"
+      >
+        <div class="row">
+          <div class="col">
+            <h6 class="text-24 pt-2 text-center bg-orange">
+              Finished Goods {{ businessType == 2 ? "(QTY)" : "(Value)" }}
+            </h6>
+          </div>
+        </div>
+      </div>
+      <div
+        fxFlex="100"
+        fxFlex.gt-lg="33.33"
+        fxFlex.gt-md="50"
+        fxFlex.sm="100"
+        [@animate]="{ value: '*', params: { delay: '300ms', scale: '.9' } }"
+      >
+        <mat-card class="card-border border-purple">
+          <mat-card-content>
+            <div class="row">
+              <div class="col">
+                <h6 class="title-font text-12">
+                  Production {{ businessType == 2 ? "(Ton)" : "(Value)" }}
+                </h6>
+                <h3 class="m-0 text-18 number-font">
+                  {{
+                    businessType == 2
+                      ? cardData?.productionTotalQty / 1000
+                      : (cardData?.productionTotalValue
+                        | currency : "BDT " : "symbol" : "1.2-2")
+                  }}
+                </h3>
+              </div>
+              <div class="col-auto icon-container">
+                <div class="centered-element overlay overlay-purple">
+                  <div class="centered-element background bg-purple">
+                    <mat-icon class="centered-element icon text-purple"
+                      >compost</mat-icon
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <small class="muted-text">{{ filterTypeName }}</small>
+          </mat-card-content>
+        </mat-card>
+      </div>
+      <div
+        fxFlex="100"
+        fxFlex.gt-lg="33.33"
+        fxFlex.gt-md="50"
+        fxFlex.sm="100"
+        [@animate]="{ value: '*', params: { scale: '.9', delay: '300ms' } }"
+      >
+        <mat-card class="card-border border-sky">
+          <mat-card-content>
+            <div class="row">
+              <div class="col">
+                <h6 class="title-font text-12">
+                  {{ businessType == 2 ? "Sold (Ton)" : "Purchase (Value)" }}
+                </h6>
+                <h3 class="m-0 text-18 number-font">
+                  {{
+                    businessType == 2
+                      ? cardData?.salesTotalQty / 1000
+                      : (cardData?.fgPurchaseValueTotal
+                        | currency : "BDT " : "symbol" : "1.2-2")
+                  }}
+                </h3>
+              </div>
+              <div class="col-auto icon-container">
+                <div class="centered-element overlay overlay-sky">
+                  <div class="centered-element background bg-sky">
+                    <mat-icon class="centered-element icon text-sky"
+                      >shopping_bag</mat-icon
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <small class="muted-text">{{ filterTypeName }}</small>
+          </mat-card-content>
+        </mat-card>
+      </div>
+      <div
+        fxFlex="100"
+        fxFlex.gt-lg="33.33"
+        fxFlex.gt-md="50"
+        fxFlex.sm="100"
+        [@animate]="{ value: '*', params: { delay: '300ms', scale: '.9' } }"
+      >
+        <mat-card class="card-border border-blue">
+          <mat-card-content>
+            <div class="row">
+              <div class="col">
+                <h6 class="title-font text-12">
+                  Balance {{ businessType == 2 ? "(Ton)" : "(Value)" }}
+                </h6>
+                <h3 class="m-0 text-18 number-font">
+                  {{
+                    businessType == 2
+                      ? cardData?.fgQtyTotal / 1000
+                      : (cardData?.fgValueTotal
+                        | currency : "BDT " : "symbol" : "1.2-2")
+                  }}
+                </h3>
+              </div>
+              <div class="col-auto icon-container">
+                <div class="centered-element overlay overlay-blue">
+                  <div class="centered-element background bg-blue">
+                    <mat-icon class="centered-element icon text-blue"
+                      >widgets</mat-icon
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <small class="muted-text">{{ filterTypeName }}</small>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</ng-container>
+<div
+  class="w-full sm:w-1/2 lg:w-2/3"
+  [@animate]="{ value: '*', params: { y: '50px', delay: '600ms' } }"
+>
+  <mat-card class="p-0">
+    <mat-tab-group>
+      <mat-tab label="Zone Wise Sales Analysis">
+        <div echarts [options]="zoneOptions" style="height: 255px"></div>
+        <div class="color-box-container">
+          <div class="bd-south-color-box bd-south-color"></div>
+          <span>BD-SOUTH</span>
+          <div class="bd-east-color-box bd-east-color"></div>
+          <span>BD-EAST</span>
+          <div class="bd-north-color-box bd-north-color"></div>
+          <span>BD-NORTH</span>
+        </div>
+      </mat-tab>
+      <mat-tab label="Sales Analysis (This Month vs Last Month)">
+        <div echarts [options]="options" style="height: 255px"></div>
+        <div class="color-box-container">
+          <div class="last-month-color-box last-month-color"></div>
+          <span>This Month</span>
+          <div class="this-month-color-box this-month-color"></div>
+          <span>Last Month</span>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card>
+</div>
+<app-dashboard-low-stock-report></app-dashboard-low-stock-report>

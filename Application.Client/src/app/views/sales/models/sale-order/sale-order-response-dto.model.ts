@@ -1,0 +1,77 @@
+import { Customer } from "app/views/configuration/models/customer/customer.model";
+import { ProductView } from "app/views/configuration/models/product/product-view.model";
+import { Store } from "app/views/configuration/models/store/store.model";
+
+export interface SaleOrderResponseDTO {
+  id?: string;
+  saleOrderNo: string;
+  quotationNo: string;
+  transport: number;
+  transportName: string;
+  orderDate: string;
+  paymentTerm: number;
+  paymentTermName: string;
+  customerTerritoryId: string;
+  customerId: string;
+  creditLimit: number;
+  limitAvailed: number;
+  deliveryDate: string;
+  referenceNo: string;
+  storeId: string;
+  subtotal: number;
+  discount: number;
+  totalPercentageDiscountAmount: number;
+  offerDiscount: number;
+  otherDiscount: number;
+  total: number;
+  transportationCost: number;
+  depoCharge: number;
+  netTotal: number;
+  isMailSent: boolean;
+  remark: string;
+  moneyReceiptNo: string;
+  status: number;
+  statusName: string;
+  checkedBy: string;
+  approvedBy: string;
+  createdOn: string;
+  updatedOn: string;
+  createdBy: string;
+  updatedBy: string;
+  financialYearId: string;
+  customer: Customer;
+  store: Store;
+  saleOrderDetails: SaleOrderResponseDetail[];
+}
+
+export interface SaleOrderResponseDetail {
+  id?: string;
+  saleOrderId?: string;
+  productId: string;
+  bagWeight: number;
+  primaryQuantity: number;
+  primaryBonusQuantity: number;
+  quantity: number;
+  bonusQuantity: number;
+  deliveredPrimaryQuantity?: number;
+  deliveredPrimaryBonusQuantity?: number;
+  rate: number;
+  vatPercentage: number;
+  discountPercentage: number;
+  percentageDiscountAmount: number;
+  netRate: number;
+  discountAmount: number;
+  discountPerUnit: number;
+  offerDiscountPerUnit: number;
+  invoiceDiscountPerUnit: number;
+  cashDiscountPerUnit: number;
+  specialDiscountPerUnit: number;
+  currentStockQuantity?: number;
+  amount: number;
+  otherDiscountPerUnit: number;
+  transportationCostPerUnit: number;
+  depoChargePerUnit: number;
+  product: ProductView;
+  createdOn?: string;
+  createdBy?: string;
+}

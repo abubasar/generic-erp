@@ -1,0 +1,109 @@
+<mat-card>
+  <mat-card-title
+    >Customer Discount Report : Month Wise (Monthly, Yearly &
+    Target)</mat-card-title
+  >
+  <form
+    autocomplete="off"
+    [formGroup]="searchForm"
+    (ngSubmit)="printPdf($event)"
+  >
+    <div class="row row-cols-2 gx-5">
+      <div class="col">
+        <mat-form-field class="full-width">
+          <mat-label>Year</mat-label>
+          <mat-select formControlName="year">
+            <mat-option *ngFor="let year of years" [value]="year">
+              {{ year }}
+            </mat-option>
+          </mat-select>
+          <mat-error>Year is required</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <mat-form-field class="full-width">
+          <mat-label>Month</mat-label>
+          <mat-select formControlName="month">
+            <mat-option>-- All --</mat-option>
+            <mat-option *ngFor="let month of months" [value]="month.value">
+              {{ month.label }}
+            </mat-option>
+          </mat-select>
+          <mat-error>Month is required</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <!-- customerId -->
+        <mat-form-field class="full-width">
+          <mat-label>Select Customer</mat-label>
+          <input
+            type="text"
+            matInput
+            name="customerId"
+            formControlName="customerId"
+            [matAutocomplete]="auto"
+            (input)="handleCustomerSearch($event)"
+          />
+          <div matSuffix>
+            <button
+              (click)="clearInput($event)"
+              *ngIf="searchForm?.get('customerId')?.value"
+              aria-label="Clear"
+              mat-icon-button
+              type="button"
+            >
+              <mat-icon>clear</mat-icon>
+            </button>
+            <mat-icon>keyboard_arrow_down</mat-icon>
+          </div>
+          <mat-autocomplete
+            #auto="matAutocomplete"
+            [displayWith]="getCustomerName.bind(this)"
+          >
+            <mat-option
+              matTooltip="{{ d.address }}"
+              *ngFor="let d of filterCustomers"
+              [value]="d.id"
+            >
+              ({{ d.code.slice(-4) }}) {{ d.name }} {{ d.address }}
+            </mat-option>
+          </mat-autocomplete>
+          <mat-error>Customer is required</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <button
+          [style.marginRight]="'5px'"
+          mat-raised-button
+          matTooltip="PDF"
+          name="pdf"
+          color="primary"
+          type="submit"
+          [disabled]="isLoading1 || this.searchForm.invalid"
+        >
+          <ng-container *ngIf="isLoading1; else saveText">
+            {{ "Processing..." }}
+          </ng-container>
+          <ng-template #saveText>
+            <mat-icon>picture_as_pdf</mat-icon>
+          </ng-template>
+        </button>
+        <button
+          mat-raised-button
+          matTooltip="EXCEL"
+          name="excel"
+          color="warn"
+          type="submit"
+          [disabled]="isLoading2 || this.searchForm.invalid"
+        >
+          <ng-container *ngIf="isLoading2; else saveText2">
+            {{ "Processing..." }}
+          </ng-container>
+          <ng-template #saveText2>
+            <mat-icon>insert_drive_file</mat-icon>
+          </ng-template>
+        </button>
+      </div>
+    </div>
+  </form>
+</mat-card>

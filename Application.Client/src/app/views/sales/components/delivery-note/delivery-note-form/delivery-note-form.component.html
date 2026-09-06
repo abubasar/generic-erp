@@ -1,0 +1,1204 @@
+<div class="container-fluid">
+  <div *ngIf="isViewMode" class="d-flex justify-content-between">
+    <div class="d-flex gap-2 align-items-center">
+      <button mat-icon-button (click)="navigateToList()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h3 class="m-0">Delivery Note No: {{ data?.deliveryNoteNo }}</h3>
+      <mat-chip
+        class="align-middle py-4 px-8"
+        [color]="getDeliveryNoteStatus(data?.status)?.color"
+        selected
+      >
+        {{ getDeliveryNoteStatusName(data?.status)?.replaceAll("_", " ") }}
+      </mat-chip>
+      <button
+        mat-icon-button
+        color="primary"
+        matTooltip="print pdf"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printPdf(data?.id)"
+      >
+        <mat-icon>print</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        color="primary"
+        matTooltip="Gate Pass PDF"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printGatePassPdf(data?.id)"
+      >
+        <mat-icon>print</mat-icon>
+      </button>
+      <button
+        mat-stroked-button
+        color="primary"
+        matTooltip="Print VAT Chalan"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printVatPdf(data?.id)"
+      >
+        VAT Chalan
+      </button>
+      <button
+        *appHasPermission="['Permissions.DeliveryNotes.Edit']"
+        [hidden]="
+          data?.status > 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-icon-button
+        color="primary"
+        matTooltip="Edit"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="showEdit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+    <div>
+      <button
+        #btnCheck
+        *appHasPermission="['Permissions.DeliveryNotes.Check']"
+        [hidden]="
+          data?.status != 1 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        type="button"
+        color="accent"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmCheck(data?.id, data?.deliveryNoteNo)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Check" }}
+        </ng-template>
+      </button>
+
+      <button
+        #btnApprove
+        *appHasPermission="['Permissions.DeliveryNotes.Approve']"
+        [hidden]="
+          data?.status != 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        color="primary"
+        type="button"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmApprove(data?.id, data?.deliveryNoteNo)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Approve" }}
+        </ng-template>
+      </button>
+
+      <button
+        *appHasPermission="['Permissions.DeliveryNotes.Unpost']"
+        [hidden]="
+          data?.status == 1 ||
+          data?.status > 3 ||
+          data?.status === 'undefined' ||
+          data?.financialYearId != currentFinancialYearId
+        "
+        type="button"
+        mat-mini-fab
+        color="warn"
+        matTooltip="Undo"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmUnpost(data?.id, data?.deliveryNoteNo, data?.status)"
+      >
+        <ng-container *ngIf="isLoading; else undo">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+        </ng-container>
+        <ng-template #undo>
+          <mat-icon>undo</mat-icon>
+        </ng-template>
+      </button>
+    </div>
+  </div>
+  <mat-stepper
+    class="mat-stepper-card"
+    (selectionChange)="handleStepChange($event)"
+    [disableRipple]="true"
+    [linear]="true"
+    #stepper
+  >
+    <mat-step [stepControl]="deliveryNoteForm">
+      <form autocomplete="off" [formGroup]="deliveryNoteForm">
+        <ng-template matStepLabel>Delivery Note Form</ng-template>
+        <div>
+          <div class="row row-cols-3 gx-5">
+            <!-- Sale Order No -->
+            <div class="col d-flex">
+              <mat-form-field class="full-width">
+                <mat-label>Sale Order No.</mat-label>
+                <input
+                  matInput
+                  name="saleOrderNo"
+                  formControlName="saleOrderNo"
+                  readonly
+                />
+              </mat-form-field>
+              <button
+                [hidden]="this.data?.id || this.isSalesOrderDialogHidden"
+                type="button"
+                mat-icon-button
+                color="primary"
+                (click)="openSalesOrderDialog()"
+              >
+                <mat-icon>help</mat-icon>
+              </button>
+            </div>
+
+            <!-- referenceNo -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Reference No</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Enter Reference No."
+                  formControlName="referenceNo"
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- storeId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Store</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  name="storeId"
+                  formControlName="storeId"
+                  [matAutocomplete]="autoStore"
+                  (input)="handleStoreSearch($event)"
+                  readonly
+                />
+                <div matSuffix>
+                  <button
+                    hidden
+                    (click)="clearInput($event, 'storeId')"
+                    *ngIf="
+                      deliveryNoteForm?.get('storeId')?.value !== null &&
+                      deliveryNoteForm?.get('storeId')?.value !== ''
+                    "
+                    aria-label="Clear"
+                    mat-icon-button
+                    type="button"
+                  >
+                    <mat-icon>clear</mat-icon>
+                  </button>
+                </div>
+                <mat-autocomplete
+                  #autoStore="matAutocomplete"
+                  [displayWith]="getStoreName.bind(this)"
+                >
+                  <mat-option
+                    matTooltip="{{ d.name }}"
+                    *ngFor="let d of filterStores"
+                    [value]="d.id"
+                  >
+                    {{ d.name }}
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error>Store is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- customerId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Customer</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  name="customerId"
+                  formControlName="customerId"
+                  [matAutocomplete]="autoCustomer"
+                  (input)="handleCustomerSearch($event)"
+                  readonly
+                />
+                <div matSuffix>
+                  <button
+                    hidden
+                    (click)="clearInput($event, 'customerId')"
+                    *ngIf="
+                      deliveryNoteForm?.get('customerId')?.value !== null &&
+                      deliveryNoteForm?.get('customerId')?.value !== ''
+                    "
+                    aria-label="Clear"
+                    mat-icon-button
+                    type="button"
+                  >
+                    <mat-icon>clear</mat-icon>
+                  </button>
+                </div>
+                <mat-autocomplete
+                  #autoCustomer="matAutocomplete"
+                  (optionSelected)="onSelectedCustomer($event.target.value)"
+                  [displayWith]="getCustomerName.bind(this)"
+                >
+                  <mat-option
+                    matTooltip="{{ d.address }}"
+                    *ngFor="let d of filterCustomers"
+                    [value]="d.id"
+                  >
+                    {{ d.name }}
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error>Customer is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- customerId -->
+            <!-- <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Customer</mat-label>
+                <mat-select
+                  formControlName="customerId"
+                  (selectionChange)="onSelectedCustomer($event.value)"
+                  disabled
+                >
+                  <mat-option [value]="null">-- None --</mat-option>
+                  <mat-option *ngFor="let d of customers" [value]="d?.id">
+                    {{ d?.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Customer is required</mat-error>
+              </mat-form-field>
+            </div> -->
+
+            <!-- creditLimit -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Credit Limit</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Enter Credit Limit"
+                  formControlName="creditLimit"
+                  readonly
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- limitAvailed -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Limit Availed</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Enter Limit Availed"
+                  formControlName="limitAvailed"
+                  readonly
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- transport -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Transport</mat-label>
+                <mat-select formControlName="transport">
+                  <mat-option *ngFor="let d of transports" [value]="d?.value">
+                    {{ d?.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Transport is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- deliveryDate -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label> Delivery Date</mat-label>
+                <input
+                  #input1
+                  matInput
+                  name="deliveryDate"
+                  [matDatepicker]="picker1"
+                  [min]="applyMinMax ? financialYearStartDate : null"
+                  [max]="applyMinMax ? financialYearEndDate : null"
+                  formControlName="deliveryDate"
+                  (focus)="picker1.open()"
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker1"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker1
+                  (closed)="input1.blur()"
+                ></mat-datepicker>
+                <mat-error
+                  *ngIf="
+                    deliveryNoteForm.get('deliveryDate').hasError('required')
+                  "
+                  >Delivery date is required</mat-error
+                >
+                <mat-error
+                  *ngIf="
+                    deliveryNoteForm
+                      .get('deliveryDate')
+                      .hasError('inFinancialYear')
+                  "
+                >
+                  Please choose a date within the financial year period:
+                  {{ financialYearStartDate | date : "mediumDate" }} -
+                  {{ financialYearEndDate | date : "mediumDate" }}.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- deliveryPlace -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Delivery Place</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Enter Delivery Place"
+                  formControlName="deliveryPlace"
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- truckNo -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Truck No</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Enter Truck No"
+                  formControlName="truckNo"
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- driverName -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Driver Name</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Enter Driver Name"
+                  formControlName="driverName"
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- driverContactNo -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Driver Contact No</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Enter Driver Contact No"
+                  formControlName="driverContactNo"
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- remark -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Remark</mat-label>
+                <textarea
+                  rows="1"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Leave a message..."
+                  formControlName="remark"
+                ></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Details Table -->
+          <ng-container formArrayName="deliveryNoteDetails">
+            <h3 class="subheading-2">Delivery Note Details</h3>
+            <mat-divider></mat-divider>
+            <ng-container
+              *ngFor="let p of deliveryNoteDetails?.controls; let i = index"
+              [formGroupName]="i"
+            >
+              <div class="row">
+                <div class="col-2">
+                  <!-- Product Autocomplete -->
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Product"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Product</mat-label>
+                    <input
+                      type="text"
+                      placeholder="Search Product"
+                      aria-label="Filter Product"
+                      matInput
+                      name="productId"
+                      formControlName="productId"
+                      [matAutocomplete]="product"
+                      (input)="handleProductSearch($event, i)"
+                      readonly
+                    />
+                    <mat-autocomplete
+                      autoActiveFirstOption
+                      #product="matAutocomplete"
+                      (optionSelected)="handleProductSelection($event, i)"
+                      [displayWith]="getProductName.bind(this)"
+                    >
+                      <mat-option
+                        *ngFor="let product of searchProducts"
+                        [value]="product?.id"
+                      >
+                        {{ product?.name }} ({{
+                          businessType === "2" ? product?.bagWeight : ""
+                        }}
+                        {{ product?.measurementUnit?.name }})
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error>Product is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- Measurement Unit -->
+                <!-- <div class="col-1">
+                  <mat-form-field class="full-width" matTooltip="Unit" matTooltipPosition="above">
+                    <mat-label>Unit</mat-label>
+                    <input
+                      matInput
+                      name="measurementUnitName"
+                      formControlName="measurementUnitName"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div> -->
+
+                <!--bagWeight -->
+                <!-- <div class="col-1">
+                  <mat-form-field class="full-width" matTooltip="Bag Weight" matTooltipPosition="above">
+                    <mat-label>Bag Weight</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="bagWeight"
+                      formControlName="bagWeight"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                      readonly
+                    />
+                    <mat-error>Bag Weight is required </mat-error>
+                  </mat-form-field>
+                </div> -->
+
+                <!--orderedPrimaryQuantity -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Ordered Bag Qty"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label *ngIf="businessType === '1'"
+                      >Ordered QTY</mat-label
+                    >
+                    <mat-label *ngIf="businessType === '2'"
+                      >Ordered Bag QTY</mat-label
+                    >
+
+                    <input
+                      matInput
+                      type="number"
+                      name="orderedPrimaryQuantity"
+                      formControlName="orderedPrimaryQuantity"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                      readonly
+                    />
+                    <mat-error>This field is required </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!--orderedQuantity -->
+                <div class="col-1" *ngIf="businessType === '2'">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Ordered Qty"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Ordered Qty</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="orderedQuantity"
+                      formControlName="orderedQuantity"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                      readonly
+                    />
+                    <mat-error>Ordered Quantity is required </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- deliveryPrimaryQuantity -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Delivery Bag Qty"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label *ngIf="businessType === '1'"
+                      >Delivery QTY</mat-label
+                    >
+                    <mat-label *ngIf="businessType === '2'">
+                      Delivery Bag QTY</mat-label
+                    >
+
+                    <input
+                      matInput
+                      type="number"
+                      name="deliveryPrimaryQuantity"
+                      formControlName="deliveryPrimaryQuantity"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                      (click)="$event.target.select()"
+                    />
+                    <mat-hint
+                      style="color: red"
+                      *ngIf="p.hasError('deliveryQtyNotGreater')"
+                      >Delivery Qty Exceeded the Ordered Qty !!</mat-hint
+                    >
+                  </mat-form-field>
+                </div>
+
+                <!-- deliveryQuantity -->
+                <div class="col-1" *ngIf="businessType === '2'">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Delivery Qty"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Delivery Qty</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="deliveryQuantity"
+                      formControlName="deliveryQuantity"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+
+                <!-- delivered -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Already Delivered(Bag Qty)"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Delivered</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="delivered"
+                      formControlName="delivered"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                      readonly
+                    />
+                    <mat-error>Delivered is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <!-- orderedPrimaryBonusQuantity -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Bonus Bag Qty"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label *ngIf="businessType === '1'"
+                      >Bonus QTY</mat-label
+                    >
+                    <mat-label *ngIf="businessType === '2'"
+                      >Bonus Bag QTY</mat-label
+                    >
+
+                    <input
+                      matInput
+                      type="number"
+                      name="orderedPrimaryBonusQuantity"
+                      formControlName="orderedPrimaryBonusQuantity"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+
+                <!--orderedBonusQuantity -->
+                <div class="col-1" *ngIf="businessType === '2'">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Bonus Qty"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Bonus Qty</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="orderedBonusQuantity"
+                      formControlName="orderedBonusQuantity"
+                      min="0"
+                      placeholder="0.00"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+                <!-- deliveryPrimaryBonusQuantity -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Delivery Bonus Bag Qty"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label *ngIf="businessType === '1'"
+                      >Delivery Bonus QTY</mat-label
+                    >
+                    <mat-label *ngIf="businessType === '2'"
+                      >Delivery Bonus Bag QTY</mat-label
+                    >
+                    <input
+                      matInput
+                      type="number"
+                      name="deliveryPrimaryBonusQuantity"
+                      formControlName="deliveryPrimaryBonusQuantity"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                    />
+                    <mat-hint
+                      style="color: red"
+                      *ngIf="p.hasError('deliveryBonusQtyNotGreater')"
+                      >Delivery Bonus Qty Exceeded the Bonus Qty !!</mat-hint
+                    >
+                  </mat-form-field>
+                </div>
+                <!-- delivered -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Delivered Bonus"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Delivered Bonus</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="deliveredBonus"
+                      formControlName="deliveredBonus"
+                      min="0"
+                      placeholder="0.00"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+                <!-- discountPerUnit -->
+                <!-- <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Discount Per Unit"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>D/U</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="discountPerUnit"
+                      formControlName="discountPerUnit"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div> -->
+
+                <!-- discountAmount -->
+                <!-- <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Discount Amount"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>D.A.</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="discountAmount"
+                      formControlName="discountAmount"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div> -->
+
+                <!-- specialDiscountPerUnit -->
+                <!-- <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Special Discount Per Unit"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Spec. D/U</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="specialDiscountPerUnit"
+                      formControlName="specialDiscountPerUnit"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div> -->
+
+                <!-- rate -->
+                <!-- <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Rate"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Rate</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="rate"
+                      formControlName="rate"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                      readonly
+                    />
+                    <mat-error>Rate per unit is required</mat-error>
+                  </mat-form-field>
+                </div> -->
+
+                <!-- netRate -->
+                <!-- <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Net Rate"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Net Rate</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="netRate"
+                      formControlName="netRate"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div> -->
+
+                <!-- amount -->
+                <!-- <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Amount"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Amount</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="amount"
+                      formControlName="amount"
+                      placeholder="0.00"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div> -->
+
+                <!-- <div class="col-1">
+                  <button
+                    mat-mini-fab
+                    type="button"
+                    color="warn"
+                    (click)="onDeleteItem(p?.get('id')?.value, i)"
+                  >
+                    <mat-icon>delete_forever</mat-icon>
+                  </button>
+                </div> -->
+              </div>
+            </ng-container>
+          </ng-container>
+          <!-- End of Form Array -->
+
+          <!-- <div class="d-flex justify-content-between">
+            <div class="button-container">
+              <button
+                mat-mini-fab
+                type="button"
+                color="primary"
+                (click)="addItem()"
+              >
+                <mat-icon>add</mat-icon>
+              </button>
+            </div> -->
+          <!-- <div style="width: 250px"> -->
+          <!-- subtotal -->
+          <!-- <div class="label-data justify-content-between">
+                <span>Subtotal</span>
+                <span>
+                  {{
+                    deliveryNoteForm?.get("subtotal")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div> -->
+          <!-- discount -->
+          <!-- <div class="label-data justify-content-between">
+                <span>Discount</span>
+                <span>
+                  {{
+                    deliveryNoteForm?.get("discount")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div> -->
+
+          <!-- specialDiscount -->
+          <!-- <div class="label-data justify-content-between">
+                <span>Special Discount</span>
+                <span>
+                  {{
+                    deliveryNoteForm?.get("specialDiscount")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div> -->
+
+          <!-- total -->
+          <!-- <div class="label-data justify-content-between">
+                <span>Total</span>
+                <span>
+                  {{
+                    deliveryNoteForm?.get("total")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div> -->
+          <!-- transport -->
+          <!-- <div class="label-data justify-content-between">
+                <span>Transportation Cost</span>
+                <span>
+                  {{
+                    deliveryNoteForm?.get("transportationCost")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div> -->
+          <!-- depo charge -->
+          <!-- <div class="label-data justify-content-between">
+                <span>Depo Charge</span>
+                <span>
+                  {{
+                    deliveryNoteForm?.get("depoCharge")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div> -->
+          <!-- netTotal -->
+          <!-- <div class="label-data justify-content-between">
+                <span>Total Payable</span>
+                <span>
+                  {{
+                    deliveryNoteForm?.get("netTotal")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div> -->
+          <!-- </div> -->
+          <!-- </div> -->
+        </div>
+
+        <div class="p-3" align="center">
+          <button
+            class="me-2"
+            type="button"
+            *ngIf="!isViewMode && this.deliveryNoteForm.get('id')?.value"
+            mat-raised-button
+            (click)="backToView()"
+            [disabled]="this.deliveryNoteForm.invalid"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            color="accent"
+            mat-raised-button
+            matStepperNext
+            class="mr-1"
+            [disabled]="this.deliveryNoteForm.invalid"
+          >
+            Continue
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step Review and Submit -->
+    <mat-step [editable]="false">
+      <form
+        (ngSubmit)="onSubmit()"
+        autocomplete="off"
+        [formGroup]="deliveryNoteForm"
+      >
+        <ng-template matStepLabel>Review and Create Delivery Note</ng-template>
+        <div *ngIf="isPassingDataToNextStep">
+          <div class="row row-cols-3 gx-5">
+            <!-- saleOrderNo -->
+            <div class="col label-data">
+              <span>Sale Order No.</span>
+              <span>
+                {{ deliveryNoteForm.get("saleOrderNo")?.value }}
+              </span>
+            </div>
+
+            <!-- referenceNo -->
+            <div class="col label-data">
+              <span>Reference No</span>
+              <span>
+                {{ deliveryNoteForm.get("referenceNo")?.value }}
+              </span>
+            </div>
+
+            <!-- storeId -->
+            <div class="col label-data">
+              <span>Store</span>
+              <span>
+                {{ getStoreName(deliveryNoteForm?.get("storeId")?.value) }}
+              </span>
+            </div>
+
+            <!-- customerId -->
+            <div class="col label-data">
+              <span>Customer</span>
+              <span>
+                {{
+                  getCustomerName(deliveryNoteForm?.get("customerId")?.value)
+                }}
+              </span>
+            </div>
+
+            <!-- creditLimit -->
+            <div class="col label-data">
+              <span>Credit Limit</span>
+              <span>
+                {{ deliveryNoteForm.get("creditLimit")?.value }}
+              </span>
+            </div>
+
+            <!-- limitAvailed -->
+            <div class="col label-data">
+              <span>limitAvailed</span>
+              <span>
+                {{ deliveryNoteForm.get("limitAvailed")?.value }}
+              </span>
+            </div>
+
+            <!-- Transport -->
+            <div class="col label-data">
+              <span>Transport</span>
+              <span>
+                {{ getTransportName(deliveryNoteForm.get("transport")?.value) }}
+              </span>
+            </div>
+
+            <!-- Delivery Date -->
+            <div class="col label-data">
+              <span>Delivery Date</span>
+              <span>
+                {{
+                  dateFormatService.getDateFormat(
+                    deliveryNoteForm.get("deliveryDate")?.value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- deliveryPlace -->
+            <div class="col label-data">
+              <span>Delivery Place</span>
+              <span>
+                {{ deliveryNoteForm.get("deliveryPlace")?.value }}
+              </span>
+            </div>
+
+            <!-- truckNo -->
+            <div class="col label-data">
+              <span>Truck No</span>
+              <span>
+                {{ deliveryNoteForm?.get("truckNo")?.value }}
+              </span>
+            </div>
+
+            <!-- driverName -->
+            <div class="col label-data">
+              <span>Driver Name</span>
+              <span>
+                {{ deliveryNoteForm?.get("driverName")?.value }}
+              </span>
+            </div>
+
+            <!-- driverContactNo -->
+            <div class="col label-data">
+              <span>Driver Contact No</span>
+              <span>
+                {{ deliveryNoteForm?.get("driverContactNo")?.value }}
+              </span>
+            </div>
+
+            <!-- Remark -->
+            <div class="col label-data">
+              <span>Remark</span>
+              <span>
+                {{ deliveryNoteForm?.get("remark")?.value }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Details Table -->
+          <div>
+            <ng-container>
+              <app-delivery-note-detail
+                [data]="deliveryNoteDetailsData"
+              ></app-delivery-note-detail>
+            </ng-container>
+          </div>
+
+          <!-- Calculation Container -->
+          <!-- <div class="calculation-align-right">
+            <div>
+              <div class="label-data justify-content-between">
+                <span>Subtotal</span>
+                <span>
+                  {{
+                    deliveryNoteForm?.get("subtotal")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+              <div class="label-data justify-content-between">
+                <span>Discount</span>
+                <span>
+                  {{
+                    deliveryNoteForm?.get("discount")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+              <div class="label-data justify-content-between">
+                <span>Total</span>
+                <span>
+                  {{
+                    deliveryNoteForm?.get("total")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+            </div>
+          </div> -->
+        </div>
+        <!-- Action Button -->
+        <div class="p-3" *ngIf="!isViewMode" align="center">
+          <button
+            class="me-2"
+            mat-raised-button
+            matStepperPrevious
+            (click)="isLoading = false"
+            type="button"
+          >
+            Back
+          </button>
+          <button
+            mat-raised-button
+            color="accent"
+            type="submit"
+            class="mr-1"
+            [disabled]="this.deliveryNoteForm.invalid || isLoading"
+          >
+            <ng-container *ngIf="isLoading; else saveText">
+              <mat-icon>
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              {{ "Processing..." }}
+            </ng-container>
+            <ng-template #saveText>
+              {{ "Save" }}
+            </ng-template>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</div>

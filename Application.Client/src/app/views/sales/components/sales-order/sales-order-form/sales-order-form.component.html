@@ -1,0 +1,1167 @@
+<div class="container-fluid">
+  <div *ngIf="isViewMode" class="d-flex justify-content-between">
+    <div class="d-flex gap-2 align-items-center">
+      <button mat-icon-button (click)="navigateToList()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h3 class="m-0">Sale Order No: {{ data?.saleOrderNo }}</h3>
+      <mat-chip
+        class="align-middle py-4 px-8"
+        [color]="getSaleOrderStatus(data?.status)?.color"
+        selected
+      >
+        {{ getSaleOrderStatusName(data?.status)?.replaceAll("_", " ") }}
+      </mat-chip>
+      <button
+        mat-icon-button
+        color="primary"
+        matTooltip="print pdf"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printPdf(data?.id)"
+      >
+        <mat-icon>print</mat-icon>
+      </button>
+      <button
+        *appHasPermission="['Permissions.SaleOrders.Edit']"
+        [hidden]="
+          data?.status > 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-icon-button
+        color="primary"
+        matTooltip="Edit"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="showEdit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+    <div>
+      <button
+        #btnCheck
+        *appHasPermission="['Permissions.SaleOrders.Check']"
+        [hidden]="
+          data?.status != 1 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        type="button"
+        color="accent"
+        [disabled]="isDialogOpen || isLoading || isCreditBalanceInsufficient"
+        (click)="confirmCheck(data?.id, data?.saleOrderNo)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Check" }}
+        </ng-template>
+      </button>
+
+      <button
+        #btnApprove
+        *appHasPermission="['Permissions.SaleOrders.Approve']"
+        [hidden]="
+          data?.status != 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        color="primary"
+        type="button"
+        [disabled]="isDialogOpen || isLoading || isCreditBalanceInsufficient"
+        (click)="confirmApprove(data?.id, data?.saleOrderNo)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Approve" }}
+        </ng-template>
+      </button>
+
+      <button
+        *appHasPermission="['Permissions.SaleOrders.Unpost']"
+        [hidden]="
+          data?.status == 1 ||
+          data?.status > 3 ||
+          data?.status === 'undefined' ||
+          data?.financialYearId != currentFinancialYearId
+        "
+        type="button"
+        mat-mini-fab
+        color="warn"
+        matTooltip="Undo"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmUnpost(data?.id, data?.saleOrderNo, data?.status)"
+      >
+        <ng-container *ngIf="isLoading; else undo">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+        </ng-container>
+        <ng-template #undo>
+          <mat-icon>undo</mat-icon>
+        </ng-template>
+      </button>
+    </div>
+  </div>
+  <mat-stepper
+    class="mat-stepper-card"
+    (selectionChange)="handleStepChange($event)"
+    [disableRipple]="true"
+    [linear]="true"
+    #stepper
+  >
+    <mat-step [stepControl]="saleOrderForm">
+      <form autocomplete="off" [formGroup]="saleOrderForm">
+        <ng-template matStepLabel>Sale Order Form</ng-template>
+        <div>
+          <div class="row row-cols-3 gx-5">
+            <!-- Quotation No -->
+            <div class="col d-flex">
+              <mat-form-field class="full-width">
+                <mat-label>Sale Quotation No.</mat-label>
+                <input
+                  matInput
+                  name="quotationNo"
+                  formControlName="quotationNo"
+                />
+              </mat-form-field>
+              <button
+                [hidden]="this.data?.id"
+                type="button"
+                mat-icon-button
+                color="primary"
+                (click)="openSalesQuotationDialog()"
+              >
+                <mat-icon>help</mat-icon>
+              </button>
+            </div>
+
+            <!-- referenceNo -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Reference No</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Enter Reference No."
+                  formControlName="referenceNo"
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- storeId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Store</mat-label>
+                <mat-select
+                  formControlName="storeId"
+                  (selectionChange)="onSelectedStore($event.value)"
+                >
+                  <mat-option>-- None --</mat-option>
+                  <mat-option *ngFor="let d of stores" [value]="d?.id">
+                    {{ d?.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Store is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- customerId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Customer</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  name="customerId"
+                  formControlName="customerId"
+                  [matAutocomplete]="auto"
+                  (input)="handleCustomerSearch($event)"
+                />
+                <div matSuffix>
+                  <button
+                    (click)="clearInput($event, 'customerId')"
+                    *ngIf="saleOrderForm?.get('customerId')?.value"
+                    aria-label="Clear"
+                    mat-icon-button
+                    type="button"
+                  >
+                    <mat-icon>clear</mat-icon>
+                  </button>
+                  <mat-icon>keyboard_arrow_down</mat-icon>
+                </div>
+                <mat-autocomplete
+                  #auto="matAutocomplete"
+                  (optionSelected)="onSelectedCustomer($event.option.value)"
+                  [displayWith]="getCustomerName.bind(this)"
+                >
+                  <mat-option
+                    matTooltip="{{ d.address }}"
+                    *ngFor="let d of filterCustomers"
+                    [value]="d.id"
+                  >
+                    ({{ d.code.slice(-4) }}) {{ d.name }} {{ d.address }}
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error>Customer is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- creditLimit -->
+            <div class="col d-flex">
+              <mat-form-field class="full-width">
+                <mat-label>Credit Limit</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Enter Credit Limit"
+                  formControlName="creditLimit"
+                  readonly
+                />
+              </mat-form-field>
+              <button
+                [hidden]="!isCreditBalanceInsufficient"
+                type="button"
+                mat-icon-button
+                color="warn"
+                matTooltip="{{ this.creditBalanceInsufficientMessage }}"
+              >
+                <mat-icon>error</mat-icon>
+              </button>
+            </div>
+
+            <!-- limitAvailed -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Limit Availed</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Enter Limit Availed"
+                  formControlName="limitAvailed"
+                  readonly
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- transport -->
+            <div class="col" *ngIf="businessType === '2'">
+              <mat-form-field class="full-width">
+                <mat-label>Select Transport</mat-label>
+                <mat-select formControlName="transport">
+                  <mat-option *ngFor="let d of transports" [value]="d?.value">
+                    {{ d?.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Transport is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- paymentTerm -->
+            <div class="col" *ngIf="businessType === '1'">
+              <mat-form-field class="full-width">
+                <mat-label>Select Payment Term</mat-label>
+                <mat-select formControlName="paymentTerm">
+                  <mat-option *ngFor="let d of paymentTerms" [value]="d?.value">
+                    {{ d?.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Payment Term is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- orderDate -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Order Date</mat-label>
+                <input
+                  #input2
+                  matInput
+                  name="orderDate"
+                  [matDatepicker]="picker2"
+                  [min]="applyMinMax ? financialYearStartDate : null"
+                  [max]="applyMinMax ? financialYearEndDate : null"
+                  formControlName="orderDate"
+                  (focus)="picker2.open()"
+                  (dateChange)="onOrderDateChange()"
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker2"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker2
+                  (closed)="input2.blur()"
+                ></mat-datepicker>
+                <mat-error
+                  *ngIf="saleOrderForm.get('orderDate').hasError('required')"
+                  >Order Date is required</mat-error
+                >
+                <mat-error
+                  *ngIf="
+                    saleOrderForm.get('orderDate').hasError('inFinancialYear')
+                  "
+                >
+                  Please choose a date within the financial year period:
+                  {{ financialYearStartDate | date : "mediumDate" }} -
+                  {{ financialYearEndDate | date : "mediumDate" }}.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- deliveryDate -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label> Delivery Date</mat-label>
+                <input
+                  #input1
+                  matInput
+                  name="deliveryDate"
+                  [matDatepicker]="picker1"
+                  formControlName="deliveryDate"
+                  (focus)="picker1.open()"
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker1"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker1
+                  (closed)="input1.blur()"
+                ></mat-datepicker>
+                <mat-error>Delivery date is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- remark -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Remark</mat-label>
+                <textarea
+                  rows="1"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Leave a message..."
+                  formControlName="remark"
+                ></textarea>
+              </mat-form-field>
+            </div>
+            <!-- <div class="col d-flex">
+              <mat-form-field class="full-width">
+                <mat-label>Linked Money Receipt.</mat-label>
+                <input
+                  matInput
+                  name="moneyReceiptNo"
+                  formControlName="moneyReceiptNo"
+                  readonly
+                />
+                <mat-error>Money Receipt is required</mat-error>
+              </mat-form-field>
+              <button
+                type="button"
+                mat-icon-button
+                color="primary"
+                (click)="openMoneyReceiptDialog()"
+              >
+                <mat-icon>help</mat-icon>
+              </button>
+            </div> -->
+          </div>
+
+          <!-- Details Table -->
+          <ng-container formArrayName="saleOrderDetails">
+            <h3 class="subheading-2">Sale Order Details</h3>
+            <mat-divider></mat-divider>
+            <ng-container
+              *ngFor="let p of saleOrderDetails?.controls; let i = index"
+              [formGroupName]="i"
+            >
+              <div class="row">
+                <div class="col-2">
+                  <!-- Product Autocomplete -->
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Product"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Product</mat-label>
+                    <input
+                      type="text"
+                      placeholder="Search Product"
+                      aria-label="Filter Product"
+                      matInput
+                      name="productId"
+                      formControlName="productId"
+                      [matAutocomplete]="product"
+                      (input)="handleProductSearch($event, i)"
+                    />
+                    <div matSuffix>
+                      <button
+                        (click)="clearInputFromDetails($event, i)"
+                        *ngIf="
+                          saleOrderDetails?.at(i).get('productId')?.value !==
+                            null &&
+                          saleOrderDetails?.at(i).get('productId')?.value !== ''
+                        "
+                        aria-label="Clear"
+                        mat-icon-button
+                        type="button"
+                      >
+                        <mat-icon>clear</mat-icon>
+                      </button>
+                      <mat-icon>keyboard_arrow_down</mat-icon>
+                    </div>
+                    <mat-autocomplete
+                      autoActiveFirstOption
+                      #product="matAutocomplete"
+                      (optionSelected)="handleProductSelection($event, i)"
+                      [displayWith]="getProductName.bind(this)"
+                      [panelWidth]="'300px'"
+                    >
+                      <mat-option
+                        *ngFor="let product of searchProducts"
+                        [value]="product?.id"
+                      >
+                        {{ product.name }}
+                        ({{
+                          businessType === "2"
+                            ? product?.bagWeight +
+                              " " +
+                              product?.measurementUnit?.name
+                            : product?.packSize?.name
+                        }})
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error>Product is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!--Bag QTY -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Bag QTY"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label *ngIf="businessType === '1'">QTY</mat-label>
+                    <mat-label *ngIf="businessType === '2'">Bag QTY</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="primaryQuantity"
+                      formControlName="primaryQuantity"
+                      min="1"
+                      (click)="$event.target.select()"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                    />
+                    <mat-error>This field is required</mat-error>
+                    <mat-hint
+                      style="color: red"
+                      *ngIf="p.hasError('fieldsNotGreater')"
+                      >Stock Limit Exceeded !!</mat-hint
+                    >
+                  </mat-form-field>
+                </div>
+
+                <!-- QTY -->
+                <div class="col-1" *ngIf="businessType === '2'">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="QTY"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>QTY</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="quantity"
+                      formControlName="quantity"
+                      min="0"
+                      (change)="onControlChange($event, i)"
+                      readonly
+                    />
+                    <mat-hint
+                      style="color: red"
+                      *ngIf="p.hasError('saleQuantityNotGreaterThanStock')"
+                      >Sale Qty Exceeded the Stock Qty !!</mat-hint
+                    >
+                    <mat-error>Quantity is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- primaryBonusQuantity -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Bonus Bag Qty"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label *ngIf="businessType === '1'"
+                      >Bonus QTY</mat-label
+                    >
+                    <mat-label *ngIf="businessType === '2'"
+                      >Bonus Bag QTY</mat-label
+                    >
+                    <input
+                      matInput
+                      type="number"
+                      name="primaryBonusQuantity"
+                      formControlName="primaryBonusQuantity"
+                      min="0"
+                      (click)="$event.target.select()"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                    />
+                  </mat-form-field>
+                </div>
+
+                <!-- bonusQuantity -->
+                <!-- <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Bonus Qty"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Bonus QTY</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="bonusQuantity"
+                      formControlName="bonusQuantity"
+                      min="0"
+                      (change)="onControlChange($event, i)"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div> -->
+
+                <!-- Rate -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Rate"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Rate</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="rate"
+                      formControlName="rate"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      readonly
+                    />
+                    <mat-error>Rate per unit is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- discountPercentage -->
+                <div class="col-1" *ngIf="businessType === '1'">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Discount (%)"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Discount (%)</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="discountPercentage"
+                      formControlName="discountPercentage"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                    />
+                  </mat-form-field>
+                </div>
+
+                <!-- percentageDiscountAmount -->
+                <div class="col-1" *ngIf="businessType === '1'">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Discount Amount"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Discount Amount</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="percentageDiscountAmount"
+                      formControlName="percentageDiscountAmount"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+
+                <!-- discountPerUnit -->
+                <div class="col-1" *ngIf="businessType === '2'">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Discount(per kg)"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Discount Per Unit</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="discountPerUnit"
+                      formControlName="discountPerUnit"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+
+                <!-- offerDiscountPerUnit -->
+                <div class="col-1" *ngIf="businessType === '2'">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Offer Discount(per kg)"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Offer Discount Per Unit</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="offerDiscountPerUnit"
+                      formControlName="offerDiscountPerUnit"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+
+                <!-- Net Rate -->
+                <div class="col-1" *ngIf="businessType === '2'">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Net Rate"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Net Rate</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="netRate"
+                      formControlName="netRate"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+                <div class="col-1">
+                  <mat-form-field class="full-width">
+                    <mat-label>Current Stock</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="currentStockQuantity"
+                      formControlName="currentStockQuantity"
+                      placeholder="0.00"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+                <!-- amount -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Amount"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Amount</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="amount"
+                      formControlName="amount"
+                      placeholder="0.00"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+
+                <div class="col-1">
+                  <button
+                    mat-mini-fab
+                    type="button"
+                    color="warn"
+                    (click)="onDeleteItem(p?.get('id')?.value, i)"
+                  >
+                    <mat-icon>delete_forever</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </ng-container>
+          </ng-container>
+          <!-- End of Form Array -->
+
+          <div class="d-flex justify-content-between">
+            <div class="button-container">
+              <button
+                mat-mini-fab
+                type="button"
+                color="primary"
+                (click)="addItem()"
+              >
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+            <div style="width: 230px">
+              <!-- subtotal -->
+              <div class="label-data justify-content-between">
+                <span>Subtotal</span>
+                <span>
+                  {{
+                    saleOrderForm?.get("subtotal")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+
+              <!-- discount -->
+              <div
+                class="label-data justify-content-between"
+                *ngIf="businessType === '2'"
+              >
+                <span>Discount</span>
+                <span>
+                  {{
+                    saleOrderForm?.get("discount")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+
+              <!-- totalPercentageDiscountAmount -->
+              <div
+                class="label-data justify-content-between"
+                *ngIf="businessType === '1'"
+              >
+                <span>Discount Amount</span>
+                <span>
+                  {{
+                    saleOrderForm?.get("totalPercentageDiscountAmount")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+
+              <!-- offer discount -->
+              <div
+                class="label-data justify-content-between"
+                *ngIf="businessType === '2'"
+              >
+                <span>Offer Discount</span>
+                <span>
+                  {{
+                    saleOrderForm?.get("offerDiscount")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+              <!-- Other Discount -->
+              <div>
+                <mat-form-field class="full-width">
+                  <mat-label>Other Discount</mat-label>
+                  <input
+                    style="text-align: right"
+                    type="number"
+                    matInput
+                    autocomplete="off"
+                    placeholder="Enter Other Discount"
+                    name="otherDiscount"
+                    formControlName="otherDiscount"
+                    min="0"
+                    (change)="onControlChange($event)"
+                    (input)="onControlChange($event)"
+                    (click)="$event.target.select()"
+                  />
+                </mat-form-field>
+              </div>
+              <!-- total -->
+              <div class="label-data justify-content-between">
+                <span>Net Sale</span>
+                <span>
+                  {{
+                    saleOrderForm?.get("total")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+              <!-- transportationCost -->
+              <div *ngIf="businessType === '2'">
+                <mat-form-field class="full-width">
+                  <mat-label>Transportation Cost</mat-label>
+                  <input
+                    style="text-align: right"
+                    type="number"
+                    matInput
+                    autocomplete="off"
+                    placeholder="Enter transportation cost"
+                    name="transportationCost"
+                    formControlName="transportationCost"
+                    min="0"
+                    [readonly]="isTransportSelected()"
+                    (change)="onControlChange($event)"
+                    (input)="onControlChange($event)"
+                    (click)="$event.target.select()"
+                  />
+                </mat-form-field>
+              </div>
+              <!-- depoCharge -->
+              <div *ngIf="businessType === '2'">
+                <mat-form-field class="full-width">
+                  <mat-label>Depo Charge</mat-label>
+                  <input
+                    style="text-align: right"
+                    type="number"
+                    matInput
+                    autocomplete="off"
+                    placeholder="Enter depo charge"
+                    name="depoCharge"
+                    formControlName="depoCharge"
+                    min="0"
+                    readonly
+                  />
+                </mat-form-field>
+              </div>
+              <!-- netTotal -->
+              <div class="label-data justify-content-between">
+                <span>Total Payable</span>
+                <span>
+                  {{
+                    saleOrderForm?.get("netTotal")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3" align="center">
+          <button
+            class="me-2"
+            mat-raised-button
+            type="button"
+            *ngIf="!isViewMode && this.saleOrderForm.get('id')?.value"
+            (click)="backToView()"
+            [disabled]="this.saleOrderForm.invalid"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            color="accent"
+            mat-raised-button
+            matStepperNext
+            class="mr-1"
+            [disabled]="
+              this.saleOrderForm.invalid ||
+              this.saleOrderDetails.length <= 0 ||
+              isCreditBalanceInsufficient
+            "
+          >
+            Continue
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step Review and Submit -->
+    <mat-step [editable]="false">
+      <form
+        (ngSubmit)="onSubmit()"
+        autocomplete="off"
+        [formGroup]="saleOrderForm"
+      >
+        <ng-template matStepLabel>Review and Create Sale Order</ng-template>
+        <div *ngIf="isPassingDataToNextStep">
+          <div class="row row-cols-3 gx-5">
+            <!-- quotationNo -->
+            <div class="col label-data">
+              <span>Sale Quotation No.</span>
+              <span>
+                {{ saleOrderForm.get("quotationNo")?.value }}
+              </span>
+            </div>
+
+            <!-- requisitionNo -->
+            <!-- <div class="col label-data">
+              <span>Requisition No.</span>
+              <span>
+                {{ saleOrderForm.get("requisitionNo")?.value }}
+              </span>
+            </div> -->
+
+            <!-- referenceNo -->
+            <div class="col label-data">
+              <span>Reference No</span>
+              <span>
+                {{ saleOrderForm.get("referenceNo")?.value }}
+              </span>
+            </div>
+
+            <!-- storeId -->
+            <div class="col label-data">
+              <span>Store</span>
+              <span>
+                {{ getStoreName(saleOrderForm?.get("storeId")?.value) }}
+              </span>
+            </div>
+
+            <!-- customerId -->
+            <div class="col label-data">
+              <span>Customer</span>
+              <span>
+                {{ getCustomerName(saleOrderForm?.get("customerId")?.value) }}
+              </span>
+            </div>
+
+            <!-- creditLimit -->
+            <div class="col label-data">
+              <div>
+                <span>Credit Limit</span>
+                <span>
+                  {{ saleOrderForm.get("creditLimit")?.value }}
+                </span>
+              </div>
+              <mat-icon
+                style="font-size: 20px"
+                [hidden]="!isCreditBalanceInsufficient"
+                matTooltip="{{ this.creditBalanceInsufficientMessage }}"
+                color="warn"
+              >
+                error
+              </mat-icon>
+            </div>
+
+            <!-- limitAvailed -->
+            <div class="col label-data">
+              <span>Limit Availed</span>
+              <span>
+                {{ saleOrderForm.get("limitAvailed")?.value }}
+              </span>
+            </div>
+
+            <!-- Transport -->
+            <div class="col label-data" *ngIf="businessType === '2'">
+              <span>Transport</span>
+              <span>
+                {{ getTransportName(saleOrderForm.get("transport")?.value) }}
+              </span>
+            </div>
+
+            <!-- paymentTerm -->
+            <div class="col label-data" *ngIf="businessType === '1'">
+              <span>Payment Term</span>
+              <span>
+                {{
+                  getPaymentTermName(saleOrderForm.get("paymentTerm")?.value)
+                }}
+              </span>
+            </div>
+
+            <!-- Order Date -->
+            <div class="col label-data">
+              <span>Order Date</span>
+              <span>
+                {{
+                  dateFormatService.getDateFormat(
+                    saleOrderForm.get("orderDate")?.value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- Delivery Date -->
+            <div class="col label-data">
+              <span>Delivery Date</span>
+              <span>
+                {{
+                  dateFormatService.getDateFormat(
+                    saleOrderForm.get("deliveryDate")?.value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- Remark -->
+            <div class="col label-data">
+              <span>Remark</span>
+              <span>
+                {{ saleOrderForm?.get("remark")?.value }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Details Table -->
+          <div>
+            <ng-container>
+              <app-sales-order-detail
+                [data]="saleOrderDetailsData"
+              ></app-sales-order-detail>
+            </ng-container>
+          </div>
+
+          <!-- Calculation Container -->
+          <div class="calculation-align-right">
+            <div>
+              <!-- subtotal -->
+              <div class="label-data justify-content-between">
+                <span>Subtotal</span>
+                <span>
+                  {{
+                    saleOrderForm?.get("subtotal")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+              <!-- totalPercentageDiscountAmount -->
+              <div
+                class="label-data justify-content-between"
+                *ngIf="businessType === '1'"
+              >
+                <span>Discount Amount</span>
+                <span>
+                  {{
+                    saleOrderForm?.get("totalPercentageDiscountAmount")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+              <!-- discount -->
+              <div
+                class="label-data justify-content-between"
+                *ngIf="businessType === '2'"
+              >
+                <span>Discount</span>
+                <span>
+                  {{
+                    saleOrderForm?.get("discount")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+              <!-- Offer discount -->
+              <div
+                class="label-data justify-content-between"
+                *ngIf="businessType === '2'"
+              >
+                <span>Offer Discount</span>
+                <span>
+                  {{
+                    saleOrderForm?.get("offerDiscount")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+              <!--other discount -->
+              <div class="label-data justify-content-between">
+                <span>Other Discount</span>
+                <span>
+                  {{
+                    saleOrderForm?.get("otherDiscount")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+              <!-- total -->
+              <div class="label-data justify-content-between">
+                <span>Net Sale</span>
+                <span>
+                  {{
+                    saleOrderForm?.get("total")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+              <!-- transportationCost -->
+              <div
+                class="label-data justify-content-between"
+                *ngIf="businessType === '2'"
+              >
+                <span>Transportation Cost</span>
+                <span>
+                  {{
+                    saleOrderForm?.get("transportationCost")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+              <!-- depoCharge -->
+              <div
+                class="label-data justify-content-between"
+                *ngIf="businessType === '2'"
+              >
+                <span>Depo Charge</span>
+                <span>
+                  {{
+                    saleOrderForm?.get("depoCharge")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+              <!-- netTotal -->
+              <div class="label-data justify-content-between">
+                <span>Total Payable</span>
+                <span>
+                  {{
+                    saleOrderForm?.get("netTotal")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Action Button -->
+        <div class="p-3" *ngIf="!isViewMode" align="center">
+          <button
+            class="me-2"
+            mat-raised-button
+            matStepperPrevious
+            (click)="isLoading = false"
+            type="button"
+          >
+            Back
+          </button>
+          <button
+            mat-raised-button
+            color="accent"
+            type="submit"
+            class="mr-1"
+            [disabled]="this.saleOrderForm.invalid || isLoading"
+          >
+            <ng-container *ngIf="isLoading; else saveText">
+              <mat-icon>
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              {{ "Processing..." }}
+            </ng-container>
+            <ng-template #saveText>
+              {{ "Save" }}
+            </ng-template>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</div>

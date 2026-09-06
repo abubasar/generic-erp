@@ -1,0 +1,45 @@
+<mat-card>
+  <mat-card-title>Month Wise Product Sale Report</mat-card-title>
+  <form
+    autocomplete="off"
+    [formGroup]="searchForm"
+    (ngSubmit)="printPdf($event)"
+  >
+    <div class="row row-cols-2 gx-5">
+      
+      <div class="col">
+        <button
+          [style.marginRight]="'5px'"
+          mat-raised-button
+          matTooltip="PDF"
+          name="pdf"
+          color="primary"
+          type="submit"
+          [disabled]="isLoading1 || this.searchForm.invalid"
+        >
+          <ng-container *ngIf="isLoading1; else saveText">
+            {{ "Processing..." }}
+          </ng-container>
+          <ng-template #saveText>
+            <mat-icon>picture_as_pdf</mat-icon>
+          </ng-template>
+        </button>
+        <button
+          mat-raised-button
+          matTooltip="EXCEL"
+          name="excel"
+          color="warn"
+          type="submit"
+          [disabled]="isLoading2 || this.searchForm.invalid"
+        >
+          <ng-container *ngIf="isLoading2; else saveText2">
+            {{ "Processing..." }}
+          </ng-container>
+          <ng-template #saveText2>
+            <mat-icon>insert_drive_file</mat-icon>
+          </ng-template>
+        </button>
+      </div>
+    </div>
+  </form>
+</mat-card>

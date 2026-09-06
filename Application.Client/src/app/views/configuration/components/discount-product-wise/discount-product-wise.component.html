@@ -1,0 +1,315 @@
+<mat-card>
+  <mat-expansion-panel
+    class="mat-elevation-z0"
+    (opened)="panelOpenState = true"
+    (closed)="panelOpenState = false"
+  >
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>search_icon</mat-icon> Search
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <form autocomplete="off" [formGroup]="searchForm" (ngSubmit)="onSearch()">
+      <div class="row row-cols-2 gx-5">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Keyword/Name</mat-label>
+            <input matInput formControlName="keyword" />
+          </mat-form-field>
+        </div>
+        <!-- customerId -->
+        <!-- <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Enter Offer Name</mat-label>
+            <input
+              type="text"
+              matInput
+              autocomplete="off"
+              name="name"
+              formControlName="name"
+              placeholder="Offer Name"
+            />
+            <mat-autocomplete
+              #auto="matAutocomplete"
+              [displayWith]="getCustomerName.bind(this)"
+            >
+              <mat-option
+                matTooltip="{{ d.address }}"
+                *ngFor="let d of filterCustomers"
+                [value]="d.id"
+              >
+                ({{ d.code.slice(-4) }}) {{ d.name }} {{ d.address }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div> -->
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Enter a date range</mat-label>
+            <mat-date-range-input [rangePicker]="picker">
+              <input
+                matStartDate
+                formControlName="startDate"
+                placeholder="Start date"
+                (focus)="picker.open()"
+              />
+              <input
+                matEndDate
+                formControlName="endDate"
+                placeholder="End date"
+                (focus)="picker.open()"
+              />
+            </mat-date-range-input>
+            <mat-datepicker-toggle
+              matSuffix
+              [for]="picker"
+            ></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
+          </mat-form-field>
+        </div>
+      </div>
+      <button mat-raised-button color="primary" type="submit">
+        <mat-icon>search_icon</mat-icon>Search
+      </button>
+    </form>
+  </mat-expansion-panel>
+</mat-card>
+<mat-card>
+  <mat-card-content>
+    <div class="button-container d-flex justify-content-between">
+      <button
+        mat-raised-button
+        color="primary"
+        *appHasPermission="['Permissions.DiscountProductWises.Create']"
+        (click)="openAddNewForm()"
+      >
+        <!-- + Add New Customer -->
+        <mat-icon>add_box</mat-icon>
+        Add New
+      </button>
+      <!-- Views Column Button -->
+      <div>
+        <button
+          mat-icon-button
+          color="primary"
+          (click)="reload()"
+          matTooltip="Reload"
+          matTooltipPosition="above"
+        >
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          matTooltip="Views Column"
+          matTooltipShowDelay="300"
+          [matMenuTriggerFor]="viewsColumn"
+        >
+          <mat-icon>view_module_icon</mat-icon>
+        </button>
+        <mat-menu
+          class="margin-0 padding-0"
+          #viewsColumn="matMenu"
+          [formGroup]="viewColumnForm"
+        >
+          <span
+            class="padding-0"
+            mat-menu-item
+            [disableRipple]="true"
+            (click)="$event.stopPropagation()"
+          >
+            <mat-list role="list" class="margin-0 padding-0">
+              <mat-list-item
+                role="listitem"
+                *ngFor="let cd of columnDefinitions"
+              >
+                <mat-checkbox [formControlName]="cd.def">
+                  {{ cd.label }}
+                </mat-checkbox>
+              </mat-list-item>
+            </mat-list>
+          </span>
+        </mat-menu>
+      </div>
+    </div>
+    <ng-container *ngIf="!loading; else loadingSkeleton">
+      <div
+        class="table-responsive"
+        *ngIf="dataSource.data.length > 0; else noDataFound"
+      >
+        <table
+          class="border border-1 table-bordered"
+          mat-table
+          multiTemplateDataRows
+          [dataSource]="dataSource"
+        >
+          <ng-container matColumnDef="expand">
+            <th
+              mat-header-cell
+              class="header"
+              *matHeaderCellDef
+              aria-label="row actions"
+              (click)="expandAll()"
+              style="cursor: pointer"
+            >
+              <mat-icon>keyboard_arrow_down</mat-icon>
+            </th>
+            <td mat-cell *matCellDef="let element">
+              <button
+                mat-icon-button
+                aria-label="expand row"
+                (click)="
+                  expandedElement =
+                    expandedElement === element ? null : element;
+                  $event.stopPropagation()
+                "
+              >
+                <mat-icon *ngIf="expandedElement !== element"
+                  >keyboard_arrow_down</mat-icon
+                >
+                <mat-icon *ngIf="expandedElement === element"
+                  >keyboard_arrow_up</mat-icon
+                >
+              </button>
+            </td>
+          </ng-container>
+
+          <!-- Offer Name Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Offer Name</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.name }}
+            </td>
+          </ng-container>
+
+          <!-- startDate Column -->
+          <ng-container matColumnDef="startDate">
+            <th mat-header-cell *matHeaderCellDef>Start Date</th>
+            <td mat-cell *matCellDef="let elements">
+              {{ dateFormatService.getDateFormat(elements?.startDate) }}
+            </td>
+          </ng-container>
+
+          <!-- endDate -->
+          <ng-container matColumnDef="endDate">
+            <th mat-header-cell *matHeaderCellDef>End Date</th>
+            <td mat-cell *matCellDef="let elements">
+              {{ dateFormatService.getDateFormat(elements?.endDate) }}
+            </td>
+          </ng-container>
+
+          <!-- is active Column -->
+          <ng-container matColumnDef="isActive">
+            <th mat-header-cell *matHeaderCellDef>Is Active</th>
+            <td mat-cell *matCellDef="let element">
+              <!-- {{ account.isControlAccount }} -->
+              <mat-checkbox
+                [disableRipple]="true"
+                (click)="$event.preventDefault()"
+                [checked]="element.isActive"
+              >
+              </mat-checkbox>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th style="text-align: center" mat-header-cell *matHeaderCellDef>
+              Actions
+            </th>
+            <td align="center" mat-cell *matCellDef="let element">
+              <button
+                mat-icon-button
+                *appHasPermission="['Permissions.DiscountProductWises.Edit']"
+                color="primary"
+                matTooltip="Edit"
+                matTooltipShowDelay="300"
+                matTooltipPosition="above"
+                (click)="openEditForm(element)"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                *appHasPermission="['Permissions.DiscountProductWises.Delete']"
+                mat-icon-button
+                color="warn"
+                matTooltip="Delete"
+                matTooltipShowDelay="300"
+                matTooltipPosition="above"
+                (click)="confirmDelete(element.id)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+              <!-- <button
+                mat-icon-button
+                color="primary"
+                matTooltip="print pdf"
+                matTooltipShowDelay="300"
+                matTooltipPosition="above"
+                (click)="printPdf(element?.id)"
+              >
+                <mat-icon>print</mat-icon>
+              </button> -->
+            </td>
+          </ng-container>
+
+          <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+          <ng-container matColumnDef="expandedDetail">
+            <td
+              mat-cell
+              *matCellDef="let element"
+              [attr.colspan]="(displayedColumns$ | async)?.length"
+            >
+              <div
+                class="example-element-detail"
+                [@detailExpand]="
+                  element == expandedElement ? expanded : collapsed
+                "
+              >
+                <app-discount-product-wise-detail
+                  [data]="element?.discountProductWiseDetails"
+                ></app-discount-product-wise-detail>
+              </div>
+            </td>
+          </ng-container>
+          <!-- -------------- Expanded Content End----------------- -->
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns$ | async"></tr>
+          <tr
+            mat-row
+            *matRowDef="let element; columns: displayedColumns$ | async"
+            class="example-element-row"
+            [class.example-expanded-row]="expandedElement === element"
+            (dblclick)="
+              expandedElement = expandedElement === element ? null : element
+            "
+            tabindex="1"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: ['expandedDetail']"
+            class="example-detail-row"
+          ></tr>
+        </table>
+      </div>
+
+      <mat-paginator
+        *ngIf="totalCount > 0"
+        [length]="totalCount"
+        [pageSizeOptions]="pageSizeOptions"
+        (page)="onPageChange($event)"
+        showFirstLastButtons
+        aria-label="Select page of discount product wise list"
+      >
+      </mat-paginator>
+    </ng-container>
+  </mat-card-content>
+</mat-card>
+
+<!-- loader start -->
+<ng-template #loadingSkeleton>
+  <app-loading-skeleton></app-loading-skeleton>
+</ng-template>
+<!-- No Data Found -->
+<ng-template #noDataFound>
+  <app-no-data-found></app-no-data-found>
+</ng-template>

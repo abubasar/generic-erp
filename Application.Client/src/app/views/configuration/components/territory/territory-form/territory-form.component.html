@@ -1,0 +1,46 @@
+<h2 mat-dialog-title>{{ formTitle }}</h2>
+<form [formGroup]="territoryForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="mat-typography">
+    <input mat type="hidden" formControlName="id" />
+    <mat-form-field>
+      <mat-label>Territory Name</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Enter territory name"
+        formControlName="name"
+      />
+      <mat-error
+        *ngIf="
+          territoryForm.controls['name'].hasError('required') &&
+          territoryForm.controls['name'].touched
+        "
+      >
+        Territory name is required
+      </mat-error>
+    </mat-form-field>
+    <mat-form-field class="full-width">
+      <mat-label>Select Area</mat-label>
+      <mat-select formControlName="areaId">
+        <mat-option>-- None --</mat-option>
+        <mat-option *ngFor="let area of areas" [value]="area.id">
+          {{ area.name }}
+        </mat-option>
+      </mat-select>
+      <mat-error>Area is required</mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-raised-button mat-dialog-close>Cancel</button>
+    <button
+      mat-raised-button
+      [mat-dialog-close]="true"
+      cdkFocusInitial
+      color="primary"
+      [disabled]="!territoryForm.dirty || !territoryForm.valid"
+      type="submit"
+    >
+      Save
+    </button>
+  </mat-dialog-actions>
+</form>

@@ -1,0 +1,493 @@
+<h2 mat-dialog-title>{{ formTitle }}</h2>
+<form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="mat-typography">
+    <input mat type="hidden" formControlName="id" />
+    <fieldset>
+      <legend>Customer Info</legend>
+      <div class="row row-cols-1 row-cols-md-2 gx-3">
+        <!-- name -->
+        <div class="col">
+          <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input
+              matInput
+              autocomplete="off"
+              placeholder="Enter customer name"
+              formControlName="name"
+            />
+            <mat-error> Name is required </mat-error>
+          </mat-form-field>
+        </div>
+        <!-- ownersName -->
+        <div class="col">
+          <mat-form-field appearance="outline">
+            <mat-label>Owner's Name</mat-label>
+            <input
+              matInput
+              autocomplete="off"
+              placeholder="Enter owner's name"
+              formControlName="ownersName"
+            />
+            <mat-error> Owner's Name is required </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- contactNo -->
+        <div class="col">
+          <mat-form-field appearance="outline">
+            <mat-label>Contact No</mat-label>
+            <input
+              matInput
+              autocomplete="off"
+              placeholder="Enter contact number"
+              formControlName="contactNo"
+            />
+            <!-- <mat-error> Contact No is required </mat-error> -->
+            <mat-error *ngIf="customerForm.get('contactNo').invalid">
+              <span *ngIf="customerForm.get('contactNo').hasError('required')"
+                >Contact No is required.</span
+              >
+              <span *ngIf="customerForm.get('contactNo').hasError('pattern')"
+                >Invalid contact number. It should be a valid 11 digit's
+                Bangladeshi contact number.</span
+              >
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- email -->
+        <div class="col">
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input
+              matInput
+              type="email"
+              autocomplete="off"
+              placeholder="Enter email"
+              formControlName="email"
+            />
+            <mat-error>Email is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- address -->
+        <div class="col">
+          <mat-form-field appearance="outline">
+            <mat-label>Address</mat-label>
+            <input
+              matInput
+              autocomplete="off"
+              placeholder="Enter address"
+              formControlName="address"
+            />
+            <mat-error>Address is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- nationalId -->
+        <div class="col">
+          <mat-form-field appearance="outline">
+            <mat-label>NID</mat-label>
+            <input
+              matInput
+              autocomplete="off"
+              placeholder="Enter National Id"
+              formControlName="nationalId"
+            />
+            <mat-error> NID is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- tradeLicense -->
+        <div class="col">
+          <mat-form-field appearance="outline">
+            <mat-label>Trade License</mat-label>
+            <input
+              matInput
+              autocomplete="off"
+              placeholder="Enter Trade License"
+              formControlName="tradeLicense"
+            />
+            <mat-error>Trade license is required</mat-error>
+          </mat-form-field>
+        </div>
+        <!-- regionId  -->
+        <ng-container>
+          <div class="col">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Select Region</mat-label>
+              <mat-select
+                formControlName="customerRegionId"
+                (selectionChange)="onSelectedRegionId($event.value)"
+              >
+                <mat-option>-- None --</mat-option>
+                <mat-option *ngFor="let d of regions" [value]="d.id">
+                  {{ d.name }}
+                </mat-option>
+              </mat-select>
+              <mat-error>Region is required</mat-error>
+            </mat-form-field>
+          </div>
+          <div class="col" *ngIf="isRegionSelected">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Select Zone</mat-label>
+              <mat-select
+                formControlName="customerZoneId"
+                (selectionChange)="onSelectedZoneId($event.value)"
+              >
+                <mat-option>-- None --</mat-option>
+                <mat-option *ngFor="let d of zones" [value]="d?.id">
+                  {{ d?.name }}
+                </mat-option>
+              </mat-select>
+              <mat-error>Zone is required</mat-error>
+            </mat-form-field>
+          </div>
+          <div class="col" *ngIf="isZoneSelected">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Select Area</mat-label>
+              <mat-select
+                formControlName="customerAreaId"
+                (selectionChange)="onSelectedAreaId($event.value)"
+              >
+                <mat-option>-- None --</mat-option>
+                <mat-option *ngFor="let d of areas" [value]="d?.id">
+                  {{ d?.name }}
+                </mat-option>
+              </mat-select>
+              <mat-error>Zone is required</mat-error>
+            </mat-form-field>
+          </div>
+          <div class="col" *ngIf="businessType === '1' && isAreaSelected">
+            <mat-form-field appearance="outline">
+              <mat-label>Select Territory</mat-label>
+              <mat-select formControlName="customerTerritoryId">
+                <mat-option>-- None --</mat-option>
+                <mat-option
+                  *ngFor="let territory of territories"
+                  [value]="territory.id"
+                >
+                  {{ territory?.name }}
+                </mat-option>
+              </mat-select>
+              <mat-error>Territory is required </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="col">
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Select Marketing Officer</mat-label>
+              <input
+                type="text"
+                matInput
+                name="customerMarketingOfficerId"
+                formControlName="customerMarketingOfficerId"
+                [matAutocomplete]="autoMO"
+                (input)="handleMarketingOfficerSearch($event)"
+              />
+              <div matSuffix>
+                <button
+                  (click)="clearInput($event, 'customerMarketingOfficerId')"
+                  *ngIf="customerForm?.get('customerMarketingOfficerId')?.value"
+                  aria-label="Clear"
+                  mat-icon-button
+                  type="button"
+                >
+                  <mat-icon>clear</mat-icon>
+                </button>
+              </div>
+              <mat-autocomplete
+                #autoMO="matAutocomplete"
+                [displayWith]="getMarketingOfficerName.bind(this)"
+              >
+                <mat-option
+                  matTooltip="{{ d.firstName + ' ' + d.lastName }}"
+                  *ngFor="let d of filteredMarketingOfficers"
+                  [value]="d.id"
+                >
+                  {{ d.firstName + " " + d.lastName }}
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+          </div>
+        </ng-container>
+
+        <!-- customerZoneId -->
+        <!-- <div class="col">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Select Zone</mat-label>
+            <mat-select
+              formControlName="customerZoneId"
+              (selectionChange)="onSelectedZoneId($event.value)"
+            >
+              <mat-option>-- None --</mat-option>
+              <mat-option *ngFor="let zone of zones" [value]="zone.id">
+                {{ zone.name }}
+              </mat-option>
+            </mat-select>
+            <mat-error>Zone is required </mat-error>
+          </mat-form-field>
+        </div> -->
+
+        <!-- customerMarketingOfficerId -->
+        <!-- <div class="col">
+          <mat-form-field appearance="outline">
+            <mat-label>Select Marketing Officer</mat-label>
+            <mat-select formControlName="customerMarketingOfficerId">
+              <mat-option>-- None --</mat-option>
+              <mat-option *ngFor="let mo of marketingOfficers" [value]="mo.id">
+                {{ mo?.firstName + " " + mo?.lastName }}
+              </mat-option>
+            </mat-select>
+            <mat-error>Marketing Officer is required </mat-error>
+          </mat-form-field>
+        </div> -->
+
+        <!-- customerCreditLimit -->
+        <div class="col">
+          <mat-form-field appearance="outline">
+            <mat-label>Credit Limit</mat-label>
+            <input
+              matInput
+              type="number"
+              autocomplete="off"
+              placeholder="Enter credit limit"
+              formControlName="customerCreditLimit"
+            />
+            <mat-error> Credit Limit is required </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- customerCreditDays -->
+        <div class="col">
+          <mat-form-field appearance="outline">
+            <mat-label>Credit Days</mat-label>
+            <input
+              matInput
+              type="text"
+              autocomplete="off"
+              placeholder="Enter credit days"
+              formControlName="customerCreditDays"
+            />
+            <mat-error> Credit Days is required </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- customerTargetQuantity -->
+        <div class="col">
+          <mat-form-field appearance="outline">
+            <mat-label>Target Quantity</mat-label>
+            <input
+              matInput
+              type="text"
+              autocomplete="off"
+              placeholder="Enter target quantity"
+              formControlName="customerTargetQuantity"
+            />
+            <mat-error>Target Quantity is required </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Contact-Person Info</legend>
+      <div class="row row-cols-1 row-cols-md-2 gx-3">
+        <!-- contactPersonName -->
+        <div class="col">
+          <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input
+              matInput
+              autocomplete="off"
+              placeholder="Enter name"
+              formControlName="contactPersonName"
+            />
+            <mat-error> Name is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- contactPersonContactNo -->
+        <div class="col">
+          <mat-form-field appearance="outline">
+            <mat-label>Contact No</mat-label>
+            <input
+              matInput
+              autocomplete="off"
+              placeholder="Enter Contact No"
+              formControlName="contactPersonContactNo"
+            />
+            <!-- <mat-error>Contact No is required</mat-error> -->
+            <mat-error
+              *ngIf="customerForm.get('contactPersonContactNo').invalid"
+            >
+              <span
+                *ngIf="
+                  customerForm
+                    .get('contactPersonContactNo')
+                    .hasError('required')
+                "
+                >Contact No is required.</span
+              >
+              <span
+                *ngIf="
+                  customerForm.get('contactPersonContactNo').hasError('pattern')
+                "
+                >Invalid contact number. It should be a valid 11 digit's
+                Bangladeshi contact number.</span
+              >
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- contactPersonEmail -->
+        <div class="col">
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input
+              matInput
+              type="email"
+              autocomplete="off"
+              placeholder="Enter  email"
+              formControlName="contactPersonEmail"
+            />
+            <mat-error>Email is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- contactPersonDesignation -->
+        <div class="col">
+          <mat-form-field appearance="outline">
+            <mat-label> Designation</mat-label>
+            <input
+              matInput
+              autocomplete="off"
+              placeholder="Enter Designation"
+              formControlName="contactPersonDesignation"
+            />
+            <mat-error>Designation is required </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- Bank Account Details -->
+    <fieldset formArrayName="bankAccounts">
+      <legend>Bank Accounts Info</legend>
+
+      <ng-container
+        *ngFor="let p of bankAccounts.controls; let i = index"
+        [formGroupName]="i"
+      >
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-6">
+          <!-- Name -->
+          <div class="col-xl-3">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Name</mat-label>
+              <input matInput name="name" formControlName="name" />
+              <mat-error>Name is required</mat-error>
+            </mat-form-field>
+          </div>
+          <!-- accNo -->
+          <div class="col">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>A/c No</mat-label>
+              <input
+                matInput
+                type="text"
+                name="accNo"
+                formControlName="accNo"
+              />
+              <mat-error>Account No is required </mat-error>
+            </mat-form-field>
+          </div>
+          <!-- routingNo -->
+          <div class="col">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Routing No</mat-label>
+              <input
+                matInput
+                type="text"
+                name="routingNo"
+                formControlName="routingNo"
+              />
+              <mat-error>Routing No is required</mat-error>
+            </mat-form-field>
+          </div>
+          <!-- bankName -->
+          <div class="col">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Bank Name</mat-label>
+              <input
+                matInput
+                type="text"
+                name="bankName"
+                formControlName="bankName"
+              />
+              <mat-error>Bank Name is required</mat-error>
+            </mat-form-field>
+          </div>
+          <!-- branchName -->
+          <div class="col">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Branch Name</mat-label>
+              <input
+                matInput
+                type="text"
+                name="branchName"
+                formControlName="branchName"
+              />
+              <mat-error>Branch Name is required</mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Remove Button -->
+          <div class="col-xl-1 mb-3">
+            <button
+              mat-mini-fab
+              type="button"
+              color="warn"
+              (click)="onDeleteItem(p?.get('id')?.value, i)"
+            >
+              <mat-icon>delete_forever</mat-icon>
+            </button>
+          </div>
+        </div>
+      </ng-container>
+      <!-- Bottom Section -->
+      <div class="d-flex justify-content-end justify-content-md-start">
+        <!-- Button Container -->
+        <div class="button-container">
+          <button
+            mat-mini-fab
+            type="button"
+            color="primary"
+            (click)="addItem()"
+          >
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+      </div>
+    </fieldset>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="d-flex justify-content-between">
+    <!-- customerAgreement -->
+    <section required>
+      <mat-checkbox class="checkbox-margin" formControlName="customerAgreement">
+        Is Customer Agreement?
+      </mat-checkbox>
+    </section>
+    <div>
+      <button mat-raised-button mat-dialog-close>Cancel</button>
+      <button
+        mat-raised-button
+        cdkFocusInitial
+        color="primary"
+        [disabled]="this.customerForm.invalid"
+        type="submit"
+      >
+        Save
+      </button>
+    </div>
+  </mat-dialog-actions>
+</form>

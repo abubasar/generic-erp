@@ -1,0 +1,146 @@
+<h2 mat-dialog-title>{{ formTitle }}</h2>
+<form [formGroup]="tenantForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="mat-typography">
+    <input mat type="hidden" formControlName="id" />
+
+    <mat-form-field>
+      <mat-label>Code</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Code"
+        formControlName="code"
+        readonly
+      />
+      <mat-error
+        *ngIf="
+          tenantForm.controls['code'].hasError('required') &&
+          tenantForm.controls['code'].touched
+        "
+      >
+        Tenant code is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Tenant Name</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Enter tenant name"
+        formControlName="name"
+      />
+      <mat-error
+        *ngIf="
+          tenantForm.controls['name'].hasError('required') &&
+          tenantForm.controls['name'].touched
+        "
+      >
+        Tenant name is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Time Zone</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Enter tenant name"
+        formControlName="timeZoneId"
+      />
+      <mat-error
+        *ngIf="
+          tenantForm.controls['timeZoneId'].hasError('required') &&
+          tenantForm.controls['timeZoneId'].touched
+        "
+      >
+        Time Zone is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Address</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Enter address"
+        formControlName="address"
+      />
+      <mat-error
+        *ngIf="
+          tenantForm.controls['address'].hasError('required') &&
+          tenantForm.controls['address'].touched
+        "
+      >
+        Address is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Contact No</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Enter contact no."
+        formControlName="contactNo"
+      />
+      <mat-error
+        *ngIf="
+          tenantForm.controls['contactNo'].hasError('required') &&
+          tenantForm.controls['contactNo'].touched
+        "
+      >
+        Contact No is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>BIN No</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Enter BIN No."
+        formControlName="binno"
+      />
+      <mat-error
+        *ngIf="
+          tenantForm.controls['binno'].hasError('required') &&
+          tenantForm.controls['binno'].touched
+        "
+      >
+        BIN No is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Email</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Enter email"
+        formControlName="email"
+      />
+      <mat-error
+        *ngIf="
+          tenantForm.controls['email'].hasError('required') &&
+          tenantForm.controls['email'].touched
+        "
+      >
+        Email is required
+      </mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-raised-button mat-dialog-close>Cancel</button>
+    <button
+      mat-raised-button
+      [mat-dialog-close]="true"
+      cdkFocusInitial
+      color="primary"
+      [disabled]="!tenantForm.dirty || !tenantForm.valid"
+      type="submit"
+    >
+      Save
+    </button>
+  </mat-dialog-actions>
+</form>

@@ -1,0 +1,510 @@
+<div class="container-fluid">
+  <div *ngIf="isViewMode" class="d-flex justify-content-between">
+    <div class="d-flex gap-2 align-items-center">
+      <button mat-icon-button (click)="navigateToList()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h3 class="m-0">BOM No: {{ data?.bomNo }}</h3>
+      <mat-chip
+        class="align-middle py-4 px-8"
+        [color]="getBOMStatus(data?.status).color"
+        selected
+      >
+        {{ getBOMStatusName(data?.status)?.replaceAll("_", " ") }}
+      </mat-chip>
+      <button
+        mat-icon-button
+        color="primary"
+        name="pdf"
+        matTooltip="Bill Of Material PDF"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printBillOfMaterialPdf($event, data?.id)"
+      >
+        <mat-icon>picture_as_pdf</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        color="primary"
+        name="excel"
+        matTooltip="Bill Of Material Excel"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printBillOfMaterialPdf($event, data?.id)"
+      >
+        <mat-icon>table_view</mat-icon>
+      </button>
+      <button
+        *appHasPermission="['Permissions.BillOfMaterials.Edit']"
+        [hidden]="
+          data?.status > 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-icon-button
+        color="primary"
+        matTooltip="Edit"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="showEdit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+
+    <div>
+      <button
+        #btnCheck
+        *appHasPermission="['Permissions.BillOfMaterials.Check']"
+        [hidden]="
+          data?.status != 1 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        type="button"
+        color="accent"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmCheck($event, data?.id, data?.bomNo)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Check" }}
+        </ng-template>
+      </button>
+
+      <button
+        #btnApprove
+        *appHasPermission="['Permissions.BillOfMaterials.Approve']"
+        [hidden]="
+          data?.status != 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        color="primary"
+        type="button"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmApprove($event, data?.id, data?.bomNo)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Approve" }}
+        </ng-template>
+      </button>
+
+      <button
+        *appHasPermission="['Permissions.BillOfMaterials.Unpost']"
+        [hidden]="
+          data?.status >= 4 ||
+          data?.status == 1 ||
+          data?.status === 'undefined' ||
+          data?.financialYearId != currentFinancialYearId
+        "
+        type="button"
+        mat-mini-fab
+        color="warn"
+        matTooltip="Undo"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmUnpost(data?.id, data?.bomNo, data?.status)"
+      >
+        <ng-container *ngIf="isLoading; else undo">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+        </ng-container>
+        <ng-template #undo>
+          <mat-icon>undo</mat-icon>
+        </ng-template>
+      </button>
+    </div>
+  </div>
+
+  <mat-stepper
+    class="mat-stepper-card"
+    (selectionChange)="handleStepChange($event)"
+    [disableRipple]="true"
+    [linear]="true"
+    #stepper
+  >
+    <mat-step [stepControl]="billOfMaterialForm">
+      <form autocomplete="off" [formGroup]="billOfMaterialForm">
+        <ng-template matStepLabel>Bill of Material Form</ng-template>
+        <div>
+          <div class="row row-cols-3 gx-5">
+            <!-- finishedProduct -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Finished Product</mat-label>
+                <mat-select formControlName="finishedProductId" autoFocus>
+                  <mat-option [value]="null">-- None --</mat-option>
+                  <mat-option *ngFor="let d of finishedProducts" [value]="d.id">
+                    {{ d.name }}&nbsp;{{
+                      businessType === "1" ? "(" + d?.packSize?.name + ")" : ""
+                    }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Finished Product is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- copiedFromBomNo -->
+            <div class="col d-flex">
+              <mat-form-field class="full-width">
+                <mat-label>Source BOM No.</mat-label>
+                <input
+                  matInput
+                  name="copiedFromBomNo"
+                  formControlName="copiedFromBomNo"
+                  readonly
+                />
+              </mat-form-field>
+              <button
+                [hidden]="this.data?.id"
+                type="button"
+                mat-icon-button
+                color="primary"
+                (click)="openBOMDialog()"
+              >
+                <mat-icon>help</mat-icon>
+              </button>
+            </div>
+
+            <!-- formulationNo -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Formulation No</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Enter Formulation No."
+                  formControlName="formulationNo"
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- dosageQuantity -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Dosage Quantity</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="dosageQuantity"
+                  placeholder="Enter Dosage Quantity"
+                  formControlName="dosageQuantity"
+                  (change)="onControlChange($event)"
+                  (input)="onControlChange($event)"
+                  (click)="$event.target.select()"
+                />
+                <mat-error>Dosage Quantity is required </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Remark -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Remark</mat-label>
+                <textarea
+                  rows="1"
+                  matInput
+                  formControlName="remark"
+                  placeholder="Leave a message..."
+                ></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+
+        <!-- Details -->
+        <ng-container formArrayName="billOfMaterialDetails">
+          <h3 class="subheading-2">Items Detail</h3>
+          <mat-divider></mat-divider>
+          <ng-container
+            *ngFor="let p of billOfMaterialDetails.controls; let i = index"
+            [formGroupName]="i"
+          >
+            <div class="row">
+              <div class="col-4">
+                <!-- Product Autocomplete -->
+                <mat-form-field class="full-width">
+                  <mat-label>Item Name</mat-label>
+                  <input
+                    type="text"
+                    placeholder="Search Item"
+                    aria-label="Filter Item"
+                    matInput
+                    name="rawMaterialId"
+                    formControlName="rawMaterialId"
+                    [matAutocomplete]="product"
+                    (input)="handleProductSearch($event, i)"
+                  />
+                  <div matSuffix>
+                    <button
+                      (click)="clearInputFromDetails($event, i)"
+                      *ngIf="
+                        billOfMaterialDetails?.at(i).get('rawMaterialId')?.value
+                      "
+                      aria-label="Clear"
+                      mat-icon-button
+                      type="button"
+                    >
+                      <mat-icon>clear</mat-icon>
+                    </button>
+                    <mat-icon>keyboard_arrow_down</mat-icon>
+                  </div>
+                  <mat-autocomplete
+                    autoActiveFirstOption
+                    #product="matAutocomplete"
+                    (optionSelected)="handleProductSelection($event, i)"
+                    [displayWith]="getRawMaterialProductName.bind(this)"
+                  >
+                    <mat-option
+                      *ngFor="let product of filterRawMaterials"
+                      [value]="product.id"
+                    >
+                      {{ product.name }}
+                    </mat-option>
+                  </mat-autocomplete>
+                  <mat-error>Item is required</mat-error>
+                </mat-form-field>
+              </div>
+              <!-- MeasurementUnit -->
+              <div class="col-2">
+                <mat-form-field class="full-width">
+                  <mat-label>Unit</mat-label>
+                  <input
+                    matInput
+                    name="measurementUnitName"
+                    formControlName="measurementUnitName"
+                    readonly
+                  />
+                </mat-form-field>
+              </div>
+              <!-- quantity -->
+              <div class="col-2">
+                <mat-form-field class="full-width">
+                  <mat-label>Quantity</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    name="quantity"
+                    formControlName="quantity"
+                    min="0"
+                    placeholder="Enter Quantity"
+                    (change)="onControlChange($event, i)"
+                    (input)="onControlChange($event, i)"
+                    (click)="$event.target.select()"
+                  />
+                  <mat-error> Quantity is required </mat-error>
+                </mat-form-field>
+              </div>
+              <!-- percentage -->
+              <div class="col-2">
+                <!-- <mat-form-field class="full-width">
+                  <mat-label>Percentage (%)</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    name="percentage"
+                    formControlName="percentage"
+                    min="0"
+                    placeholder="0.00"
+                    readonly
+                  />
+                  <mat-error> Percentage is required </mat-error>
+                </mat-form-field> -->
+                <mat-label>Percentage (%)</mat-label>
+                <!-- | currency : "BDT" : "" : "1.2-2" -->
+                <p>
+                  {{
+                    billOfMaterialDetails?.at(i).get("percentage")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </p>
+              </div>
+              <!-- Remove Button -->
+              <div class="col-2">
+                <button
+                  mat-mini-fab
+                  type="button"
+                  color="warn"
+                  (click)="onDeleteItem(p?.get('id')?.value, i)"
+                >
+                  <mat-icon>delete_forever</mat-icon>
+                </button>
+              </div>
+            </div>
+          </ng-container>
+        </ng-container>
+        <!-- Bottom Section -->
+        <div class="d-flex justify-content-end">
+          <!-- Calculation Container -->
+          <div>
+            <!-- totalRmused -->
+            <div class="label-data justify-content-between">
+              <span>Quantity Total</span>
+              <span>
+                {{
+                  billOfMaterialForm?.get("totalQuantity")?.value
+                    | currency : "BDT" : "" : "1.2-2"
+                }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="d-flex justify-content-between">
+          <!-- Button Container -->
+          <div class="button-container">
+            <button
+              mat-mini-fab
+              type="button"
+              color="primary"
+              (click)="addItem()"
+            >
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="p-3" align="center">
+          <button
+            class="me-2"
+            type="button"
+            *ngIf="!isViewMode && this.billOfMaterialForm.get('id')?.value"
+            mat-raised-button
+            (click)="backToView()"
+            [disabled]="this.billOfMaterialForm.invalid"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            color="accent"
+            mat-raised-button
+            matStepperNext
+            class="mr-1"
+            [disabled]="
+              this.billOfMaterialForm.invalid || !this.billOfMaterialForm.dirty
+            "
+          >
+            Continue
+          </button>
+        </div>
+      </form>
+    </mat-step>
+    <!-- Step Review and Submit -->
+    <mat-step [editable]="false">
+      <form
+        (ngSubmit)="onSubmit()"
+        autocomplete="off"
+        [formGroup]="billOfMaterialForm"
+      >
+        <ng-template matStepLabel
+          >Review and Create Bill of Material</ng-template
+        >
+        <div *ngIf="isPassingDataToNextStep">
+          <div class="row row-cols-3 gx-5">
+            <!-- finishedProduct -->
+            <div class="col label-data">
+              <span>Finished Product</span>
+              <span>
+                {{
+                  getFinishedProductName(
+                    billOfMaterialForm?.get("finishedProductId")?.value
+                  )
+                }}
+              </span>
+            </div>
+            <!-- copiedFromBomNo -->
+            <div class="col label-data">
+              <span>Source BOM No</span>
+              <span>
+                {{ billOfMaterialForm?.get("copiedFromBomNo")?.value }}
+              </span>
+            </div>
+            <!-- formulationNo -->
+            <div class="col label-data">
+              <span>Formulation No</span>
+              <span>
+                {{ billOfMaterialForm?.get("formulationNo")?.value }}
+              </span>
+            </div>
+            <!-- dosageQuantity -->
+            <div class="col label-data">
+              <span>Dosage Quantity</span>
+              <span>
+                {{ billOfMaterialForm?.get("dosageQuantity")?.value }}
+              </span>
+            </div>
+            <!-- Remark -->
+            <div class="col label-data">
+              <span>Remark</span>
+              <span>
+                {{ billOfMaterialForm?.get("remark")?.value }}
+              </span>
+            </div>
+          </div>
+          <!-- Start of Form Array -->
+          <div>
+            <ng-container>
+              <app-bill-of-material-detail
+                [data]="billOfMaterialDetailsData"
+              ></app-bill-of-material-detail>
+            </ng-container>
+          </div>
+        </div>
+        <div class="calculation-align-right">
+          <!-- totalRmused -->
+          <div class="label-data justify-content-between">
+            <span>Quantity Total</span>
+            <span>
+              {{
+                billOfMaterialForm?.get("totalQuantity")?.value
+                  | currency : "BDT" : "" : "1.2-2"
+              }}
+            </span>
+          </div>
+        </div>
+        <div class="calculation-align-right"></div>
+        <!-- Action Button -->
+        <div class="p-3" *ngIf="!isViewMode" align="center">
+          <button
+            class="me-2"
+            mat-raised-button
+            matStepperPrevious
+            (click)="isLoading = false"
+            type="button"
+          >
+            Back
+          </button>
+          <button
+            mat-raised-button
+            color="accent"
+            type="submit"
+            [disabled]="this.billOfMaterialForm.invalid || isLoading"
+          >
+            <ng-container *ngIf="isLoading; else saveText">
+              <mat-icon>
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              {{ "Processing..." }}
+            </ng-container>
+            <ng-template #saveText>
+              {{ "Save" }}
+            </ng-template>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</div>

@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>{{ formTitle }}</h2>
+<form [formGroup]="deliveryPlaceForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="mat-typography">
+    <input mat type="hidden" formControlName="id" />
+    <mat-form-field>
+      <mat-label>Delivery Place Name</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Enter Delivery Place name"
+        formControlName="name"
+      />
+      <mat-error
+        *ngIf="
+          deliveryPlaceForm.controls['name'].hasError('required') &&
+          deliveryPlaceForm.controls['name'].touched
+        "
+      >
+        Delivery Place name is required
+      </mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-raised-button mat-dialog-close>Cancel</button>
+    <button
+      mat-raised-button
+      [mat-dialog-close]="true"
+      cdkFocusInitial
+      color="primary"
+      [disabled]="!deliveryPlaceForm.dirty || !deliveryPlaceForm.valid"
+      type="submit"
+    >
+      Save
+    </button>
+  </mat-dialog-actions>
+</form>

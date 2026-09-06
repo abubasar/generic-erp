@@ -1,0 +1,70 @@
+table {
+  width: 100%;
+}
+
+.button-container {
+  padding-bottom: 16px;
+  padding-top: 16px;
+}
+
+.demo-button {
+  margin-left: 8px;
+}
+
+.mat-menu {
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+.mat-menu-item {
+  height: inherit;
+  width: inherit;
+}
+
+.margin-0 {
+  margin: 0px;
+}
+
+.padding-0 {
+  padding: 0px;
+}
+
+.mat-menu-item:hover:not([disabled]) {
+  background: transparent;
+}
+
+tr.example-detail-row {
+  height: 0;
+}
+
+tr.example-element-row:not(.example-expanded-row):hover {
+  background: rgba(183, 183, 183, 0.3);
+}
+
+tr.example-element-row:not(.example-expanded-row):active {
+  background: #54545445;
+}
+
+.example-expanded-row {
+  background: rgba(183, 183, 183, 0.3);
+}
+
+tr.example-element-row:focus {
+  background: rgba(183, 183, 183, 0.3);
+  outline: none;
+}
+
+.example-element-row td {
+  border-bottom-width: 0;
+}
+
+.example-element-detail {
+  overflow: hidden;
+  // display: flex;
+}
+.example-form-field {
+  margin: 0 8px 16px 0;
+}
+
+th.mat-header-cell {
+  text-align: center;
+}

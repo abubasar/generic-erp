@@ -1,0 +1,40 @@
+import { Category } from "../category/category.model";
+import { Country } from "../country/country.model";
+import { Generic } from "../generic/generic.model";
+import { InventoryType } from "../inventory-type/inventory-type.model";
+import { Manufacturer } from "../manufacturer/manufacturer.model";
+import { MeasurementUnit } from "../measurement-unit/measurement-unit.model";
+import { PackSize } from "../pack-size/pack-size.model";
+import { ProductType } from "../product-type/product-type.model";
+
+export interface ProductView {
+  id?: string;
+  code?: string;
+  name: string;
+  inventoryTypeId: string;
+  productTypeId: string;
+  categoryId?: string;
+  genericId?: string;
+  composition?: string;
+  countryId?: string;
+  packSizeId?: string;
+  isPurchaseProduct: boolean;
+  isSaleProduct: boolean;
+  measurementUnitId: string;
+  mrp: number;
+  salePrice: number;
+  purchasePrice: number;
+  alertQuantity: number;
+  bagWeight: number;
+  manufacturerId?: string;
+  vatPercentage: number;
+  lastPurchaseRate: number;
+  inventoryType: InventoryType;
+  productType?: ProductType;
+  measurementUnit: MeasurementUnit;
+  country?: Country;
+  category?: Category;
+  generic?: Generic;
+  packSize?: PackSize;
+  manufacturer?: Manufacturer;
+}

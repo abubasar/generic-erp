@@ -1,0 +1,505 @@
+<div class="container-fluid">
+  <div *ngIf="isViewMode" class="d-flex justify-content-between">
+    <div class="d-flex gap-2 align-items-center">
+      <button mat-icon-button (click)="navigateToList()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h3 class="m-0">LC Adjustment No: {{ data?.code }}</h3>
+      <mat-chip
+        class="align-middle py-4 px-8"
+        [color]="getLcAdjustmentStatus(data?.status).color"
+        selected
+      >
+        {{ getLcAdjustmentStatusName(data?.status)?.replaceAll("_", " ") }}
+      </mat-chip>
+      <button
+        mat-icon-button
+        color="primary"
+        matTooltip="print pdf"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printPdf(data?.id)"
+      >
+        <mat-icon>print</mat-icon>
+      </button>
+      <button
+        *appHasPermission="['Permissions.LcAdjustments.Edit']"
+        [hidden]="
+          data?.status > 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-icon-button
+        color="primary"
+        matTooltip="Edit"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="showEdit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+
+    <div>
+      <button
+        #btnCheck
+        *appHasPermission="['Permissions.LcAdjustments.Check']"
+        [hidden]="
+          data?.status != 1 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        type="button"
+        color="accent"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmCheck(data?.id, data?.code)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Check" }}
+        </ng-template>
+      </button>
+
+      <button
+        #btnApprove
+        *appHasPermission="['Permissions.LcAdjustments.Approve']"
+        [hidden]="
+          data?.status != 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        color="primary"
+        type="button"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmApprove(data?.id, data?.code)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Approve" }}
+        </ng-template>
+      </button>
+
+      <button
+        *appHasPermission="['Permissions.LcAdjustments.Unpost']"
+        [hidden]="
+          data?.status == 1 ||
+          data?.status === 'undefined' ||
+          data?.financialYearId != currentFinancialYearId
+        "
+        type="button"
+        mat-mini-fab
+        color="warn"
+        matTooltip="Undo"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmUnpost(data?.id, data?.code, data?.status)"
+      >
+        <ng-container *ngIf="isLoading; else undo">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+        </ng-container>
+        <ng-template #undo>
+          <mat-icon>undo</mat-icon>
+        </ng-template>
+      </button>
+    </div>
+  </div>
+
+  <mat-stepper
+    class="mat-stepper-card"
+    (selectionChange)="handleStepChange($event)"
+    [disableRipple]="true"
+    [linear]="true"
+    #stepper
+  >
+    <mat-step [stepControl]="lcAdjustmentForm">
+      <form autocomplete="off" [formGroup]="lcAdjustmentForm">
+        <ng-template matStepLabel>LC Adjustment Form</ng-template>
+        <div>
+          <div class="row row-cols-2 gx-5">
+            <!-- purchaseInvoiceNo -->
+            <div class="col d-flex">
+              <mat-form-field class="full-width">
+                <mat-label>Purchase Invoice No.</mat-label>
+                <input
+                  matInput
+                  name="purchaseInvoiceNo"
+                  formControlName="purchaseInvoiceNo"
+                  readonly
+                />
+              </mat-form-field>
+              <button
+                [hidden]="this.data?.id"
+                type="button"
+                mat-icon-button
+                color="primary"
+                (click)="openPurchaseInvoiceDialog()"
+              >
+                <mat-icon>help</mat-icon>
+              </button>
+            </div>
+            <!-- adjustmentDate -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Choose Adjustment Date</mat-label>
+                <input
+                  #input1
+                  matInput
+                  name="adjustmentDate"
+                  [matDatepicker]="picker1"
+                  formControlName="adjustmentDate"
+                  [min]="applyMinMax ? financialYearStartDate : null"
+                  [max]="applyMinMax ? financialYearEndDate : null"
+                  (focus)="picker1.open()"
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker1"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker1
+                  (closed)="input1.blur()"
+                ></mat-datepicker>
+                <mat-error
+                  *ngIf="
+                    lcAdjustmentForm.get('adjustmentDate').hasError('required')
+                  "
+                  >LC Adjustment Date is required</mat-error
+                >
+                <mat-error
+                  *ngIf="
+                    lcAdjustmentForm
+                      .get('adjustmentDate')
+                      .hasError('inFinancialYear')
+                  "
+                >
+                  Please choose a date within the financial year period:
+                  {{ financialYearStartDate | date : "mediumDate" }} -
+                  {{ financialYearEndDate | date : "mediumDate" }}.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- costCenterId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Cost Center</mat-label>
+                <mat-select formControlName="costCenterId" autoFocus>
+                  <mat-option *ngFor="let d of costCenters" [value]="d.id">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Cost Center is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- invoiceTotal -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Invoice Total</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="invoiceTotal"
+                  formControlName="invoiceTotal"
+                  min="0"
+                  placeholder="0.00"
+                  readonly
+                />
+                <mat-error>Invoice Total is required </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- lcMarginTotal -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>LC Margin Total</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="lcMarginTotal"
+                  formControlName="lcMarginTotal"
+                  min="0"
+                  placeholder="0.00"
+                  readonly
+                />
+                <mat-error>LC Margin Total is required </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Remark -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Remark</mat-label>
+                <textarea
+                  rows="1"
+                  matInput
+                  formControlName="remark"
+                  placeholder="Leave a message..."
+                ></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Details -->
+          <ng-container formArrayName="lcAdjustmentDetails">
+            <h3 class="subheading-2">LC Adjustment Details</h3>
+            <mat-divider></mat-divider>
+            <ng-container
+              *ngFor="let p of lcAdjustmentDetails.controls; let i = index"
+              [formGroupName]="i"
+            >
+              <div class="row">
+                <!-- accountId -->
+                <div class="col-4">
+                  <mat-form-field class="full-width">
+                    <mat-label>Select Account</mat-label>
+                    <input
+                      type="text"
+                      matInput
+                      name="accountId"
+                      formControlName="accountId"
+                      [matAutocomplete]="auto"
+                      (input)="handleControlAccountSearch($event, i)"
+                    />
+                    <div matSuffix>
+                      <button
+                        (click)="clearInputDetails($event, i)"
+                        *ngIf="
+                          lcAdjustmentDetails?.at(i).get('accountId')?.value !==
+                            null &&
+                          lcAdjustmentDetails?.at(i).get('accountId')?.value !==
+                            ''
+                        "
+                        aria-label="Clear"
+                        mat-icon-button
+                        type="button"
+                      >
+                        <mat-icon>clear</mat-icon>
+                      </button>
+                    </div>
+                    <mat-autocomplete
+                      #auto="matAutocomplete"
+                      (optionSelected)="
+                        handleControlAccountSelection($event, i)
+                      "
+                      [displayWith]="getControlAccountName.bind(this)"
+                      [panelWidth]="'500px'"
+                    >
+                      <mat-option
+                        *ngFor="let d of filterControlAccounts"
+                        [value]="d.id"
+                      >
+                        {{ d.name }}
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error>Account is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- accountDescription -->
+                <div class="col-2">
+                  <h6>Account Tree</h6>
+                  <span>{{ p.get("accountDescription")?.value }} </span>
+                </div>
+
+                <!-- postType -->
+                <div class="col-2">
+                  <mat-form-field class="full-width">
+                    <mat-label>Select Post Type</mat-label>
+                    <mat-select formControlName="postType" autoFocus>
+                      <mat-option
+                        *ngFor="let d of postTypes"
+                        [value]="d?.value"
+                      >
+                        {{ getPostTypeName(d.value) }}
+                      </mat-option>
+                    </mat-select>
+                    <mat-error>Post Type is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- Amount -->
+                <div class="col-2">
+                  <mat-form-field class="full-width">
+                    <mat-label>Amount</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="amount"
+                      formControlName="amount"
+                      placeholder="0.00"
+                    />
+                  </mat-form-field>
+                </div>
+
+                <!-- Remove Button -->
+                <div class="col-1">
+                  <button
+                    mat-mini-fab
+                    type="button"
+                    color="warn"
+                    (click)="onDeleteItem(p?.get('id')?.value, i)"
+                  >
+                    <mat-icon>delete_forever</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </ng-container>
+          </ng-container>
+
+          <!-- Bottom Section -->
+          <div class="d-flex justify-content-between">
+            <!-- Button Container -->
+            <div class="button-container">
+              <button
+                mat-mini-fab
+                type="button"
+                color="primary"
+                (click)="addItem()"
+              >
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3" align="center">
+          <button
+            class="me-2"
+            type="button"
+            *ngIf="!isViewMode && this.lcAdjustmentForm.get('id')?.value"
+            mat-raised-button
+            (click)="backToView()"
+            [disabled]="this.lcAdjustmentForm.invalid"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            color="accent"
+            mat-raised-button
+            (click)="goToNext()"
+            class="mr-1"
+            [disabled]="this.lcAdjustmentForm.invalid"
+          >
+            Continue
+          </button>
+          <!-- matStepperNext -->
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step Review and Submit -->
+    <mat-step [editable]="false">
+      <form
+        (ngSubmit)="onSubmit()"
+        autocomplete="off"
+        [formGroup]="lcAdjustmentForm"
+      >
+        <ng-template matStepLabel>Review and Create LC Adjustment</ng-template>
+        <div *ngIf="isPassingDataToNextStep">
+          <div class="row row-cols-2 gx-5">
+            <!-- purchaseInvoiceNo -->
+            <div class="col label-data">
+              <span>Purchase Invoice No</span>
+              <span>{{
+                lcAdjustmentForm?.get("purchaseInvoiceNo")?.value
+              }}</span>
+            </div>
+
+            <!-- adjustmentDate -->
+            <div class="col label-data">
+              <span>Adjustment Date</span>
+              <span>
+                {{
+                  dateFormatService.getDateFormat(
+                    lcAdjustmentForm.get("adjustmentDate").value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- costCenterId -->
+            <div class="col label-data">
+              <span>Cost Center</span>
+              <span>
+                {{
+                  getCostCenterName(
+                    lcAdjustmentForm?.get("costCenterId")?.value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- invoiceTotal -->
+            <div class="col label-data">
+              <span>Invoice Total</span>
+              <span>{{ lcAdjustmentForm?.get("invoiceTotal")?.value }}</span>
+            </div>
+
+            <!-- lcMarginTotal -->
+            <div class="col label-data">
+              <span>LC Margin Total</span>
+              <span>{{ lcAdjustmentForm?.get("lcMarginTotal")?.value }}</span>
+            </div>
+
+            <!-- Remark -->
+            <div class="col label-data">
+              <span>Remark</span>
+              <span>
+                {{ lcAdjustmentForm?.get("remark")?.value }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Start of Form Array -->
+          <div>
+            <ng-container>
+              <app-lc-adjustment-detail
+                [data]="lcAdjustmentDetailsData"
+              ></app-lc-adjustment-detail>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="p-3" *ngIf="!isViewMode" align="center">
+          <button
+            class="me-2"
+            mat-raised-button
+            matStepperPrevious
+            (click)="isLoading = false"
+            type="button"
+          >
+            Back
+          </button>
+          <button
+            mat-raised-button
+            color="accent"
+            type="submit"
+            [disabled]="this.lcAdjustmentForm.invalid || isLoading"
+          >
+            <ng-container *ngIf="isLoading; else saveText">
+              <mat-icon>
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              {{ "Processing..." }}
+            </ng-container>
+            <ng-template #saveText>
+              {{ "Save" }}
+            </ng-template>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</div>

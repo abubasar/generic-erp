@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>{{ formTitle }}</h2>
+<form [formGroup]="manufacturerForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="mat-typography">
+    <input mat type="hidden" formControlName="id" />
+    <mat-form-field>
+      <mat-label>Manufacturer Name</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Enter Manufacturer name"
+        formControlName="name"
+      />
+      <mat-error
+        *ngIf="
+          manufacturerForm.controls['name'].hasError('required') &&
+          manufacturerForm.controls['name'].touched
+        "
+      >
+        Manufacturer name is required
+      </mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-raised-button mat-dialog-close>Cancel</button>
+    <button
+      mat-raised-button
+      [mat-dialog-close]="true"
+      cdkFocusInitial
+      color="primary"
+      [disabled]="!manufacturerForm.dirty || !manufacturerForm.valid"
+      type="submit"
+    >
+      Save
+    </button>
+  </mat-dialog-actions>
+</form>

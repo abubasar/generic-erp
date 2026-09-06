@@ -1,0 +1,74 @@
+import { CostCenter } from "app/views/configuration/models/cost-center/cost-center.model";
+import { ProductView } from "app/views/configuration/models/product/product-view.model";
+import { Store } from "app/views/configuration/models/store/store.model";
+import { Supplier } from "app/views/configuration/models/supplier/supplier.model";
+
+export interface GoodsReceiveNoteResponseDTO {
+  id?: string;
+  grnno: string;
+  grndate: string;
+  ponumber: string;
+  storeId: string;
+  supplierId: string;
+  challanNo: string;
+  challanDate: string;
+  truckNo: string;
+  driverName: string;
+  driverContactNo: string;
+  transport?: number;
+  paymentTermInDays: number;
+  isImportPurchase: boolean;
+  proformaInvoiceNo: string;
+  lcNumber: string;
+  exchangeRate: number;
+  currencyId: string;
+  importPurchaseIncoTerm: number;
+  importPurchasePaymentTerm: number;
+  portOfLoading: string;
+  portOfDestination: string;
+  additionalLandedCost: number;
+  status: number;
+  statusName: string;
+  subtotal: number;
+  discount: number;
+  transportationCost: number;
+  total: number;
+  totalGrnAdjustmentAmount: number;
+  purchaseOrderTotal: number;
+  remark: string;
+  createdOn: string;
+  updatedOn: string;
+  createdBy: string;
+  updatedBy: string;
+  checkedBy: string;
+  approvedBy: string;
+  financialYearId: string;
+  costCenter: CostCenter;
+  store: Store;
+  supplier: Supplier;
+  goodsReceiveNoteDetails: GoodsReceiveNoteResponseDetail[];
+}
+
+export interface GoodsReceiveNoteResponseDetail {
+  id?: string;
+  // goodsReceiveNoteId?: string;
+  purchaseOrderDetailId?: string;
+  productId: string;
+  measurementUnitName?: string;
+  poquantity: number;
+  grnquantity: number;
+  bagWeightDeductionQuantity: number;
+  numberOfBagQuantity: number;
+  netQuantity: number;
+  batchNo?: number;
+  expiryDate?: string;
+  receivedQuantity: number;
+  rejectedQuantity: number;
+  rejectionReason: string;
+  currencyRate: number;
+  rate: number;
+  rateAfterBagWeightDeduction: number;
+  currencyAmount: number;
+  amount: number;
+  product?: ProductView;
+}

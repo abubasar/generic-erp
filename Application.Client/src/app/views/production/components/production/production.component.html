@@ -1,0 +1,755 @@
+<mat-card>
+  <mat-expansion-panel
+    class="mat-elevation-z0"
+    (opened)="openExpansionPanel()"
+    (closed)="panelOpenState = false"
+  >
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>search_icon</mat-icon> Search
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <form autocomplete="off" [formGroup]="searchForm" (ngSubmit)="onSearch()">
+      <div class="row row-cols-2 gx-5">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Search By Keyword</mat-label>
+            <input matInput formControlName="keyword" />
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Product</mat-label>
+            <input
+              type="text"
+              placeholder="Search Product"
+              aria-label="Filter Product"
+              matInput
+              name="finishedProductId"
+              formControlName="finishedProductId"
+              [matAutocomplete]="product"
+              (input)="onProductChange($event?.target?.value)"
+            />
+            <div matSuffix>
+              <button
+                (click)="clearInput($event)"
+                *ngIf="
+                  searchForm?.get('finishedProductId')?.value !== null &&
+                  searchForm?.get('finishedProductId')?.value !== ''
+                "
+                aria-label="Clear"
+                mat-icon-button
+                type="button"
+              >
+                <mat-icon>clear</mat-icon>
+              </button>
+            </div>
+            <mat-autocomplete
+              autoActiveFirstOption
+              #product="matAutocomplete"
+              [displayWith]="getProductName.bind(this)"
+            >
+              <mat-option
+                *ngFor="let product of filterFinishedProducts"
+                [value]="product.id"
+              >
+                {{ product.name }}
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error>Product is required</mat-error>
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Select Production Status</mat-label>
+            <mat-select formControlName="productionStatus">
+              <mat-option [value]="null">-- None --</mat-option>
+              <mat-option
+                *ngFor="let d of productionStatuses"
+                [value]="d?.value"
+              >
+                {{ d?.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Enter a date range</mat-label>
+            <mat-date-range-input [rangePicker]="picker">
+              <input
+                matStartDate
+                formControlName="fromDate"
+                placeholder="Start date"
+                (focus)="picker.open()"
+              />
+              <input
+                matEndDate
+                formControlName="toDate"
+                placeholder="End date"
+                (focus)="picker.open()"
+              />
+            </mat-date-range-input>
+            <mat-datepicker-toggle
+              matSuffix
+              [for]="picker"
+            ></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
+          </mat-form-field>
+        </div>
+      </div>
+      <button mat-raised-button color="primary" type="submit">
+        <mat-icon>search_icon</mat-icon>Search
+      </button>
+    </form>
+  </mat-expansion-panel>
+</mat-card>
+
+<mat-card>
+  <mat-card-content>
+    <div class="button-container d-flex justify-content-between">
+      <div
+        class="d-flex flex-column flex-md-row gap-2 align-items-start align-items-md-center"
+      >
+        <button
+          *appHasPermission="['Permissions.Productions.Create']"
+          mat-stroked-button
+          color="primary"
+          (click)="navigateToAddNew()"
+        >
+          <mat-icon>add_box</mat-icon>
+          Add New
+        </button>
+        <button
+          mat-stroked-button
+          color="accent"
+          matBadge="{{ pendingCheckedModel?.pendingCount }}"
+          matBadgePosition="after"
+          matBadgeColor="primary"
+          (click)="getPending()"
+          [disabled]="pendingCheckedModel?.pendingCount == 0"
+        >
+          <mat-icon> present_to_all</mat-icon>
+          Pending For Check
+        </button>
+        <button
+          mat-stroked-button
+          color="warn"
+          matBadge="{{ pendingCheckedModel?.checkedCount }}"
+          matBadgePosition="after"
+          matBadgeColor="primary"
+          (click)="getChecked()"
+          [disabled]="pendingCheckedModel?.checkedCount == 0"
+        >
+          <mat-icon>done_outline</mat-icon>
+          Waiting For Approval
+        </button>
+      </div>
+
+      <!-- Views Column Button -->
+      <div>
+        <button
+          mat-icon-button
+          color="primary"
+          (click)="reload()"
+          matTooltip="Reload"
+          matTooltipPosition="above"
+        >
+          <mat-icon>refresh</mat-icon>
+        </button>
+
+        <button
+          mat-icon-button
+          matTooltip="Views Column"
+          matTooltipShowDelay="300"
+          [matMenuTriggerFor]="viewsColumn"
+        >
+          <mat-icon>view_module_icon</mat-icon>
+        </button>
+        <mat-menu
+          class="margin-0 padding-0"
+          #viewsColumn="matMenu"
+          [formGroup]="viewColumnForm"
+        >
+          <span
+            class="padding-0"
+            mat-menu-item
+            [disableRipple]="true"
+            (click)="$event.stopPropagation()"
+          >
+            <mat-list role="list" class="margin-0 padding-0">
+              <mat-list-item
+                role="listitem"
+                *ngFor="let cd of columnDefinitions"
+              >
+                <mat-checkbox [formControlName]="cd?.def">
+                  {{ cd?.label }}
+                </mat-checkbox>
+              </mat-list-item>
+            </mat-list>
+          </span>
+        </mat-menu>
+      </div>
+    </div>
+
+    <ng-container *ngIf="!loading; else loadingSkeleton">
+      <div
+        class="table-responsive"
+        *ngIf="dataSource.data.length > 0; else noDataFound"
+      >
+        <table
+          class="border border-1 table-bordered"
+          mat-table
+          multiTemplateDataRows
+          [dataSource]="dataSource"
+          [trackBy]="trackBy"
+        >
+          <ng-container matColumnDef="expand">
+            <th
+              mat-header-cell
+              class="header"
+              *matHeaderCellDef
+              aria-label="row actions"
+              (click)="expandAll()"
+              style="cursor: pointer"
+            >
+              <mat-icon>keyboard_arrow_down</mat-icon>
+            </th>
+            <td mat-cell *matCellDef="let element">
+              <button
+                mat-icon-button
+                aria-label="expand row"
+                (click)="
+                  expandedElement =
+                    expandedElement === element ? null : element;
+                  $event.stopPropagation()
+                "
+              >
+                <mat-icon *ngIf="expandedElement !== element"
+                  >keyboard_arrow_down</mat-icon
+                >
+                <mat-icon *ngIf="expandedElement === element"
+                  >keyboard_arrow_up</mat-icon
+                >
+              </button>
+            </td>
+            <td mat-footer-cell *matFooterCellDef>Total</td>
+          </ng-container>
+
+          <!-- productionNo Column -->
+          <ng-container matColumnDef="productionNo">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Production No
+            </th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.productionNo }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- manufacturingOrderNo Column -->
+          <ng-container matColumnDef="manufacturingOrderNo">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Manufacturing Order No
+            </th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.manufacturingOrderNo }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- bomNo Column -->
+          <ng-container matColumnDef="bomNo">
+            <th mat-header-cell class="header" *matHeaderCellDef>BOM No</th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.bomNo }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- fgstore Column -->
+          <ng-container matColumnDef="fgstore">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Finished Goods Store
+            </th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.fgstore?.name }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- totalRmused Column -->
+          <ng-container matColumnDef="totalRmused">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Total RM Used
+            </th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.totalRmused | number : "1.2-2" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              {{ reportAggregator?.aggregatorTotalRmused | number : "1.2-2" }}
+            </td>
+          </ng-container>
+
+          <!-- productionDate Column -->
+          <ng-container matColumnDef="productionDate">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Production Date
+            </th>
+            <td mat-cell *matCellDef="let production">
+              {{ dateFormatService.getDateFormat(production?.productionDate) }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- formulationNo Column -->
+          <ng-container matColumnDef="formulationNo">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Formulation No
+            </th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.formulationNo }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- batchNo Column -->
+          <ng-container matColumnDef="batchNo">
+            <th mat-header-cell class="header" *matHeaderCellDef>Batch No</th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.batchNo }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- finishedProduct Column -->
+          <ng-container matColumnDef="finishedProduct">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Finished Product
+            </th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.finishedProduct?.name }}&nbsp;
+              {{
+                businessType === "1"
+                  ? "(" + production?.finishedProduct?.packSize?.name + ")"
+                  : ""
+              }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- productionQuantity Column -->
+          <ng-container matColumnDef="productionQuantity">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Production Quantity
+            </th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.productionQuantity | number : "1.2-2" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              {{
+                reportAggregator?.aggregatorProductionQuantity
+                  | number : "1.2-2"
+              }}
+            </td>
+          </ng-container>
+
+          <!-- actualProductionQuantity Column -->
+          <ng-container matColumnDef="actualProductionQuantity">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Actual Production Quantity
+            </th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.actualProductionQuantity | number : "1.2-2" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              {{
+                reportAggregator?.aggregatorActualProductionQuantity
+                  | number : "1.2-2"
+              }}
+            </td>
+          </ng-container>
+
+          <!-- extraDamageQuantity Column -->
+          <ng-container matColumnDef="extraDamageQuantity">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Short/Excess Quantity
+            </th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.extraDamageQuantity | number : "1.2-2" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              {{
+                reportAggregator?.aggregatorExtraDamageQuantity
+                  | number : "1.2-2"
+              }}
+            </td>
+          </ng-container>
+
+          <!-- dustLooseInQuantity Column -->
+          <ng-container matColumnDef="dustLooseInQuantity">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Dust/Loose In Quantity
+            </th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.dustLooseInQuantity | number : "1.2-2" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- dustLooseOutQuantity Column -->
+          <ng-container matColumnDef="dustLooseOutQuantity">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Dust/Loose Out Quantity
+            </th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.dustLooseOutQuantity | number : "1.2-2" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- totalAdjustmentQuantity Column -->
+          <ng-container matColumnDef="totalAdjustmentQuantity">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Total Adjustment Quantity
+            </th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.totalAdjustmentQuantity | number : "1.2-2" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              {{
+                reportAggregator?.aggregatorTotalAdjustmentQuantity
+                  | number : "1.2-2"
+              }}
+            </td>
+          </ng-container>
+
+          <!-- totalAdjustmentCost Column -->
+          <ng-container matColumnDef="totalAdjustmentCost">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Total Adjustment Cost
+            </th>
+            <td mat-cell *matCellDef="let production">
+              {{
+                production?.totalAdjustmentCost
+                  | currency : "BDT" : "" : "1.2-2"
+              }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              {{
+                reportAggregator?.aggregatorTotalAdjustmentCost
+                  | currency : "BDT" : "" : "1.2-2"
+              }}
+            </td>
+          </ng-container>
+
+          <!-- rmCost Column -->
+          <ng-container matColumnDef="rmCost">
+            <th mat-header-cell class="header" *matHeaderCellDef>RM Cost</th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.rmCost | number : "1.2-2" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              {{ reportAggregator?.aggregatorRmCost | number : "1.2-2" }}
+            </td>
+          </ng-container>
+
+          <!-- totalCost Column -->
+          <ng-container matColumnDef="totalCost">
+            <th mat-header-cell class="header" *matHeaderCellDef>Total Cost</th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.totalCost | currency : "BDT" : "" : "1.2-2" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              {{
+                reportAggregator?.aggregatorTotalCost
+                  | currency : "BDT" : "" : "1.2-2"
+              }}
+            </td>
+          </ng-container>
+
+          <!-- shift Column -->
+          <ng-container matColumnDef="shift">
+            <th mat-header-cell class="header" *matHeaderCellDef>Shift</th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.shift?.name }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- machine Column -->
+          <ng-container matColumnDef="machine">
+            <th mat-header-cell class="header" *matHeaderCellDef>Machine</th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.machine?.name }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- startDateTime Column -->
+          <ng-container matColumnDef="startDateTime">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Start Date Time
+            </th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.startDateTime | date : "d/MM/yyyy, hh:mm a" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- endDateTime Column -->
+          <ng-container matColumnDef="endDateTime">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              End Date Time
+            </th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.endDateTime | date : "d/MM/yyyy, hh:mm a" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- breakTime Column -->
+          <ng-container matColumnDef="breakTime">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Break Time (Minutes)
+            </th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.breakTime }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!--  Status -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell class="header" *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let production">
+              <mat-chip
+                class="align-middle py-4 px-8"
+                [color]="getProductionStatus(production?.status)?.color"
+                selected
+              >
+                {{
+                  getProductionStatusName(production?.status)?.replaceAll(
+                    "_",
+                    " "
+                  )
+                }}
+              </mat-chip>
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- remark Column -->
+          <ng-container matColumnDef="remark">
+            <th mat-header-cell class="header" *matHeaderCellDef>Remark</th>
+            <td mat-cell *matCellDef="let production">
+              {{ production?.remark }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Checked By Column -->
+          <ng-container matColumnDef="checkedBy">
+            <th mat-header-cell class="header" *matHeaderCellDef>Checked By</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.checkedBy }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Approved By Column -->
+          <ng-container matColumnDef="approvedBy">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Approved By
+            </th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.approvedBy }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Created On Column -->
+          <ng-container matColumnDef="createdOn">
+            <th mat-header-cell class="header" *matHeaderCellDef>Created On</th>
+            <td mat-cell *matCellDef="let element">
+              {{ dateFormatService?.getDateAndTime(element?.createdOn) }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Updated On Column -->
+          <ng-container matColumnDef="updatedOn">
+            <th mat-header-cell class="header" *matHeaderCellDef>Updated On</th>
+            <td mat-cell *matCellDef="let element">
+              {{ dateFormatService?.getDateAndTime(element?.updatedOn) }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Created By Column -->
+          <ng-container matColumnDef="createdBy">
+            <th mat-header-cell class="header" *matHeaderCellDef>Created By</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.createdBy }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Updated By Column -->
+          <ng-container matColumnDef="updatedBy">
+            <th mat-header-cell class="header" *matHeaderCellDef>Updated By</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.updatedBy }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th
+              style="text-align: center"
+              class="header"
+              mat-header-cell
+              *matHeaderCellDef
+            >
+              Actions
+            </th>
+            <td align="center" mat-cell *matCellDef="let production">
+              <button
+                mat-icon-button
+                color="accent"
+                matTooltip="View, Check, Approve"
+                matTooltipShowDelay="300"
+                matTooltipPosition="above"
+                (click)="navigateToView(production)"
+              >
+                <mat-icon>published_with_changes</mat-icon>
+              </button>
+              <button
+                *appHasPermission="['Permissions.Productions.Delete']"
+                [hidden]="
+                  production?.status >= 2 ||
+                  production?.financialYearId != currentFinancialYearId
+                "
+                mat-icon-button
+                color="warn"
+                matTooltip="Delete"
+                matTooltipShowDelay="300"
+                matTooltipPosition="above"
+                (click)="
+                  confirmDelete(production?.id, production?.productionNo)
+                "
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+              <button
+                *appHasPermission="[
+                  'Permissions.Productions.Production_Bill_Summary_Report'
+                ]"
+                mat-icon-button
+                color="primary"
+                matTooltip="Production Summary PDF"
+                matTooltipShowDelay="300"
+                matTooltipPosition="above"
+                (click)="printProductionSummaryPdf(production?.id)"
+              >
+                <mat-icon>picture_as_pdf</mat-icon>
+              </button>
+
+              <button
+                *appHasPermission="[
+                  'Permissions.Productions.Production_Bill_Details_Report'
+                ]"
+                mat-icon-button
+                color="primary"
+                name="pdf"
+                matTooltip="Production Details PDF"
+                matTooltipShowDelay="300"
+                matTooltipPosition="above"
+                (click)="printPdf('pdf', production?.id)"
+                [disabled]="isLoading1"
+              >
+                <mat-icon>picture_as_pdf</mat-icon>
+              </button>
+              <button
+                *appHasPermission="[
+                  'Permissions.Productions.Production_Bill_Details_Report'
+                ]"
+                mat-icon-button
+                color="primary"
+                name="excel"
+                matTooltip="Production Details Excel"
+                matTooltipShowDelay="300"
+                matTooltipPosition="above"
+                (click)="printPdf('excel', production?.id)"
+                [disabled]="isLoading2"
+              >
+                <mat-icon>table_view</mat-icon>
+              </button>
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+          <ng-container matColumnDef="expandedDetail">
+            <td
+              mat-cell
+              *matCellDef="let element"
+              [attr.colspan]="(displayedColumns$ | async)?.length"
+            >
+              <div
+                class="example-element-detail"
+                [@detailExpand]="
+                  element == expandedElement ? expanded : collapsed
+                "
+              >
+                <app-production-detail
+                  [data]="element?.productionDetails"
+                ></app-production-detail>
+              </div>
+            </td>
+          </ng-container>
+          <!-- -------------- Expanded Content End----------------- -->
+
+          <!--  -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns$ | async"></tr>
+          <tr
+            mat-row
+            *matRowDef="let element; columns: displayedColumns$ | async"
+            class="example-element-row"
+            [class.example-expanded-row]="expandedElement === element"
+            (dblclick)="
+              expandedElement = expandedElement === element ? null : element
+            "
+            tabindex="1"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: ['expandedDetail']"
+            class="example-detail-row"
+          ></tr>
+          <tr mat-footer-row *matFooterRowDef="displayedColumns$ | async"></tr>
+        </table>
+      </div>
+
+      <mat-paginator
+        *ngIf="totalCount > 0"
+        [length]="totalCount"
+        [pageSizeOptions]="pageSizeOptions"
+        (page)="onPageChange($event)"
+        showFirstLastButtons
+        aria-label="Select page of production list"
+      >
+      </mat-paginator>
+    </ng-container>
+  </mat-card-content>
+</mat-card>
+
+<!-- loader start -->
+<ng-template #loadingSkeleton>
+  <app-loading-skeleton></app-loading-skeleton>
+</ng-template>
+<!-- No Data Found -->
+<ng-template #noDataFound>
+  <app-no-data-found></app-no-data-found>
+</ng-template>

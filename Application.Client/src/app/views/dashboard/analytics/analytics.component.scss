@@ -1,0 +1,182 @@
+.custom-mat-bg-primary {
+ // background-color: #f5f6f2da;
+}
+
+.centered-element {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+// .number-font {
+//   color: #242e4c;
+// }
+
+.title-font {
+  //color: #7e7e7e;
+}
+
+.muted-text {
+  color: #828caa;
+  //   color: #7e7e7e;
+  //   color: #424242;
+}
+
+.icon-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-left: 0;
+}
+
+.card-border {
+  border-left: 3px solid;
+  // border-color
+}
+
+.background {
+  // background-color: rgba($color: #37c8ec, $alpha: 0.25);
+  border-radius: 100%;
+  padding: 1px;
+}
+
+.overlay {
+  // background-color: rgba($color: #37c8ec, $alpha: 0.15);
+  // background-color: #37c8ec;
+  // opacity: 0.1;
+  border-radius: 100%;
+  padding: 6px;
+}
+
+.icon {
+  // color: #37c8ec;
+  font-size: 20px;
+}
+
+$colors: (
+  ("sky", #37c8ec),
+  ("pink", #ec4899),
+  ("fuchsia", #d946ef),
+  ("purple", #a855f7),
+  ("blue", #3b82f6),
+  ("amber", #f59e0b),
+  ("lime", rgb(132, 204, 22)),
+  ("orange", rgb(249, 115, 22)),
+  ("green", rgb(34, 197, 94)),
+  ("violet", rgb(139, 92, 246)),
+  ("rose", rgb(244, 63, 94)),
+  ("cyan", rgb(6, 182, 212)),
+  ("ripe-lemon", rgba(247, 202, 24, 1)),
+  ("valencia", rgba(214, 69, 65, 1))
+);
+
+@each $color in $colors {
+  $name: nth($color, 1);
+  $hex: nth($color, 2);
+
+  .border-#{$name} {
+    border-color: $hex;
+  }
+
+  .bg-#{$name} {
+    background-color: rgba($hex, 0.25);
+  }
+
+  .overlay-#{$name} {
+    background-color: rgba($hex, 0.15);
+  }
+
+  .text-#{$name} {
+    color: $hex;
+    font-size: small;
+  }
+}
+
+// $sky-color: #37c8ec;
+// $pink-color: #ec4899;
+// $fuchsia-color: #d946ef;
+// $purple-color: #a855f7;
+// $blue-color: #3b82f6;
+// $amber-color: #f59e0b;
+// $lime-color: rgb(132 204 22);
+// $orange-color: rgb(249 115 22);
+// $green-color: rgb(34 197 94);
+// $violet-color: rgb(139 92 246);
+// $rose-color: rgb(244 63 94);
+// $cyan-color: rgb(6 182 212);
+// // Sky Color
+// .border-sky {
+//   border-color: $sky-color;
+// }
+
+// It is a example of $color in $colors
+// .bg-sky {
+//   background-color: rgba($sky-color, $alpha: 0.25);
+// }
+
+// .overlay-sky {
+//   background-color: rgba($sky-color, $alpha: 0.15);
+// }
+
+// .text-sky {
+//   color: $sky-color;
+// }
+.color-box-container {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.last-month-color-box {
+  width: 20px;
+  height: 12px;
+  margin-left: 100px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+.this-month-color-box {
+  width: 20px;
+  height: 12px;
+  margin-left: 20px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+.last-month-color {
+  background-color: rgba(38, 194, 129, 1); /* Set the color for Last Month */
+}
+
+.this-month-color {
+  background-color: rgba(25, 181, 254, 1); /* Set the color for This Month */
+}
+.bd-south-color-box {
+  width: 20px;
+  height: 12px;
+  margin-left: 100px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+.bd-east-color-box {
+  width: 20px;
+  height: 12px;
+  margin-left: 20px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+.bd-north-color-box {
+  width: 20px;
+  height: 12px;
+  margin-left: 20px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+.bd-south-color {
+  background-color: rgba(25, 181, 254, 1); /* Set the color for Last Month */
+}
+
+.bd-east-color {
+  background-color: rgba(38, 194, 129, 1); /* Set the color for This Month */
+}
+.bd-north-color {
+  background-color: rgba(244, 208, 63, 1); /* Set the color for This Month */
+}

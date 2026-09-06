@@ -1,0 +1,137 @@
+<div class="row">
+  <div class="col-md-4">
+    <div class="d-flex flex-column align-items-start row-gap-2">
+      <button
+        *appHasPermission="[
+          'Permissions.PurchaseModuleReports.Purchase_Supplier_Item_Wise'
+        ]"
+        [ngClass]="getButtonClasses('form1')"
+        (click)="loadForm('form1')"
+      >
+        Purchase: Supplier, Item Wise
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.PurchaseModuleReports.Purchase_Item_Supplier_Wise'
+        ]"
+        [ngClass]="getButtonClasses('form2')"
+        (click)="loadForm('form2')"
+      >
+        Purchase: Item, Supplier Wise
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.PurchaseModuleReports.Supplier_Ledger_Product_Wise'
+        ]"
+        [ngClass]="getButtonClasses('form3')"
+        (click)="loadForm('form3')"
+      >
+        Supplier Ledger : Product Wise
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.PurchaseModuleReports.Purchase_TotalQty_Value_Average_Price'
+        ]"
+        [ngClass]="getButtonClasses('form4')"
+        (click)="loadForm('form4')"
+      >
+        Purchase : Total Qty, Value, Average Price
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.PurchaseModuleReports.Purchase_Report'
+        ]"
+        [ngClass]="getButtonClasses('form5')"
+        (click)="loadForm('form5')"
+      >
+        Purchase : Report
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.PurchaseModuleReports.GRN_Supplier_Item_Wise'
+        ]"
+        [ngClass]="getButtonClasses('form6')"
+        (click)="loadForm('form6')"
+      >
+        GRN: Supplier, Item Wise
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.PurchaseModuleReports.GRN_Item_Supplier_Wise'
+        ]"
+        [ngClass]="getButtonClasses('form7')"
+        (click)="loadForm('form7')"
+      >
+        GRN: Item, Supplier Wise
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.PurchaseModuleReports.GRN_TotalQty_Value_Average_Price'
+        ]"
+        [ngClass]="getButtonClasses('form8')"
+        (click)="loadForm('form8')"
+      >
+        GRN : Total Qty, Value, Average Price
+      </button>
+      <button
+        *appHasPermission="[
+          'Permissions.LCCostEntries.LC_Cost_Entry_Against_PO_Report'
+        ]"
+        [ngClass]="getButtonClasses('form9')"
+        (click)="loadForm('form9')"
+      >
+        LC Cost Entries Against LC Number
+      </button>
+      <button
+        *appHasPermission="[
+          'Permissions.PurchaseModuleReports.CurrentStock_PurchaseRate_And_Quantity',
+        ]"
+        [ngClass]="getButtonClasses('CurrentStock_PurchaseRate_And_Quantity')"
+        (click)="loadForm('CurrentStock_PurchaseRate_And_Quantity')"
+      >
+        Summary Report of Current Stock Purchase Rate & Quantity
+      </button>
+    </div>
+    <!-- Add more buttons as needed -->
+  </div>
+
+  <div class="col-md-8">
+    <div *ngIf="selectedForm === 'form1'">
+      <app-supplier-wise-purchase-item></app-supplier-wise-purchase-item>
+    </div>
+    <div *ngIf="selectedForm === 'form2'">
+      <app-purchase-item-wise-supplier></app-purchase-item-wise-supplier>
+    </div>
+    <div *ngIf="selectedForm === 'form3'">
+      <app-supplier-ledger-product-wise-report></app-supplier-ledger-product-wise-report>
+    </div>
+    <div *ngIf="selectedForm === 'form4'">
+      <app-total-purchase-item></app-total-purchase-item>
+    </div>
+    <div *ngIf="selectedForm === 'form5'">
+      <app-purchase-summary-report></app-purchase-summary-report>
+    </div>
+    <div *ngIf="selectedForm === 'form6'">
+      <app-grn-supplier-item-wise-report></app-grn-supplier-item-wise-report>
+    </div>
+    <div *ngIf="selectedForm === 'form7'">
+      <app-grn-item-supplier-wise-report></app-grn-item-supplier-wise-report>
+    </div>
+    <div *ngIf="selectedForm === 'form8'">
+      <app-grn-total-qty-value-average-price-report></app-grn-total-qty-value-average-price-report>
+    </div>
+    <div *ngIf="selectedForm === 'form9'">
+      <app-lccost-entries-against-lc-number-report></app-lccost-entries-against-lc-number-report>
+    </div>
+    <div *ngIf="selectedForm === 'CurrentStock_PurchaseRate_And_Quantity'">
+      <app-current-stock-purchase-rate-and-quantity></app-current-stock-purchase-rate-and-quantity>
+    </div>
+  </div>
+</div>

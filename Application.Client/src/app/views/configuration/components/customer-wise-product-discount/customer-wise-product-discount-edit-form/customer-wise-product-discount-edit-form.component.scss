@@ -1,0 +1,70 @@
+.mat-stepper-card {
+  // background-color: #fff;
+  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
+    0 1px 3px 0 rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.mat-step-header {
+  pointer-events: none;
+}
+
+::ng-deep .mat-horizontal-stepper-header-container {
+  display: none !important;
+}
+
+mat-form-field {
+  width: 100%;
+  padding: 0px !important;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.button-container {
+  padding-bottom: 16px;
+}
+
+.mat-divider {
+  margin-bottom: 10px;
+}
+
+.subheading-2 {
+  color: #3f51b5;
+  margin-bottom: 0px;
+}
+
+.label-data {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 8px;
+  span:nth-child(1) {
+    font-weight: 600 !important;
+  }
+  span:nth-child(1)::after {
+    content: ": ";
+  }
+}
+
+fieldset {
+  legend {
+    color: #3f51b5;
+  }
+  padding: 20px;
+  border: solid 1px lightgray;
+  border-radius: 5px;
+  background-color: #3f51b500;
+  .mat-form-field {
+    padding: 10px 0;
+  }
+  margin-bottom: 20px;
+}
+
+@media screen and (max-width: 1920px) {
+  mat-dialog-content {
+    min-width: 50vw !important;
+  }
+}

@@ -1,0 +1,396 @@
+<h2 mat-dialog-title>{{ formTitle }}</h2>
+<form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="mat-typography">
+    <input mat type="hidden" formControlName="id" />
+    <div class="row row-cols-2 gx-3 gy-1">
+      <!-- <div class="col"> -->
+      <div class="col">
+        <!-- Is Purchase Product -->
+        <section required>
+          <h4 class="h4-margin">Item For</h4>
+          <mat-checkbox
+            class="checkbox-margin"
+            formControlName="isPurchaseProduct"
+          >
+            Purchase
+          </mat-checkbox>
+          <mat-checkbox class="checkbox-margin" formControlName="isSaleProduct">
+            Sale
+          </mat-checkbox>
+        </section>
+      </div>
+      <div class="col">
+        <!-- Inventory Type -->
+        <mat-form-field class="full-width">
+          <mat-label>Select Inventory Type</mat-label>
+          <mat-select
+            (selectionChange)="onSelectedInventoryType($event.value)"
+            formControlName="inventoryTypeId"
+          >
+            <mat-option>-- None --</mat-option>
+            <mat-option *ngFor="let d of inventoryTypes" [value]="d.id">
+              {{ d.name }}
+            </mat-option>
+          </mat-select>
+          <mat-error>Inventory Type is required</mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Category -->
+      <ng-container *ngIf="businessType === '1'">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Select Category</mat-label>
+            <input
+              type="text"
+              matInput
+              name="categoryId"
+              formControlName="categoryId"
+              [matAutocomplete]="autoCategory"
+              (input)="handleCategorySearch($event)"
+            />
+            <div matSuffix>
+              <button
+                (click)="clearInput($event, 'categoryId')"
+                *ngIf="
+                  productForm?.get('categoryId')?.value !== null &&
+                  productForm?.get('categoryId')?.value !== ''
+                "
+                aria-label="Clear"
+                mat-icon-button
+                type="button"
+              >
+                <mat-icon>clear</mat-icon>
+              </button>
+              <mat-icon>keyboard_arrow_down</mat-icon>
+            </div>
+            <mat-autocomplete
+              #autoCategory="matAutocomplete"
+              [displayWith]="getCategoryName.bind(this)"
+            >
+              <mat-option
+                matTooltip="{{ d.name }}"
+                *ngFor="let d of filteredCategories"
+                [value]="d.id"
+              >
+                {{ d.name }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+      </ng-container>
+
+      <div class="col">
+        <!-- Product Type -->
+        <mat-form-field class="full-width">
+          <mat-label>Select Product Type</mat-label>
+          <mat-select
+            formControlName="productTypeId"
+            (selectionChange)="onSelectedProductTypeId($event.value)"
+          >
+            <mat-option>-- None --</mat-option>
+            <mat-option *ngFor="let d of mapProductTypes" [value]="d.id">
+              {{ d.name }}
+            </mat-option>
+          </mat-select>
+          <mat-error>Product Type is required</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="col">
+        <!-- Product Name -->
+        <mat-form-field>
+          <mat-label>Product Name</mat-label>
+          <input
+            matInput
+            autocomplete="off"
+            placeholder="Enter product name"
+            formControlName="name"
+          />
+          <mat-error>Product name is required</mat-error>
+        </mat-form-field>
+      </div>
+      <ng-container *ngIf="businessType === '2' && isProductFinishedGoods()">
+        <div class="col">
+          <!-- bagWeight -->
+          <mat-form-field>
+            <mat-label>Bag Weight</mat-label>
+            <input
+              type="number"
+              matInput
+              autocomplete="off"
+              placeholder="Enter bag weight"
+              formControlName="bagWeight"
+              min="0"
+              (click)="$event.target.select()"
+            />
+            <mat-error>Bag Weight is required </mat-error>
+          </mat-form-field>
+        </div>
+      </ng-container>
+      <!-- </div> -->
+      <!-- <div class="col"> -->
+      <div class="col">
+        <!-- Measurement Unit Id -->
+        <mat-form-field class="full-width">
+          <mat-label>Unit</mat-label>
+          <mat-select formControlName="measurementUnitId">
+            <mat-option>-- None --</mat-option>
+            <mat-option *ngFor="let d of measurementUnits" [value]="d.id">
+              {{ d.name }}
+            </mat-option>
+          </mat-select>
+          <mat-error>Measurement unit is required</mat-error>
+        </mat-form-field>
+      </div>
+      <!-- PackSize -->
+      <ng-container *ngIf="businessType === '1'">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Select Pack Size</mat-label>
+            <input
+              type="text"
+              matInput
+              name="packSizeId"
+              formControlName="packSizeId"
+              [matAutocomplete]="autoPackSize"
+              (input)="handlePackSizeSearch($event)"
+            />
+            <div matSuffix>
+              <button
+                (click)="clearInput($event, 'packSizeId')"
+                *ngIf="
+                  productForm?.get('packSizeId')?.value !== null &&
+                  productForm?.get('packSizeId')?.value !== ''
+                "
+                aria-label="Clear"
+                mat-icon-button
+                type="button"
+              >
+                <mat-icon>clear</mat-icon>
+              </button>
+              <mat-icon>keyboard_arrow_down</mat-icon>
+            </div>
+            <mat-autocomplete
+              #autoPackSize="matAutocomplete"
+              [displayWith]="getPackSizeName.bind(this)"
+            >
+              <mat-option
+                matTooltip="{{ d.name }}"
+                *ngFor="let d of filteredPackSizes"
+                [value]="d.id"
+              >
+                {{ d.name }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+      </ng-container>
+
+      <div *ngIf="productForm.get('isSaleProduct').value" class="col">
+        <!-- salePrice -->
+        <mat-form-field>
+          <mat-label>TP</mat-label>
+          <input
+            type="number"
+            matInput
+            autocomplete="off"
+            placeholder="Enter TP"
+            formControlName="salePrice"
+            min="0"
+            (click)="$event.target.select()"
+          />
+          <mat-error> TP is required </mat-error>
+        </mat-form-field>
+      </div>
+      <div *ngIf="productForm.get('isSaleProduct').value" class="col">
+        <!-- mrp -->
+        <mat-form-field>
+          <mat-label>MRP</mat-label>
+          <input
+            type="number"
+            matInput
+            autocomplete="off"
+            placeholder="Enter MRP"
+            formControlName="mrp"
+            min="0"
+            (click)="$event.target.select()"
+          />
+          <mat-error> MRP is required </mat-error>
+        </mat-form-field>
+      </div>
+      <div *ngIf="productForm.get('isPurchaseProduct').value" class="col">
+        <!-- Purchase Price -->
+        <mat-form-field>
+          <mat-label>Purchase Price</mat-label>
+          <input
+            type="number"
+            matInput
+            autocomplete="off"
+            placeholder="Enter purchase price"
+            formControlName="purchasePrice"
+            min="0"
+            (click)="$event.target.select()"
+          />
+          <mat-error> Purchase price is required </mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <!-- Alert Quantity -->
+        <mat-form-field>
+          <mat-label>Alert Quantity</mat-label>
+          <input
+            type="number"
+            matInput
+            autocomplete="off"
+            placeholder="Enter alert quantity"
+            formControlName="alertQuantity"
+            min="0"
+            (click)="$event.target.select()"
+          />
+          <mat-error> Alert quantity is required </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- genericId -->
+      <div class="col">
+        <mat-form-field class="full-width">
+          <mat-label>Select Generic</mat-label>
+          <input
+            type="text"
+            matInput
+            name="genericId"
+            formControlName="genericId"
+            [matAutocomplete]="autoGeneric"
+            (input)="handleGenericSearch($event)"
+          />
+          <div matSuffix>
+            <button
+              (click)="clearInput($event, 'genericId')"
+              *ngIf="
+                productForm?.get('genericId')?.value !== null &&
+                productForm?.get('genericId')?.value !== ''
+              "
+              aria-label="Clear"
+              mat-icon-button
+              type="button"
+            >
+              <mat-icon>clear</mat-icon>
+            </button>
+            <mat-icon>keyboard_arrow_down</mat-icon>
+          </div>
+          <!-- (optionSelected)="onSelectedCustomer($event.target.value)" -->
+          <mat-autocomplete
+            #autoGeneric="matAutocomplete"
+            [displayWith]="getGenericName.bind(this)"
+          >
+            <mat-option
+              matTooltip="{{ d.name }}"
+              *ngFor="let d of displayedGenerics"
+              [value]="d.id"
+            >
+              {{ d.name }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
+
+      <!-- composition -->
+      <ng-container *ngIf="businessType === '1'">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Composition</mat-label>
+            <textarea
+              rows="1"
+              matInput
+              autocomplete="off"
+              placeholder="Enter Composition"
+              formControlName="composition"
+            ></textarea>
+          </mat-form-field>
+        </div>
+      </ng-container>
+
+      <div class="col">
+        <!-- Country -->
+        <mat-form-field class="full-width">
+          <mat-label>Select Country Of Origin</mat-label>
+          <mat-select formControlName="countryId">
+            <mat-option>-- None --</mat-option>
+            <mat-option *ngFor="let d of countries" [value]="d.id">
+              {{ d.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <ng-container *ngIf="isProductFinishedGoods()">
+        <!-- manufacturerId -->
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Select Manufacturer</mat-label>
+            <input
+              type="text"
+              matInput
+              name="manufacturerId"
+              formControlName="manufacturerId"
+              [matAutocomplete]="autoManufacturer"
+              (input)="handleManufacturerSearch($event)"
+            />
+            <div matSuffix>
+              <button
+                (click)="clearInput($event, 'manufacturerId')"
+                *ngIf="productForm?.get('manufacturerId')?.value"
+                aria-label="Clear"
+                mat-icon-button
+                type="button"
+              >
+                <mat-icon>clear</mat-icon>
+              </button>
+              <mat-icon>keyboard_arrow_down</mat-icon>
+            </div>
+            <mat-autocomplete
+              #autoManufacturer="matAutocomplete"
+              [displayWith]="getManufacturerName.bind(this)"
+            >
+              <mat-option
+                matTooltip="{{ d.name }}"
+                *ngFor="let d of filteredManufacturers"
+                [value]="d.id"
+              >
+                {{ d.name }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <!-- vatPercentage -->
+          <mat-form-field>
+            <mat-label>Vat Percentage</mat-label>
+            <input
+              type="number"
+              matInput
+              autocomplete="off"
+              placeholder="Enter Vat Percentage"
+              formControlName="vatPercentage"
+              min="0"
+              (click)="$event.target.select()"
+            />
+          </mat-form-field>
+        </div>
+      </ng-container>
+      <!-- </div> -->
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-raised-button mat-dialog-close>Cancel</button>
+    <button
+      mat-raised-button
+      cdkFocusInitial
+      color="primary"
+      [disabled]="!productForm.dirty || !productForm.valid"
+      type="submit"
+    >
+      Save
+    </button>
+  </mat-dialog-actions>
+</form>

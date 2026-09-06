@@ -1,0 +1,14 @@
+﻿
+using Application.Core.Entities;
+using Application.Services.Dtos.Configuration.Department;
+using Application.Services.SearchRequestModels.Configuration;
+using Application.Services.Services.Common;
+using Application.Services.ViewModels.Configuration;
+
+namespace Application.Services.Services.Configuration.Departments
+{
+    public interface IDepartmentService : IBaseService<Department, DepartmentCreationDto, DepartmentUpdateDto, DepartmentRequestModel, DepartmentViewModel>
+    {
+
+    }
+}

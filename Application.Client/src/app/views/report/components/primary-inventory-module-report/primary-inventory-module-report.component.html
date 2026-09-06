@@ -1,0 +1,67 @@
+<div class="row">
+  <div class="col-md-4 d-flex flex-column align-items-start row-gap-2">
+    <button
+      *appHasPermission="[
+        'Permissions.PrimaryInventoryModuleReports.Primary_Stock_Report'
+      ]"
+      [ngClass]="getButtonClasses('primaryStockReport')"
+      (click)="loadForm('primaryStockReport')"
+    >
+      Stock Report
+    </button>
+    <button
+      *appHasPermission="[
+        'Permissions.PrimaryInventoryModuleReports.Primary_Product_Price_List_Report'
+      ]"
+      [ngClass]="getButtonClasses('primaryPrimaryProductPriceList')"
+      (click)="loadForm('primaryPrimaryProductPriceList')"
+    >
+      Product Price List
+    </button>
+    <button
+      *appHasPermission="[
+        'Permissions.PrimaryInventoryModuleReports.Primary_Finished_Goods_Stock_Report'
+      ]"
+      [ngClass]="getButtonClasses('primaryFinishedGoodsStockReport')"
+      (click)="loadForm('primaryFinishedGoodsStockReport')"
+    >
+      Finished Goods Stock : Report
+    </button>
+    <button
+      *appHasPermission="[
+        'Permissions.PrimaryInventoryModuleReports.Primary_Stock_Report_Whole'
+      ]"
+      [ngClass]="getButtonClasses('primaryStockReportWhole')"
+      (click)="loadForm('primaryStockReportWhole')"
+    >
+      Stock Report Whole
+    </button>
+    <button
+      *appHasPermission="['Permissions.ProductAudits.Product_Audit_Report']"
+      [ngClass]="getButtonClasses('primaryProductAuditLogReport')"
+      (click)="loadForm('primaryProductAuditLogReport')"
+    >
+      Product Audit Report
+    </button>
+  </div>
+  <!-- Add more buttons as needed -->
+
+  <div class="col-md-8">
+    <div *ngIf="selectedForm === 'primaryStockReport'">
+      <app-primary-stock-report></app-primary-stock-report>
+    </div>
+    <div *ngIf="selectedForm === 'primaryPrimaryProductPriceList'">
+      <app-primary-product-price-list-report></app-primary-product-price-list-report>
+    </div>
+    <div *ngIf="selectedForm === 'primaryFinishedGoodsStockReport'">
+      <app-primary-finished-goods-stock-report></app-primary-finished-goods-stock-report>
+    </div>
+    <div *ngIf="selectedForm === 'primaryStockReportWhole'">
+      <app-primary-stock-report-whole></app-primary-stock-report-whole>
+    </div>
+    <div *ngIf="selectedForm === 'primaryProductAuditLogReport'">
+      <app-product-audit-log-report></app-product-audit-log-report>
+    </div>
+    <!-- Add more forms as needed -->
+  </div>
+</div>

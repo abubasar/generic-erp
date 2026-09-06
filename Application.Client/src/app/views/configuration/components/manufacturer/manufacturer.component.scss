@@ -1,0 +1,20 @@
+table {
+    width: 100%;
+}
+
+.button-container {
+    padding-bottom: 16px;
+}
+
+.demo-button+.demo-button {
+    margin-left: 8px;
+}
+
+tr.table-row:hover {
+    background: rgba(183, 183, 183, 0.3);
+}
+
+tr.table-row:focus {
+    background: rgba(183, 183, 183, 0.3);
+    outline: none;
+}

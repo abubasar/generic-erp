@@ -1,0 +1,30 @@
+{
+  "cSpell.words": [
+    "BKASH",
+    "Chalan",
+    "challan",
+    "consts",
+    "depo",
+    "fgstore",
+    "fgstores",
+    "fyenddate",
+    "fyid",
+    "fyname",
+    "fystartdate",
+    "grndate",
+    "grnno",
+    "grnquantity",
+    "Grns",
+    "Inco",
+    "podate",
+    "ponumber",
+    "poquantity",
+    "Rmused",
+    "tenantname",
+    "toastr",
+    "unpost"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  }
+}

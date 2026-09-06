@@ -1,0 +1,130 @@
+<div class="row">
+  <div class="col-md-4 d-flex flex-column align-items-start row-gap-2">
+    <button
+      *appHasPermission="[
+        'Permissions.InventoryModuleReports.Work_In_Process_Inventory_Stock'
+      ]"
+      [ngClass]="getButtonClasses('form1')"
+      (click)="loadForm('form1')"
+    >
+      Work In Process Inventory Stock
+    </button>
+
+    <button
+      *appHasPermission="[
+        'Permissions.InventoryModuleReports.Low_Stock_Report'
+      ]"
+      [ngClass]="getButtonClasses('form2')"
+      (click)="loadForm('form2')"
+    >
+      Low Stock Report
+    </button>
+
+    <button
+      *appHasPermission="['Permissions.InventoryModuleReports.Stock_Report']"
+      [ngClass]="getButtonClasses('form3')"
+      (click)="loadForm('form3')"
+    >
+      Stock Report
+    </button>
+
+    <button
+      *appHasPermission="[
+        'Permissions.InventoryModuleReports.Item_Wise_Stock_Ledger'
+      ]"
+      [ngClass]="getButtonClasses('form5')"
+      (click)="loadForm('form5')"
+    >
+      Item Wise Stock Ledger
+    </button>
+
+    <button
+      *appHasPermission="[
+        'Permissions.InventoryModuleReports.Finished_Goods_Stock_Report'
+      ]"
+      [ngClass]="getButtonClasses('form6')"
+      (click)="loadForm('form6')"
+    >
+      Finished Goods Stock : Report
+    </button>
+
+    <button
+      *appHasPermission="[
+        'Permissions.InventoryModuleReports.Finished_Goods_Stock_Summary_Report'
+      ]"
+      [ngClass]="getButtonClasses('form4')"
+      (click)="loadForm('form4')"
+    >
+      Finished Goods Stock Summary : Report
+    </button>
+
+    <button
+      *appHasPermission="[
+        'Permissions.InventoryModuleReports.Raw_Materials_Stock_Report'
+      ]"
+      [ngClass]="getButtonClasses('form7')"
+      (click)="loadForm('form7')"
+    >
+      Item/RM Stock : Report
+    </button>
+
+    <button
+      *appHasPermission="[
+        'Permissions.InventoryModuleReports.Stock_Depot_Product_Wise_Details_Report'
+      ]"
+      [ngClass]="getButtonClasses('form8')"
+      (click)="loadForm('form8')"
+    >
+      Stock Report : Depot/Product Wise (Details)
+    </button>
+
+    <button
+      *appHasPermission="[
+        'Permissions.InventoryModuleReports.Stock_Depot_Product_Wise_Short_Report'
+      ]"
+      [ngClass]="getButtonClasses('form9')"
+      (click)="loadForm('form9')"
+    >
+      Stock Report : Depot/Product Wise (Short)
+    </button>
+  </div>
+  <!-- Add more buttons as needed -->
+
+  <div class="col-md-8">
+    <div *ngIf="selectedForm === 'form1'">
+      <app-work-in-process-inventory-stock-report></app-work-in-process-inventory-stock-report>
+    </div>
+
+    <div *ngIf="selectedForm === 'form2'">
+      <app-low-stock-report></app-low-stock-report>
+    </div>
+
+    <div *ngIf="selectedForm === 'form3'">
+      <app-stock-report></app-stock-report>
+    </div>
+
+    <div *ngIf="selectedForm === 'form5'">
+      <app-item-stock-ledger></app-item-stock-ledger>
+    </div>
+
+    <div *ngIf="selectedForm === 'form6'">
+      <app-finished-goods-stock-report></app-finished-goods-stock-report>
+    </div>
+
+    <div *ngIf="selectedForm === 'form4'">
+      <app-finished-goods-stock-summary-report></app-finished-goods-stock-summary-report>
+    </div>
+
+    <div *ngIf="selectedForm === 'form7'">
+      <app-raw-materials-stock-report></app-raw-materials-stock-report>
+    </div>
+
+    <div *ngIf="selectedForm === 'form8'">
+      <app-stock-depot-product-wise-details-report></app-stock-depot-product-wise-details-report>
+    </div>
+
+    <div *ngIf="selectedForm === 'form9'">
+      <app-stock-depot-product-wise-short-report></app-stock-depot-product-wise-short-report>
+    </div>
+  </div>
+</div>

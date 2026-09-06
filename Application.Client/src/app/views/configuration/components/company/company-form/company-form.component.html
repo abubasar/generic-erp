@@ -1,0 +1,79 @@
+<!-- <mat-card class="p-0">
+  <mat-card-title class="">
+    <div class="card-title-text">Company Form</div>
+    <mat-divider></mat-divider>
+  </mat-card-title>
+  <mat-card-content>
+    <form [formGroup]="companyForm" (ngSubmit)="onSubmit()">
+      <div fxLayout="row wrap">
+        <div fxFlex="100" fxFlex.gt-xs="100" class="pr-16">
+          <div class="pb-16">
+            <mat-form-field class="full-width">
+              <mat-label>Company Name</mat-label>
+              <input
+                matInput
+                name="name"
+                formControlName="name"
+                placeholder="Enter company name"
+                value=""
+              />
+            </mat-form-field>
+            <mat-error
+              *ngIf="
+                companyForm.controls['name'].hasError('required') &&
+                companyForm.controls['name'].touched
+              "
+              class="form-error-msg"
+            >
+              Company name is required
+            </mat-error>
+          </div>
+        </div>
+      </div>
+      <button
+        mat-raised-button
+        color="primary"
+        [disabled]="companyForm.invalid"
+      >
+        Submit
+      </button>
+    </form>
+  </mat-card-content>
+</mat-card> -->
+
+<h2 mat-dialog-title>{{ formTitle }}</h2>
+<form [formGroup]="companyForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="mat-typography">
+    <input mat type="hidden" formControlName="id" />
+    <mat-form-field>
+      <mat-label>Company Name</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Enter company name"
+        formControlName="name"
+      />
+      <mat-error
+        *ngIf="
+          companyForm.controls['name'].hasError('required') &&
+          companyForm.controls['name'].touched
+        "
+      >
+        Company name is required
+      </mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-raised-button mat-dialog-close>Cancel</button>
+    <button
+      mat-raised-button
+      [mat-dialog-close]="true"
+      cdkFocusInitial
+      color="primary"
+      [disabled]="!companyForm.dirty || !companyForm.valid"
+      type="submit"
+    >
+      Save
+    </button>
+  </mat-dialog-actions>
+</form>

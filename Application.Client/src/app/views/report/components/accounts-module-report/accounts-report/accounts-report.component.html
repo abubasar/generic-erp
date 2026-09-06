@@ -1,0 +1,142 @@
+<mat-card>
+  <mat-card-title>Accounts Report</mat-card-title>
+  <form autocomplete="off" [formGroup]="searchForm" (ngSubmit)="print($event)">
+    <div class="row row-cols-2 gx-5">
+      <div class="col">
+        <mat-form-field class="full-width">
+          <mat-label>From Level</mat-label>
+          <mat-select formControlName="level">
+            <mat-option value="1"> 1</mat-option>
+            <mat-option value="2"> 2</mat-option>
+            <mat-option value="3"> 3</mat-option>
+            <mat-option value="4"> 4</mat-option>
+            <mat-option value="5"> 5</mat-option>
+            <mat-option value="6"> 6</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <mat-form-field class="full-width">
+          <mat-label>To Level</mat-label>
+          <mat-select formControlName="levelsToLoad">
+            <mat-option value="1"> 1</mat-option>
+            <mat-option value="2"> 2</mat-option>
+            <mat-option value="3"> 3</mat-option>
+            <mat-option value="4"> 4</mat-option>
+            <mat-option value="5"> 5</mat-option>
+            <mat-option value="6"> 6</mat-option>
+            <mat-option value="5"> 7</mat-option>
+            <mat-option value="6"> 8</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <mat-form-field class="full-width">
+          <mat-label>Select Financial Year</mat-label>
+          <mat-select
+            formControlName="financialYearId"
+            (selectionChange)="handleFinancialYearChange($event.value)"
+          >
+            <mat-option *ngFor="let d of financialYears" [value]="d?.id">
+              {{ d?.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <mat-form-field class="full-width">
+          <mat-label>Enter a date range</mat-label>
+          <mat-date-range-input
+            [rangePicker]="picker"
+            [min]="financialYearStartDate"
+            [max]="financialYearEndDate"
+          >
+            <input
+              #input2
+              matStartDate
+              formControlName="fromDate"
+              placeholder="Start date"
+              (focus)="picker.open()"
+            />
+            <input
+              matEndDate
+              formControlName="toDate"
+              placeholder="End date"
+              (focus)="picker.open()"
+            />
+          </mat-date-range-input>
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="picker"
+          ></mat-datepicker-toggle>
+          <mat-date-range-picker #picker></mat-date-range-picker>
+          <mat-error
+            *ngIf="
+              searchForm.get('fromDate').hasError('required') ||
+              searchForm.get('toDate').hasError('required')
+            "
+          >
+            Date range is required.
+          </mat-error>
+          <mat-error
+            *ngIf="
+              searchForm.get('fromDate').hasError('inFinancialYear') ||
+              searchForm.get('toDate').hasError('inFinancialYear')
+            "
+          >
+            Please choose a date within the financial year period:
+            {{ financialYearStartDate | date : "mediumDate" }} -
+            {{ financialYearEndDate | date : "mediumDate" }}.
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+    <button
+      [style.marginRight]="'3px'"
+      mat-raised-button
+      color="primary"
+      type="submit"
+      name="trial-balance-print"
+      [disabled]="isLoading1 || this.searchForm.invalid"
+    >
+      <ng-container *ngIf="isLoading1; else saveText1">
+        {{ "Processing..." }}
+      </ng-container>
+      <ng-template #saveText1>
+        <mat-icon>picture_as_pdf</mat-icon>
+        {{ "Trial Balance" }}
+      </ng-template>
+    </button>
+    <button
+      [style.marginRight]="'3px'"
+      mat-raised-button
+      color="primary"
+      type="submit"
+      name="balance-sheet-print"
+      [disabled]="isLoading2 || this.searchForm.invalid"
+    >
+      <ng-container *ngIf="isLoading2; else saveText2">
+        {{ "Processing..." }}
+      </ng-container>
+      <ng-template #saveText2>
+        <mat-icon>picture_as_pdf</mat-icon>
+        {{ "Balance Sheet" }}
+      </ng-template>
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      name="income-statement-print"
+      [disabled]="isLoading3 || this.searchForm.invalid"
+    >
+      <ng-container *ngIf="isLoading3; else saveText3">
+        {{ "Processing..." }}
+      </ng-container>
+      <ng-template #saveText3>
+        <mat-icon>picture_as_pdf</mat-icon>
+        {{ "Income Statement" }}
+      </ng-template>
+    </button>
+  </form>
+</mat-card>

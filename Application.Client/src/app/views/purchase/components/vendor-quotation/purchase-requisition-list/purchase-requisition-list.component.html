@@ -1,0 +1,263 @@
+<div class="container-fluid">
+  <div class="d-flex justify-content-between">
+    <h3 mat-dialog-title>Select Purchase Requisition</h3>
+    <div>
+      <button mat-dialog-close mat-icon-button color="warn" type="button">
+        <mat-icon> closeIcon</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="d-flex justify-content-between">
+  <div>
+    <button
+      mat-raised-button
+      color="primary"
+      matBadgeColor="accent"
+      [mat-dialog-close]="selectedRequisition"
+      [disabled]="selectedRequisition == null"
+    >
+      Continue
+    </button>
+  </div>
+  <form autocomplete="off" [formGroup]="searchForm" (ngSubmit)="onSearch()">
+    <div class="d-flex justify-content-between">
+      <mat-form-field class="full-width">
+        <mat-label>Requisition No.</mat-label>
+        <input
+          type="text"
+          placeholder="Search Requisition No"
+          aria-label="Filter Requisition No"
+          matInput
+          name="requisitionNo"
+          formControlName="requisitionNo"
+          [matAutocomplete]="quotation"
+          (input)="onRequisitionNoChange()"
+        />
+        <mat-autocomplete autoActiveFirstOption #quotation="matAutocomplete">
+          <mat-option
+            *ngFor="let d of purchaseRequisitions"
+            [value]="d.requisitionNo"
+          >
+            {{ d.requisitionNo }}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+      <div>
+        <button mat-raised-button color="primary" type="submit">
+          <mat-icon>search_icon</mat-icon>Search
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="table-responsive">
+  <table
+    class="border border-1"
+    mat-table
+    multiTemplateDataRows
+    [dataSource]="dataSource"
+  >
+    <!-- Select Column -->
+    <ng-container matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef>Select</th>
+      <td mat-cell *matCellDef="let requisition">
+        <mat-radio-button
+          (click)="$event.stopPropagation()"
+          (change)="handleRadioChange($event)"
+          [value]="requisition"
+        >
+        </mat-radio-button>
+      </td>
+    </ng-container>
+    <!-- Expend Column -->
+
+    <ng-container matColumnDef="expand">
+      <th
+        mat-header-cell
+        class="header"
+        *matHeaderCellDef
+        aria-label="row actions"
+      >
+        &nbsp;
+      </th>
+      <td mat-cell *matCellDef="let element">
+        <button
+          mat-icon-button
+          aria-label="expand row"
+          (click)="
+            expandedElement = expandedElement === element ? null : element;
+            $event.stopPropagation()
+          "
+        >
+          <mat-icon *ngIf="expandedElement !== element"
+            >keyboard_arrow_down</mat-icon
+          >
+          <mat-icon *ngIf="expandedElement === element"
+            >keyboard_arrow_up</mat-icon
+          >
+        </button>
+      </td>
+    </ng-container>
+
+    <!-- requisitionNo Column -->
+    <ng-container matColumnDef="requisitionNo">
+      <th mat-header-cell class="header" *matHeaderCellDef>Requisition No</th>
+      <td mat-cell *matCellDef="let requisition">
+        {{ requisition.requisitionNo }}
+      </td>
+    </ng-container>
+
+    <!-- Department Column -->
+    <ng-container matColumnDef="department">
+      <th mat-header-cell class="header" *matHeaderCellDef>Department</th>
+      <td mat-cell *matCellDef="let requisition">
+        {{ requisition.department.name }}
+      </td>
+    </ng-container>
+
+    <!-- Store Column -->
+    <ng-container matColumnDef="store">
+      <th mat-header-cell class="header" *matHeaderCellDef>Store</th>
+      <td mat-cell *matCellDef="let requisition">
+        {{ requisition.store.name }}
+      </td>
+    </ng-container>
+
+    <!-- Request By Column -->
+    <ng-container matColumnDef="requestByName">
+      <th mat-header-cell class="header" *matHeaderCellDef>Request By</th>
+      <td mat-cell *matCellDef="let requisition">
+        {{ requisition.requestByName }}
+      </td>
+    </ng-container>
+
+    <!-- Priority Column -->
+    <ng-container matColumnDef="priority">
+      <th mat-header-cell class="header" *matHeaderCellDef>Priority</th>
+      <td mat-cell *matCellDef="let requisition">
+        <mat-chip
+          class="align-middle py-4 px-8"
+          [color]="getPriority(requisition.priority).color"
+          selected
+        >
+          {{ getPriorityName(requisition.priority) }}</mat-chip
+        >
+      </td>
+    </ng-container>
+    <!-- Requisition Status -->
+    <ng-container matColumnDef="requisitionStatus">
+      <th mat-header-cell class="header" *matHeaderCellDef>Req. Status</th>
+      <td mat-cell *matCellDef="let requisition">
+        <mat-chip
+          class="align-middle py-4 px-8"
+          [color]="getRequisitionStatus(requisition.requisitionStatus).color"
+          selected
+        >
+          <!-- {{ getRequisitionStatus(element.available).status }} -->
+          {{
+            getRequisitionStatusName(requisition.requisitionStatus)?.replaceAll(
+              "_",
+              " "
+            )
+          }}
+        </mat-chip>
+      </td>
+    </ng-container>
+
+    <!-- Total Amount Column -->
+    <ng-container matColumnDef="total">
+      <th mat-header-cell class="header" *matHeaderCellDef>Total Amount</th>
+      <td mat-cell *matCellDef="let requisition">
+        {{ requisition.totalAmount | currency : "BDT" : "" : "1.2-2" }}
+      </td>
+    </ng-container>
+
+    <!-- Requisition Date Column -->
+    <ng-container matColumnDef="requisitionDate">
+      <th mat-header-cell class="header" *matHeaderCellDef>Requisition Date</th>
+      <td mat-cell *matCellDef="let requisition">
+        {{ dateFormatService.getDateFormat(requisition.requisitionDate) }}
+      </td>
+    </ng-container>
+
+    <!-- Expected Delivery Date Column -->
+    <ng-container matColumnDef="expectedDeliveryDate">
+      <th mat-header-cell class="header" *matHeaderCellDef>
+        Exp Delivery Date
+      </th>
+      <td mat-cell *matCellDef="let requisition">
+        {{ dateFormatService.getDateFormat(requisition.expectedDeliveryDate) }}
+      </td>
+    </ng-container>
+
+    <!-- Actions Column -->
+    <!-- <ng-container matColumnDef="actions">
+      <th mat-header-cell class="header" *matHeaderCellDef>Actions</th>
+      <td align="center" mat-cell *matCellDef="let requisition">
+        <button
+          type="button"
+          mat-icon-button
+          color="primary"
+          matTooltip="Add to VQ"
+          matTooltipShowDelay="300"
+          matTooltipPosition="above"
+          [mat-dialog-close]="requisition"
+        >
+          <mat-icon>note_add</mat-icon>
+        </button>
+      </td>
+    </ng-container> -->
+
+    <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+    <ng-container matColumnDef="expandedDetail">
+      <td
+        mat-cell
+        *matCellDef="let element"
+        [attr.colspan]="displayedColumns.length"
+      >
+        <div
+          class="example-element-detail"
+          [@detailExpand]="
+            element == expandedElement ? 'expanded' : 'collapsed'
+          "
+        >
+          <app-purchase-requisition-detail
+            [data]="element.purchaseRequisitionDetails"
+          ></app-purchase-requisition-detail>
+        </div>
+      </td>
+    </ng-container>
+    <!-- -------------- Expanded Content End----------------- -->
+
+    <!--  -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr
+      mat-row
+      *matRowDef="let element; columns: displayedColumns"
+      class="example-element-row"
+      [class.example-expanded-row]="expandedElement === element"
+      [class.selected-row-color]="element === selectedRequisition"
+    ></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: ['expandedDetail']"
+      class="example-detail-row"
+    ></tr>
+  </table>
+</div>
+<!-- loader start -->
+<ng-container *ngIf="loading">
+  <app-loading-skeleton skeletonRowsCount="3"></app-loading-skeleton>
+</ng-container>
+<!-- loader end -->
+<mat-paginator
+  *ngIf="totalCount > 0"
+  [length]="totalCount"
+  [pageSizeOptions]="[5, 10, 20]"
+  (page)="onPageChange($event)"
+  showFirstLastButtons
+  aria-label="Select page of requisition list"
+>
+</mat-paginator>

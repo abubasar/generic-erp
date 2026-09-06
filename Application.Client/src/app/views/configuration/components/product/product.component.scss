@@ -1,0 +1,46 @@
+table {
+  width: 100%;
+}
+
+.button-container {
+  padding-bottom: 16px;
+}
+
+.demo-button + .demo-button {
+  margin-left: 8px;
+}
+
+tr.table-row:hover {
+  background: rgba(183, 183, 183, 0.3);
+}
+
+tr.table-row:focus {
+  background: rgba(183, 183, 183, 0.3);
+  outline: none;
+}
+
+.mat-menu {
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
+.mat-menu-item {
+  height: inherit;
+  width: inherit;
+}
+
+.margin-0 {
+  margin: 0px;
+}
+
+.padding-0 {
+  padding: 0px;
+}
+
+.mat-menu-item:hover:not([disabled]) {
+  background: transparent;
+}
+
+.checkbox-margin {
+  margin: 0 10px 0 0;
+}

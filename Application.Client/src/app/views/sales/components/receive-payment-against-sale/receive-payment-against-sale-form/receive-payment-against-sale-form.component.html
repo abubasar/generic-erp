@@ -1,0 +1,533 @@
+<div class="container-fluid">
+  <div *ngIf="isViewMode" class="d-flex justify-content-between">
+    <div class="d-flex gap-2 align-items-center">
+      <button mat-icon-button (click)="navigateToList()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h3 class="m-0">Receive Payment Code: {{ data?.code }}</h3>
+      <mat-chip
+        class="align-middle py-4 px-8"
+        [color]="getReceivePaymentAgainstSaleStatus(data?.status).color"
+        selected
+      >
+        {{
+          getReceivePaymentAgainstSaleStatusName(data?.status)?.replaceAll(
+            "_",
+            " "
+          )
+        }}
+      </mat-chip>
+
+      <button
+        mat-icon-button
+        color="primary"
+        matTooltip="print pdf"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printPdf(data?.id)"
+      >
+        <mat-icon>print</mat-icon>
+      </button>
+
+      <button
+        [hidden]="
+          data?.status > 2 || data?.financialYearId != currentFinancialYearId
+        "
+        *appHasPermission="['Permissions.ReceivePaymentAgainstSales.Edit']"
+        mat-icon-button
+        color="primary"
+        matTooltip="Edit"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="showEdit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+
+    <div>
+      <button
+        *appHasPermission="['Permissions.ReceivePaymentAgainstSales.Check']"
+        [hidden]="
+          data?.status != 1 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        type="button"
+        color="accent"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmCheck(data?.id, data?.code)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Check" }}
+        </ng-template>
+      </button>
+
+      <button
+        *appHasPermission="['Permissions.ReceivePaymentAgainstSales.Approve']"
+        [hidden]="
+          data?.status != 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        color="primary"
+        type="button"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmApprove(data?.id, data?.code)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Approve" }}
+        </ng-template>
+      </button>
+
+      <button
+        *appHasPermission="['Permissions.ReceivePaymentAgainstSales.Unpost']"
+        [hidden]="
+          data?.status == 1 ||
+          data?.status == 4 ||
+          data?.status == 5 ||
+          data?.status === 'undefined' ||
+          data?.financialYearId != currentFinancialYearId
+        "
+        type="button"
+        mat-mini-fab
+        color="warn"
+        matTooltip="Undo"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmUnpost(data?.id, data?.code, data?.status)"
+      >
+        <ng-container *ngIf="isLoading; else undo">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+        </ng-container>
+        <ng-template #undo>
+          <mat-icon>undo</mat-icon>
+        </ng-template>
+      </button>
+    </div>
+  </div>
+
+  <mat-stepper
+    class="mat-stepper-card"
+    (selectionChange)="handleStepChange($event)"
+    [disableRipple]="true"
+    [linear]="true"
+    #stepper
+  >
+    <mat-step [stepControl]="receivePaymentAgainstSaleForm">
+      <form autocomplete="off" [formGroup]="receivePaymentAgainstSaleForm">
+        <ng-template matStepLabel
+          >Receive Payment Against Sale Form</ng-template
+        >
+        <div>
+          <div class="row row-cols-2 gx-5">
+            <!-- Payment Date -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Choose Payment Date</mat-label>
+                <input
+                  #input1
+                  matInput
+                  name="paymentDate"
+                  [matDatepicker]="picker1"
+                  [min]="applyMinMax ? financialYearStartDate : null"
+                  [max]="applyMinMax ? financialYearEndDate : null"
+                  formControlName="paymentDate"
+                  type="text"
+                  cdkFocusInitial
+                  (focus)="picker1.open()"
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker1"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker1
+                  (closed)="input1.blur()"
+                ></mat-datepicker>
+                <mat-error
+                  *ngIf="
+                    receivePaymentAgainstSaleForm
+                      .get('paymentDate')
+                      .hasError('required')
+                  "
+                  >Payment Date is required</mat-error
+                >
+                <mat-error
+                  *ngIf="
+                    receivePaymentAgainstSaleForm
+                      .get('paymentDate')
+                      .hasError('inFinancialYear')
+                  "
+                >
+                  Please choose a date within the financial year period:
+                  {{ financialYearStartDate | date : "mediumDate" }} -
+                  {{ financialYearEndDate | date : "mediumDate" }}.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- customerId -->
+            <!-- <div class="col d-flex">
+              <mat-form-field class="full-width">
+                <mat-label>Select Customer</mat-label>
+                <mat-select formControlName="customerId" autoFocus>
+                  <mat-option *ngFor="let d of customers" [value]="d.id">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Customer is required</mat-error>
+              </mat-form-field>
+            </div> -->
+
+            <!-- saleInvoices -->
+            <!-- <div class="col d-flex">
+              <mat-form-field class="full-width">
+                <mat-label>Linked Document</mat-label>
+                <mat-select disabled formControlName="saleInvoiceId" autoFocus>
+                  <mat-option *ngFor="let d of saleInvoices" [value]="d.id">
+                    {{ d.invoiceNo }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Linked Document is required</mat-error>
+              </mat-form-field>
+              <button
+                type="button"
+                mat-icon-button
+                color="primary"
+                (click)="openSaleInvoiceDialog()"
+              >
+                <mat-icon>help</mat-icon>
+              </button>
+            </div> -->
+
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Customer</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  name="customerId"
+                  formControlName="customerId"
+                  [matAutocomplete]="auto"
+                  (input)="handleCustomerSearch($event)"
+                />
+                <div matSuffix>
+                  <button
+                    (click)="clearInput($event, 'customerId')"
+                    *ngIf="
+                      receivePaymentAgainstSaleForm.get('customerId')?.value
+                    "
+                    aria-label="Clear"
+                    mat-icon-button
+                    type="button"
+                  >
+                    <mat-icon>clear</mat-icon>
+                  </button>
+                  <mat-icon>keyboard_arrow_down</mat-icon>
+                </div>
+                <mat-autocomplete
+                  #auto="matAutocomplete"
+                  (optionSelected)="onSelectedCustomer($event.option.value)"
+                  [displayWith]="getCustomerName.bind(this)"
+                >
+                  <mat-option
+                    matTooltip="{{ d.address }}"
+                    *ngFor="let d of filterCustomers"
+                    [value]="d.id"
+                  >
+                    ({{ d.code.slice(-4) }}) {{ d.name }} {{ d.address }}
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error>Customer is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- creditLimit -->
+            <!-- <div class="col d-flex">
+              <mat-form-field class="full-width">
+                <mat-label>Credit Limit</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Enter Credit Limit"
+                  formControlName="creditLimit"
+                  readonly
+                />
+              </mat-form-field>
+              <button
+                [hidden]="!isCreditBalanceInsufficient"
+                type="button"
+                mat-icon-button
+                color="warn"
+                matTooltip="{{ this.creditBalanceInsufficientMessage }}"
+              >
+                <mat-icon>error</mat-icon>
+              </button>
+            </div> -->
+
+            <!-- customerBalance -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Customer Balance</mat-label>
+                <input
+                  type="number"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Customer Balance"
+                  formControlName="customerBalance"
+                  readonly
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- amount -->
+            <div class="col d-flex">
+              <mat-form-field class="full-width">
+                <mat-label>Amount</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="amount"
+                  formControlName="amount"
+                  placeholder="0.00"
+                  (input)="checkAmount()"
+                  (click)="$event.target.select()"
+                />
+                <mat-error>Amount is required</mat-error>
+              </mat-form-field>
+              <button
+                [hidden]="!isAmountGreaterThanCustomerBalance"
+                type="button"
+                mat-icon-button
+                color="warn"
+                matTooltip="{{ this.amountGreaterThanCustomerBalanceMessage }}"
+              >
+                <mat-icon>error</mat-icon>
+              </button>
+            </div>
+
+            <!-- costCenter -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Cost Center</mat-label>
+                <mat-select formControlName="costCenterId" autoFocus>
+                  <mat-option>-- None --</mat-option>
+                  <mat-option *ngFor="let d of costCenters" [value]="d.id">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Cost Center is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- toAccountId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Payment To(Cash/Bank Account)</mat-label>
+                <mat-select formControlName="toAccountId" autoFocus>
+                  <mat-option>-- None --</mat-option>
+                  <mat-option *ngFor="let d of toAccounts" [value]="d.id">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>To Account is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Remark -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Remark</mat-label>
+                <textarea
+                  rows="1"
+                  matInput
+                  formControlName="remark"
+                  placeholder="Leave a message..."
+                ></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+
+        <div align="center">
+          <button
+            *ngIf="
+              !isViewMode && this.receivePaymentAgainstSaleForm.get('id')?.value
+            "
+            mat-raised-button
+            (click)="backToView()"
+            [disabled]="this.receivePaymentAgainstSaleForm.invalid"
+          >
+            Back
+          </button>
+          <button
+            color="accent"
+            mat-raised-button
+            matStepperNext
+            class="mr-1"
+            [disabled]="
+              this.receivePaymentAgainstSaleForm.invalid ||
+              isAmountGreaterThanCustomerBalance
+            "
+          >
+            Continue
+          </button>
+        </div>
+      </form>
+    </mat-step>
+    <!-- Step Review and Submit -->
+    <mat-step [editable]="false">
+      <form
+        (ngSubmit)="onSubmit()"
+        autocomplete="off"
+        [formGroup]="receivePaymentAgainstSaleForm"
+      >
+        <ng-template matStepLabel
+          >Review and Create Supplier Payment</ng-template
+        >
+        <div *ngIf="isPassingDataToNextStep">
+          <div class="row row-cols-2 gx-5">
+            <!-- Date of Payment date -->
+            <div class="col label-data">
+              <span>Payment Date</span>
+              <span>
+                {{
+                  dateFormatService.getDateFormat(
+                    receivePaymentAgainstSaleForm.get("paymentDate").value
+                  )
+                }}
+              </span>
+            </div>
+            <!-- customerId -->
+            <div class="col label-data">
+              <span>Customer</span>
+              <span>
+                {{
+                  getCustomerName(
+                    receivePaymentAgainstSaleForm?.get("customerId")?.value
+                  )
+                }}
+              </span>
+            </div>
+            <!-- Linked Document -->
+            <!-- <div class="col label-data">
+              <span>Linked Document</span>
+              <span>
+                {{
+                  getLinkedDocument(
+                    receivePaymentAgainstSaleForm?.get("saleInvoiceId")?.value
+                  )
+                }}
+              </span>
+            </div> -->
+            <!-- amount -->
+            <div class="col label-data">
+              <span>Amount</span>
+              <span>
+                {{ receivePaymentAgainstSaleForm?.get("amount")?.value }}
+              </span>
+              <mat-icon
+                style="font-size: 20px"
+                [hidden]="!isAmountGreaterThanCustomerBalance"
+                matTooltip="{{ this.amountGreaterThanCustomerBalanceMessage }}"
+                color="warn"
+              >
+                error
+              </mat-icon>
+            </div>
+            <!-- costCenterId -->
+            <div class="col label-data">
+              <span>Cost Center</span>
+              <span>
+                {{
+                  getCostCenterName(
+                    receivePaymentAgainstSaleForm?.get("costCenterId")?.value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- toAccountId -->
+            <div class="col label-data">
+              <span>Payment To(Cash/Bank Account)</span>
+              <span>
+                {{
+                  getToAccountName(
+                    receivePaymentAgainstSaleForm?.get("toAccountId")?.value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- Remark -->
+            <div class="col label-data">
+              <span>Remark</span>
+              <span>
+                {{ receivePaymentAgainstSaleForm?.get("remark")?.value }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <!-- Action Button -->
+        <div *ngIf="!isViewMode" align="center">
+          <button
+            mat-button
+            matStepperPrevious
+            (click)="isLoading = false"
+            type="button"
+          >
+            Back
+          </button>
+          <!-- <button-loading
+            [loadingText]="'Processing...'"
+            color="warn"
+            [type]="'submit'"
+            [loading]="isLoading"
+            [disabled]="this.receivePaymentAgainstSaleForm.invalid || isLoading"
+          >
+            Save
+          </button-loading> -->
+          <button
+            mat-raised-button
+            color="accent"
+            type="submit"
+            [disabled]="
+              this.receivePaymentAgainstSaleForm.invalid ||
+              isLoading ||
+              isAmountGreaterThanCustomerBalance
+            "
+          >
+            <ng-container *ngIf="isLoading; else saveText">
+              <mat-icon>
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              {{ "Processing..." }}
+            </ng-container>
+            <ng-template #saveText>
+              {{ "Save" }}
+            </ng-template>
+          </button>
+        </div>
+      </form>
+      <!-- <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button (click)="stepper.reset()">Reset</button>
+      </div> -->
+    </mat-step>
+  </mat-stepper>
+</div>

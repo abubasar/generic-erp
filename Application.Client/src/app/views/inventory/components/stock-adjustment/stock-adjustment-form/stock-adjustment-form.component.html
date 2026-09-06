@@ -1,0 +1,479 @@
+<div class="container-fluid">
+  <div *ngIf="isViewMode" class="d-flex justify-content-between">
+    <div class="d-flex gap-2 align-items-center">
+      <button mat-icon-button (click)="navigateToList()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h3 class="m-0">Code: {{ data?.code }}</h3>
+      <mat-chip
+        class="align-middle py-4 px-8"
+        [color]="getStockAdjustmentStatus(data?.status).color"
+        selected
+      >
+        {{ getStockAdjustmentStatusName(data?.status)?.replaceAll("_", " ") }}
+      </mat-chip>
+      <button
+        mat-icon-button
+        color="primary"
+        matTooltip="print pdf"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printPdf(data?.id)"
+      >
+        <mat-icon>print</mat-icon>
+      </button>
+      <button
+        *appHasPermission="['Permissions.StockAdjustments.Edit']"
+        [hidden]="
+          data?.status > 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-icon-button
+        color="primary"
+        matTooltip="Edit"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="showEdit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+
+    <div>
+      <button
+        #btnCheck
+        *appHasPermission="['Permissions.StockAdjustments.Check']"
+        [hidden]="
+          data?.status != 1 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        type="button"
+        color="accent"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmCheck(data?.id, data?.code)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Check" }}
+        </ng-template>
+      </button>
+
+      <button
+        #btnApprove
+        *appHasPermission="['Permissions.StockAdjustments.Approve']"
+        [hidden]="
+          data?.status != 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        color="primary"
+        type="button"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmApprove(data?.id, data?.code)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Approve" }}
+        </ng-template>
+      </button>
+
+      <button
+        *appHasPermission="['Permissions.StockAdjustments.Unpost']"
+        [hidden]="
+          data?.status >= 4 ||
+          data?.status == 1 ||
+          data?.status === 'undefined' ||
+          data?.financialYearId != currentFinancialYearId
+        "
+        type="button"
+        mat-mini-fab
+        color="warn"
+        matTooltip="Undo"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmUnpost(data?.id, data?.code, data?.status)"
+      >
+        <ng-container *ngIf="isLoading; else undo">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+        </ng-container>
+        <ng-template #undo>
+          <mat-icon>undo</mat-icon>
+        </ng-template>
+      </button>
+    </div>
+  </div>
+
+  <mat-stepper
+    class="mat-stepper-card"
+    (selectionChange)="handleStepChange($event)"
+    [disableRipple]="true"
+    [linear]="true"
+    #stepper
+  >
+    <mat-step [stepControl]="stockAdjustmentForm">
+      <form autocomplete="off" [formGroup]="stockAdjustmentForm">
+        <ng-template matStepLabel>Stock Adjustment Form</ng-template>
+        <div>
+          <div class="row row-cols-3 gx-5">
+            <!-- adjustmentDate -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Choose Adjustment Date</mat-label>
+                <input
+                  #input1
+                  matInput
+                  name="adjustmentDate"
+                  [matDatepicker]="picker1"
+                  [min]="applyMinMax ? financialYearStartDate : null"
+                  [max]="applyMinMax ? financialYearEndDate : null"
+                  (focus)="picker1.open()"
+                  formControlName="adjustmentDate"
+                  type="text"
+                  cdkFocusInitial
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker1"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker1
+                  (closed)="input1.blur()"
+                ></mat-datepicker>
+                <mat-error
+                  *ngIf="
+                    stockAdjustmentForm
+                      .get('adjustmentDate')
+                      .hasError('required')
+                  "
+                >
+                  Adjustment Date is required
+                </mat-error>
+                <mat-error
+                  *ngIf="
+                    stockAdjustmentForm
+                      .get('adjustmentDate')
+                      .hasError('inFinancialYear')
+                  "
+                >
+                  Please choose a date within the financial year period:
+                  {{ financialYearStartDate | date : "mediumDate" }} -
+                  {{ financialYearEndDate | date : "mediumDate" }}.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- storeId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Store</mat-label>
+                <mat-select
+                  formControlName="storeId"
+                  (selectionChange)="onSelectedStore($event.value)"
+                >
+                  <mat-option [value]="null">-- None --</mat-option>
+                  <mat-option *ngFor="let d of stores" [value]="d?.id">
+                    {{ d?.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Store is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Remark -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Remark</mat-label>
+                <textarea
+                  rows="1"
+                  matInput
+                  formControlName="remark"
+                  placeholder="Leave a message..."
+                ></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+
+        <!-- Details -->
+        <ng-container formArrayName="stockAdjustmentDetails">
+          <h3 class="subheading-2">Items Detail</h3>
+          <mat-divider></mat-divider>
+          <ng-container
+            *ngFor="let p of stockAdjustmentDetails.controls; let i = index"
+            [formGroupName]="i"
+          >
+            <div class="row">
+              <div class="col-4">
+                <!-- Product Autocomplete -->
+                <mat-form-field class="full-width">
+                  <mat-label>Item Name</mat-label>
+                  <input
+                    type="text"
+                    placeholder="Search Item"
+                    aria-label="Filter Item"
+                    matInput
+                    name="productId"
+                    formControlName="productId"
+                    [matAutocomplete]="product"
+                    (input)="handleProductSearch($event, i)"
+                  />
+                  <div matSuffix>
+                    <button
+                      (click)="clearInputFromDetails($event, i)"
+                      *ngIf="
+                        stockAdjustmentDetails?.at(i).get('productId')
+                          ?.value !== null &&
+                        stockAdjustmentDetails?.at(i).get('productId')
+                          ?.value !== ''
+                      "
+                      aria-label="Clear"
+                      mat-icon-button
+                      type="button"
+                    >
+                      <mat-icon>clear</mat-icon>
+                    </button>
+                    <mat-icon>keyboard_arrow_down</mat-icon>
+                  </div>
+                  <mat-autocomplete
+                    autoActiveFirstOption
+                    #product="matAutocomplete"
+                    (optionSelected)="handleProductSelection($event, i)"
+                    [displayWith]="getProductName.bind(this)"
+                  >
+                    <mat-option
+                      *ngFor="let product of filterProducts"
+                      [value]="product.id"
+                    >
+                      {{ product.name }}
+                      ({{
+                        businessType === "2"
+                          ? product?.bagWeight +
+                            " " +
+                            product?.measurementUnit?.name
+                          : product?.packSize?.name
+                      }})
+                    </mat-option>
+                  </mat-autocomplete>
+                  <mat-error>Item is required</mat-error>
+                </mat-form-field>
+              </div>
+              <!-- MeasurementUnit -->
+              <div class="col-2">
+                <mat-form-field class="full-width">
+                  <mat-label>Unit</mat-label>
+                  <input
+                    matInput
+                    name="measurementUnitName"
+                    formControlName="measurementUnitName"
+                    readonly
+                  />
+                </mat-form-field>
+              </div>
+              <!-- adjustmentQty -->
+              <div class="col-2">
+                <mat-form-field class="full-width">
+                  <mat-label>Adjustment Qty</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    name="adjustmentQty"
+                    formControlName="adjustmentQty"
+                    placeholder="Enter Adjustment Qty"
+                    (change)="onControlChange($event, i)"
+                    (input)="onControlChange($event, i)"
+                    (click)="$event.target.select()"
+                  />
+                  <mat-error> Adjustment Qty is required </mat-error>
+                  <mat-hint
+                    style="color: red"
+                    *ngIf="p.hasError('fieldsNotGreater')"
+                    >Limit Exceeded !!</mat-hint
+                  >
+                </mat-form-field>
+              </div>
+              <div class="col-2">
+                <mat-form-field class="full-width">
+                  <mat-label>Current Stock</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    name="currentStockQuantity"
+                    formControlName="currentStockQuantity"
+                    placeholder="0.00"
+                    readonly
+                  />
+                </mat-form-field>
+              </div>
+              <!-- Remove Button -->
+              <div class="col-2">
+                <button
+                  mat-mini-fab
+                  type="button"
+                  color="warn"
+                  (click)="onDeleteItem(p?.get('id')?.value, i)"
+                >
+                  <mat-icon>delete_forever</mat-icon>
+                </button>
+              </div>
+            </div>
+          </ng-container>
+        </ng-container>
+        <!-- Bottom Section -->
+        <div class="d-flex justify-content-end">
+          <!-- Calculation Container -->
+          <div>
+            <!-- totalAdjustmentQty -->
+            <div class="label-data justify-content-between">
+              <span>Total Adjustment Qty</span>
+              <span>
+                {{
+                  stockAdjustmentForm?.get("totalAdjustmentQty")?.value
+                    | currency : "BDT" : "" : "1.2-2"
+                }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <!-- Bottom Section -->
+
+        <div class="d-flex justify-content-between">
+          <!-- Button Container -->
+          <div class="button-container">
+            <button
+              mat-mini-fab
+              type="button"
+              color="primary"
+              (click)="addItem()"
+            >
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="p-3" align="center">
+          <button
+            class="me-2"
+            type="button"
+            *ngIf="!isViewMode && this.stockAdjustmentForm.get('id')?.value"
+            mat-raised-button
+            (click)="backToView()"
+            [disabled]="this.stockAdjustmentForm.invalid"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            color="accent"
+            mat-raised-button
+            matStepperNext
+            class="mr-1"
+            [disabled]="this.stockAdjustmentForm.invalid"
+          >
+            Continue
+          </button>
+        </div>
+      </form>
+    </mat-step>
+    <!-- Step Review and Submit -->
+    <mat-step [editable]="false">
+      <form
+        (ngSubmit)="onSubmit()"
+        autocomplete="off"
+        [formGroup]="stockAdjustmentForm"
+      >
+        <ng-template matStepLabel
+          >Review and Create Stock Adjustment</ng-template
+        >
+        <div *ngIf="isPassingDataToNextStep">
+          <div class="row row-cols-3 gx-5">
+            <!-- adjustmentDate -->
+            <div class="col label-data">
+              <span>Adjustment Date</span>
+              <span>
+                {{
+                  dateFormatService.getDateFormat(
+                    stockAdjustmentForm.get("adjustmentDate")?.value
+                  )
+                }}
+              </span>
+            </div>
+            <!-- storeId -->
+            <div class="col label-data">
+              <span>Store</span>
+              <span>
+                {{ getStoreName(stockAdjustmentForm?.get("storeId")?.value) }}
+              </span>
+            </div>
+            <!-- Remark -->
+            <div class="col label-data">
+              <span>Remark</span>
+              <span>
+                {{ stockAdjustmentForm?.get("remark")?.value }}
+              </span>
+            </div>
+          </div>
+          <!-- Start of Form Array -->
+          <div>
+            <ng-container>
+              <app-stock-adjustment-detail
+                [data]="stockAdjustmentDetailsData"
+              ></app-stock-adjustment-detail>
+            </ng-container>
+          </div>
+        </div>
+        <div class="calculation-align-right">
+          <!-- totalAdjustmentQty -->
+          <div class="label-data justify-content-between">
+            <span>Total Adjustment Qty</span>
+            <span>
+              {{
+                stockAdjustmentForm?.get("totalAdjustmentQty")?.value
+                  | currency : "BDT" : "" : "1.2-2"
+              }}
+            </span>
+          </div>
+        </div>
+        <div class="calculation-align-right"></div>
+        <!-- Action Button -->
+        <div class="p-3" *ngIf="!isViewMode" align="center">
+          <button
+            class="me-2"
+            mat-raised-button
+            matStepperPrevious
+            (click)="isLoading = false"
+            type="button"
+          >
+            Back
+          </button>
+          <button
+            mat-raised-button
+            color="accent"
+            type="submit"
+            [disabled]="this.stockAdjustmentForm.invalid || isLoading"
+          >
+            <ng-container *ngIf="isLoading; else saveText">
+              <mat-icon>
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              {{ "Processing..." }}
+            </ng-container>
+            <ng-template #saveText>
+              {{ "Save" }}
+            </ng-template>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</div>

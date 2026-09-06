@@ -1,0 +1,494 @@
+﻿{
+   "CodeGenerationMode": 5,
+   "ContextClassName": "DataContext",
+   "ContextNamespace": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "MinimumProductVersion": "2.6.1093",
+   "ModelNamespace": null,
+   "OutputContextPath": "Data",
+   "OutputPath": "Entities",
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "Application.Core",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 0,
+   "SelectedToBeGenerated": 0,
+   "T4TemplatePath": null,
+   "Tables": [
+      {
+         "Name": "[dbo].[Account]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AccountType]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Area]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[BankAccount]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[BillOfMaterial]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[BillOfMaterialDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Category]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Company]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[CostCenter]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Country]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Currency]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[CustomerWiseProductDiscount]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[CustomerWiseProductDiscountDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[CustomerWiseProductDiscountUsageHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[DeliveryNote]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[DeliveryNoteDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[DeliveryPlace]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Department]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Designation]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[DiscountProductWise]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[DiscountProductWiseDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[DiscountProductWiseUsageHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EmailAccount]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Employee]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[EventLog]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[FinancialYear]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[FundTransfer]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[FundTransferTransactionType]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Generic]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[GoodsReceiveNote]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[GoodsReceiveNoteDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[InventoryType]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[JobLocation]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[JournalEntry]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[JournalEntryDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[LcAdjustment]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[LcAdjustmentDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[LCCostEntry]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[LCCostEntryDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Log]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Machine]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Manufacturer]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ManufacturingOrder]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ManufacturingOrderDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[MeasurementUnit]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Notification]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PackSize]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PaymentMethod]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PaymentMode]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PaymentVoucher]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PaymentVoucherDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Picture]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PoPriceAdjustmentAfterGrn]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PoPriceAdjustmentAfterGrnDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Product]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ProductAudit]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ProductCostSetup]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Production]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ProductionDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ProductType]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PurchaseInvoice]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PurchaseInvoiceDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PurchaseInvoiceSupplierPaymentMapping]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PurchaseOrder]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PurchaseOrderDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PurchaseRequisition]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PurchaseRequisitionDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PurchaseRequisitionPurchaseOrderMapping]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PurchaseReturn]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PurchaseReturnDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ReceivePayment]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ReceivePaymentAgainstSale]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ReceivePaymentAgainstSaleSaleInvoiceMapping]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ReceivePaymentDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ReceivePaymentPictureMapping]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ReceiveVoucher]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ReceiveVoucherDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[RefreshToken]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Region]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[RfqSent]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Role]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[RoleClaims]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SaleInvoice]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SaleInvoiceDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SaleOrder]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SaleOrderDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SaleQuotation]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SaleQuotationDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SaleReturn]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SaleReturnDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Setting]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Shift]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Stock]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[StockAdjustment]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[StockAdjustmentDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[StockTransfer]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[StockTransferDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Store]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SupplierPayment]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SupplierPaymentAgainstPurchase]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SupplierPaymentDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SupplierProductMapping]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SupplierTransactionAgainstPo]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Tenant]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Territory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Transaction]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[User]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[VendorQuotation]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[VendorQuotationDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[VoucherEntry]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[VoucherEntryDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Zone]",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": null,
+   "UncountableWords": null,
+   "UseAsyncStoredProcedureCalls": true,
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDatabaseNamesForRoutines": true,
+   "UseDateOnlyTimeOnly": false,
+   "UseDbContextSplitting": true,
+   "UseDecimalDataAnnotationForSprocResult": true,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": true,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": false,
+   "UsePrefixNavigationNaming": false,
+   "UseSchemaFolders": false,
+   "UseSchemaNamespaces": false,
+   "UseSpatial": false,
+   "UseT4": false,
+   "UseT4Split": false
+}

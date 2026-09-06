@@ -1,0 +1,119 @@
+<div *ngIf="!rolePermission" class="d-flex justify-center p-4">
+  <mat-icon>
+    <mat-spinner diameter="20"> </mat-spinner>
+  </mat-icon>
+  Loading ...
+</div>
+<div [hidden]="!rolePermission">
+  <mat-tab-group mat-align-tabs="center">
+    <mat-tab *ngFor="let group of rolePermissionGroup" label="{{ group }}">
+      <ng-template matTabLabel>
+        <span
+          matBadgeColor="{{
+            getGroupBadgeColor(
+              getSelectedCount(groupRoleClaims[group]),
+              groupRoleClaims[group].length
+            )
+          }}"
+          matBadge="{{ getSelectedCount(groupRoleClaims[group]) }}/{{
+            groupRoleClaims[group].length
+          }}"
+          mat
+          matBadgeOverlap="false"
+          >{{ group }}</span
+        >
+      </ng-template>
+      <!-- <app-table
+        [title]="'Role Permissions'"
+        [subtitle]="'Manage Role Permission here.'"
+        [data]="groupRoleClaims[group]"
+        [columns]="rolePermissionColumns"
+      >
+      </app-table> -->
+
+      <!--  -->
+      <table
+        mat-table
+        [dataSource]="groupRoleClaims[group]"
+        multiTemplateDataRows
+        class="mat-elevation-z8"
+      >
+        <!-- Checkbox Column -->
+        <!-- <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox
+              (change)="$event ? toggleAllRows() : null"
+              [checked]="selection.hasValue() && isAllSelected()"
+              [indeterminate]="selection.hasValue() && !isAllSelected()"
+              [aria-label]="checkboxLabel()"
+            >
+            </mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let row">
+            <mat-checkbox
+              (click)="$event.stopPropagation()"
+              (change)="$event ? selection.toggle(row) : null"
+              [checked]="selection.isSelected(row)"
+              [aria-label]="checkboxLabel(row)"
+            >
+            </mat-checkbox>
+          </td>
+        </ng-container> -->
+        <!-- ----------End---------- -->
+        <ng-container
+          matColumnDef="{{ column }}"
+          *ngFor="let column of rolePermissionColumns"
+        >
+          <!--  -->
+          <ng-container *ngIf="column === 'selected'" else notSelected>
+            <th mat-header-cell *matHeaderCellDef>
+              {{ column | titlecase }}
+              <!-- <mat-checkbox
+                (change)="$event ? toggleAllRows(group) : null"
+                [checked]="selection.hasValue() && isAllSelected()"
+              ></mat-checkbox> -->
+            </th>
+            <td mat-cell *matCellDef="let element">
+              <mat-checkbox
+                (click)="$event.stopPropagation()"
+                (change)="element.selected = !element.selected"
+                [checked]="element.selected"
+              >
+              </mat-checkbox>
+            </td>
+          </ng-container>
+          <!--  -->
+          <ng-contaiber #notSelected>
+            <th mat-header-cell *matHeaderCellDef>{{ column | titlecase }}</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element[column] }}
+            </td>
+          </ng-contaiber>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="rolePermissionColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: rolePermissionColumns"></tr>
+      </table>
+      <!--  -->
+    </mat-tab>
+  </mat-tab-group>
+  <mat-dialog-actions align="end" class="mb-2">
+    <button mat-raised-button mat-dialog-close>Cancel</button>
+    <button
+      class="save-button"
+      mat-raised-button
+      [mat-dialog-close]="true"
+      cdkFocusInitial
+      color="primary"
+      [disabled]="false"
+      (click)="submitRolePermission()"
+    >
+      Save
+    </button>
+  </mat-dialog-actions>
+</div>
+
+<!-- 
+  (change)="toggleRow(element)"
+  (change)="element.selected = !element.selected"
+  [checked]="element.selected"
+ -->

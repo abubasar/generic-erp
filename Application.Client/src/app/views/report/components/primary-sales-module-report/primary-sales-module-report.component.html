@@ -1,0 +1,190 @@
+<div class="row">
+  <div class="col-md-4">
+    <div class="d-flex flex-column align-items-start row-gap-2">
+      <!-- primarySaleTotalProductWise -->
+      <button
+        *appHasPermission="[
+          'Permissions.PrimarySalesModuleReports.Primary_Sale_Total_Product_Wise'
+        ]"
+        [ngClass]="getButtonClasses('primarySaleTotalProductWise')"
+        (click)="loadForm('primarySaleTotalProductWise')"
+      >
+        Product Wise Sales
+      </button>
+      <!-- primarySaleTotalProductWiseMultiTerritory -->
+      <button
+        *appHasPermission="[
+          'Permissions.PrimarySalesModuleReports.Primary_Sale_Total_Product_Wise_Multi_Territory'
+        ]"
+        [ngClass]="
+          getButtonClasses('primarySaleTotalProductWiseMultiTerritory')
+        "
+        (click)="loadForm('primarySaleTotalProductWiseMultiTerritory')"
+      >
+        Territory Wise Product Sales (Pivot Report)
+      </button>
+      <!-- primarySaleTotalProductWiseMultiOfficer -->
+      <button
+        *appHasPermission="[
+          'Permissions.PrimarySalesModuleReports.Primary_Sale_Total_Product_Wise_Multi_Officer'
+        ]"
+        [ngClass]="getButtonClasses('primarySaleTotalProductWiseMultiOfficer')"
+        (click)="loadForm('primarySaleTotalProductWiseMultiOfficer')"
+      >
+        MO Wise Product Sales (Pivot Report)
+      </button>
+      <!-- primaryCustomerWiseProductWiseSalesQuantity -->
+      <button
+        *appHasPermission="[
+          'Permissions.PrimarySalesModuleReports.Primary_Customer_Wise_Product_Wise_Sales_Quantity'
+        ]"
+        [ngClass]="
+          getButtonClasses('primaryCustomerWiseProductWiseSalesQuantity')
+        "
+        (click)="loadForm('primaryCustomerWiseProductWiseSalesQuantity')"
+      >
+        Customer Wise Product Wise Sales Quantity
+      </button>
+      <!-- primaryAgingReport -->
+      <button
+        *appHasPermission="[
+          'Permissions.PrimarySalesModuleReports.Primary_Sale_Aging_Report'
+        ]"
+        [ngClass]="getButtonClasses('primaryAgingReport')"
+        (click)="loadForm('primaryAgingReport')"
+      >
+        Aging Report
+      </button>
+      <!-- primaryCustomerWiseSalesAndCollectionReport -->
+      <button
+        *appHasPermission="[
+          'Permissions.PrimarySalesModuleReports.Primary_Customer_Wise_Sales_And_Collection_Report'
+        ]"
+        [ngClass]="
+          getButtonClasses('primaryCustomerWiseSalesAndCollectionReport')
+        "
+        (click)="loadForm('primaryCustomerWiseSalesAndCollectionReport')"
+      >
+        Customer Wise Sales And Collection : Report
+      </button>
+      <!-- primaryNationalWiseSalesCollectionAndDueReport -->
+      <button
+        *appHasPermission="[
+          'Permissions.PrimarySalesModuleReports.Primary_National_Wise_Sales_Collection_And_Due_Report'
+        ]"
+        [ngClass]="
+          getButtonClasses('primaryNationalWiseSalesCollectionAndDueReport')
+        "
+        (click)="loadForm('primaryNationalWiseSalesCollectionAndDueReport')"
+      >
+        National Wise Sales, Collection & Due: Report
+      </button>
+      <!-- primaryMarketingOfficerWiseSalesCollectionAndDueReport -->
+      <button
+        *appHasPermission="[
+          'Permissions.PrimarySalesModuleReports.Primary_Marketing_Officer_Wise_Sales_Collection_And_Due_Report'
+        ]"
+        [ngClass]="
+          getButtonClasses(
+            'primaryMarketingOfficerWiseSalesCollectionAndDueReport'
+          )
+        "
+        (click)="
+          loadForm('primaryMarketingOfficerWiseSalesCollectionAndDueReport')
+        "
+      >
+        MO Wise Sales, Collection & Due: Report
+      </button>
+      <!-- primaryMarketingOfficerWiseSalesCollectionAndDueReportShort -->
+      <button
+        *appHasPermission="[
+          'Permissions.PrimarySalesModuleReports.Primary_Marketing_Officer_Wise_Sales_Collection_And_Due_Report_Short'
+        ]"
+        [ngClass]="
+          getButtonClasses(
+            'primaryMarketingOfficerWiseSalesCollectionAndDueReportShort'
+          )
+        "
+        (click)="
+          loadForm(
+            'primaryMarketingOfficerWiseSalesCollectionAndDueReportShort'
+          )
+        "
+      >
+        MO Wise Sales, Collection & Due: Report (Short)
+      </button>
+      <!-- primaryMonthWiseSalesCollectionAndDueReport -->
+      <button
+        *appHasPermission="[
+          'Permissions.PrimarySalesModuleReports.Primary_Month_Wise_Sales_Collection_And_Due_Report'
+        ]"
+        [ngClass]="
+          getButtonClasses('primaryMonthWiseSalesCollectionAndDueReport')
+        "
+        (click)="loadForm('primaryMonthWiseSalesCollectionAndDueReport')"
+      >
+        Month Wise Sales, Collection & Due: Report
+      </button>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <!-- primarySaleTotalProductWise -->
+    <div *ngIf="selectedForm === 'primarySaleTotalProductWise'">
+      <app-primary-sale-total-product-wise-report></app-primary-sale-total-product-wise-report>
+    </div>
+
+    <!-- primarySaleTotalProductWiseMultiTerritory -->
+    <div *ngIf="selectedForm === 'primarySaleTotalProductWiseMultiTerritory'">
+      <app-primary-sale-total-product-wise-multi-territory-report></app-primary-sale-total-product-wise-multi-territory-report>
+    </div>
+
+    <!-- primarySaleTotalProductWiseMultiOfficer -->
+    <div *ngIf="selectedForm === 'primarySaleTotalProductWiseMultiOfficer'">
+      <app-primary-sale-total-product-wise-multi-officer-report></app-primary-sale-total-product-wise-multi-officer-report>
+    </div>
+
+    <!-- primaryCustomerWiseProductWiseSalesQuantity -->
+    <div *ngIf="selectedForm === 'primaryCustomerWiseProductWiseSalesQuantity'">
+      <app-primary-customer-wise-product-wise-sales-quantity-report></app-primary-customer-wise-product-wise-sales-quantity-report>
+    </div>
+
+    <!-- primaryAgingReport -->
+    <div *ngIf="selectedForm === 'primaryAgingReport'">
+      <app-primary-aging-report></app-primary-aging-report>
+    </div>
+
+    <!-- primaryCustomerWiseSalesAndCollectionReport -->
+    <div *ngIf="selectedForm === 'primaryCustomerWiseSalesAndCollectionReport'">
+      <app-primary-customer-wise-sales-and-collection-report></app-primary-customer-wise-sales-and-collection-report>
+    </div>
+
+    <!-- primaryNationalWiseSalesCollectionAndDueReport -->
+    <div
+      *ngIf="selectedForm === 'primaryNationalWiseSalesCollectionAndDueReport'"
+    >
+      <app-primary-national-wise-sales-collection-and-due-report></app-primary-national-wise-sales-collection-and-due-report>
+    </div>
+    <!-- primaryMarketingOfficerWiseSalesCollectionAndDueReport -->
+    <div
+      *ngIf="
+        selectedForm ===
+        'primaryMarketingOfficerWiseSalesCollectionAndDueReport'
+      "
+    >
+      <app-primary-marketing-officer-wise-sales-collection-and-due-report></app-primary-marketing-officer-wise-sales-collection-and-due-report>
+    </div>
+    <!-- primaryMarketingOfficerWiseSalesCollectionAndDueReportShort -->
+    <div
+      *ngIf="
+        selectedForm ===
+        'primaryMarketingOfficerWiseSalesCollectionAndDueReportShort'
+      "
+    >
+      <app-primary-marketing-officer-wise-sales-collection-and-due-report-short></app-primary-marketing-officer-wise-sales-collection-and-due-report-short>
+    </div>
+    <!-- primaryMonthWiseSalesCollectionAndDueReport -->
+    <div *ngIf="selectedForm === 'primaryMonthWiseSalesCollectionAndDueReport'">
+      <app-primary-month-wise-sales-collection-and-due-report></app-primary-month-wise-sales-collection-and-due-report>
+    </div>
+  </div>
+</div>

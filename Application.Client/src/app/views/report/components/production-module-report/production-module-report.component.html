@@ -1,0 +1,74 @@
+<div class="row">
+  <div class="col-md-4">
+    <div class="d-flex flex-column align-items-start row-gap-2">
+      <button
+        *appHasPermission="[
+          'Permissions.ProductionModuleReports.Production_Details'
+        ]"
+        [ngClass]="getButtonClasses('form1')"
+        (click)="loadForm('form1')"
+      >
+        Production : Details (Without Value)
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.ProductionModuleReports.Production_Details2'
+        ]"
+        [ngClass]="getButtonClasses('form3')"
+        (click)="loadForm('form3')"
+      >
+        Production : Details (With Value)
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.ProductionModuleReports.Day_Wise_Production_Summary'
+        ]"
+        [ngClass]="getButtonClasses('form2')"
+        (click)="loadForm('form2')"
+      >
+        Day Wise Production Summary
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.ProductionModuleReports.Day_Wise_Consumption_Qty'
+        ]"
+        [ngClass]="getButtonClasses('form4')"
+        (click)="loadForm('form4')"
+      >
+        Day Wise Consumption Summary (KG)
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.ProductionModuleReports.Day_Wise_Consumption_Rate'
+        ]"
+        [ngClass]="getButtonClasses('form5')"
+        (click)="loadForm('form5')"
+      >
+        Day Wise Consumption Rate
+      </button>
+    </div>
+    <!-- Add more buttons as needed -->
+  </div>
+
+  <div class="col-md-8">
+    <div *ngIf="selectedForm === 'form1'">
+      <app-production-report></app-production-report>
+    </div>
+    <div *ngIf="selectedForm === 'form3'">
+      <app-production-details-report></app-production-details-report>
+    </div>
+    <div *ngIf="selectedForm === 'form2'">
+      <app-day-wise-production-summary></app-day-wise-production-summary>
+    </div>
+    <div *ngIf="selectedForm === 'form4'">
+      <app-day-wise-consumption-quantity></app-day-wise-consumption-quantity>
+    </div>
+    <div *ngIf="selectedForm === 'form5'">
+      <app-day-wise-consumption-rate></app-day-wise-consumption-rate>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,103 @@
+<h2 mat-dialog-title>{{ formTitle }}</h2>
+<form [formGroup]="financialYearForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="mat-typography">
+    <input mat type="hidden" formControlName="id" />
+    <!-- name -->
+    <div class="col">
+      <mat-form-field>
+        <mat-label>Name</mat-label>
+        <input
+          matInput
+          autocomplete="off"
+          placeholder="Enter financial Year name"
+          formControlName="name"
+        />
+        <mat-error
+          *ngIf="
+            financialYearForm.controls['name'].hasError('required') &&
+            financialYearForm.controls['name'].touched
+          "
+        >
+          Name is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <!-- startDate -->
+    <div class="col">
+      <mat-form-field class="full-width">
+        <mat-label>Choose Starting Date</mat-label>
+        <input
+          #input1
+          matInput
+          name="startDate"
+          [matDatepicker]="picker1"
+          formControlName="startDate"
+          type="text"
+          (focus)="picker1.open()"
+        />
+        <mat-datepicker-toggle
+          matSuffix
+          [for]="picker1"
+        ></mat-datepicker-toggle>
+        <mat-datepicker #picker1 (closed)="input1.blur()"></mat-datepicker>
+        <mat-error
+          *ngIf="
+            financialYearForm.controls['startDate'].hasError('required') &&
+            financialYearForm.controls['startDate'].touched
+          "
+        >
+          Starting Date is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <!-- endDate -->
+    <div class="col">
+      <mat-form-field class="full-width">
+        <mat-label>Choose Ending Date</mat-label>
+        <input
+          #input2
+          matInput
+          name="endDate"
+          [matDatepicker]="picker2"
+          formControlName="endDate"
+          type="text"
+          (focus)="picker2.open()"
+        />
+        <mat-datepicker-toggle
+          matSuffix
+          [for]="picker2"
+        ></mat-datepicker-toggle>
+        <mat-datepicker #picker2 (closed)="input2.blur()"></mat-datepicker>
+        <mat-error
+          *ngIf="
+            financialYearForm.controls['endDate'].hasError('required') &&
+            financialYearForm.controls['endDate'].touched
+          "
+        >
+          Ending Date is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="col">
+      <!-- isActive -->
+      <section>
+        <mat-checkbox class="checkbox-margin" formControlName="isActive">
+          Active
+        </mat-checkbox>
+      </section>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-raised-button mat-dialog-close>Cancel</button>
+    <button
+      mat-raised-button
+      [mat-dialog-close]="true"
+      cdkFocusInitial
+      color="primary"
+      [disabled]="!financialYearForm.dirty || !financialYearForm.valid"
+      type="submit"
+    >
+      Save
+    </button>
+  </mat-dialog-actions>
+</form>

@@ -1,0 +1,40 @@
+<table class="border border-1" mat-table [dataSource]="dataSource">
+  <ng-container matColumnDef="sl">
+    <th mat-header-cell *matHeaderCellDef>#</th>
+    <td mat-cell *matCellDef="let element; let i = index">{{ i + 1 }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="rawMaterialId">
+    <th mat-header-cell *matHeaderCellDef>Item</th>
+    <td mat-cell *matCellDef="let element">{{ element?.rawMaterial?.name }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="measurementUnitId">
+    <th mat-header-cell *matHeaderCellDef>Unit</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.rawMaterial?.measurementUnit?.name }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="quantity">
+    <th mat-header-cell *matHeaderCellDef>Issued Quantity</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.quantity | number : "1.2-2" }}
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="adjustmentQuantity">
+    <th mat-header-cell *matHeaderCellDef>Adjust Quantity(+/-)</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.adjustmentQuantity | number : "1.2-2" }}
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="actualUsedQuantity">
+    <th mat-header-cell *matHeaderCellDef>Actual Used Quantity</th>
+    <td mat-cell *matCellDef="let element">
+      {{ (element?.actualUsedQuantity)| number : "1.2-2" }}
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+</table>

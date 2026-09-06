@@ -1,0 +1,925 @@
+<div class="container-fluid">
+  <div *ngIf="isViewMode" class="d-flex justify-content-between">
+    <div class="d-flex gap-2 align-items-center">
+      <button mat-icon-button (click)="navigateToList()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h3 class="m-0">Production No: {{ data?.productionNo }}</h3>
+      <mat-chip
+        class="align-middle py-4 px-8"
+        [color]="getProductionStatus(data?.status).color"
+        selected
+      >
+        {{ getProductionStatusName(data?.status)?.replaceAll("_", " ") }}
+      </mat-chip>
+      <button
+        *appHasPermission="[
+          'Permissions.Productions.Production_Bill_Summary_Report'
+        ]"
+        mat-icon-button
+        color="primary"
+        matTooltip="Production Summary PDF"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printProductionSummaryPdf(data?.id)"
+      >
+        <mat-icon>picture_as_pdf</mat-icon>
+      </button>
+
+      <button
+        *appHasPermission="[
+          'Permissions.Productions.Production_Bill_Details_Report'
+        ]"
+        mat-icon-button
+        color="primary"
+        matTooltip="Production Details PDF"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printPdf(data?.id)"
+      >
+        <mat-icon>picture_as_pdf</mat-icon>
+      </button>
+      <button
+        *appHasPermission="['Permissions.Productions.Edit']"
+        [hidden]="
+          data?.status > 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-icon-button
+        color="primary"
+        matTooltip="Edit"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="showEdit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+
+    <div>
+      <button
+        #btnCheck
+        *appHasPermission="['Permissions.Productions.Check']"
+        [hidden]="
+          data?.status != 1 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        type="button"
+        color="accent"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmCheck(data?.id, data?.productionNo)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Check" }}
+        </ng-template>
+      </button>
+
+      <button
+        #btnApprove
+        *appHasPermission="['Permissions.Productions.Approve']"
+        [hidden]="
+          data?.status != 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        color="primary"
+        type="button"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmApprove(data?.id, data?.productionNo)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Approve" }}
+        </ng-template>
+      </button>
+
+      <button
+        *appHasPermission="['Permissions.Productions.Unpost']"
+        [hidden]="
+          data?.status >= 4 ||
+          data?.status == 1 ||
+          data?.status === 'undefined' ||
+          data?.financialYearId != currentFinancialYearId
+        "
+        type="button"
+        mat-mini-fab
+        color="warn"
+        matTooltip="Undo"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmUnpost(data?.id, data?.productionNo, data?.status)"
+      >
+        <ng-container *ngIf="isLoading; else undo">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+        </ng-container>
+        <ng-template #undo>
+          <mat-icon>undo</mat-icon>
+        </ng-template>
+      </button>
+    </div>
+  </div>
+
+  <mat-stepper
+    class="mat-stepper-card"
+    (selectionChange)="handleStepChange($event)"
+    [disableRipple]="true"
+    [linear]="true"
+    #stepper
+  >
+    <mat-step [stepControl]="productionForm">
+      <form autocomplete="off" [formGroup]="productionForm">
+        <ng-template matStepLabel>Production Form</ng-template>
+        <div>
+          <div class="row row-cols-3 gx-5">
+            <!-- manufacturingOrderNo -->
+            <div class="col d-flex">
+              <mat-form-field class="full-width">
+                <mat-label>Manufacturing Order No.</mat-label>
+                <input
+                  matInput
+                  name="manufacturingOrderNo"
+                  formControlName="manufacturingOrderNo"
+                  readonly
+                />
+              </mat-form-field>
+              <button
+                [hidden]="this.data?.id"
+                type="button"
+                mat-icon-button
+                color="primary"
+                (click)="openManufacturingOrderDialog()"
+              >
+                <mat-icon>help</mat-icon>
+              </button>
+            </div>
+            <!-- fgstoreId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Finished Goods Store</mat-label>
+                <mat-select formControlName="fgstoreId" autoFocus>
+                  <mat-option [value]="null">-- None --</mat-option>
+                  <mat-option *ngFor="let d of fgstores" [value]="d.id">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Finished Goods Store is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- bomNo -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>BOM No</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="BOM No."
+                  formControlName="bomNo"
+                  readonly
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- productionDate -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Production Date</mat-label>
+                <input
+                  #input1
+                  matInput
+                  name="productionDate"
+                  [matDatepicker]="picker1"
+                  [min]="applyMinMax ? financialYearStartDate : null"
+                  [max]="applyMinMax ? financialYearEndDate : null"
+                  formControlName="productionDate"
+                  (focus)="picker1.open()"
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker1"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker1
+                  (closed)="input1.blur()"
+                ></mat-datepicker>
+                <mat-error
+                  *ngIf="
+                    productionForm.get('productionDate').hasError('required')
+                  "
+                >
+                  Production Date is required
+                </mat-error>
+                <mat-error
+                  *ngIf="
+                    productionForm
+                      .get('productionDate')
+                      .hasError('inFinancialYear')
+                  "
+                >
+                  Please choose a date within the financial year period:
+                  {{ financialYearStartDate | date : "mediumDate" }} -
+                  {{ financialYearEndDate | date : "mediumDate" }}.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- formulationNo -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Formulation No</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Formulation No."
+                  formControlName="formulationNo"
+                  readonly
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- finishedProductId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Finished Product</mat-label>
+                <mat-select
+                  formControlName="finishedProductId"
+                  autoFocus
+                  disabled
+                >
+                  <mat-option [value]="null">-- None --</mat-option>
+                  <mat-option *ngFor="let d of finishedProducts" [value]="d.id">
+                    {{ d.name }}&nbsp;
+                    {{
+                      businessType === "1" ? "(" + d?.packSize?.name + ")" : ""
+                    }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Finished Product is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- batchNo -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Batch No</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Batch No"
+                  formControlName="batchNo"
+                />
+                <mat-error>Batch No. is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- productionQuantity -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Production Quantity</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="productionQuantity"
+                  placeholder="Enter Production Quantity"
+                  formControlName="productionQuantity"
+                  readonly
+                />
+                <mat-error>Production Quantity is required </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- actualProductionQuantity -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Finished Goods Quantity</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="actualProductionQuantity"
+                  placeholder="Enter Finished Goods Quantity"
+                  formControlName="actualProductionQuantity"
+                  (change)="onControlChange($event)"
+                  (input)="onControlChange($event)"
+                  (click)="$event.target.select()"
+                />
+                <mat-error>Actual Production Quantity is required </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- extraDamageQuantity -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Short/Excess Qty</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="extraDamageQuantity"
+                  placeholder="Enter Short/Excess Quantity"
+                  formControlName="extraDamageQuantity"
+                  readonly
+                />
+                <mat-error>Short/Excess Quantity is required </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- dustLooseInQuantity -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Dust/Loose In Quantity</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="dustLooseInQuantity"
+                  placeholder="Enter Dust/Loose In Quantity"
+                  formControlName="dustLooseInQuantity"
+                  (click)="$event.target.select()"
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- dustLooseOutQuantity -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Dust/Loose Out Quantity</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="dustLooseOutQuantity"
+                  placeholder="Enter Dust/Loose Out Quantity"
+                  formControlName="dustLooseOutQuantity"
+                  (click)="$event.target.select()"
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- shiftId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Shift</mat-label>
+                <mat-select formControlName="shiftId">
+                  <mat-option *ngFor="let d of shifts" [value]="d.id">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Shift is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- machineId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Machine</mat-label>
+                <mat-select formControlName="machineId">
+                  <mat-option *ngFor="let d of machines" [value]="d.id">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Machine is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Start Date Time</mat-label>
+                <input
+                  matInput
+                  [ngxMatDatetimePicker]="startDateTimePicker"
+                  placeholder="Choose a date"
+                  name="startDateTime"
+                  formControlName="startDateTime"
+                  [max]="productionForm?.get('endDateTime')?.value"
+                  (click)="startDateTimePicker.open()"
+                  disabled
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="startDateTimePicker"
+                  [disabled]="false"
+                >
+                  <mat-icon matDatepickerToggleIcon> calendar_month </mat-icon>
+                </mat-datepicker-toggle>
+                <ngx-mat-datetime-picker
+                  #startDateTimePicker
+                  [disabled]="false"
+                  [showSeconds]="false"
+                  [enableMeridian]="true"
+                ></ngx-mat-datetime-picker>
+              </mat-form-field>
+            </div>
+
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>End Date Time</mat-label>
+                <input
+                  matInput
+                  [ngxMatDatetimePicker]="endDateTimePicker"
+                  placeholder="Choose a date"
+                  name="endDateTime"
+                  formControlName="endDateTime"
+                  [min]="productionForm?.get('startDateTime')?.value"
+                  (click)="endDateTimePicker.open()"
+                  disabled
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="endDateTimePicker"
+                  [disabled]="false"
+                >
+                  <mat-icon matDatepickerToggleIcon> calendar_month </mat-icon>
+                </mat-datepicker-toggle>
+                <ngx-mat-datetime-picker
+                  #endDateTimePicker
+                  [disabled]="false"
+                  [showSeconds]="false"
+                  [enableMeridian]="true"
+                ></ngx-mat-datetime-picker>
+              </mat-form-field>
+            </div>
+
+            <!-- breakTime -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Break Time (Minutes)</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="breakTime"
+                  placeholder="Enter Break Time in Minutes"
+                  formControlName="breakTime"
+                  min="0"
+                />
+                <mat-error>Break Time is required </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Remark -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Remark</mat-label>
+                <textarea
+                  rows="1"
+                  matInput
+                  formControlName="remark"
+                  placeholder="Leave a message..."
+                ></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+
+        <!-- Details -->
+        <ng-container formArrayName="productionDetails">
+          <h3 class="subheading-2">Items Detail</h3>
+          <mat-divider></mat-divider>
+          <ng-container
+            *ngFor="let p of productionDetails.controls; let i = index"
+            [formGroupName]="i"
+          >
+            <div class="row">
+              <div class="col-4">
+                <!-- Product Autocomplete -->
+                <mat-form-field class="full-width">
+                  <mat-label>Item Name</mat-label>
+                  <input
+                    type="text"
+                    placeholder="Search Item"
+                    aria-label="Filter Item"
+                    matInput
+                    name="rawMaterialId"
+                    formControlName="rawMaterialId"
+                    readonly
+                    [matAutocomplete]="product"
+                    (input)="handleProductSearch($event, i)"
+                  />
+                  <mat-autocomplete
+                    autoActiveFirstOption
+                    #product="matAutocomplete"
+                    (optionSelected)="handleProductSelection($event, i)"
+                    [displayWith]="getRawMaterialProductName.bind(this)"
+                  >
+                    <mat-option
+                      *ngFor="let product of rawMaterials"
+                      [value]="product.id"
+                    >
+                      {{ product.name }}
+                    </mat-option>
+                  </mat-autocomplete>
+                </mat-form-field>
+              </div>
+              <!-- MeasurementUnit -->
+              <div class="col-2">
+                <mat-form-field class="full-width">
+                  <mat-label>Unit</mat-label>
+                  <input
+                    matInput
+                    name="measurementUnitName"
+                    formControlName="measurementUnitName"
+                    readonly
+                  />
+                </mat-form-field>
+              </div>
+
+              <!-- quantity -->
+              <div class="col-2">
+                <mat-form-field class="full-width">
+                  <mat-label>Issued Quantity</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    name="quantity"
+                    formControlName="quantity"
+                    min="0"
+                    placeholder="Enter Quantity"
+                    readonly
+                  />
+                  <mat-error> Quantity is required </mat-error>
+                </mat-form-field>
+              </div>
+              <div class="col-2">
+                <mat-form-field class="full-width">
+                  <mat-label>Adjust Quantity(+/-)</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    name="adjustmentQuantity"
+                    (click)="$event.target.select()"
+                    formControlName="adjustmentQuantity"
+                    placeholder="Enter Adjustment Quantity"
+                    (change)="onAdjustmentControlChange($event, i)"
+                    (input)="onAdjustmentControlChange($event, i)"
+                  />
+                  <mat-error> Adjustment Quantity is required </mat-error>
+                </mat-form-field>
+              </div>
+              <div class="col-2">
+                <mat-form-field class="full-width">
+                  <mat-label>Actual Used Quantity</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    name="actualUsedQuantity"
+                    formControlName="actualUsedQuantity"
+                    placeholder="Actual Used Quantity"
+                    readonly
+                  />
+                  <mat-error> Quantity is required </mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+          </ng-container>
+        </ng-container>
+
+        <!-- Bottom Section -->
+        <div class="d-flex justify-content-end">
+          <!-- Calculation Container -->
+          <div>
+            <!-- totalRmused -->
+            <div class="label-data justify-content-between">
+              <span>Total RM Used</span>
+              <span>
+                {{
+                  productionForm?.get("totalRmused")?.value
+                    | currency : "BDT" : "" : "1.2-2"
+                }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-end">
+          <!-- Calculation Container -->
+          <div>
+            <!-- totalRmused -->
+            <div class="label-data justify-content-between">
+              <span>Total Adjusted Quantity</span>
+              <span>
+                {{
+                  productionForm?.get("totalAdjustmentQuantity")?.value
+                    | currency : "BDT" : "" : "1.2-2"
+                }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3" align="center">
+          <button
+            class="me-2"
+            type="button"
+            *ngIf="!isViewMode && this.productionForm.get('id')?.value"
+            mat-raised-button
+            (click)="backToView()"
+            [disabled]="this.productionForm.invalid"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            color="accent"
+            mat-raised-button
+            matStepperNext
+            class="mr-1"
+            [disabled]="this.productionForm.invalid"
+          >
+            Continue
+          </button>
+        </div>
+      </form>
+    </mat-step>
+    <!-- Step Review and Submit -->
+    <mat-step [editable]="false">
+      <form
+        (ngSubmit)="onSubmit()"
+        autocomplete="off"
+        [formGroup]="productionForm"
+      >
+        <ng-template matStepLabel>Review and Create Production</ng-template>
+        <div *ngIf="isPassingDataToNextStep">
+          <div class="row row-cols-3 gx-5">
+            <!-- manufacturingOrderNo -->
+            <div class="col label-data">
+              <span>Manufacturing Order No</span>
+              <span>
+                {{ productionForm?.get("manufacturingOrderNo")?.value }}
+              </span>
+            </div>
+            <!-- bomNo -->
+            <div class="col label-data">
+              <span>BOM No</span>
+              <span>
+                {{ productionForm?.get("bomNo")?.value }}
+              </span>
+            </div>
+
+            <!-- extraDamageQuantity -->
+            <div class="col label-data">
+              <span
+                >Short/Excess Qty ({{
+                  getMeasurementUnitName(
+                    productionForm?.get("finishedProductId")?.value
+                  )
+                }})</span
+              >
+              <span>
+                {{ productionForm?.get("extraDamageQuantity")?.value }}
+              </span>
+            </div>
+
+            <!-- dustLooseInQuantity -->
+            <div class="col label-data">
+              <span
+                >Dust/Loose In Quantity ({{
+                  getMeasurementUnitName(
+                    productionForm?.get("finishedProductId")?.value
+                  )
+                }})</span
+              >
+              <span>
+                {{ productionForm?.get("dustLooseInQuantity")?.value }}
+              </span>
+            </div>
+
+            <!-- dustLooseOutQuantity -->
+            <div class="col label-data">
+              <span
+                >Dust/Loose Out Quantity ({{
+                  getMeasurementUnitName(
+                    productionForm?.get("finishedProductId")?.value
+                  )
+                }})</span
+              >
+              <span>
+                {{ productionForm?.get("dustLooseOutQuantity")?.value }}
+              </span>
+            </div>
+
+            <!-- fgstoreId -->
+            <div class="col label-data">
+              <span>Finished Goods Store</span>
+              <span>
+                {{ getStoreName(productionForm?.get("fgstoreId")?.value) }}
+              </span>
+            </div>
+
+            <!-- productionDate -->
+            <div class="col label-data">
+              <span>Production Date</span>
+              <span>
+                {{
+                  dateFormatService.getDateFormat(
+                    productionForm.get("productionDate").value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- formulationNo -->
+            <div class="col label-data">
+              <span>Formulation No</span>
+              <span>
+                {{ productionForm?.get("formulationNo")?.value }}
+              </span>
+            </div>
+
+            <!-- batchNo -->
+            <div class="col label-data">
+              <span>Batch No</span>
+              <span>
+                {{ productionForm?.get("batchNo")?.value }}
+              </span>
+            </div>
+
+            <!-- finishedProductId -->
+            <div class="col label-data">
+              <span>Finished Product</span>
+              <span>
+                {{
+                  getFinishedProductName(
+                    productionForm?.get("finishedProductId")?.value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- productionQuantity -->
+            <div class="col label-data">
+              <span>Production Quantity</span>
+              <span>
+                {{ productionForm?.get("productionQuantity")?.value }}
+              </span>
+            </div>
+
+            <!-- actualProductionQuantity -->
+            <div class="col label-data">
+              <span>Finished Goods Quantity</span>
+              <span>
+                {{ productionForm?.get("actualProductionQuantity")?.value }}
+              </span>
+            </div>
+
+            <!-- shiftId -->
+            <div class="col label-data">
+              <span>Shift</span>
+              <span>
+                {{ getShiftName(productionForm?.get("shiftId")?.value) }}
+              </span>
+            </div>
+
+            <!-- machineId -->
+            <div class="col label-data">
+              <span>Machine</span>
+              <span>
+                {{ getMachineName(productionForm?.get("machineId")?.value) }}
+              </span>
+            </div>
+
+            <!-- startDateTime -->
+            <div class="col label-data">
+              <span>Start Date Time</span>
+              <span>
+                {{
+                  productionForm?.get("startDateTime")?.value
+                    | date : "d/MM/yyyy, hh:mm a"
+                }}
+              </span>
+            </div>
+
+            <!-- endDateTime -->
+            <div class="col label-data">
+              <span>End Date Time</span>
+              <span>
+                {{
+                  productionForm?.get("endDateTime")?.value
+                    | date : "d/MM/yyyy, hh:mm a"
+                }}
+              </span>
+            </div>
+
+            <!-- breakTime -->
+            <div class="col label-data">
+              <span>Break Time (Minutes)</span>
+              <span>
+                {{ productionForm?.get("breakTime")?.value }}
+              </span>
+            </div>
+            <!-- Declared Time -->
+            <div class="col label-data">
+              <span>Declared Time</span>
+              <span>
+                {{ getTotalDuration() }}
+              </span>
+            </div>
+            <!-- Actual Time -->
+            <div class="col label-data">
+              <span>Actual Time</span>
+              <span>
+                {{ getNetDuration() }}
+              </span>
+            </div>
+            <!-- Actual Time -->
+            <div class="col label-data">
+              <span
+                >Productivity ({{
+                  getMeasurementUnitName(
+                    productionForm?.get("finishedProductId")?.value
+                  )
+                }}/Hour)</span
+              >
+              <span>
+                {{ getProductionPerHour() }}
+              </span>
+            </div>
+
+            <!-- Remark -->
+            <div class="col label-data">
+              <span>Remark</span>
+              <span>
+                {{ productionForm?.get("remark")?.value }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Start of Form Array -->
+          <div>
+            <ng-container>
+              <app-production-detail
+                [data]="productionDetailsData"
+              ></app-production-detail>
+            </ng-container>
+          </div>
+        </div>
+
+        <div class="calculation-align-right">
+          <!-- totalRmused -->
+          <div class="label-data justify-content-between">
+            <span>Total RM Used</span>
+            <span>
+              {{
+                productionForm?.get("totalRmused")?.value
+                  | currency : "BDT" : "" : "1.2-2"
+              }}
+            </span>
+          </div>
+        </div>
+        <div class="calculation-align-right">
+          <!-- Calculation Container -->
+          <div>
+            <!-- totalRmused -->
+            <div class="label-data justify-content-between">
+              <span>Total Adjusted Quantity</span>
+              <span>
+                {{
+                  productionForm?.get("totalAdjustmentQuantity")?.value
+                    | currency : "BDT" : "" : "1.2-2"
+                }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="p-3" *ngIf="!isViewMode" align="center">
+          <button
+            class="me-2"
+            mat-raised-button
+            matStepperPrevious
+            (click)="isLoading = false"
+            type="button"
+          >
+            Back
+          </button>
+          <button
+            mat-raised-button
+            color="accent"
+            type="submit"
+            [disabled]="this.productionForm.invalid || isLoading"
+          >
+            <ng-container *ngIf="isLoading; else saveText">
+              <mat-icon>
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              {{ "Processing..." }}
+            </ng-container>
+            <ng-template #saveText>
+              {{ "Save" }}
+            </ng-template>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</div>

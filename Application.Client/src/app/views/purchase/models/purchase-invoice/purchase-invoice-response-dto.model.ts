@@ -1,0 +1,76 @@
+import { ProductView } from "app/views/configuration/models/product/product-view.model";
+import { Store } from "app/views/configuration/models/store/store.model";
+import { Supplier } from "app/views/configuration/models/supplier/supplier.model";
+
+export interface PurchaseInvoiceResponseDTO {
+  id?: string;
+  purchaseInvoiceNo: string;
+  invoiceDate: string;
+  grnno: string;
+  ponumber: string;
+  storeId: string;
+  supplierId: string;
+  supplierInvoiceNo: string;
+  supplierInvoiceDate: string;
+  paymentTermInDays: number;
+  isImportPurchase: boolean;
+  proformaInvoiceNo: string;
+  lcNumber: string;
+  currencyId: string;
+  exchangeRate: number;
+  importPurchaseIncoTerm: number;
+  importPurchasePaymentTerm: number;
+  billOfEntryNo: string;
+  billOfEntryDate: string;
+  portOfLoading: string;
+  portOfDestination: string;
+  additionalLandedCost: number;
+  adjustmentValue: number;
+  status: number;
+  statusName: string;
+  weightVariance: number;
+  subtotal: number;
+  discount: number;
+  transportationCost: number;
+  totalVat: number;
+  supplierPaymentCode: string;
+  advancePaymentAmount: number;
+  totalGrnAdjustmentAmount: number;
+  purchaseOrderTotal: number;
+  netPayable: number;
+  total: number;
+  paidAmount: number;
+  isLcAdjusted: boolean;
+  remark: string;
+  createdOn: string;
+  updatedOn: string;
+  createdBy: string;
+  updatedBy: string;
+  checkedBy: string;
+  approvedBy: string;
+  financialYearId: string;
+  // costCenter: CostCenter;
+  store: Store;
+  supplier: Supplier;
+  purchaseInvoiceDetails: PurchaseInvoiceResponseDetail[];
+}
+
+export interface PurchaseInvoiceResponseDetail {
+  id?: string;
+  purchaseInvoiceId?: string;
+  productId: string;
+  measurementUnitName?: string;
+  grnquantity: number;
+  bagWeightDeductionQuantity: number;
+  numberOfBagQuantity: number;
+  netQuantity: number;
+  currencyRate: number;
+  rate: number;
+  rateAfterBagWeightDeduction: number;
+  currencyAmount: number;
+  amount: number;
+  grnno?: string;
+  grndate?: string;
+  vatPercentage?: number;
+  product?: ProductView;
+}

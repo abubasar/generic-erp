@@ -1,0 +1,596 @@
+<div class="container-fluid">
+  <div *ngIf="isViewMode" class="d-flex justify-content-between">
+    <div class="d-flex gap-2 align-items-center">
+      <button mat-icon-button (click)="navigateToList()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h3 class="m-0">
+        Manufacturing Order No: {{ data?.manufacturingOrderNo }}
+      </h3>
+      <mat-chip
+        class="align-middle py-4 px-8"
+        [color]="getManufacturingOrderStatus(data?.status).color"
+        selected
+      >
+        {{
+          getManufacturingOrderStatusName(data?.status)?.replaceAll("_", " ")
+        }}
+      </mat-chip>
+      <button
+        *appHasPermission="[
+          'Permissions.ManufacturingOrders.Material_Issue_Summary_Report'
+        ]"
+        mat-icon-button
+        color="primary"
+        matTooltip="Material Issue Summary PDF"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printManufacturingOrderSummaryPdf(data?.id)"
+      >
+        <mat-icon>picture_as_pdf</mat-icon>
+      </button>
+      <button
+        *appHasPermission="[
+          'Permissions.ManufacturingOrders.Material_Issue_Details_Report'
+        ]"
+        mat-icon-button
+        color="primary"
+        matTooltip="Material Issue Details PDF"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printManufacturingOrderDetailsPdf(data?.id)"
+      >
+        <mat-icon>picture_as_pdf</mat-icon>
+      </button>
+      <button
+        *appHasPermission="['Permissions.ManufacturingOrders.Edit']"
+        [hidden]="
+          data?.status > 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-icon-button
+        color="primary"
+        matTooltip="Edit"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="showEdit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+
+    <div>
+      <button
+        #btnCheck
+        *appHasPermission="['Permissions.ManufacturingOrders.Check']"
+        [hidden]="
+          data?.status != 1 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        type="button"
+        color="accent"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmCheck(data?.id, data?.manufacturingOrderNo)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Check" }}
+        </ng-template>
+      </button>
+
+      <button
+        #btnApprove
+        *appHasPermission="['Permissions.ManufacturingOrders.Approve']"
+        [hidden]="
+          data?.status != 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        color="primary"
+        type="button"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmApprove(data?.id, data?.manufacturingOrderNo)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Approve" }}
+        </ng-template>
+      </button>
+
+      <button
+        *appHasPermission="['Permissions.ManufacturingOrders.Unpost']"
+        [hidden]="
+          data?.status >= 4 ||
+          data?.status == 1 ||
+          data?.status === 'undefined' ||
+          data?.financialYearId != currentFinancialYearId
+        "
+        type="button"
+        mat-mini-fab
+        color="warn"
+        matTooltip="Undo"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmUnpost(data?.id, data?.manufacturingOrderNo, data?.status)"
+      >
+        <ng-container *ngIf="isLoading; else undo">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+        </ng-container>
+        <ng-template #undo>
+          <mat-icon>undo</mat-icon>
+        </ng-template>
+      </button>
+    </div>
+  </div>
+
+  <mat-stepper
+    class="mat-stepper-card"
+    (selectionChange)="handleStepChange($event)"
+    [disableRipple]="true"
+    [linear]="true"
+    #stepper
+  >
+    <mat-step [stepControl]="manufacturingOrderForm">
+      <form autocomplete="off" [formGroup]="manufacturingOrderForm">
+        <ng-template matStepLabel>Manufacturing Order Form</ng-template>
+        <div>
+          <div class="row row-cols-3 gx-5">
+            <!-- rawMaterialStoreId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Raw Material Store</mat-label>
+                <mat-select formControlName="rawMaterialStoreId" autoFocus>
+                  <mat-option [value]="null">-- None --</mat-option>
+                  <mat-option
+                    *ngFor="let d of rawMaterialStores"
+                    [value]="d.id"
+                  >
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Raw Material Store is required</mat-error>
+              </mat-form-field>
+            </div>
+            <!-- bomNo -->
+            <div class="col d-flex">
+              <mat-form-field class="full-width">
+                <mat-label>BOM No.</mat-label>
+                <input matInput name="bomNo" formControlName="bomNo" readonly />
+              </mat-form-field>
+              <button
+                [hidden]="this.data?.id"
+                type="button"
+                mat-icon-button
+                color="primary"
+                (click)="openBOMDialog()"
+              >
+                <mat-icon>help</mat-icon>
+              </button>
+            </div>
+
+            <!-- scheduledDate -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Scheduled Date</mat-label>
+                <input
+                  #input1
+                  matInput
+                  name="scheduledDate"
+                  [matDatepicker]="picker1"
+                  [min]="applyMinMax ? financialYearStartDate : null"
+                  [max]="applyMinMax ? financialYearEndDate : null"
+                  formControlName="scheduledDate"
+                  (focus)="picker1.open()"
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker1"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker1
+                  (closed)="input1.blur()"
+                ></mat-datepicker>
+                <mat-error
+                  *ngIf="
+                    manufacturingOrderForm
+                      .get('scheduledDate')
+                      .hasError('required')
+                  "
+                >
+                  Scheduled Date is required
+                </mat-error>
+                <mat-error
+                  *ngIf="
+                    manufacturingOrderForm
+                      .get('scheduledDate')
+                      .hasError('inFinancialYear')
+                  "
+                >
+                  Please choose a date within the financial year period:
+                  {{ financialYearStartDate | date : "mediumDate" }} -
+                  {{ financialYearEndDate | date : "mediumDate" }}.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- formulationNo -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Formulation No</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Formulation No."
+                  formControlName="formulationNo"
+                  readonly
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- finishedProduct -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Finished Product</mat-label>
+                <mat-select
+                  formControlName="finishedProductId"
+                  autoFocus
+                  disabled
+                >
+                  <mat-option [value]="null">-- None --</mat-option>
+                  <mat-option *ngFor="let d of finishedProducts" [value]="d.id">
+                    {{ d.name }}
+                    &nbsp;{{
+                      businessType === "1" ? "(" + d?.packSize?.name + ")" : ""
+                    }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Finished Product is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- productionQuantity -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Production Quantity</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="productionQuantity"
+                  placeholder="Enter Production Quantity"
+                  formControlName="productionQuantity"
+                  (change)="onControlChange($event)"
+                  (input)="onControlChange($event)"
+                  (click)="$event.target.select()"
+                  [readonly]="isBomItemLoading"
+                />
+                <mat-error>Production Quantity is required </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Remark -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Remark</mat-label>
+                <textarea
+                  rows="1"
+                  matInput
+                  formControlName="remark"
+                  placeholder="Leave a message..."
+                ></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+
+        <!-- Details -->
+        <ng-container formArrayName="manufacturingOrderDetails">
+          <h3 class="subheading-2">Items Detail</h3>
+          <mat-divider></mat-divider>
+          <!-- <mat-spinner *ngIf="isBomItemLoading" [style.margin]="'auto'"></mat-spinner> -->
+          <div
+            class="view-loader"
+            *ngIf="isBomItemLoading"
+            style="position: fixed"
+            fxLayout="column"
+            fxLayoutAlign="center center"
+          >
+            <div class="spinner">
+              <div class="double-bounce1 mat-bg-accent"></div>
+              <div class="double-bounce2 mat-bg-primary"></div>
+            </div>
+          </div>
+          <ng-container
+            *ngFor="let p of manufacturingOrderDetails.controls; let i = index"
+            [formGroupName]="i"
+          >
+            <div class="row">
+              <div class="col-3">
+                <!-- Product Autocomplete -->
+                <mat-form-field class="full-width">
+                  <mat-label>Item Name</mat-label>
+                  <input
+                    type="text"
+                    placeholder="Search Item"
+                    aria-label="Filter Item"
+                    matInput
+                    name="rawMaterialId"
+                    formControlName="rawMaterialId"
+                    readonly
+                    [matAutocomplete]="product"
+                    (input)="handleProductSearch($event, i)"
+                  />
+                  <mat-autocomplete
+                    autoActiveFirstOption
+                    #product="matAutocomplete"
+                    (optionSelected)="handleProductSelection($event, i)"
+                    [displayWith]="getRawMaterialProductName.bind(this)"
+                  >
+                    <mat-option
+                      *ngFor="let product of rawMaterials"
+                      [value]="product.id"
+                    >
+                      {{ product.name }}
+                    </mat-option>
+                  </mat-autocomplete>
+                </mat-form-field>
+              </div>
+              <!-- MeasurementUnit -->
+              <div class="col-2">
+                <mat-form-field class="full-width">
+                  <mat-label>Unit</mat-label>
+                  <input
+                    matInput
+                    name="measurementUnitName"
+                    formControlName="measurementUnitName"
+                    readonly
+                  />
+                </mat-form-field>
+              </div>
+              <!-- stockQuantity -->
+              <div class="col-2">
+                <mat-form-field class="full-width">
+                  <mat-label>Current Stock</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    name="stockQuantity"
+                    formControlName="stockQuantity"
+                    placeholder="0.00"
+                    readonly
+                  />
+                  <mat-hint
+                    style="color: red"
+                    *ngIf="
+                      p.hasError('field1Zero') &&
+                      manufacturingOrderForm.get('productionQuantity').value > 0
+                    "
+                    >Stock can not be 0 !!
+                  </mat-hint>
+                </mat-form-field>
+              </div>
+              <!-- percentage -->
+              <div class="col-2">
+                <mat-form-field class="full-width">
+                  <mat-label>Percentage (%)</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    name="percentage"
+                    formControlName="percentage"
+                    min="0"
+                    placeholder="0.00"
+                    (change)="onControlChange($event, i)"
+                    (input)="onControlChange($event, i)"
+                    readonly
+                  />
+                </mat-form-field>
+              </div>
+              <!-- quantity -->
+              <div class="col-2">
+                <mat-form-field class="full-width">
+                  <mat-label>Used Quantity</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    name="quantity"
+                    formControlName="quantity"
+                    min="0"
+                    placeholder="Enter Quantity"
+                    (change)="onControlChange($event, i)"
+                    (input)="onControlChange($event, i)"
+                    (click)="$event.target.select()"
+                    readonly
+                  />
+                  <mat-error> Quantity is required </mat-error>
+                  <mat-hint
+                    style="color: red"
+                    *ngIf="p.hasError('fieldsNotGreater')"
+                    >Stock Limit Exceeded !!</mat-hint
+                  >
+                </mat-form-field>
+              </div>
+            </div>
+          </ng-container>
+        </ng-container>
+
+        <!-- Bottom Section -->
+        <div class="d-flex justify-content-end">
+          <!-- Calculation Container -->
+          <div>
+            <!-- totalRmused -->
+            <div class="label-data justify-content-between">
+              <span>Total RM Used</span>
+              <span>
+                {{
+                  manufacturingOrderForm?.get("totalRmused")?.value
+                    | currency : "BDT" : "" : "1.2-2"
+                }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3" align="center">
+          <button
+            class="me-2"
+            type="button"
+            *ngIf="!isViewMode && this.manufacturingOrderForm.get('id')?.value"
+            mat-raised-button
+            (click)="backToView()"
+            [disabled]="this.manufacturingOrderForm.invalid"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            color="accent"
+            mat-raised-button
+            matStepperNext
+            class="mr-1"
+            [disabled]="this.manufacturingOrderForm.invalid"
+          >
+            Continue
+          </button>
+        </div>
+      </form>
+    </mat-step>
+    <!-- Step Review and Submit -->
+    <mat-step [editable]="false">
+      <form
+        (ngSubmit)="onSubmit()"
+        autocomplete="off"
+        [formGroup]="manufacturingOrderForm"
+      >
+        <ng-template matStepLabel
+          >Review and Create Manufacturing Order</ng-template
+        >
+        <div *ngIf="isPassingDataToNextStep">
+          <div class="row row-cols-3 gx-5">
+            <!-- bomNo -->
+            <div class="col label-data">
+              <span>BOM No</span>
+              <span>
+                {{ manufacturingOrderForm?.get("bomNo")?.value }}
+              </span>
+            </div>
+            <!-- scheduledDate -->
+            <div class="col label-data">
+              <span>Scheduled Date</span>
+              <span>
+                {{
+                  dateFormatService.getDateFormat(
+                    manufacturingOrderForm.get("scheduledDate").value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- formulationNo -->
+            <div class="col label-data">
+              <span>Formulation No</span>
+              <span>
+                {{ manufacturingOrderForm?.get("formulationNo")?.value }}
+              </span>
+            </div>
+            <!-- finishedProduct -->
+            <div class="col label-data">
+              <span>Finished Product</span>
+              <span>
+                {{
+                  getFinishedProductName(
+                    manufacturingOrderForm?.get("finishedProductId")?.value
+                  )
+                }}
+              </span>
+            </div>
+            <!-- productionQuantity -->
+            <div class="col label-data">
+              <span>Production Quantity</span>
+              <span>
+                {{ manufacturingOrderForm?.get("productionQuantity")?.value }}
+              </span>
+            </div>
+            <!-- rawMaterialStoreId -->
+            <div class="col label-data">
+              <span>Raw Material Store</span>
+              <span>
+                {{
+                  getStoreName(
+                    manufacturingOrderForm?.get("rawMaterialStoreId")?.value
+                  )
+                }}
+              </span>
+            </div>
+            <!-- Remark -->
+            <div class="col label-data">
+              <span>Remark</span>
+              <span>
+                {{ manufacturingOrderForm?.get("remark")?.value }}
+              </span>
+            </div>
+          </div>
+          <!-- Start of Form Array -->
+          <div>
+            <ng-container>
+              <app-manufacturing-order-detail
+                [data]="manufacturingOrderDetailsData"
+              ></app-manufacturing-order-detail>
+            </ng-container>
+          </div>
+        </div>
+        <div class="calculation-align-right">
+          <!-- totalRmused -->
+          <div class="label-data justify-content-between">
+            <span>Total RM Used</span>
+            <span>
+              {{
+                manufacturingOrderForm?.get("totalRmused")?.value
+                  | currency : "BDT" : "" : "1.2-2"
+              }}
+            </span>
+          </div>
+        </div>
+        <!-- Action Button -->
+        <div class="p-3" *ngIf="!isViewMode" align="center">
+          <button
+            class="me-2"
+            mat-raised-button
+            matStepperPrevious
+            (click)="isLoading = false"
+            type="button"
+          >
+            Back
+          </button>
+          <button
+            mat-raised-button
+            color="accent"
+            type="submit"
+            [disabled]="this.manufacturingOrderForm.invalid || isLoading"
+          >
+            <ng-container *ngIf="isLoading; else saveText">
+              <mat-icon>
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              {{ "Processing..." }}
+            </ng-container>
+            <ng-template #saveText>
+              {{ "Save" }}
+            </ng-template>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</div>

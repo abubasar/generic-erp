@@ -1,0 +1,423 @@
+<div class="container-fluid">
+  <div class="d-flex justify-content-between">
+    <h3 mat-dialog-title>Select Manufacturing Order</h3>
+    <div>
+      <button mat-dialog-close mat-icon-button color="warn" type="button">
+        <mat-icon> closeIcon</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="d-flex justify-content-between">
+  <!-- Continue Button -->
+  <div class="col-3">
+    <button
+      mat-raised-button
+      color="primary"
+      matBadgeColor="accent"
+      [mat-dialog-close]="selectedManufacturingOrder"
+      [disabled]="selectedManufacturingOrder == null"
+    >
+      Continue
+    </button>
+  </div>
+  <div class="col-9">
+    <form autocomplete="off" [formGroup]="searchForm" (ngSubmit)="onSearch()">
+      <div class="row row-cols-5 gx-2">
+        <div class="col">
+          <!-- finishedProductId -->
+          <mat-form-field class="full-width">
+            <mat-label>Select Finished Product</mat-label>
+            <input
+              placeholder="Search Finished Product"
+              aria-label="Filter Finished Product"
+              type="text"
+              matInput
+              name="finishedProductId"
+              formControlName="finishedProductId"
+              [matAutocomplete]="autoFinishedProductId"
+              (input)="handleFinishedGoodsSearch()"
+            />
+            <div matSuffix>
+              <button
+                (click)="clearInput($event, 'finishedProductId')"
+                *ngIf="
+                  searchForm?.get('finishedProductId')?.value !== null &&
+                  searchForm?.get('finishedProductId')?.value !== ''
+                "
+                aria-label="Clear"
+                mat-icon-button
+                type="button"
+              >
+                <mat-icon>clear</mat-icon>
+              </button>
+            </div>
+            <mat-autocomplete
+              #autoFinishedProductId="matAutocomplete"
+              [displayWith]="getFinishedGoodsName.bind(this)"
+              (optionSelected)="
+                onSelectedFinishedProductId($event.option.value)
+              "
+            >
+              <mat-option
+                *ngFor="let d of filterFinishedProducts"
+                matTooltip="{{ d.finishedProduct.name }}"
+                [value]="d.finishedProductId"
+              >
+                {{ d?.finishedProduct?.name }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <!-- bomNo -->
+          <mat-form-field class="full-width">
+            <mat-label>Bill of Material No.</mat-label>
+            <input
+              type="text"
+              placeholder="Search BOM No"
+              aria-label="Filter BOM No"
+              matInput
+              name="bomNo"
+              formControlName="bomNo"
+              [matAutocomplete]="autoBillOfMaterialNo"
+              (input)="handleBillOfMaterialNoSearch()"
+            />
+            <div matSuffix>
+              <button
+                (click)="clearInput($event, 'bomNo')"
+                *ngIf="
+                  searchForm?.get('bomNo')?.value !== null &&
+                  searchForm?.get('bomNo')?.value !== ''
+                "
+                aria-label="Clear"
+                mat-icon-button
+                type="button"
+              >
+                <mat-icon>clear</mat-icon>
+              </button>
+            </div>
+            <mat-autocomplete
+              autoActiveFirstOption
+              #autoBillOfMaterialNo="matAutocomplete"
+              (optionSelected)="onSelectedBillOfMaterialNo($event.option.value)"
+            >
+              <mat-option
+                *ngFor="let d of filterBomsNoAndFormulationsNo"
+                [value]="d.bomNo"
+              >
+                {{ d.bomNo }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <!-- formulationNo -->
+          <mat-form-field class="full-width">
+            <mat-label>Formulation No.</mat-label>
+            <input
+              type="text"
+              placeholder="Search Formulation No"
+              aria-label="Filter Formulation No"
+              matInput
+              name="formulationNo"
+              formControlName="formulationNo"
+              [matAutocomplete]="autoFormulationNo"
+              (input)="handleFormulationNoSearch()"
+            />
+            <div matSuffix>
+              <button
+                (click)="clearInput($event, 'formulationNo')"
+                *ngIf="
+                  searchForm?.get('formulationNo')?.value !== null &&
+                  searchForm?.get('formulationNo')?.value !== ''
+                "
+                aria-label="Clear"
+                mat-icon-button
+                type="button"
+              >
+                <mat-icon>clear</mat-icon>
+              </button>
+            </div>
+            <mat-autocomplete
+              autoActiveFirstOption
+              #autoFormulationNo="matAutocomplete"
+              (optionSelected)="onSelectedFormulationNo($event.option.value)"
+            >
+              <mat-option
+                *ngFor="let d of filterBomsNoAndFormulationsNo"
+                [value]="d.formulationNo"
+              >
+                {{ d.formulationNo }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <!-- manufacturingOrderNo -->
+          <mat-form-field class="full-width">
+            <mat-label>Manufacturing Order No.</mat-label>
+            <input
+              type="text"
+              placeholder="Search Manufacturing Order No"
+              aria-label="Filter Manufacturing Order No"
+              matInput
+              name="manufacturingOrderNo"
+              formControlName="manufacturingOrderNo"
+              [matAutocomplete]="autoManufacturingOrderNo"
+              (input)="handleManufacturingOrderNoSearch()"
+            />
+            <div matSuffix>
+              <button
+                (click)="clearInput($event, 'manufacturingOrderNo')"
+                *ngIf="
+                  searchForm?.get('manufacturingOrderNo')?.value !== null &&
+                  searchForm?.get('manufacturingOrderNo')?.value !== ''
+                "
+                aria-label="Clear"
+                mat-icon-button
+                type="button"
+              >
+                <mat-icon>clear</mat-icon>
+              </button>
+            </div>
+            <mat-autocomplete
+              autoActiveFirstOption
+              #autoManufacturingOrderNo="matAutocomplete"
+            >
+              <mat-option
+                *ngFor="let d of filterManufacturingOrders"
+                [value]="d.manufacturingOrderNo"
+              >
+                {{ d.manufacturingOrderNo }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <button mat-raised-button color="primary" type="submit">
+            <mat-icon>search_icon</mat-icon>Search
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<div
+  class="table-responsive table-container"
+  *ngIf="!loading; else loadingSkeleton"
+>
+  <table
+    class="border border-1"
+    mat-table
+    multiTemplateDataRows
+    [dataSource]="dataSource"
+    [trackBy]="trackBy"
+  >
+    <!-- Select Column -->
+    <ng-container matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef>Select</th>
+      <td mat-cell *matCellDef="let manufacturingOrder">
+        <mat-radio-button
+          (click)="$event.stopPropagation()"
+          (change)="handleRadioChange($event)"
+          [value]="manufacturingOrder"
+        >
+        </mat-radio-button>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="expand">
+      <th
+        mat-header-cell
+        class="header"
+        *matHeaderCellDef
+        aria-label="row actions"
+      >
+        &nbsp;
+      </th>
+      <td mat-cell *matCellDef="let element">
+        <button
+          mat-icon-button
+          aria-label="expand row"
+          (click)="
+            expandedElement = expandedElement === element ? null : element;
+            $event.stopPropagation()
+          "
+        >
+          <mat-icon *ngIf="expandedElement !== element"
+            >keyboard_arrow_down</mat-icon
+          >
+          <mat-icon *ngIf="expandedElement === element"
+            >keyboard_arrow_up</mat-icon
+          >
+        </button>
+      </td>
+    </ng-container>
+
+    <!-- bomNo Column -->
+    <ng-container matColumnDef="bomNo">
+      <th mat-header-cell *matHeaderCellDef>BOM No</th>
+      <td mat-cell *matCellDef="let manufacturingOrder">
+        {{ manufacturingOrder.bomNo }}
+      </td>
+    </ng-container>
+
+    <!-- manufacturingOrderNo Column -->
+    <ng-container matColumnDef="manufacturingOrderNo">
+      <th mat-header-cell *matHeaderCellDef>Manufacturing Order No</th>
+      <td mat-cell *matCellDef="let manufacturingOrder">
+        {{ manufacturingOrder.manufacturingOrderNo }}
+      </td>
+    </ng-container>
+
+    <!-- scheduledDate Column -->
+    <ng-container matColumnDef="scheduledDate">
+      <th mat-header-cell *matHeaderCellDef>Scheduled Date</th>
+      <td mat-cell *matCellDef="let manufacturingOrder">
+        {{ dateFormatService.getDateFormat(manufacturingOrder?.scheduledDate) }}
+      </td>
+    </ng-container>
+
+    <!-- costCenter Column -->
+    <ng-container matColumnDef="costCenterId">
+      <th mat-header-cell *matHeaderCellDef>Cost Center</th>
+      <td mat-cell *matCellDef="let manufacturingOrder">
+        {{ manufacturingOrder?.costCenter?.name }}
+      </td>
+    </ng-container>
+
+    <!-- formulationNo Column -->
+    <ng-container matColumnDef="formulationNo">
+      <th mat-header-cell *matHeaderCellDef>Formulation No</th>
+      <td mat-cell *matCellDef="let manufacturingOrder">
+        {{ manufacturingOrder?.formulationNo }}
+      </td>
+    </ng-container>
+
+    <!-- finishedProductId Column -->
+    <ng-container matColumnDef="finishedProductId">
+      <th mat-header-cell *matHeaderCellDef>Finished Product</th>
+      <td mat-cell *matCellDef="let manufacturingOrder">
+        {{ manufacturingOrder?.finishedProduct?.name }}
+      </td>
+    </ng-container>
+
+    <!-- productionQuantity Column -->
+    <ng-container matColumnDef="productionQuantity">
+      <th mat-header-cell *matHeaderCellDef>Production Quantity</th>
+      <td mat-cell *matCellDef="let manufacturingOrder">
+        {{ manufacturingOrder.productionQuantity }}
+      </td>
+    </ng-container>
+
+    <!-- rawMaterialStoreId Column -->
+    <ng-container matColumnDef="rawMaterialStoreId">
+      <th mat-header-cell *matHeaderCellDef>Raw Material Store</th>
+      <td mat-cell *matCellDef="let manufacturingOrder">
+        {{ manufacturingOrder?.rawMaterialStore?.name }}
+      </td>
+    </ng-container>
+
+    <!-- totalRmused Column -->
+    <ng-container matColumnDef="totalRmused">
+      <th mat-header-cell *matHeaderCellDef>Total RM Used</th>
+      <td mat-cell *matCellDef="let manufacturingOrder">
+        {{ manufacturingOrder.totalRmused }}
+      </td>
+    </ng-container>
+
+    <!-- status Column -->
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let manufacturingOrder">
+        <mat-chip
+          class="align-middle py-4 px-8"
+          [color]="getManufacturingOrderStatus(manufacturingOrder.status).color"
+          selected
+          >{{
+            getManufacturingOrderStatusName(
+              manufacturingOrder.status
+            )?.replaceAll("_", " ")
+          }}</mat-chip
+        >
+      </td>
+    </ng-container>
+
+    <!-- remark Column -->
+    <ng-container matColumnDef="remark">
+      <th mat-header-cell *matHeaderCellDef>Remark</th>
+      <td mat-cell *matCellDef="let manufacturingOrder">
+        {{ manufacturingOrder.remark }}
+      </td>
+    </ng-container>
+
+    <!-- Actions Column -->
+    <!-- <ng-container matColumnDef="actions">
+      <th style="text-align: center" mat-header-cell *matHeaderCellDef>
+        Actions
+      </th>
+      <td align="center" mat-cell *matCellDef="let manufacturingOrder">
+        <button
+          mat-icon-button
+          color="primary"
+          matTooltip="Attach"
+          matTooltipShowDelay="300"
+          matTooltipPosition="above"
+          [mat-dialog-close]="manufacturingOrder"
+        >
+          <mat-icon>note_add</mat-icon>
+        </button>
+      </td>
+    </ng-container> -->
+
+    <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+    <ng-container matColumnDef="expandedDetail">
+      <td
+        mat-cell
+        *matCellDef="let element"
+        [attr.colspan]="displayedColumns.length"
+      >
+        <div
+          class="example-element-detail"
+          [@detailExpand]="
+            element == expandedElement ? 'expanded' : 'collapsed'
+          "
+        >
+          <app-manufacturing-order-detail
+            [data]="element.manufacturingOrderDetails"
+          ></app-manufacturing-order-detail>
+        </div>
+      </td>
+    </ng-container>
+    <!-- -------------- Expanded Content End----------------- -->
+
+    <!--  -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr
+      mat-row
+      *matRowDef="let element; columns: displayedColumns"
+      class="example-element-row"
+      [class.example-expanded-row]="expandedElement === element"
+      [class.selected-row-color]="element === selectedManufacturingOrder"
+    ></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: ['expandedDetail']"
+      class="example-detail-row"
+    ></tr>
+  </table>
+</div>
+<!-- loader start -->
+<ng-template #loadingSkeleton>
+  <app-loading-skeleton skeletonRowsCount="5"></app-loading-skeleton>
+</ng-template>
+<!-- loader end -->
+<mat-paginator
+  *ngIf="totalCount > 0"
+  [length]="totalCount"
+  [pageSizeOptions]="[15, 20, 50, 100]"
+  (page)="onPageChange($event)"
+  showFirstLastButtons
+  aria-label="Select page of Manufacturing Order list"
+>
+</mat-paginator>

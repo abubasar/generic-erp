@@ -1,0 +1,502 @@
+<div class="container-fluid">
+  <div *ngIf="isViewMode" class="d-flex justify-content-between">
+    <div class="d-flex gap-2 align-items-center">
+      <button mat-icon-button (click)="navigateToList()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <!-- <h3 class="m-0">Sale Quotation No: {{ data?.quotationNo }}</h3> -->
+      <mat-chip
+        class="align-middle py-4 px-8"
+        [color]="getCustomerWiseProductDiscountStatus(data?.status).color"
+        selected
+      >
+        {{
+          getCustomerWiseProductDiscountStatusName(data?.status)?.replaceAll(
+            "_",
+            " "
+          )
+        }}
+      </mat-chip>
+      <button
+        mat-icon-button
+        color="primary"
+        matTooltip="print pdf"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printPdf(data?.id)"
+      >
+        <mat-icon>print</mat-icon>
+      </button>
+      <button
+        *appHasPermission="['Permissions.CustomerWiseProductDiscounts.Edit']"
+        [hidden]="data?.status > 2"
+        mat-icon-button
+        color="primary"
+        matTooltip="Edit"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="showEdit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+
+    <div>
+      <button
+        #btnCheck
+        *appHasPermission="['Permissions.CustomerWiseProductDiscounts.Check']"
+        [hidden]="data?.status != 1"
+        mat-raised-button
+        type="button"
+        color="accent"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmCheck(data?.id, data?.customer?.name)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Check" }}
+        </ng-template>
+      </button>
+
+      <button
+        #btnApprove
+        *appHasPermission="['Permissions.CustomerWiseProductDiscounts.Approve']"
+        [hidden]="data?.status != 2"
+        mat-raised-button
+        color="primary"
+        type="button"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmApprove(data?.id, data?.customer?.name)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Approve" }}
+        </ng-template>
+      </button>
+
+      <button
+        *appHasPermission="['Permissions.CustomerWiseProductDiscounts.Unpost']"
+        [hidden]="
+          data?.status >= 4 || data?.status == 1 || data?.status === 'undefined'
+        "
+        type="button"
+        mat-mini-fab
+        color="warn"
+        matTooltip="Undo"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmUnpost(data?.id, data?.customer?.name, data?.status)"
+      >
+        <ng-container *ngIf="isLoading; else undo">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+        </ng-container>
+        <ng-template #undo>
+          <mat-icon>undo</mat-icon>
+        </ng-template>
+      </button>
+    </div>
+  </div>
+
+  <mat-stepper
+    class="mat-stepper-card"
+    (selectionChange)="handleStepChange($event)"
+    [disableRipple]="true"
+    [linear]="true"
+    #stepper
+  >
+    <mat-step [stepControl]="customerWiseProductDiscountForm">
+      <form autocomplete="off" [formGroup]="customerWiseProductDiscountForm">
+        <ng-template matStepLabel>
+          Customer Wise Product Discount Form
+        </ng-template>
+        <div>
+          <input mat type="hidden" formControlName="id" />
+          <div class="row row-cols-1 row-cols-md-3 gx-3">
+            <!-- customerId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Customer</mat-label>
+                <mat-select formControlName="customerId" [disabled]="true">
+                  <mat-option>-- None --</mat-option>
+                  <mat-option *ngFor="let d of customers" [value]="d.id">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Customer is required </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- applicableDate -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Choose Applicable Date</mat-label>
+                <input
+                  #input1
+                  matInput
+                  name="applicableDate"
+                  [matDatepicker]="picker1"
+                  formControlName="applicableDate"
+                  (focus)="picker1.open()"
+                  disabled
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker1"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker1
+                  (closed)="input1.blur()"
+                ></mat-datepicker>
+                <mat-error>Applicable Date is required</mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col">
+              <mat-checkbox
+                class="checkbox-margin"
+                formControlName="isActive"
+                (click)="handleActiveCustomer($event)"
+              >
+                Is Active
+              </mat-checkbox>
+            </div>
+          </div>
+
+          <!-- Customer Wise Product Discount Details -->
+          <ng-container formArrayName="customerWiseProductDiscountDetails">
+            <h3 class="subheading-2">Customer Wise Product Discount Details</h3>
+            <mat-divider></mat-divider>
+            <ng-container
+              *ngFor="
+                let p of customerWiseProductDiscountDetails.controls;
+                let lastIndex = last;
+                let i = index
+              "
+              [formGroupName]="i"
+            >
+              <!-- <div class="row row-cols-2 row-cols-md-2 row-cols-lg-3 row-cols-xl-6"> -->
+              <div class="row">
+                <!-- productId -->
+                <div class="col-3">
+                  <!-- Product Autocomplete -->
+                  <mat-form-field class="full-width">
+                    <mat-label>Product</mat-label>
+                    <input
+                      type="text"
+                      placeholder="Search Product"
+                      aria-label="Filter Product"
+                      matInput
+                      name="productId"
+                      formControlName="productId"
+                      [matAutocomplete]="product"
+                      (input)="onProductChange($event, i)"
+                    />
+                    <div matSuffix>
+                      <button
+                        (click)="clearInputFromDetails($event, i)"
+                        *ngIf="
+                          customerWiseProductDiscountDetails
+                            ?.at(i)
+                            .get('productId')?.value
+                        "
+                        aria-label="Clear"
+                        mat-icon-button
+                        type="button"
+                      >
+                        <mat-icon>clear</mat-icon>
+                      </button>
+                      <mat-icon>keyboard_arrow_down</mat-icon>
+                    </div>
+                    <mat-autocomplete
+                      autoActiveFirstOption
+                      #product="matAutocomplete"
+                      (optionSelected)="handleProductSelection($event, i)"
+                      [displayWith]="getProductName.bind(this)"
+                    >
+                      <mat-option
+                        *ngFor="let product of productSearchResult"
+                        [value]="product.id"
+                      >
+                        {{ product.name }}
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error>Product is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- salePrice -->
+                <div class="col-2">
+                  <mat-form-field class="full-width">
+                    <mat-label>TP</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      name="salePrice"
+                      formControlName="salePrice"
+                      readonly
+                    />
+                    <mat-error>Sale Price No is required </mat-error>
+                  </mat-form-field>
+                </div>
+                <!-- invoiceDiscount -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Invoice Discount"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Invoice Discount</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      name="invoiceDiscount"
+                      formControlName="invoiceDiscount"
+                    />
+                    <mat-error>Invoice Discount is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <!-- cashDiscount -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Cash Discount"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Cash Discount</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      name="cashDiscount"
+                      formControlName="cashDiscount"
+                    />
+                    <mat-error>Cash Discount is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <!-- SpecialDiscount -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Special Discount"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Special Discount</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      name="specialDiscount"
+                      formControlName="specialDiscount"
+                    />
+                    <mat-error>Special Discount is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <!-- monthlyDiscount -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Monthly Discount"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Monthly Discount</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      name="monthlyDiscount"
+                      formControlName="monthlyDiscount"
+                    />
+                    <mat-error>Monthly Discount is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- yearlyDiscount -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Yearly Discount"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Yearly Discount</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      name="yearlyDiscount"
+                      formControlName="yearlyDiscount"
+                    />
+                    <mat-error>Yearly Discount is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- targetDiscount -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Target Discount"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Target Discount</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      name="targetDiscount"
+                      formControlName="targetDiscount"
+                    />
+                    <mat-error>Target Discount is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <!-- Remove Button -->
+                <div *ngIf="!p.get('id').value" class="col-1 mb-3">
+                  <button
+                    mat-mini-fab
+                    type="button"
+                    color="warn"
+                    (click)="onDeleteItem(p?.get('id')?.value, i)"
+                  >
+                    <mat-icon>delete_forever</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </ng-container>
+          </ng-container>
+
+          <!-- Bottom Section -->
+          <div class="d-flex justify-content-end justify-content-md-start">
+            <!-- Button Container -->
+            <div class="button-container">
+              <button
+                mat-mini-fab
+                type="button"
+                color="primary"
+                (click)="addItem()"
+              >
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3" align="center">
+          <button
+            class="me-2"
+            type="button"
+            *ngIf="
+              !isViewMode &&
+              this.customerWiseProductDiscountForm.get('id')?.value
+            "
+            mat-raised-button
+            (click)="backToView()"
+            [disabled]="this.customerWiseProductDiscountForm.invalid"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            color="accent"
+            mat-raised-button
+            matStepperNext
+            class="mr-1"
+            [disabled]="this.customerWiseProductDiscountForm.invalid"
+          >
+            Continue
+          </button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step [editable]="false">
+      <form
+        (ngSubmit)="onSubmit()"
+        autocomplete="off"
+        [formGroup]="customerWiseProductDiscountForm"
+      >
+        <ng-template matStepLabel>
+          Review and Edit Customer Wise Product Discount
+        </ng-template>
+        <div *ngIf="isPassingDataToNextStep">
+          <div class="row row-cols-1 row-cols-md-3 gx-3">
+            <!-- customerId -->
+            <div class="col label-data">
+              <span>Customer</span>
+              <span>
+                {{
+                  getCustomerName(
+                    customerWiseProductDiscountForm?.get("customerId")?.value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- applicableDate -->
+            <div class="col label-data">
+              <span>Applicable Date</span>
+              <span>
+                {{
+                  dateFormatService.getDateFormat(
+                    customerWiseProductDiscountForm.get("applicableDate")?.value
+                  )
+                }}
+              </span>
+            </div>
+            <div class="col label-data">
+              <mat-checkbox
+                class="checkbox-margin"
+                formControlName="isActive"
+                [disabled]="true"
+              >
+                Is Active
+              </mat-checkbox>
+            </div>
+          </div>
+
+          <!-- Customer Wise Product Discount Details -->
+          <!-- Start of Form Array -->
+          <ng-container>
+            <app-customer-wise-product-discount-detail
+              [data]="customerWiseProductDiscountDetailsData"
+            ></app-customer-wise-product-discount-detail>
+          </ng-container>
+        </div>
+
+        <!-- Action Button -->
+        <div class="p-3" *ngIf="!isViewMode" align="center">
+          <button
+            class="me-2"
+            mat-raised-button
+            matStepperPrevious
+            (click)="isLoading = false"
+            type="button"
+          >
+            Back
+          </button>
+          <button
+            mat-raised-button
+            color="accent"
+            type="submit"
+            [disabled]="
+              this.customerWiseProductDiscountForm.invalid || isLoading
+            "
+          >
+            <ng-container *ngIf="isLoading; else saveText">
+              <mat-icon>
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              {{ "Processing..." }}
+            </ng-container>
+            <ng-template #saveText>
+              {{ "Save" }}
+            </ng-template>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</div>

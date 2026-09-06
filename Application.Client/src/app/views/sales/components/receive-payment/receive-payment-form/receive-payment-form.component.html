@@ -1,0 +1,696 @@
+<div class="container-fluid">
+  <div *ngIf="isViewMode" class="d-flex justify-content-between">
+    <div class="d-flex gap-2 align-items-center">
+      <button mat-icon-button (click)="navigateToList()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h3 class="m-0">Money Receipt No: {{ data?.code }}</h3>
+      <mat-chip
+        class="align-middle py-4 px-8"
+        [color]="getReceivePaymentStatus(data?.status).color"
+        selected
+      >
+        {{ getReceivePaymentStatusName(data?.status)?.replaceAll("_", " ") }}
+      </mat-chip>
+      <button
+        mat-icon-button
+        color="primary"
+        matTooltip="print pdf"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printPdf(data?.id)"
+      >
+        <mat-icon>print</mat-icon>
+      </button>
+
+      <!-- Receipt -->
+      <button
+        *appHasPermission="['Permissions.ReceivePayments.SingleFileUpload']"
+        mat-icon-button
+        color="primary"
+        matTooltip="View Details"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="openPopup(data?.id)"
+      >
+        <mat-icon>blur_circular</mat-icon>
+      </button>
+      <button
+        *appHasPermission="['Permissions.ReceivePayments.Edit']"
+        [hidden]="
+          data?.status > 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-icon-button
+        color="primary"
+        matTooltip="Edit"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="showEdit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+
+    <div>
+      <button
+        #btnCheck
+        *appHasPermission="['Permissions.ReceivePayments.Check']"
+        [hidden]="
+          data?.status != 1 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        type="button"
+        color="accent"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmCheck(data?.id, data?.code)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Check" }}
+        </ng-template>
+      </button>
+
+      <button
+        #btnApprove
+        *appHasPermission="['Permissions.ReceivePayments.Approve']"
+        [hidden]="
+          data?.status != 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        color="primary"
+        type="button"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmApprove(data?.id, data?.code)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Approve" }}
+        </ng-template>
+      </button>
+      <button
+        *appHasPermission="['Permissions.ReceivePayments.SendToCustomer']"
+        [hidden]="
+          data?.status != 3 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        color="primary"
+        type="button"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmSendToCustomer(data?.id, data?.code)"
+      >
+        <ng-container *ngIf="isLoading; else sendText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+
+          {{ "Sending to Customer" }}
+        </ng-container>
+        <ng-template #sendText>
+          {{ "Send to Customer" }}
+        </ng-template>
+      </button>
+
+      <button
+        *appHasPermission="['Permissions.ReceivePayments.Unpost']"
+        [hidden]="
+          data?.status == 1 ||
+          data?.status == 4 ||
+          data?.status == 5 ||
+          data?.status === 'undefined' ||
+          data?.financialYearId != currentFinancialYearId
+        "
+        type="button"
+        mat-mini-fab
+        color="warn"
+        matTooltip="Undo"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmUnpost(data?.id, data?.code, data?.status)"
+      >
+        <ng-container *ngIf="isLoading; else undo">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+        </ng-container>
+        <ng-template #undo>
+          <mat-icon>undo</mat-icon>
+        </ng-template>
+      </button>
+    </div>
+  </div>
+
+  <mat-stepper
+    class="mat-stepper-card"
+    (selectionChange)="handleStepChange($event)"
+    [disableRipple]="true"
+    [linear]="true"
+    #stepper
+  >
+    <mat-step [stepControl]="receivePaymentForm">
+      <form autocomplete="off" [formGroup]="receivePaymentForm">
+        <ng-template matStepLabel>Money Receipt Form</ng-template>
+        <div>
+          <div class="row row-cols-2 gx-5">
+            <!-- paymentDate -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Choose Payment Date</mat-label>
+                <input
+                  #input1
+                  matInput
+                  name="paymentDate"
+                  [matDatepicker]="picker1"
+                  [min]="applyMinMax ? financialYearStartDate : null"
+                  [max]="applyMinMax ? financialYearEndDate : null"
+                  formControlName="paymentDate"
+                  type="text"
+                  cdkFocusInitial
+                  (focus)="picker1.open()"
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker1"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker1
+                  (closed)="input1.blur()"
+                ></mat-datepicker>
+                <mat-error
+                  *ngIf="
+                    receivePaymentForm.get('paymentDate').hasError('required')
+                  "
+                  >Payment Date is required</mat-error
+                >
+                <mat-error
+                  *ngIf="
+                    receivePaymentForm
+                      .get('paymentDate')
+                      .hasError('inFinancialYear')
+                  "
+                >
+                  Please choose a date within the financial year period:
+                  {{ financialYearStartDate | date : "mediumDate" }} -
+                  {{ financialYearEndDate | date : "mediumDate" }}.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- customerId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Customer</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  name="customerId"
+                  formControlName="customerId"
+                  [matAutocomplete]="auto"
+                  (input)="handleCustomerSearch($event)"
+                />
+                <div matSuffix>
+                  <button
+                    (click)="clearInput($event, 'customerId')"
+                    *ngIf="receivePaymentForm?.get('customerId')?.value"
+                    aria-label="Clear"
+                    mat-icon-button
+                    type="button"
+                  >
+                    <mat-icon>clear</mat-icon>
+                  </button>
+                  <mat-icon>keyboard_arrow_down</mat-icon>
+                </div>
+                <mat-autocomplete
+                  #auto="matAutocomplete"
+                  (optionSelected)="onSelectedCustomer($event?.option?.value)"
+                  [displayWith]="getCustomerName.bind(this)"
+                  [panelWidth]="'700px'"
+                >
+                  <mat-option
+                    matTooltip="{{ d.address }}"
+                    *ngFor="let d of filterCustomers"
+                    [value]="d.id"
+                  >
+                    ({{ d.code.slice(-4) }}) {{ d.name }} {{ d.address }}
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error>Customer is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- fundTransferTransactionType -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Transaction Type</mat-label>
+                <mat-select
+                  formControlName="fundTransferTransactionTypeId"
+                  autoFocus
+                >
+                  <mat-option>-- None --</mat-option>
+                  <mat-option
+                    *ngFor="let d of fundTransferTransactionTypes"
+                    [value]="d.id"
+                  >
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <!-- transactionNumber -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Transaction No</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Enter Transaction No."
+                  formControlName="transactionNumber"
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- costCenterId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Cost Center</mat-label>
+                <mat-select formControlName="costCenterId" autoFocus>
+                  <mat-option>-- None --</mat-option>
+                  <mat-option *ngFor="let d of costCenters" [value]="d.id">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Cost Center is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- paymentModeId -->
+            <!-- <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Payment Mode</mat-label>
+                <mat-select formControlName="paymentModeId" autoFocus>
+                  <mat-option *ngFor="let d of paymentModes" [value]="d.id">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Payment Mode is required</mat-error>
+              </mat-form-field>
+            </div> -->
+
+            <!-- paymentModeId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Payment Mode</mat-label>
+                <mat-select
+                  formControlName="paymentModeId"
+                  (selectionChange)="onSelectedPaymentMode($event.value)"
+                >
+                  <mat-option>-- None --</mat-option>
+                  <mat-option *ngFor="let d of paymentModes" [value]="d.id">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Payment Mode is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Remark -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Remark</mat-label>
+                <textarea
+                  rows="1"
+                  matInput
+                  formControlName="remark"
+                  placeholder="Leave a message..."
+                ></textarea>
+              </mat-form-field>
+            </div>
+            <!-- totalAmount -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Total Amount</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="totalAmount"
+                  placeholder="Enter Total Amount"
+                  formControlName="totalAmount"
+                  readonly
+                />
+              </mat-form-field>
+            </div>
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Feed Sales Purpose Amount</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="feedSalesPurpose"
+                  placeholder="Enter Feed Sales Purpose Amount"
+                  formControlName="feedSalesPurpose"
+                  readonly
+                />
+              </mat-form-field>
+            </div>
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Credit Recovery Purpose Amount</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="creditRecoveryPurpose"
+                  placeholder="Enter Credit Recovery Purpose Amount"
+                  formControlName="creditRecoveryPurpose"
+                  (change)="onCreditRecoveryAmountChange($event)"
+                  (input)="onCreditRecoveryAmountChange($event)"
+                />
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Details -->
+          <ng-container formArrayName="receivePaymentDetails">
+            <h3 class="subheading-2">Money Receipt Details</h3>
+            <mat-divider></mat-divider>
+            <ng-container
+              *ngFor="let p of receivePaymentDetails.controls; let i = index"
+              [formGroupName]="i"
+            >
+              <div class="row">
+                <!-- accountId -->
+                <!-- <div class="col-3">
+                  <mat-form-field class="full-width">
+                    <mat-label>Select Account</mat-label>
+                    <input
+                      type="text"
+                      matInput
+                      name="accountId"
+                      formControlName="accountId"
+                      [matAutocomplete]="auto"
+                      (input)="onControlAccountChange($event, i)"
+                    />
+                    <mat-autocomplete
+                      #auto="matAutocomplete"
+                      (optionSelected)="
+                        handleControlAccountSelection($event, i)
+                      "
+                      [displayWith]="getControlAccountName.bind(this)"
+                    >
+                      <mat-option
+                        *ngFor="let d of filterControlAccounts"
+                        [value]="d.id"
+                      >
+                        {{ d.name }}
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error>Account is required</mat-error>
+                  </mat-form-field>
+                </div> -->
+
+                <!-- accountId -->
+                <div class="col">
+                  <mat-form-field class="full-width">
+                    <mat-label>Select Cash Bank Accounts</mat-label>
+                    <input
+                      type="text"
+                      matInput
+                      name="accountId"
+                      formControlName="accountId"
+                      [matAutocomplete]="auto"
+                      (input)="handleCashBankAccountSearch($event, i)"
+                      [readonly]="cashBankLoading"
+                    />
+                    <div matSuffix>
+                      <button
+                        (click)="clearInputFromDetails($event, i)"
+                        *ngIf="
+                          receivePaymentDetails?.at(i).get('accountId')
+                            ?.value !== null &&
+                          receivePaymentDetails?.at(i).get('accountId')
+                            ?.value !== ''
+                        "
+                        aria-label="Clear"
+                        mat-icon-button
+                        type="button"
+                      >
+                        <mat-icon>clear</mat-icon>
+                      </button>
+                      <mat-icon>keyboard_arrow_down</mat-icon>
+                    </div>
+                    <mat-autocomplete
+                      #auto="matAutocomplete"
+                      (optionSelected)="
+                        handleCashBankAccountSelection($event, i)
+                      "
+                      [displayWith]="getCashBankAccountName.bind(this)"
+                      [panelWidth]="'500px'"
+                    >
+                      <mat-option
+                        *ngFor="let d of filteredCashBankAccounts"
+                        [value]="d?.id"
+                      >
+                        {{ d.name }}
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error>This Field is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- accountDescription -->
+                <div class="col-4">
+                  <h6>Account Tree</h6>
+                  <span>{{ p.get("accountDescription")?.value }} </span>
+                </div>
+
+                <!-- Amount -->
+                <div class="col-2">
+                  <mat-form-field class="full-width">
+                    <mat-label>Amount</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="amount"
+                      formControlName="amount"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                    />
+                  </mat-form-field>
+                </div>
+
+                <!-- Remove Button -->
+                <div class="col-2">
+                  <button
+                    mat-mini-fab
+                    type="button"
+                    color="warn"
+                    (click)="onDeleteItem(p?.get('id')?.value, i)"
+                  >
+                    <mat-icon>delete_forever</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </ng-container>
+          </ng-container>
+
+          <!-- Bottom Section -->
+          <div class="d-flex justify-content-between">
+            <!-- Button Container -->
+            <div class="button-container">
+              <button
+                mat-mini-fab
+                type="button"
+                color="primary"
+                (click)="addItem()"
+              >
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3" align="center">
+          <button
+            class="me-2"
+            type="button"
+            *ngIf="!isViewMode && this.receivePaymentForm.get('id')?.value"
+            mat-raised-button
+            (click)="backToView()"
+            [disabled]="this.receivePaymentForm.invalid"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            color="accent"
+            mat-raised-button
+            matStepperNext
+            class="mr-1"
+            [disabled]="this.receivePaymentForm.invalid"
+          >
+            Continue
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step Review and Submit -->
+    <mat-step [editable]="false">
+      <form
+        (ngSubmit)="onSubmit()"
+        autocomplete="off"
+        [formGroup]="receivePaymentForm"
+      >
+        <ng-template matStepLabel>Review and Create Money Receipt</ng-template>
+        <div *ngIf="isPassingDataToNextStep">
+          <div class="row row-cols-2 gx-5">
+            <!-- paymentDate -->
+            <div class="col label-data">
+              <span>Payment Date</span>
+              <span>
+                {{
+                  dateFormatService.getDateFormat(
+                    receivePaymentForm.get("paymentDate").value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- customerId -->
+            <div class="col label-data">
+              <span>Customer</span>
+              <span>
+                {{
+                  getCustomerName(receivePaymentForm?.get("customerId")?.value)
+                }}
+              </span>
+            </div>
+
+            <!-- fundTransferTransactionTypeId -->
+            <div class="col label-data">
+              <span>Transaction Type</span>
+              <span>
+                {{
+                  getFundTransferTransactionTypeName(
+                    receivePaymentForm?.get("fundTransferTransactionTypeId")
+                      ?.value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- transactionNumber -->
+            <div class="col label-data">
+              <span>Transaction No</span>
+              <span>
+                {{ receivePaymentForm.get("transactionNumber")?.value }}
+              </span>
+            </div>
+
+            <!-- costCenterId -->
+            <div class="col label-data">
+              <span>Cost Center</span>
+              <span>
+                {{
+                  getCostCenterName(
+                    receivePaymentForm?.get("costCenterId")?.value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- paymentModeId -->
+            <div class="col label-data">
+              <span>Payment Mode</span>
+              <span>
+                {{
+                  getPaymentModeName(
+                    receivePaymentForm?.get("paymentModeId")?.value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- Remark -->
+            <div class="col label-data">
+              <span>Remark</span>
+              <span>
+                {{ receivePaymentForm?.get("remark")?.value }}
+              </span>
+            </div>
+
+            <!-- totalAmount -->
+            <div class="col label-data">
+              <span>Total Amount</span>
+              <span>
+                {{
+                  receivePaymentForm?.get("totalAmount")?.value
+                    | currency : "BDT" : "" : "1.2-2"
+                }}
+              </span>
+            </div>
+            <div class="col label-data">
+              <span>Total Amount In Words</span>
+              <span>
+                {{
+                  convertAmount(receivePaymentForm?.get("totalAmount")?.value)
+                }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Start of Form Array -->
+          <div>
+            <ng-container>
+              <app-receive-payment-detail
+                [data]="receivePaymentDetailsData"
+              ></app-receive-payment-detail>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="p-3" *ngIf="!isViewMode" align="center">
+          <button
+            class="me-2"
+            mat-raised-button
+            matStepperPrevious
+            (click)="isLoading = false"
+            type="button"
+          >
+            Back
+          </button>
+          <button
+            mat-raised-button
+            color="accent"
+            type="submit"
+            [disabled]="this.receivePaymentForm.invalid || isLoading"
+          >
+            <ng-container *ngIf="isLoading; else saveText">
+              <mat-icon>
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              {{ "Processing..." }}
+            </ng-container>
+            <ng-template #saveText>
+              {{ "Save" }}
+            </ng-template>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</div>

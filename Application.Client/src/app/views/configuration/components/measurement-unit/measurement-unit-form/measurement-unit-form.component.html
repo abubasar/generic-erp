@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>{{ formTitle }}</h2>
+<form [formGroup]="measurementUnitForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="mat-typography">
+    <input mat type="hidden" formControlName="id" />
+    <mat-form-field>
+      <mat-label>Measurement Unit Name</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Enter Measurement Unit name"
+        formControlName="name"
+      />
+      <mat-error
+        *ngIf="
+          measurementUnitForm.controls['name'].hasError('required') &&
+          measurementUnitForm.controls['name'].touched
+        "
+      >
+        Measurement Unit name is required
+      </mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-raised-button mat-dialog-close>Cancel</button>
+    <button
+      mat-raised-button
+      [mat-dialog-close]="true"
+      cdkFocusInitial
+      color="primary"
+      [disabled]="!measurementUnitForm.dirty || !measurementUnitForm.valid"
+      type="submit"
+    >
+      Save
+    </button>
+  </mat-dialog-actions>
+</form>

@@ -1,0 +1,60 @@
+
+<!-- Rm Uplaod -->
+<div>
+  <input type="file" accept=".xls, .xlsx"  (change)="onRMFileChange($event)" />
+  <button [disabled]="loading1" mat-stroked-button color="primary" (click)="onRMFileUpload()">
+    Upload Raw Materials
+  </button>
+  <button style="margin-left: 3px;" [disabled]="loading1" mat-stroked-button color="accent" (click)="download('RawMaterialsOpening')">
+    Download Format
+  </button>
+</div>
+<!-- FG Uplaod -->
+<div>
+  <input type="file" accept=".xls, .xlsx" (change)="onFGFileChange($event)" />
+  <button [disabled]="loading2" mat-stroked-button color="primary" (click)="onFGFileUpload()">
+    Upload Finished Goods
+  </button>
+  <button style="margin-left: 3px;" [disabled]="loading2" mat-stroked-button color="accent" (click)="download('FinishedGoodsOpening')">
+    Download Format
+  </button>
+</div>
+<!-- Bank Balance Uplaod -->
+<div>
+  <input type="file" accept=".xls, .xlsx" (change)="onBankBalanceFileChange($event)" />
+  <button [disabled]="loading3" mat-stroked-button color="primary" (click)="onBankBalanceFileUpload()">
+    Upload Bank Balance
+  </button>
+  <button style="margin-left: 3px;" [disabled]="loading3" mat-stroked-button color="accent" (click)="download('BankBalanceOpening')">
+    Download Format
+  </button>
+</div>
+<!-- Customer Balance Uplaod -->
+<div>
+  <input type="file" accept=".xls, .xlsx" (change)="onCustomerBalanceFileChange($event)" />
+  <button [disabled]="loading4" mat-stroked-button color="primary" (click)="onCustomerBalanceFileUpload()">
+    Upload  Customer Balance
+  </button>
+  <button style="margin-left: 3px;" [disabled]="loading4" mat-stroked-button color="accent" (click)="download('CustomerBalanceOpening')">
+    Download Format
+  </button>
+</div>
+<!-- Supplier Balance Uplaod -->
+<div>
+  <input type="file" accept=".xls, .xlsx" (change)="onSupplierBalanceFileChange($event)" />
+  <button [disabled]="loading5" mat-stroked-button color="primary" (click)="onSupplierBalanceFileUpload()">
+    Upload Supplier Balance
+  </button>
+  <button style="margin-left: 3px;" [disabled]="loading5" mat-stroked-button color="accent" (click)="download('SupplierBalanceOpening')">
+    Download Format
+  </button>
+</div>
+
+
+<div class="caution-message">
+  <mat-icon color="warn">warning</mat-icon>
+  <p>Please don't modify column name and existing data from downloaded excel file and in case of no value,you have to fill up that field by 0</p>
+</div>
+
+
+

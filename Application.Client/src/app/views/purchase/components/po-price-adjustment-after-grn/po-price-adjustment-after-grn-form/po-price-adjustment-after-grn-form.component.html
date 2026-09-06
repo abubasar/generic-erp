@@ -1,0 +1,680 @@
+<div class="container-fluid">
+  <div *ngIf="isViewMode" class="d-flex justify-content-between">
+    <div class="d-flex gap-2 align-items-center">
+      <button mat-icon-button (click)="navigateToList()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h3 class="m-0">Code No: {{ data?.code }}</h3>
+      <mat-chip
+        class="align-middle py-4 px-8"
+        [color]="getPoPriceAdjustmentAfterGrnStatus(data?.status)?.color"
+        selected
+      >
+        {{
+          getPoPriceAdjustmentAfterGrnStatusName(data?.status)?.replaceAll(
+            "_",
+            " "
+          )
+        }}
+      </mat-chip>
+      <button
+        mat-icon-button
+        color="primary"
+        matTooltip="print pdf"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printPdf(data?.id)"
+      >
+        <mat-icon>picture_as_pdf</mat-icon>
+      </button>
+      <button
+        *appHasPermission="['Permissions.PoPriceAdjustmentAfterGrns.Edit']"
+        [hidden]="
+          data?.status > 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-icon-button
+        color="primary"
+        matTooltip="Edit"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="showEdit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+    <div>
+      <button
+        #btnCheck
+        *appHasPermission="['Permissions.PoPriceAdjustmentAfterGrns.Check']"
+        [hidden]="
+          data?.status != 1 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        type="button"
+        color="accent"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmCheck(data?.id, data?.code)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Check" }}
+        </ng-template>
+      </button>
+
+      <button
+        #btnApprove
+        *appHasPermission="['Permissions.PoPriceAdjustmentAfterGrns.Approve']"
+        [hidden]="
+          data?.status != 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        color="primary"
+        type="button"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmApprove(data?.id, data?.code)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Approve" }}
+        </ng-template>
+      </button>
+
+      <button
+        *appHasPermission="['Permissions.PoPriceAdjustmentAfterGrns.Unpost']"
+        [hidden]="
+          data?.status == 1 ||
+          data?.status === 'undefined' ||
+          data?.financialYearId != currentFinancialYearId
+        "
+        type="button"
+        mat-mini-fab
+        color="warn"
+        matTooltip="Undo"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmUnpost(data?.id, data?.code, data?.status)"
+      >
+        <ng-container *ngIf="isLoading; else undo">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+        </ng-container>
+        <ng-template #undo>
+          <mat-icon>undo</mat-icon>
+        </ng-template>
+      </button>
+    </div>
+  </div>
+  <mat-stepper
+    class="mat-stepper-card"
+    (selectionChange)="handleStepChange($event)"
+    [disableRipple]="true"
+    [linear]="true"
+    #stepper
+  >
+    <mat-step [stepControl]="poPriceAdjustmentAfterGrnForm">
+      <form autocomplete="off" [formGroup]="poPriceAdjustmentAfterGrnForm">
+        <ng-template matStepLabel
+          >PO Price Adjustment After GRN Form Form</ng-template
+        >
+        <div>
+          <div class="row row-cols-3 gx-5">
+            <!-- grnno -->
+            <div class="col d-flex">
+              <mat-form-field class="full-width">
+                <mat-label>GRN No.</mat-label>
+                <input matInput name="grnno" formControlName="grnno" />
+                <mat-error>GRN NO is required</mat-error>
+              </mat-form-field>
+              <button
+                [hidden]="this.data?.id"
+                type="button"
+                mat-icon-button
+                color="primary"
+                (click)="openGRNDialog()"
+              >
+                <mat-icon>help</mat-icon>
+              </button>
+            </div>
+
+            <!-- ponumber -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Purchase Order No</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Enter Purchase Order No."
+                  formControlName="ponumber"
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- referenceNo -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Reference No</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Enter Reference No."
+                  formControlName="referenceNo"
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- storeId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Store</mat-label>
+                <mat-select formControlName="storeId">
+                  <mat-option [value]="null">-- None --</mat-option>
+                  <mat-option *ngFor="let d of stores" [value]="d?.id">
+                    {{ d?.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Store is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- supplierId -->
+            <!-- (selectionChange)="onSelectedSupplier($event.value)" -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Supplier</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  name="supplierId"
+                  formControlName="supplierId"
+                  [matAutocomplete]="auto"
+                  (input)="handleSupplierSearch($event)"
+                />
+                <div matSuffix>
+                  <button
+                    (click)="clearInput($event, 'supplierId')"
+                    *ngIf="
+                      poPriceAdjustmentAfterGrnForm?.get('supplierId')?.value
+                    "
+                    aria-label="Clear"
+                    mat-icon-button
+                    type="button"
+                  >
+                    <mat-icon>clear</mat-icon>
+                  </button>
+                  <mat-icon>keyboard_arrow_down</mat-icon>
+                </div>
+                <mat-autocomplete
+                  #auto="matAutocomplete"
+                  [displayWith]="getSupplierName.bind(this)"
+                >
+                  <mat-option
+                    matTooltip="{{ d.address }}"
+                    *ngFor="let d of filterSuppliers"
+                    [value]="d.id"
+                  >
+                    {{ d.name }} ({{ d.code.slice(-4) }}) {{ d.address }}
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error>Supplier is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- adjustmentDate -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Adjustment Date</mat-label>
+                <input
+                  #input2
+                  matInput
+                  name="adjustmentDate"
+                  [matDatepicker]="picker2"
+                  [min]="applyMinMax ? financialYearStartDate : null"
+                  [max]="applyMinMax ? financialYearEndDate : null"
+                  formControlName="adjustmentDate"
+                  (focus)="picker2.open()"
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker2"
+                  (closed)="input2.blur()"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker2
+                  (closed)="input2.blur()"
+                ></mat-datepicker>
+                <mat-error
+                  *ngIf="
+                    poPriceAdjustmentAfterGrnForm
+                      .get('adjustmentDate')
+                      .hasError('required')
+                  "
+                >
+                  Adjustment Date is required
+                </mat-error>
+                <mat-error
+                  *ngIf="
+                    poPriceAdjustmentAfterGrnForm
+                      .get('adjustmentDate')
+                      .hasError('inFinancialYear')
+                  "
+                >
+                  Please choose a date within the financial year period:
+                  {{ financialYearStartDate | date : "mediumDate" }} -
+                  {{ financialYearEndDate | date : "mediumDate" }}.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- remark -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Remark</mat-label>
+                <textarea
+                  rows="1"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Leave a message..."
+                  formControlName="remark"
+                ></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Details Table -->
+          <ng-container formArrayName="poPriceAdjustmentAfterGrnDetails">
+            <h3 class="subheading-2">
+              PO Price Adjustment After GRN Form Details
+            </h3>
+            <mat-divider></mat-divider>
+            <ng-container
+              *ngFor="
+                let p of poPriceAdjustmentAfterGrnDetails?.controls;
+                let i = index
+              "
+              [formGroupName]="i"
+            >
+              <div class="row">
+                <div class="col-3">
+                  <!-- Product Autocomplete -->
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Product"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Product</mat-label>
+                    <input
+                      type="text"
+                      placeholder="Search Product"
+                      aria-label="Filter Product"
+                      matInput
+                      name="productId"
+                      formControlName="productId"
+                      [matAutocomplete]="product"
+                      (input)="handleProductSearch($event, i)"
+                      readonly
+                    />
+                    <mat-autocomplete
+                      autoActiveFirstOption
+                      #product="matAutocomplete"
+                      (optionSelected)="handleProductSelection($event, i)"
+                      [displayWith]="getProductName.bind(this)"
+                    >
+                      <mat-option
+                        *ngFor="let product of searchProducts"
+                        [value]="product?.id"
+                      >
+                        {{ product.name }}
+                        {{
+                          businessType === "2"
+                            ? ""
+                            : "(" + product?.packSize?.name + ")"
+                        }}
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error>Product is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- Measurement Unit -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Unit"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Unit</mat-label>
+                    <input
+                      matInput
+                      name="measurementUnitName"
+                      formControlName="measurementUnitName"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+
+                <!-- grnQuantity -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="GRN Qty"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>GRN Qty</mat-label>
+                    <input
+                      matInput
+                      name="grnQuantity"
+                      formControlName="grnQuantity"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+
+                <!-- grnRate -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="GRN Rate"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>GRN Rate</mat-label>
+                    <input
+                      matInput
+                      name="grnRate"
+                      formControlName="grnRate"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+
+                <!-- adjustmentQuantity -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Adjustment QTY"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Adjustment QTY</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="adjustmentQuantity"
+                      formControlName="adjustmentQuantity"
+                      min="0"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                      (click)="$event.target.select()"
+                    />
+                    <mat-error>Adjustment Quantity is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- adjustmentRate -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Adjustment Rate"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Adjustment Rate</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="adjustmentRate"
+                      formControlName="adjustmentRate"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                      (click)="$event.target.select()"
+                    />
+                    <mat-error>Adjustment Rate per unit is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- amount -->
+                <div class="col-2">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Variance"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Variance</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="amount"
+                      formControlName="amount"
+                      placeholder="0.00"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+
+                <div class="col-1">
+                  <button
+                    mat-mini-fab
+                    type="button"
+                    color="warn"
+                    (click)="onDeleteItem(p?.get('id')?.value, i)"
+                  >
+                    <mat-icon>delete_forever</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </ng-container>
+          </ng-container>
+          <!-- End of Form Array -->
+
+          <div class="d-flex justify-content-between">
+            <div class="button-container">
+              <button
+                mat-mini-fab
+                type="button"
+                color="primary"
+                (click)="addItem()"
+              >
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+            <div style="width: 200px">
+              <!-- totalAmount -->
+              <div class="label-data justify-content-between">
+                <span>Total Variance</span>
+                <span>
+                  {{
+                    poPriceAdjustmentAfterGrnForm?.get("totalAmount")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3" align="center">
+          <button
+            class="me-2"
+            type="button"
+            *ngIf="
+              !isViewMode && this.poPriceAdjustmentAfterGrnForm.get('id')?.value
+            "
+            mat-raised-button
+            (click)="backToView()"
+            [disabled]="this.poPriceAdjustmentAfterGrnForm.invalid"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            color="accent"
+            mat-raised-button
+            matStepperNext
+            class="mr-1"
+            [disabled]="this.poPriceAdjustmentAfterGrnForm.invalid"
+          >
+            Continue
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step Review and Submit -->
+    <mat-step [editable]="false">
+      <form
+        (ngSubmit)="onSubmit()"
+        autocomplete="off"
+        [formGroup]="poPriceAdjustmentAfterGrnForm"
+      >
+        <ng-template matStepLabel
+          >Review and Create PO Price Adjustment After GRN Form</ng-template
+        >
+        <div *ngIf="isPassingDataToNextStep">
+          <div class="row row-cols-3 gx-5">
+            <!-- grnno -->
+            <div class="col label-data">
+              <span>GRN No</span>
+              <span>
+                {{ poPriceAdjustmentAfterGrnForm.get("grnno")?.value }}
+              </span>
+            </div>
+
+            <!-- ponumber -->
+            <div class="col label-data">
+              <span>Purchase Order No</span>
+              <span>
+                {{ poPriceAdjustmentAfterGrnForm.get("ponumber")?.value }}
+              </span>
+            </div>
+
+            <!-- referenceNo -->
+            <div class="col label-data">
+              <span>Reference No</span>
+              <span>
+                {{ poPriceAdjustmentAfterGrnForm.get("referenceNo")?.value }}
+              </span>
+            </div>
+
+            <!-- storeId -->
+            <div class="col label-data">
+              <span>Store</span>
+              <span>
+                {{
+                  getStoreName(
+                    poPriceAdjustmentAfterGrnForm?.get("storeId")?.value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- supplierId -->
+            <div class="col label-data">
+              <span>Supplier</span>
+              <span>
+                {{
+                  getSupplierName(
+                    poPriceAdjustmentAfterGrnForm?.get("supplierId")?.value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- adjustmentDate  -->
+            <div class="col label-data">
+              <span>Adjustment Date</span>
+              <span>
+                {{
+                  dateFormatService.getDateFormat(
+                    poPriceAdjustmentAfterGrnForm.get("adjustmentDate")?.value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- Remark -->
+            <div class="col label-data">
+              <span>Remark</span>
+              <span>
+                {{ poPriceAdjustmentAfterGrnForm?.get("remark")?.value }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Details Table -->
+          <div>
+            <ng-container>
+              <app-po-price-adjustment-after-grn-detail
+                [data]="poPriceAdjustmentAfterGrnDetailsData"
+              ></app-po-price-adjustment-after-grn-detail>
+            </ng-container>
+          </div>
+
+          <!-- Calculation Container -->
+          <div class="calculation-align-right">
+            <div>
+              <!-- totalAmount -->
+              <div class="label-data justify-content-between">
+                <span>Total Variance</span>
+                <span>
+                  {{
+                    poPriceAdjustmentAfterGrnForm?.get("totalAmount")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Action Button -->
+        <div class="p-3" *ngIf="!isViewMode" align="center">
+          <button
+            class="me-2"
+            mat-raised-button
+            mat-button
+            matStepperPrevious
+            (click)="isLoading = false"
+            type="button"
+          >
+            Back
+          </button>
+          <button
+            mat-raised-button
+            color="accent"
+            type="submit"
+            class="mr-1"
+            [disabled]="this.poPriceAdjustmentAfterGrnForm.invalid || isLoading"
+          >
+            <ng-container *ngIf="isLoading; else saveText">
+              <mat-icon>
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              {{ "Processing..." }}
+            </ng-container>
+            <ng-template #saveText>
+              {{ "Save" }}
+            </ng-template>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</div>
+
+<!-- loader start -->
+<!-- <ng-container *ngIf="isLoading">
+  <app-loading-skeleton></app-loading-skeleton>
+</ng-container> -->
+<!-- loader end -->

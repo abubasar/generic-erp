@@ -1,0 +1,654 @@
+<!-- <app-buts-breadcrumb *ngIf="isViewMode" [isViewMode]="isViewMode"></app-buts-breadcrumb>
+<app-buts-breadcrumb *ngIf="!isViewMode" [isViewMode]="isViewMode"></app-buts-breadcrumb> -->
+
+<div class="container-fluid">
+  <div *ngIf="isViewMode" class="d-flex justify-content-between">
+    <div class="d-flex gap-2 align-items-center">
+      <button mat-icon-button (click)="navigateToList()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h3 class="m-0">Requisition No: {{ data?.requisitionNo }}</h3>
+      <mat-chip
+        class="align-middle py-4 px-8"
+        [color]="getRequisitionStatus(data?.requisitionStatus).color"
+        selected
+      >
+        {{
+          getRequisitionStatusName(data?.requisitionStatus)?.replaceAll(
+            "_",
+            " "
+          )
+        }}
+      </mat-chip>
+      <button
+        mat-icon-button
+        color="primary"
+        matTooltip="print pdf"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printPdf(data?.id)"
+      >
+        <mat-icon>print</mat-icon>
+      </button>
+      <button
+        *appHasPermission="['Permissions.PurchaseRequisitions.Edit']"
+        [hidden]="
+          data?.requisitionStatus > 2 ||
+          data?.financialYearId != currentFinancialYearId
+        "
+        mat-icon-button
+        color="primary"
+        matTooltip="Edit"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="showEdit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+
+    <div>
+      <button
+        #btnCheck
+        *appHasPermission="['Permissions.PurchaseRequisitions.Check']"
+        [hidden]="
+          data?.requisitionStatus != 1 ||
+          data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        type="button"
+        color="accent"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmCheck(data?.id, data?.requisitionNo)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Check" }}
+        </ng-template>
+      </button>
+
+      <button
+        #btnApprove
+        *appHasPermission="['Permissions.PurchaseRequisitions.Approve']"
+        [hidden]="
+          data?.requisitionStatus != 2 ||
+          data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        color="primary"
+        type="button"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmApprove(data?.id, data?.requisitionNo)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Approve" }}
+        </ng-template>
+      </button>
+
+      <button
+        *appHasPermission="['Permissions.PurchaseRequisitions.Unpost']"
+        [hidden]="
+          data?.requisitionStatus >= 4 ||
+          data?.requisitionStatus == 1 ||
+          data?.status === 'undefined' ||
+          data?.financialYearId != currentFinancialYearId
+        "
+        type="button"
+        mat-mini-fab
+        color="warn"
+        matTooltip="Undo"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmUnpost(data?.id, data?.requisitionNo, data?.requisitionStatus)"
+      >
+        <ng-container *ngIf="isLoading; else undo">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+        </ng-container>
+        <ng-template #undo>
+          <mat-icon>undo</mat-icon>
+        </ng-template>
+      </button>
+      <!-- view rfq sent suppliers -->
+      <!-- <button
+        *ngIf="data?.requisitionStatus>4"
+        mat-raised-button
+        color="primary"
+        type="button"
+        (click)="viewSuppliers()"
+      >
+        View Suppliers
+      </button> -->
+    </div>
+  </div>
+
+  <mat-stepper
+    class="mat-stepper-card"
+    (selectionChange)="handleStepChange($event)"
+    [disableRipple]="true"
+    [linear]="true"
+    #stepper
+  >
+    <mat-step [stepControl]="purchaseRequisitionForm">
+      <form autocomplete="off" [formGroup]="purchaseRequisitionForm">
+        <ng-template matStepLabel>Purchase Requisition Form</ng-template>
+        <div>
+          <div class="row row-cols-3 gx-5">
+            <!-- department -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Department</mat-label>
+                <mat-select formControlName="departmentId" autoFocus>
+                  <mat-option [value]="null">-- None --</mat-option>
+                  <mat-option *ngFor="let d of departments" [value]="d.id">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Department is required</mat-error>
+              </mat-form-field>
+            </div>
+            <!-- store -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Store</mat-label>
+                <mat-select
+                  (selectionChange)="handleStoreSelection()"
+                  formControlName="storeId"
+                  autoFocus
+                >
+                  <mat-option [value]="null">-- None --</mat-option>
+                  <mat-option *ngFor="let d of stores" [value]="d.id">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Store is required</mat-error>
+              </mat-form-field>
+            </div>
+            <!-- Date of Purchase Requisition -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Choose Purchase Requisition Date</mat-label>
+                <input
+                  #input1
+                  autoFocus
+                  matInput
+                  name="requisitionDate"
+                  formControlName="requisitionDate"
+                  [matDatepicker]="picker1"
+                  [min]="applyMinMax ? financialYearStartDate : null"
+                  [max]="applyMinMax ? financialYearEndDate : null"
+                  (focus)="picker1.open()"
+                  type="text"
+                  cdkFocusInitial
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker1"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker1
+                  (closed)="input1.blur()"
+                ></mat-datepicker>
+                <mat-error
+                  *ngIf="
+                    purchaseRequisitionForm
+                      .get('requisitionDate')
+                      .hasError('required')
+                  "
+                >
+                  Purchase Requisition Date is required.
+                </mat-error>
+                <mat-error
+                  *ngIf="
+                    purchaseRequisitionForm
+                      .get('requisitionDate')
+                      .hasError('inFinancialYear')
+                  "
+                >
+                  Please choose a date within the financial year period:
+                  {{ financialYearStartDate | date : "mediumDate" }} -
+                  {{ financialYearEndDate | date : "mediumDate" }}.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Priority-->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Priority</mat-label>
+                <mat-select formControlName="priority">
+                  <mat-option [value]="null">-- None --</mat-option>
+                  <mat-option *ngFor="let d of priorities" [value]="d.value">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Priority is required</mat-error>
+              </mat-form-field>
+            </div>
+            <!-- Expected Delivery Date -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Choose Expected Delivery Date</mat-label>
+                <input
+                  #input2
+                  matInput
+                  name="expectedDeliveryDate"
+                  (focus)="picker2.open()"
+                  [matDatepicker]="picker2"
+                  [min]="financialYearStartDate"
+                  formControlName="expectedDeliveryDate"
+                  type="text"
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker2"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker2
+                  (closed)="input2.blur()"
+                ></mat-datepicker>
+                <mat-error>Expected delivery date is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Remark -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Remark</mat-label>
+                <textarea
+                  rows="1"
+                  matInput
+                  formControlName="remark"
+                  placeholder="Leave a message..."
+                ></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Details -->
+          <ng-container formArrayName="purchaseRequisitionDetails">
+            <h3 class="subheading-2">Purchase Requisition Details</h3>
+            <mat-divider></mat-divider>
+            <ng-container
+              *ngFor="
+                let p of purchaseRequisitionDetails.controls;
+                let i = index
+              "
+              [formGroupName]="i"
+            >
+              <div class="row">
+                <div class="col-3">
+                  <!-- Product Autocomplete -->
+                  <mat-form-field class="full-width">
+                    <mat-label>Product</mat-label>
+                    <input
+                      type="text"
+                      placeholder="Search Product"
+                      aria-label="Filter Product"
+                      matInput
+                      name="productId"
+                      formControlName="productId"
+                      [matAutocomplete]="product"
+                      (input)="handleProductSearch($event, i)"
+                    />
+                    <div matSuffix>
+                      <button
+                        (click)="clearInputFromDetails($event, i)"
+                        *ngIf="
+                          purchaseRequisitionDetails?.at(i).get('productId')
+                            ?.value
+                        "
+                        aria-label="Clear"
+                        mat-icon-button
+                        type="button"
+                      >
+                        <mat-icon>clear</mat-icon>
+                      </button>
+                      <mat-icon>keyboard_arrow_down</mat-icon>
+                    </div>
+                    <mat-autocomplete
+                      autoActiveFirstOption
+                      #product="matAutocomplete"
+                      (optionSelected)="handleProductSelection($event, i)"
+                      [displayWith]="getProductName.bind(this)"
+                    >
+                      <mat-option
+                        *ngFor="let product of searchProducts"
+                        [value]="product.id"
+                      >
+                        {{ product.name }}
+                        {{
+                          businessType === "2"
+                            ? ""
+                            : "(" + product?.packSize?.name + ")"
+                        }}
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error>Product is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <!-- MeasurementUnit -->
+                <div class="col-1">
+                  <mat-form-field class="full-width">
+                    <mat-label>Unit</mat-label>
+                    <input
+                      matInput
+                      name="measurementUnitName"
+                      formControlName="measurementUnitName"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+                <!-- QYT -->
+                <div class="col-1">
+                  <mat-form-field class="full-width">
+                    <mat-label>QTY</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="quantity"
+                      formControlName="quantity"
+                      min="1"
+                      placeholder="0.00"
+                      (click)="$event.target.select()"
+                    />
+                    <mat-error>Quantity is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <!-- Rate -->
+                <!-- <div class="col-1">
+                  <mat-form-field class="full-width">
+                    <mat-label>Rate</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="rate"
+                      formControlName="rate"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                    />
+                    <mat-error>Rate per unit is required</mat-error>
+                  </mat-form-field>
+                </div> -->
+                <!-- Amount -->
+                <!-- <div class="col-2">
+                  <mat-form-field class="full-width">
+                    <mat-label>Amount</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="amount"
+                      formControlName="amount"
+                      min="0"
+                      placeholder="0.00"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div> -->
+                <!-- lastPurchaseRate -->
+                <div class="col-1">
+                  <mat-form-field class="full-width">
+                    <mat-label>Last Purchase Rate</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="lastPurchaseRate"
+                      formControlName="lastPurchaseRate"
+                      placeholder="0.00"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+                <div class="col-2">
+                  <mat-form-field class="full-width">
+                    <mat-label>Alert Quantity</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="alertQuantity"
+                      formControlName="alertQuantity"
+                      placeholder="0.00"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+                <div class="col-2">
+                  <mat-form-field class="full-width">
+                    <mat-label>Current Stock</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="currentStockQuantity"
+                      formControlName="currentStockQuantity"
+                      placeholder="0.00"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+                <!-- Remove Button -->
+                <div class="col-2">
+                  <button
+                    mat-mini-fab
+                    type="button"
+                    color="warn"
+                    (click)="onDeleteItem(p?.get('id')?.value, i)"
+                  >
+                    <mat-icon>delete_forever</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </ng-container>
+          </ng-container>
+
+          <!-- Bottom Section -->
+          <div class="d-flex justify-content-between">
+            <!-- Button Container -->
+            <div class="button-container">
+              <button
+                mat-mini-fab
+                type="button"
+                color="primary"
+                (click)="addItem()"
+              >
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+
+            <!-- Calculation Container -->
+            <!-- <div>
+              <mat-form-field class="full-width">
+                <mat-label>Total Amount</mat-label>
+                <input
+                  style="text-align: right"
+                  type="number"
+                  matInput
+                  autocomplete="off"
+                  placeholder="0.00"
+                  formControlName="totalAmount"
+                  readonly
+                />
+              </mat-form-field>
+            </div> -->
+          </div>
+        </div>
+
+        <div class="p-3" align="center">
+          <button
+            class="me-2"
+            type="button"
+            *ngIf="!isViewMode && this.purchaseRequisitionForm.get('id')?.value"
+            mat-raised-button
+            (click)="backToView()"
+            [disabled]="this.purchaseRequisitionForm.invalid"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            color="accent"
+            mat-raised-button
+            matStepperNext
+            class="mr-1"
+            [disabled]="this.purchaseRequisitionForm.invalid"
+          >
+            Continue
+          </button>
+        </div>
+      </form>
+    </mat-step>
+    <!-- Step Review and Submit -->
+    <mat-step [editable]="false">
+      <form
+        (ngSubmit)="onSubmit()"
+        autocomplete="off"
+        [formGroup]="purchaseRequisitionForm"
+      >
+        <ng-template matStepLabel
+          >Review and Create Purchase Requisition</ng-template
+        >
+        <div *ngIf="isPassingDataToNextStep">
+          <div class="row row-cols-3 gx-5">
+            <!-- department -->
+            <div class="col label-data">
+              <span>Department</span>
+              <span>
+                {{
+                  getDepartmentName(
+                    purchaseRequisitionForm?.get("departmentId")?.value
+                  )
+                }}
+              </span>
+            </div>
+            <!-- store -->
+            <div class="col label-data">
+              <span>Store</span>
+              <span>
+                {{
+                  getStoreName(purchaseRequisitionForm?.get("storeId")?.value)
+                }}
+              </span>
+            </div>
+            <!-- Date of Purchase Requisition -->
+            <div class="col label-data">
+              <span>Requisition Date</span>
+              <span>
+                {{
+                  dateFormatService.getDateFormat(
+                    purchaseRequisitionForm.get("requisitionDate").value
+                  )
+                }}
+              </span>
+            </div>
+            <!-- Priority -->
+            <div class="col label-data">
+              <span>Priority</span>
+              <span>
+                {{
+                  getPriorityName(
+                    purchaseRequisitionForm?.get("priority")?.value
+                  )
+                }}
+              </span>
+            </div>
+            <!-- Expected Delivery Date -->
+            <div class="col label-data">
+              <span>Expected Delivery Date</span>
+              <span>
+                {{
+                  dateFormatService.getDateFormat(
+                    purchaseRequisitionForm.get("expectedDeliveryDate").value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- Remark -->
+            <div class="col label-data">
+              <span>Remark</span>
+              <span>
+                {{ purchaseRequisitionForm?.get("remark")?.value }}
+              </span>
+            </div>
+          </div>
+          <!-- Start of Form Array -->
+          <div>
+            <ng-container>
+              <app-purchase-requisition-detail
+                [data]="purchaseRequisitionDetailsData"
+              ></app-purchase-requisition-detail>
+            </ng-container>
+          </div>
+        </div>
+        <div class="calculation-align-right">
+          <!-- <div>
+            <div class="label-data justify-content-between">
+              <span>Total</span>
+              <span>
+                {{
+                  purchaseRequisitionForm?.get("totalAmount")?.value
+                    | currency : "BDT" : "" : "1.2-2"
+                }}
+              </span>
+            </div>
+          </div> -->
+        </div>
+        <!-- Action Button -->
+        <div class="p-3" *ngIf="!isViewMode" align="center">
+          <button
+            class="me-2"
+            mat-raised-button
+            matStepperPrevious
+            (click)="isLoading = false"
+            type="button"
+          >
+            Back
+          </button>
+          <!-- <button-loading
+            [loadingText]="'Processing...'"
+            color="warn"
+            [type]="'submit'"
+            [loading]="isLoading"
+            [disabled]="this.purchaseRequisitionForm.invalid || isLoading"
+          >
+            Save
+          </button-loading> -->
+          <button
+            mat-raised-button
+            color="accent"
+            type="submit"
+            [disabled]="this.purchaseRequisitionForm.invalid || isLoading"
+          >
+            <ng-container *ngIf="isLoading; else saveText">
+              <mat-icon>
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              {{ "Processing..." }}
+            </ng-container>
+            <ng-template #saveText>
+              {{ "Save" }}
+            </ng-template>
+          </button>
+        </div>
+      </form>
+      <!-- <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button (click)="stepper.reset()">Reset</button>
+      </div> -->
+    </mat-step>
+  </mat-stepper>
+</div>

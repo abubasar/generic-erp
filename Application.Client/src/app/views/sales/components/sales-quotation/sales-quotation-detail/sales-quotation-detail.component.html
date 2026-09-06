@@ -1,0 +1,61 @@
+<table class="border border-1" mat-table [dataSource]="dataSource">
+  <ng-container matColumnDef="sl">
+    <th mat-header-cell *matHeaderCellDef>#</th>
+    <td mat-cell *matCellDef="let element; let i = index">{{ i + 1 }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="productId">
+    <th mat-header-cell *matHeaderCellDef>Product</th>
+    <td mat-cell *matCellDef="let element">{{ element?.product?.name }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="measurementUnitId">
+    <th mat-header-cell *matHeaderCellDef>Unit</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.product?.measurementUnit?.name }}
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="bagWeight">
+    <th mat-header-cell *matHeaderCellDef>Bag Weight</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.bagWeight }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="primaryQuantity">
+    <th mat-header-cell *matHeaderCellDef>
+      <ng-container *ngIf="businessType === '1'">Quantity</ng-container>
+      <ng-container *ngIf="businessType === '2'">Bag Quantity</ng-container>
+    </th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.primaryQuantity }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="quantity">
+    <th mat-header-cell *matHeaderCellDef>Quantity</th>
+    <td mat-cell *matCellDef="let element">{{ element?.quantity }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="rate">
+    <th mat-header-cell *matHeaderCellDef>Rate</th>
+    <td mat-cell *matCellDef="let element">{{ element?.rate }}</td>
+  </ng-container>
+  <ng-container matColumnDef="discountPerUnit">
+    <th mat-header-cell *matHeaderCellDef>Discount Per Unit</th>
+    <td mat-cell *matCellDef="let element">{{ element?.discountPerUnit }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="discountAmount">
+    <th mat-header-cell *matHeaderCellDef>Discount Amount</th>
+    <td mat-cell *matCellDef="let element">{{ element?.discountAmount }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="amount">
+    <th mat-header-cell *matHeaderCellDef>Amount</th>
+    <td mat-cell *matCellDef="let element">{{ element?.amount }}</td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+</table>

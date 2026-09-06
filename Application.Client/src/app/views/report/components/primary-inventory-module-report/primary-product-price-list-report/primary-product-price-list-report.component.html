@@ -1,0 +1,85 @@
+<mat-card>
+  <mat-card-title>Product Price List</mat-card-title>
+  <form autocomplete="off" [formGroup]="searchForm">
+    <div class="row row-cols-2 gx-5">
+      <div class="col">
+        <mat-form-field class="full-width">
+          <mat-label>Select Inventory Type</mat-label>
+          <mat-select formControlName="inventoryTypeId">
+            <mat-option>-- None --</mat-option>
+            <mat-option *ngFor="let d of inventoryTypes" [value]="d?.id">
+              {{ d?.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <ng-container *ngIf="businessType === '1'">
+        <div>
+          <mat-form-field class="full-width">
+            <mat-label>Select Category</mat-label>
+            <mat-select formControlName="categoryId">
+              <mat-option>-- None --</mat-option>
+              <mat-option *ngFor="let d of categories" [value]="d?.id">
+                {{ d?.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </ng-container>
+      <div class="col">
+        <!-- Is Purchase Product -->
+        <section required>
+          <h4 class="h4-margin">Item For</h4>
+          <mat-checkbox
+            class="checkbox-margin"
+            formControlName="isPurchaseProduct"
+          >
+            Purchase
+          </mat-checkbox>
+          <mat-checkbox class="checkbox-margin" formControlName="isSaleProduct">
+            Sale
+          </mat-checkbox>
+        </section>
+      </div>
+    </div>
+    <div
+      class="button-container d-flex justify-content-start"
+      style="margin-top: 10px"
+    >
+      <button
+        class="demo-button"
+        mat-raised-button
+        color="primary"
+        matTooltip="PDF"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printPdf('pdf')"
+        [disabled]="isLoading1"
+      >
+        <ng-container *ngIf="isLoading1; else saveText">
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          <mat-icon>picture_as_pdf</mat-icon>
+        </ng-template>
+      </button>
+      <button
+        class="demo-button"
+        mat-raised-button
+        matTooltip="EXCEL"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        color="warn"
+        (click)="printPdf('excel')"
+        [disabled]="isLoading2"
+      >
+        <ng-container *ngIf="isLoading2; else saveText2">
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText2>
+          <mat-icon>insert_drive_file</mat-icon>
+        </ng-template>
+      </button>
+    </div>
+  </form>
+</mat-card>

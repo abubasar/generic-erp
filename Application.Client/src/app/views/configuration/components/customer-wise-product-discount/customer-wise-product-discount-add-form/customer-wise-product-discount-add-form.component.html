@@ -1,0 +1,353 @@
+<div class="container-fluid">
+  <mat-stepper
+    class="mat-stepper-card"
+    (selectionChange)="handleStepChange($event)"
+    [disableRipple]="true"
+    [linear]="true"
+    #stepper
+  >
+    <mat-step [stepControl]="customerWiseProductDiscountForm">
+      <form [formGroup]="customerWiseProductDiscountForm">
+        <ng-template matStepLabel
+          >Customer Wise Product Discount Form</ng-template
+        >
+        <div>
+          <input mat type="hidden" formControlName="id" />
+          <div class="row row-cols-1 row-cols-md-3 gx-5">
+            <!-- customerId -->
+            <div class="col">
+              <!-- <mat-form-field class="full-width">
+                <mat-label>Select Customer</mat-label>
+                <mat-select formControlName="customerId">
+                  <mat-option>-- None --</mat-option>
+                  <mat-option *ngFor="let d of customers" [value]="d.id">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Customer is required </mat-error>
+              </mat-form-field> -->
+              <mat-form-field class="full-width">
+                <mat-label>Select Customer</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  name="customerId"
+                  formControlName="customerId"
+                  [matAutocomplete]="auto"
+                  (input)="handleCustomerSearch($event)"
+                />
+                <div matSuffix>
+                  <button
+                    (click)="clearInput($event, 'customerId')"
+                    *ngIf="
+                      customerWiseProductDiscountForm?.get('customerId')
+                        ?.value !== null &&
+                      customerWiseProductDiscountForm?.get('customerId')
+                        ?.value !== ''
+                    "
+                    aria-label="Clear"
+                    mat-icon-button
+                    type="button"
+                  >
+                    <mat-icon>clear</mat-icon>
+                  </button>
+                </div>
+                <mat-autocomplete
+                  #auto="matAutocomplete"
+                  [displayWith]="getCustomerName.bind(this)"
+                  (optionSelected)="handleCustomerSelection($event)"
+                >
+                  <mat-option *ngFor="let d of filterCustomers" [value]="d.id">
+                    ({{ d.code?.slice(-4) }}) {{ d.name }}
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error>Customer is required</mat-error>
+              </mat-form-field>
+            </div>
+            <!-- applicableDate -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Choose Applicable Date</mat-label>
+                <input
+                  #input1
+                  matInput
+                  name="applicableDate"
+                  [matDatepicker]="picker1"
+                  formControlName="applicableDate"
+                  (focus)="picker1.open()"
+                  disabled
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker1"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker1
+                  (closed)="input1.blur()"
+                ></mat-datepicker>
+                <mat-error>Applicable Date is required</mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col">
+              <mat-checkbox class="checkbox-margin" formControlName="isActive">
+                Is Active
+              </mat-checkbox>
+            </div>
+          </div>
+
+          <!-- Customer Wise Product Discount Details -->
+          <ng-container formArrayName="customerWiseProductDiscountDetails">
+            <h3 class="subheading-2">Customer Wise Product Discount Details</h3>
+            <mat-divider></mat-divider>
+            <ng-container
+              *ngFor="
+                let p of customerWiseProductDiscountDetails.controls;
+                let i = index
+              "
+              [formGroupName]="i"
+            >
+              <div class="row">
+                <!-- productId -->
+                <div class="col-3">
+                  <mat-form-field class="full-width">
+                    <mat-label>Product</mat-label>
+
+                    <mat-select
+                      name="productId"
+                      formControlName="productId"
+                      disabled
+                    >
+                      <mat-option *ngFor="let d of products" [value]="d.id">
+                        {{ d.name }}
+                      </mat-option>
+                    </mat-select>
+                    <mat-error>ProductId is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <!-- salePrice -->
+                <div class="col-3">
+                  <mat-form-field class="full-width">
+                    <mat-label>TP</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      name="salePrice"
+                      formControlName="salePrice"
+                      readonly
+                    />
+                    <mat-error>TP is required </mat-error>
+                  </mat-form-field>
+                </div>
+                <!-- invoiceDiscount -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Invoice Discount"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Invoice Discount</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      name="invoiceDiscount"
+                      formControlName="invoiceDiscount"
+                      (click)="$event.target.select()"
+                    />
+                    <mat-error>Invoice Discount is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <!-- cashDiscount -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Cash Discount"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Cash Discount</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      name="cashDiscount"
+                      formControlName="cashDiscount"
+                      (click)="$event.target.select()"
+                    />
+                    <mat-error>Cash Discount is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <!-- SpecialDiscount -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Special Discount"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Special Discount</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      name="specialDiscount"
+                      formControlName="specialDiscount"
+                      (click)="$event.target.select()"
+                    />
+                    <mat-error>Special Discount is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <!-- monthlyDiscount -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Monthly Discount"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Monthly Discount</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      name="monthlyDiscount"
+                      formControlName="monthlyDiscount"
+                      (click)="$event.target.select()"
+                    />
+                    <mat-error>Monthly Discount is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- yearlyDiscount -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Yearly Discount"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Yearly Discount</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      name="yearlyDiscount"
+                      formControlName="yearlyDiscount"
+                      (click)="$event.target.select()"
+                    />
+                    <mat-error>Yearly Discount is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- targetDiscount -->
+                <div class="col-1">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Target Discount"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Target Discount</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      name="targetDiscount"
+                      formControlName="targetDiscount"
+                      (click)="$event.target.select()"
+                    />
+                    <mat-error>Target Discount is required</mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+            </ng-container>
+          </ng-container>
+        </div>
+
+        <div class="p-3" align="center">
+          <button
+            color="accent"
+            mat-raised-button
+            matStepperNext
+            class="mr-1"
+            [disabled]="this.customerWiseProductDiscountForm.invalid"
+          >
+            Continue
+          </button>
+        </div>
+      </form>
+    </mat-step>
+    <mat-step [editable]="false">
+      <form
+        (ngSubmit)="onSubmit()"
+        autocomplete="off"
+        [formGroup]="customerWiseProductDiscountForm"
+      >
+        <ng-template matStepLabel
+          >Review and Create Customer Wise Product Discount</ng-template
+        >
+        <div *ngIf="isPassingDataToNextStep">
+          <div class="row row-cols-3 gx-5">
+            <!-- customerId -->
+            <div class="col label-data">
+              <span>Customer</span>
+              <span>
+                {{
+                  getCustomerName(
+                    customerWiseProductDiscountForm?.get("customerId")?.value
+                  )
+                }}
+              </span>
+            </div>
+            <!-- applicableDate -->
+            <div class="col label-data">
+              <span>Applicable Date</span>
+              <span>
+                {{
+                  dateFormatService.getDateFormat(
+                    customerWiseProductDiscountForm.get("applicableDate")?.value
+                  )
+                }}
+              </span>
+            </div>
+            <div class="col label-data">
+              <mat-checkbox
+                class="checkbox-margin"
+                formControlName="isActive"
+                [disabled]="true"
+              >
+                Is Active
+              </mat-checkbox>
+            </div>
+          </div>
+          <!-- Start of Form Array -->
+          <ng-container>
+            <app-customer-wise-product-discount-detail
+              [data]="customerWiseProductDiscountDetailsData"
+            ></app-customer-wise-product-discount-detail>
+          </ng-container>
+        </div>
+        <!-- Action Button -->
+        <div class="p-3" align="center">
+          <button
+            class="me-2"
+            mat-raised-button
+            matStepperPrevious
+            (click)="isLoading = false"
+            type="button"
+          >
+            Back
+          </button>
+          <button
+            mat-raised-button
+            color="accent"
+            type="submit"
+            class="mr-1"
+            [disabled]="
+              this.customerWiseProductDiscountForm.invalid || isLoading
+            "
+          >
+            <ng-container *ngIf="isLoading; else saveText">
+              <mat-icon>
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              {{ "Processing..." }}
+            </ng-container>
+            <ng-template #saveText>
+              {{ "Save" }}
+            </ng-template>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</div>

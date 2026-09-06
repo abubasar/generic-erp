@@ -1,0 +1,16 @@
+mat-form-field {
+  width: 100%;
+}
+.h4-margin {
+  margin: 0 0 5px 0;
+}
+
+.checkbox-margin {
+  margin: 0 10px 0 0;
+}
+
+@media screen and (max-width: 1920px) {
+  mat-dialog-content {
+    min-width: 50vw !important;
+  }
+}

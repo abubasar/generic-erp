@@ -1,0 +1,486 @@
+<div class="container-fluid">
+  <div *ngIf="isViewMode" class="d-flex justify-content-between">
+    <div class="d-flex gap-2 align-items-center">
+      <button mat-icon-button (click)="navigateToList()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h3 class="m-0">Voucher No: {{ data?.voucherNo }}</h3>
+      <mat-chip
+        class="align-middle py-4 px-8"
+        [color]="getJournalEntryStatus(data?.status).color"
+        selected
+      >
+        {{ getJournalEntryStatusName(data?.status)?.replaceAll("_", " ") }}
+      </mat-chip>
+      <button
+        mat-icon-button
+        color="primary"
+        matTooltip="print pdf"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printPdf(data?.id)"
+      >
+        <mat-icon>print</mat-icon>
+      </button>
+      <button
+        *appHasPermission="['Permissions.JournalEntries.Edit']"
+        [hidden]="
+          data?.status > 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-icon-button
+        color="primary"
+        matTooltip="Edit"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="showEdit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+
+    <div>
+      <button
+        #btnCheck
+        *appHasPermission="['Permissions.JournalEntries.Check']"
+        [hidden]="
+          data?.status != 1 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        type="button"
+        color="accent"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmCheck(data?.id, data?.voucherNo)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Check" }}
+        </ng-template>
+      </button>
+
+      <button
+        #btnApprove
+        *appHasPermission="['Permissions.JournalEntries.Approve']"
+        [hidden]="
+          data?.status != 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        color="primary"
+        type="button"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmApprove(data?.id, data?.voucherNo)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Approve" }}
+        </ng-template>
+      </button>
+
+      <button
+        *appHasPermission="['Permissions.JournalEntries.Unpost']"
+        [hidden]="
+          data?.status == 1 ||
+          data?.status === 'undefined' ||
+          data?.financialYearId != currentFinancialYearId
+        "
+        type="button"
+        mat-mini-fab
+        color="warn"
+        matTooltip="Undo"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmUnpost(data?.id, data?.voucherNo, data?.status)"
+      >
+        <ng-container *ngIf="isLoading; else undo">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+        </ng-container>
+        <ng-template #undo>
+          <mat-icon>undo</mat-icon>
+        </ng-template>
+      </button>
+    </div>
+  </div>
+
+  <mat-stepper
+    class="mat-stepper-card"
+    (selectionChange)="handleStepChange($event)"
+    [disableRipple]="true"
+    [linear]="true"
+    #stepper
+  >
+    <mat-step [stepControl]="journalEntryForm">
+      <form autocomplete="off" [formGroup]="journalEntryForm">
+        <ng-template matStepLabel>Journal Entry Form</ng-template>
+        <div>
+          <div class="row row-cols-2 gx-5">
+            <!-- voucherDate -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Choose Journal Date</mat-label>
+                <input
+                  #input1
+                  matInput
+                  name="voucherDate"
+                  [matDatepicker]="picker1"
+                  formControlName="voucherDate"
+                  type="text"
+                  cdkFocusInitial
+                  (focus)="picker1.open()"
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker1"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker1
+                  (closed)="input1.blur()"
+                ></mat-datepicker>
+                <mat-error>Journal Date is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- referenceNo -->
+            <!-- <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Reference No</mat-label>
+                <input
+                  matInput
+                  type="text"
+                  name="referenceNo"
+                  formControlName="referenceNo"
+                />
+              </mat-form-field>
+            </div> -->
+
+            <!-- costCenterId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Cost Center</mat-label>
+                <mat-select formControlName="costCenterId" autoFocus>
+                  <mat-option>-- None --</mat-option>
+                  <mat-option *ngFor="let d of costCenters" [value]="d.id">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Cost Center is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- cashBankAccounts -->
+            <!-- <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select cashBankAccounts</mat-label>
+                <mat-select formControlName="cashBankAccountId" autoFocus>
+                  <mat-option
+                    *ngFor="let d of cashBankAccounts"
+                    [value]="d?.id"
+                  >
+                    {{ d?.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Voucher Type is required</mat-error>
+              </mat-form-field>
+            </div> -->
+
+            <!-- Remark -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Remark</mat-label>
+                <textarea
+                  rows="1"
+                  matInput
+                  formControlName="remark"
+                  placeholder="Leave a message..."
+                ></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Details -->
+          <ng-container formArrayName="journalEntryDetails">
+            <h3 class="subheading-2">Journal Entry Details</h3>
+            <mat-divider></mat-divider>
+            <ng-container
+              *ngFor="let p of journalEntryDetails.controls; let i = index"
+              [formGroupName]="i"
+            >
+              <div class="row">
+                <!-- accountId -->
+                <div class="col-4">
+                  <mat-form-field class="full-width">
+                    <mat-label>Select Account</mat-label>
+                    <input
+                      type="text"
+                      matInput
+                      name="accountId"
+                      formControlName="accountId"
+                      [matAutocomplete]="auto"
+                      (input)="handleControlAccountSearch($event, i)"
+                    />
+                    <div matSuffix>
+                      <button
+                        (click)="clearInputDetails($event, i)"
+                        *ngIf="
+                          journalEntryDetails?.at(i).get('accountId')?.value !==
+                            null &&
+                          journalEntryDetails?.at(i).get('accountId')?.value !==
+                            ''
+                        "
+                        aria-label="Clear"
+                        mat-icon-button
+                        type="button"
+                      >
+                        <mat-icon>clear</mat-icon>
+                      </button>
+                      <mat-icon>keyboard_arrow_down</mat-icon>
+                    </div>
+                    <mat-autocomplete
+                      #auto="matAutocomplete"
+                      (optionSelected)="
+                        handleControlAccountSelection($event, i)
+                      "
+                      [displayWith]="getControlAccountName.bind(this)"
+                      [panelWidth]="'500px'"
+                    >
+                      <mat-option
+                        *ngFor="let d of filterControlAccounts"
+                        [value]="d.id"
+                      >
+                        ({{ d.code?.split(".")?.pop() }}) {{ d.name }}
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error>Account is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- accountDescription -->
+                <div class="col-2">
+                  <h6>Account Tree</h6>
+                  <span>{{ p.get("accountDescription")?.value }} </span>
+                </div>
+                <!-- postType -->
+                <div class="col-2">
+                  <mat-form-field class="full-width">
+                    <mat-label>Select Post Type</mat-label>
+                    <mat-select formControlName="postType" autoFocus>
+                      <mat-option
+                        *ngFor="let d of postTypes"
+                        [value]="d?.value"
+                      >
+                        {{ getPostTypeName(d.value) }}
+                      </mat-option>
+                    </mat-select>
+                    <mat-error>Voucher Type is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <!-- Amount -->
+                <div class="col-2">
+                  <mat-form-field class="full-width">
+                    <mat-label>Amount</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="amount"
+                      formControlName="amount"
+                      placeholder="0.00"
+                    />
+                  </mat-form-field>
+                </div>
+
+                <!-- isOpeningBalance -->
+                <!-- <div class="col-1 d-flex align-items-center">
+                  <mat-checkbox
+                    class="checkbox-margin"
+                    formControlName="isOpeningBalance"
+                  >
+                    Is Opening?
+                  </mat-checkbox>
+                </div> -->
+
+                <!-- Remove Button -->
+                <div class="col-1">
+                  <button
+                    mat-mini-fab
+                    type="button"
+                    color="warn"
+                    (click)="onDeleteItem(p?.get('id')?.value, i)"
+                  >
+                    <mat-icon>delete_forever</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </ng-container>
+          </ng-container>
+
+          <!-- Bottom Section -->
+          <div class="d-flex justify-content-between">
+            <!-- Button Container -->
+            <div class="button-container">
+              <button
+                mat-mini-fab
+                type="button"
+                color="primary"
+                (click)="addItem()"
+              >
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3" align="center">
+          <button
+            class="me-2"
+            type="button"
+            *ngIf="!isViewMode && this.journalEntryForm.get('id')?.value"
+            mat-raised-button
+            (click)="backToView()"
+            [disabled]="this.journalEntryForm.invalid"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            color="accent"
+            mat-raised-button
+            (click)="goToNext()"
+            class="mr-1"
+            [disabled]="this.journalEntryForm.invalid"
+          >
+            Continue
+          </button>
+          <!-- matStepperNext -->
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step Review and Submit -->
+    <mat-step [editable]="false">
+      <form
+        (ngSubmit)="onSubmit()"
+        autocomplete="off"
+        [formGroup]="journalEntryForm"
+      >
+        <ng-template matStepLabel>Review and Create Voucher Entry</ng-template>
+        <div *ngIf="isPassingDataToNextStep">
+          <div class="row row-cols-2 gx-5">
+            <!-- Date of Voucher Entry -->
+            <div class="col label-data">
+              <span>Voucher Date</span>
+              <span>
+                {{
+                  dateFormatService.getDateFormat(
+                    journalEntryForm.get("voucherDate").value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- referenceNo -->
+            <!-- <div class="col label-data">
+              <span>ReferenceNo</span>
+              <span>
+                {{ journalEntryForm?.get("referenceNo")?.value }}
+              </span>
+            </div> -->
+
+            <!-- costCenterId -->
+            <div class="col label-data">
+              <span>Cost Center</span>
+              <span>
+                {{
+                  getCostCenterName(
+                    journalEntryForm?.get("costCenterId")?.value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- cashBankAccountId -->
+            <!-- <div class="col label-data">
+              <span>Cash/Bank Account</span>
+              <span>
+                {{
+                  getCashBankAccountName(
+                    journalEntryForm?.get("cashBankAccountId")?.value
+                  )
+                }}
+              </span>
+            </div> -->
+
+            <!-- Remark -->
+            <div class="col label-data">
+              <span>Remark</span>
+              <span>
+                {{ journalEntryForm?.get("remark")?.value }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Start of Form Array -->
+          <div>
+            <ng-container>
+              <app-journal-entry-detail
+                [data]="journalEntryDetailsData"
+              ></app-journal-entry-detail>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="p-3" *ngIf="!isViewMode" align="center">
+          <button
+            class="me-2"
+            mat-raised-button
+            matStepperPrevious
+            (click)="isLoading = false"
+            type="button"
+          >
+            Back
+          </button>
+          <!-- <button-loading
+            [loadingText]="'Processing...'"
+            color="warn"
+            [type]="'submit'"
+            [loading]="isLoading"
+            [disabled]="this.journalEntryForm.invalid || isLoading"
+          >
+            Save
+          </button-loading> -->
+          <button
+            mat-raised-button
+            color="accent"
+            type="submit"
+            [disabled]="this.journalEntryForm.invalid || isLoading"
+          >
+            <ng-container *ngIf="isLoading; else saveText">
+              <mat-icon>
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              {{ "Processing..." }}
+            </ng-container>
+            <ng-template #saveText>
+              {{ "Save" }}
+            </ng-template>
+          </button>
+        </div>
+      </form>
+      <!-- <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button (click)="stepper.reset()">Reset</button>
+      </div> -->
+    </mat-step>
+  </mat-stepper>
+</div>

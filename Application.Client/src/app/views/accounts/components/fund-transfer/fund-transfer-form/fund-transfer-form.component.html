@@ -1,0 +1,509 @@
+<div class="container-fluid">
+  <div *ngIf="isViewMode" class="d-flex justify-content-between">
+    <div class="d-flex gap-2 align-items-center">
+      <button mat-icon-button (click)="navigateToList()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h3 class="m-0">Fund Transfer No: {{ data?.fundTransferNo }}</h3>
+      <mat-chip
+        class="align-middle py-4 px-8"
+        [color]="getFundTransferStatus(data?.status).color"
+        selected
+      >
+        {{ getFundTransferStatusName(data?.status)?.replaceAll("_", " ") }}
+      </mat-chip>
+
+      <button
+        mat-icon-button
+        color="primary"
+        matTooltip="print pdf"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printPdf(data?.id)"
+      >
+        <mat-icon>print</mat-icon>
+      </button>
+
+      <button
+        [hidden]="
+          data?.status > 2 || data?.financialYearId != currentFinancialYearId
+        "
+        *appHasPermission="['Permissions.FundTransfers.Edit']"
+        mat-icon-button
+        color="primary"
+        matTooltip="Edit"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="showEdit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+
+    <div>
+      <button
+        #btnCheck
+        *appHasPermission="['Permissions.FundTransfers.Check']"
+        [hidden]="
+          data?.status != 1 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        type="button"
+        color="accent"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmCheck(data?.id, data?.code)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Check" }}
+        </ng-template>
+      </button>
+
+      <button
+        #btnApprove
+        *appHasPermission="['Permissions.FundTransfers.Approve']"
+        [hidden]="
+          data?.status != 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        color="primary"
+        type="button"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmApprove(data?.id, data?.code)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Approve" }}
+        </ng-template>
+      </button>
+
+      <button
+        *appHasPermission="['Permissions.FundTransfers.Unpost']"
+        [hidden]="
+          data?.status == 1 ||
+          data?.status === 'undefined' ||
+          data?.financialYearId != currentFinancialYearId
+        "
+        type="button"
+        mat-mini-fab
+        color="warn"
+        matTooltip="Undo"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmUnpost(data?.id, data?.code, data?.status)"
+      >
+        <ng-container *ngIf="isLoading; else undo">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+        </ng-container>
+        <ng-template #undo>
+          <mat-icon>undo</mat-icon>
+        </ng-template>
+      </button>
+    </div>
+  </div>
+
+  <mat-stepper
+    class="mat-stepper-card"
+    (selectionChange)="handleStepChange($event)"
+    [disableRipple]="true"
+    [linear]="true"
+    #stepper
+  >
+    <mat-step [stepControl]="fundTransferForm">
+      <form autocomplete="off" [formGroup]="fundTransferForm">
+        <ng-template matStepLabel>Fund Transfer Form</ng-template>
+        <div>
+          <div class="row row-cols-2 gx-5">
+            <!-- Fund Transfer Date -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Choose Fund Transfer Date</mat-label>
+                <input
+                  #input1
+                  autoFocus
+                  matInput
+                  name="fundTransferDate"
+                  [matDatepicker]="picker1"
+                  [min]="applyMinMax ? financialYearStartDate : null"
+                  [max]="applyMinMax ? financialYearEndDate : null"
+                  formControlName="fundTransferDate"
+                  type="text"
+                  cdkFocusInitial
+                  (focus)="picker1.open()"
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker1"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker1
+                  (closed)="input1.blur()"
+                ></mat-datepicker>
+                <mat-error
+                  *ngIf="
+                    fundTransferForm
+                      .get('fundTransferDate')
+                      .hasError('required')
+                  "
+                >
+                  Fund Transfer Date is required
+                </mat-error>
+                <mat-error
+                  *ngIf="
+                    fundTransferForm
+                      .get('fundTransferDate')
+                      .hasError('inFinancialYear')
+                  "
+                >
+                  Please choose a date within the financial year period:
+                  {{ financialYearStartDate | date : "mediumDate" }} -
+                  {{ financialYearEndDate | date : "mediumDate" }}.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- fundTransferTransactionType -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Transaction Type</mat-label>
+                <mat-select
+                  formControlName="fundTransferTransactionTypeId"
+                  (selectionChange)="onTransactionTypeChange($event.value)"
+                  autoFocus
+                >
+                  <mat-option>-- None --</mat-option>
+                  <mat-option
+                    *ngFor="let d of fundTransferTransactionTypes"
+                    [value]="d.id"
+                  >
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Transaction Type is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- costCenter -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Cost Center</mat-label>
+                <mat-select formControlName="costCenterId" autoFocus>
+                  <mat-option>-- None --</mat-option>
+                  <mat-option *ngFor="let d of costCenters" [value]="d.id">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Cost Center is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!--Fund Transfer from Account Id -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Transfer From(Cash/Bank Account)</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  name="transferFromAccountId"
+                  formControlName="transferFromAccountId"
+                  [matAutocomplete]="auto1"
+                  (input)="handleCashBankAccountSearch($event)"
+                  [readonly]="cashBankLoading"
+                />
+                <div matSuffix>
+                  <button
+                    (click)="clearInput($event, 'transferFromAccountId')"
+                    *ngIf="
+                      fundTransferForm?.get('transferFromAccountId')?.value
+                    "
+                    aria-label="Clear"
+                    mat-icon-button
+                    type="button"
+                  >
+                    <mat-icon>clear</mat-icon>
+                  </button>
+                  <mat-icon>keyboard_arrow_down</mat-icon>
+                </div>
+                <mat-autocomplete
+                  #auto1="matAutocomplete"
+                  (optionSelected)="handleCashBankFromAccountSelection($event)"
+                  [displayWith]="getCashBankFromAccountName.bind(this)"
+                >
+                  <mat-option
+                    *ngFor="let d of filteredCashBankAccounts"
+                    [value]="d?.id"
+                  >
+                    {{ d.name }}
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error>From Account is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!--Fund Transfer to Account Id -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Transfer To(Cash/Bank Account)</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  name="transferToAccountId"
+                  formControlName="transferToAccountId"
+                  [matAutocomplete]="auto2"
+                  (input)="handleCashBankAccountSearch($event)"
+                  [readonly]="cashBankLoading"
+                />
+                <div matSuffix>
+                  <button
+                    (click)="clearInput($event, 'transferToAccountId')"
+                    *ngIf="fundTransferForm?.get('transferToAccountId')?.value"
+                    aria-label="Clear"
+                    mat-icon-button
+                    type="button"
+                  >
+                    <mat-icon>clear</mat-icon>
+                  </button>
+                  <mat-icon>keyboard_arrow_down</mat-icon>
+                </div>
+                <mat-autocomplete
+                  #auto2="matAutocomplete"
+                  (optionSelected)="handleCashBankToAccountSelection($event)"
+                  [displayWith]="getCashBankToAccountName.bind(this)"
+                >
+                  <mat-option
+                    *ngFor="let d of filteredCashBankAccounts"
+                    [value]="d?.id"
+                  >
+                    {{ d.name }}
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error>To Account is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- amount -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Amount</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="amount"
+                  formControlName="amount"
+                  min="0"
+                  placeholder="0.00"
+                />
+                <mat-error>Amount is required </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- charges -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Charges</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="charges"
+                  formControlName="charges"
+                  min="0"
+                  placeholder="0.00"
+                />
+                <mat-error>Charges is required </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Remark -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Remark</mat-label>
+                <textarea
+                  rows="1"
+                  matInput
+                  formControlName="remark"
+                  placeholder="Leave a message..."
+                ></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3" align="center">
+          <button
+            class="me-2"
+            type="button"
+            *ngIf="!isViewMode && this.fundTransferForm.get('id')?.value"
+            mat-raised-button
+            (click)="backToView()"
+            [disabled]="this.fundTransferForm.invalid"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            color="accent"
+            mat-raised-button
+            matStepperNext
+            class="mr-1"
+            [disabled]="this.fundTransferForm.invalid"
+          >
+            Continue
+          </button>
+        </div>
+      </form>
+    </mat-step>
+    <!-- Step Review and Submit -->
+    <mat-step [editable]="false">
+      <form
+        (ngSubmit)="onSubmit()"
+        autocomplete="off"
+        [formGroup]="fundTransferForm"
+      >
+        <ng-template matStepLabel>Review and Create Fund Transfer</ng-template>
+        <div *ngIf="isPassingDataToNextStep">
+          <div class="row row-cols-2 gx-5">
+            <!-- Date of Fund Transfer date -->
+            <div class="col label-data">
+              <span>Fund Transfer Date</span>
+              <span>
+                {{
+                  dateFormatService.getDateFormat(
+                    fundTransferForm.get("fundTransferDate").value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- fundTransferTransactionTypeId -->
+            <div class="col label-data">
+              <span>Transaction Type</span>
+              <span>
+                {{
+                  getFundTransferTransactionTypeName(
+                    fundTransferForm?.get("fundTransferTransactionTypeId")
+                      ?.value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- costCenterId -->
+            <div class="col label-data">
+              <span>Cost Center</span>
+              <span>
+                {{
+                  getCostCenterName(
+                    fundTransferForm?.get("costCenterId")?.value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- transferFromAccountId -->
+            <div class="col label-data">
+              <span>Transfer From(Cash/Bank Account)</span>
+              <span>
+                {{
+                  getCashBankFromAccountName(
+                    fundTransferForm?.get("transferFromAccountId")?.value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- transferToAccountId -->
+            <div class="col label-data">
+              <span>Transfer To(Cash/Bank Account)</span>
+              <span>
+                {{
+                  getCashBankToAccountName(
+                    fundTransferForm?.get("transferToAccountId")?.value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- amount -->
+            <div class="col label-data">
+              <span>Amount</span>
+              <span>
+                {{ fundTransferForm?.get("amount")?.value }}
+              </span>
+            </div>
+
+            <!-- charges -->
+            <div class="col label-data">
+              <span>Charges</span>
+              <span>
+                {{ fundTransferForm?.get("charges")?.value }}
+              </span>
+            </div>
+
+            <!-- Remark -->
+            <div class="col label-data">
+              <span>Remark</span>
+              <span>
+                {{ fundTransferForm?.get("remark")?.value }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="p-3" *ngIf="!isViewMode" align="center">
+          <button
+            class="me-2"
+            mat-raised-button
+            matStepperPrevious
+            (click)="isLoading = false"
+            type="button"
+          >
+            Back
+          </button>
+          <!-- <button-loading
+            [loadingText]="'Processing...'"
+            color="warn"
+            [type]="'submit'"
+            [loading]="isLoading"
+            [disabled]="this.fundTransferForm.invalid || isLoading"
+          >
+            Save
+          </button-loading> -->
+          <button
+            mat-raised-button
+            color="accent"
+            type="submit"
+            [disabled]="this.fundTransferForm.invalid || isLoading"
+          >
+            <ng-container *ngIf="isLoading; else saveText">
+              <mat-icon>
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              {{ "Processing..." }}
+            </ng-container>
+            <ng-template #saveText>
+              {{ "Save" }}
+            </ng-template>
+          </button>
+        </div>
+      </form>
+      <!-- <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button (click)="stepper.reset()">Reset</button>
+      </div> -->
+    </mat-step>
+  </mat-stepper>
+</div>

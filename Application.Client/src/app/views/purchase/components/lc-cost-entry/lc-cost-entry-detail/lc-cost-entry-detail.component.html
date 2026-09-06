@@ -1,0 +1,43 @@
+<table class="border border-1" mat-table [dataSource]="dataSource">
+  <ng-container matColumnDef="sl">
+    <th mat-header-cell *matHeaderCellDef>#</th>
+    <td mat-cell *matCellDef="let element; let i = index">{{ i + 1 }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="debitAccountId">
+    <th mat-header-cell *matHeaderCellDef>Debit Account</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.debitAccount?.name }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="creditAccountId">
+    <th mat-header-cell *matHeaderCellDef>Credit Account</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.creditAccount?.name }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="amount">
+    <th mat-header-cell *matHeaderCellDef>Amount</th>
+    <td mat-cell *matCellDef="let element">
+      {{ element?.amount }}
+    </td>
+  </ng-container>
+
+  <!-- isIncludedWithinLandedCost Column -->
+  <ng-container matColumnDef="isIncludedWithinLandedCost">
+    <th mat-header-cell *matHeaderCellDef>Is Landed Cost</th>
+    <td mat-cell *matCellDef="let element">
+      <mat-checkbox
+        [disableRipple]="true"
+        (click)="$event.preventDefault()"
+        [checked]="element?.isIncludedWithinLandedCost"
+      >
+      </mat-checkbox>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+</table>

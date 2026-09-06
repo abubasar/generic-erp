@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>{{ formTitle }}</h2>
+<form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="mat-typography">
+    <input mat type="hidden" formControlName="id" />
+    <mat-form-field>
+      <mat-label>Category Name</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Enter category name"
+        formControlName="name"
+      />
+      <mat-error
+        *ngIf="
+          categoryForm.controls['name'].hasError('required') &&
+          categoryForm.controls['name'].touched
+        "
+      >
+        Category name is required
+      </mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-raised-button mat-dialog-close>Cancel</button>
+    <button
+      mat-raised-button
+      [mat-dialog-close]="true"
+      cdkFocusInitial
+      color="primary"
+      [disabled]="!categoryForm.dirty || !categoryForm.valid"
+      type="submit"
+    >
+      Save
+    </button>
+  </mat-dialog-actions>
+</form>

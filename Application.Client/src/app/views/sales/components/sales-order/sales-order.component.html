@@ -1,0 +1,770 @@
+<mat-card>
+  <mat-expansion-panel
+    class="mat-elevation-z0"
+    (opened)="openExpansionPanel()"
+    (closed)="panelOpenState = false"
+  >
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>search_icon</mat-icon> Search
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <form autocomplete="off" [formGroup]="searchForm" (ngSubmit)="onSearch()">
+      <div class="row row-cols-2 gx-5">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Search By Keyword</mat-label>
+            <input matInput formControlName="keyword" />
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Search By Sale Order No</mat-label>
+            <input matInput formControlName="saleOrderNo" />
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Search By Quotation No</mat-label>
+            <input matInput formControlName="quotationNo" />
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Select Store</mat-label>
+            <mat-select formControlName="storeId">
+              <mat-option [value]="null">-- None --</mat-option>
+              <mat-option *ngFor="let d of stores" [value]="d?.id">
+                {{ d?.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <!-- customerId -->
+          <mat-form-field class="full-width">
+            <mat-label>Select Customer</mat-label>
+            <input
+              type="text"
+              matInput
+              name="customerId"
+              formControlName="customerId"
+              [matAutocomplete]="auto"
+              (input)="handleCustomerSearch($event)"
+            />
+            <div matSuffix>
+              <button
+                (click)="clearInput($event)"
+                *ngIf="
+                  searchForm?.get('customerId')?.value !== null &&
+                  searchForm?.get('customerId')?.value !== ''
+                "
+                aria-label="Clear"
+                mat-icon-button
+                type="button"
+              >
+                <mat-icon>clear</mat-icon>
+              </button>
+            </div>
+            <mat-autocomplete
+              #auto="matAutocomplete"
+              [displayWith]="getCustomerName.bind(this)"
+            >
+              <mat-option
+                matTooltip="{{ d.address }}"
+                *ngFor="let d of filterCustomers"
+                [value]="d.id"
+              >
+                ({{ d.code?.slice(-4) }}) {{ d.name }} {{ d.address }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Select Sale Order Status</mat-label>
+            <mat-select formControlName="saleOrderStatus">
+              <mat-option [value]="null">-- None --</mat-option>
+              <mat-option
+                *ngFor="let d of saleOrderStatuses"
+                [value]="d?.value"
+              >
+                {{ d?.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Enter a date range</mat-label>
+            <mat-date-range-input [rangePicker]="picker">
+              <input
+                matStartDate
+                formControlName="fromDate"
+                placeholder="Start date"
+                (focus)="picker.open()"
+              />
+              <input
+                matEndDate
+                formControlName="toDate"
+                placeholder="End date"
+                (focus)="picker.open()"
+              />
+            </mat-date-range-input>
+            <mat-datepicker-toggle
+              matSuffix
+              [for]="picker"
+            ></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
+          </mat-form-field>
+        </div>
+      </div>
+      <button mat-raised-button color="primary" type="submit">
+        <mat-icon>search_icon</mat-icon>Search
+      </button>
+    </form>
+  </mat-expansion-panel>
+</mat-card>
+
+<mat-card>
+  <mat-card-content>
+    <div class="button-container d-flex justify-content-between">
+      <div
+        class="d-flex flex-column flex-md-row gap-2 align-items-start align-items-md-center"
+      >
+        <button
+          *appHasPermission="['Permissions.SaleOrders.Create']"
+          mat-stroked-button
+          color="primary"
+          (click)="navigateToAddNew()"
+        >
+          <mat-icon>add_box</mat-icon>
+          Add New
+        </button>
+        <button
+          mat-stroked-button
+          color="accent"
+          matBadge="{{ pendingCheckedModel?.pendingCount }}"
+          matBadgePosition="after"
+          matBadgeColor="primary"
+          (click)="getPending()"
+          [disabled]="pendingCheckedModel?.pendingCount == 0"
+        >
+          <mat-icon>present_to_all</mat-icon>
+          Pending For Check
+        </button>
+        <button
+          mat-stroked-button
+          color="warn"
+          matBadge="{{ pendingCheckedModel?.checkedCount }}"
+          matBadgePosition="after"
+          matBadgeColor="primary"
+          (click)="getChecked()"
+          [disabled]="pendingCheckedModel?.checkedCount == 0"
+        >
+          <mat-icon>done_outline</mat-icon>
+          Waiting For Approval
+        </button>
+      </div>
+
+      <!-- Views Column Button -->
+      <div>
+        <button
+          mat-icon-button
+          color="primary"
+          matTooltip="print summary pdf"
+          matTooltipShowDelay="300"
+          matTooltipPosition="above"
+          (click)="printSaleOrderPdf('sale-order-summary-print')"
+        >
+          <mat-icon>print</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          color="primary"
+          matTooltip="print details pdf"
+          matTooltipShowDelay="300"
+          matTooltipPosition="above"
+          (click)="printSaleOrderPdf('sale-order-details-print')"
+        >
+          <mat-icon>print</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          color="primary"
+          (click)="reload()"
+          matTooltip="Reload"
+          matTooltipPosition="above"
+        >
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          matTooltip="Views Column"
+          matTooltipShowDelay="300"
+          [matMenuTriggerFor]="viewsColumn"
+        >
+          <mat-icon>view_module_icon</mat-icon>
+        </button>
+        <mat-menu
+          class="margin-0 padding-0"
+          #viewsColumn="matMenu"
+          [formGroup]="viewColumnForm"
+        >
+          <span
+            class="padding-0"
+            mat-menu-item
+            [disableRipple]="true"
+            (click)="$event.stopPropagation()"
+          >
+            <mat-list role="list" class="margin-0 padding-0">
+              <mat-list-item
+                role="listitem"
+                *ngFor="let cd of columnDefinitions"
+              >
+                <mat-checkbox [formControlName]="cd?.def">
+                  {{ cd?.label }}
+                </mat-checkbox>
+              </mat-list-item>
+            </mat-list>
+          </span>
+        </mat-menu>
+      </div>
+    </div>
+
+    <ng-container *ngIf="!loading; else loadingSkeleton">
+      <div
+        class="table-responsive"
+        *ngIf="dataSource.data.length > 0; else noDataFound"
+      >
+        <table
+          class="border border-1 table-bordered"
+          mat-table
+          multiTemplateDataRows
+          [dataSource]="dataSource"
+          [trackBy]="trackBy"
+        >
+          <ng-container matColumnDef="expand">
+            <th
+              mat-header-cell
+              class="header"
+              *matHeaderCellDef
+              aria-label="row actions"
+              (click)="expandAll()"
+              style="cursor: pointer"
+            >
+              <mat-icon>keyboard_arrow_down</mat-icon>
+            </th>
+            <td mat-cell *matCellDef="let element">
+              <button
+                mat-icon-button
+                aria-label="expand row"
+                (click)="
+                  expandedElement =
+                    expandedElement === element ? null : element;
+                  $event.stopPropagation()
+                "
+              >
+                <mat-icon *ngIf="expandedElement !== element"
+                  >keyboard_arrow_down</mat-icon
+                >
+                <mat-icon *ngIf="expandedElement === element"
+                  >keyboard_arrow_up</mat-icon
+                >
+              </button>
+            </td>
+            <td mat-footer-cell *matFooterCellDef>Total</td>
+          </ng-container>
+
+          <!-- referenceNo Column -->
+          <ng-container matColumnDef="referenceNo">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Reference No
+            </th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{ saleOrder?.referenceNo }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- saleOrderNo Column -->
+          <ng-container matColumnDef="saleOrderNo">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Sale Order No
+            </th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{ saleOrder?.saleOrderNo }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- quotationNo Column -->
+          <ng-container matColumnDef="quotationNo">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Sale Quotation No
+            </th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{ saleOrder?.quotationNo }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- transport Column -->
+          <ng-container matColumnDef="transport">
+            <th mat-header-cell class="header" *matHeaderCellDef>Transport</th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{ saleOrder?.transportName }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- orderDate Column -->
+          <ng-container matColumnDef="orderDate">
+            <th mat-header-cell class="header" *matHeaderCellDef>Order Date</th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{ dateFormatService?.getDateFormat(saleOrder?.orderDate) }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- deliveryDate Column -->
+          <ng-container matColumnDef="deliveryDate">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Delivery Date
+            </th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{ dateFormatService?.getDateFormat(saleOrder?.deliveryDate) }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- paymentTerm Column -->
+          <ng-container matColumnDef="paymentTerm">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Payment Term
+            </th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{ saleOrder?.paymentTermName }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- customerId Column -->
+          <ng-container matColumnDef="customerId">
+            <th mat-header-cell class="header" *matHeaderCellDef>Customer</th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{ saleOrder?.customer?.name }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+          <!-- creditLimit Column -->
+          <ng-container matColumnDef="creditLimit">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Credit Limit
+            </th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{ saleOrder?.creditLimit }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- limitAvailed Column -->
+          <ng-container matColumnDef="limitAvailed">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Limit Availed
+            </th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{ saleOrder?.limitAvailed }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- storeId Column -->
+          <ng-container matColumnDef="storeId">
+            <th mat-header-cell class="header" *matHeaderCellDef>Store</th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{ saleOrder?.store?.name }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- subtotal Column -->
+          <ng-container matColumnDef="subtotal">
+            <th mat-header-cell class="header" *matHeaderCellDef>Subtotal</th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{ saleOrder?.subtotal | currency : "BDT" : "" : "1.2-2" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              {{
+                reportAggregator?.aggregatorSubtotal
+                  | currency : "BDT" : "" : "1.2-2"
+              }}
+            </td>
+          </ng-container>
+
+          <!-- discount Column -->
+          <ng-container matColumnDef="discount">
+            <th mat-header-cell class="header" *matHeaderCellDef>Discount</th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{ saleOrder?.discount | currency : "BDT" : "" : "1.2-2" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              {{
+                reportAggregator?.aggregatorDiscount
+                  | currency : "BDT" : "" : "1.2-2"
+              }}
+            </td>
+          </ng-container>
+
+          <!-- totalPercentageDiscountAmount Column -->
+          <ng-container matColumnDef="totalPercentageDiscountAmount">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Total Percentage Discount Amount
+            </th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{
+                saleOrder?.totalPercentageDiscountAmount
+                  | currency : "BDT" : "" : "1.2-2"
+              }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              {{
+                reportAggregator?.aggregatorTotalPercentageDiscountAmount || 0
+                  | currency : "BDT" : "" : "1.2-2"
+              }}
+            </td>
+          </ng-container>
+
+          <!-- offerDiscount Column -->
+          <ng-container matColumnDef="offerDiscount">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Offer Discount
+            </th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{ saleOrder?.offerDiscount | currency : "BDT" : "" : "1.2-2" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              {{
+                reportAggregator?.aggregatorOfferDiscount
+                  | currency : "BDT" : "" : "1.2-2"
+              }}
+            </td>
+          </ng-container>
+
+          <!-- otherDiscount Column -->
+          <ng-container matColumnDef="otherDiscount">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Other Discount
+            </th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{ saleOrder?.otherDiscount | currency : "BDT" : "" : "1.2-2" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              {{
+                reportAggregator?.aggregatorOtherDiscount
+                  | currency : "BDT" : "" : "1.2-2"
+              }}
+            </td>
+          </ng-container>
+
+          <!-- total Column -->
+          <ng-container matColumnDef="total">
+            <th mat-header-cell class="header" *matHeaderCellDef>Total</th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{ saleOrder?.total | currency : "BDT" : "" : "1.2-2" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              {{
+                reportAggregator?.aggregatorTotal
+                  | currency : "BDT" : "" : "1.2-2"
+              }}
+            </td>
+          </ng-container>
+
+          <!-- transportationCost Column -->
+          <ng-container matColumnDef="transportationCost">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Transportation Cost
+            </th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{
+                saleOrder?.transportationCost | currency : "BDT" : "" : "1.2-2"
+              }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              {{
+                reportAggregator?.aggregatorTransportationCost
+                  | currency : "BDT" : "" : "1.2-2"
+              }}
+            </td>
+          </ng-container>
+
+          <!-- depoCharge Column -->
+          <ng-container matColumnDef="depoCharge">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Depo Charge
+            </th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{ saleOrder?.depoCharge | currency : "BDT" : "" : "1.2-2" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              {{
+                reportAggregator?.aggregatorDepoCharge
+                  | currency : "BDT" : "" : "1.2-2"
+              }}
+            </td>
+          </ng-container>
+
+          <!-- netTotal Column -->
+          <ng-container matColumnDef="netTotal">
+            <th mat-header-cell class="header" *matHeaderCellDef>Net Total</th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{ saleOrder?.netTotal | currency : "BDT" : "" : "1.2-2" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              {{
+                reportAggregator?.aggregatorNetTotal
+                  | currency : "BDT" : "" : "1.2-2"
+              }}
+            </td>
+          </ng-container>
+
+          <!-- journalType Column -->
+          <!-- <ng-container matColumnDef="journalType">
+          <th mat-header-cell class="header" *matHeaderCellDef>Sale Order Type</th>
+          <td mat-cell *matCellDef="let saleOrder">
+            {{ getSale OrderTypeName(saleOrder?.journalType) }}
+          </td><td mat-footer-cell *matFooterCellDef></td>
+        </ng-container> -->
+
+          <!-- cashBankAccountId Column -->
+          <!-- <ng-container matColumnDef="cashBankAccountId">
+          <th mat-header-cell class="header" *matHeaderCellDef>
+            cashBankAccountId
+          </th>
+          <td mat-cell *matCellDef="let saleOrder">
+            {{ saleOrder?.cashBankAccountId }}
+          </td><td mat-footer-cell *matFooterCellDef></td>
+        </ng-container> -->
+
+          <!-- Status -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell class="header" *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let saleOrder">
+              <mat-chip
+                class="align-middle py-4 px-8"
+                [color]="getSaleOrderStatus(saleOrder?.status)?.color"
+                selected
+              >
+                {{
+                  getSaleOrderStatusName(saleOrder?.status)?.replaceAll(
+                    "_",
+                    " "
+                  )
+                }}
+              </mat-chip>
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- remark Column -->
+          <ng-container matColumnDef="remark">
+            <th mat-header-cell class="header" *matHeaderCellDef>Remark</th>
+            <td mat-cell *matCellDef="let saleOrder">
+              {{ saleOrder?.remark }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Checked By Column -->
+          <ng-container matColumnDef="checkedBy">
+            <th mat-header-cell class="header" *matHeaderCellDef>Checked By</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.checkedBy }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Approved By Column -->
+          <ng-container matColumnDef="approvedBy">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Approved By
+            </th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.approvedBy }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Created On Column -->
+          <ng-container matColumnDef="createdOn">
+            <th mat-header-cell class="header" *matHeaderCellDef>Created On</th>
+            <td mat-cell *matCellDef="let element">
+              {{ dateFormatService?.getDateAndTime(element?.createdOn) }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Updated On Column -->
+          <ng-container matColumnDef="updatedOn">
+            <th mat-header-cell class="header" *matHeaderCellDef>Updated On</th>
+            <td mat-cell *matCellDef="let element">
+              {{ dateFormatService?.getDateAndTime(element?.updatedOn) }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Created By Column -->
+          <ng-container matColumnDef="createdBy">
+            <th mat-header-cell class="header" *matHeaderCellDef>Created By</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.createdBy }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Updated By Column -->
+          <ng-container matColumnDef="updatedBy">
+            <th mat-header-cell class="header" *matHeaderCellDef>Updated By</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.updatedBy }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th
+              style="text-align: center"
+              class="header"
+              mat-header-cell
+              *matHeaderCellDef
+            >
+              Actions
+            </th>
+            <td align="center" mat-cell *matCellDef="let saleOrder">
+              <button
+                mat-icon-button
+                color="accent"
+                matTooltip="View, Check, Approve"
+                matTooltipShowDelay="300"
+                matTooltipPosition="above"
+                (click)="navigateToView(saleOrder)"
+              >
+                <mat-icon>published_with_changes</mat-icon>
+              </button>
+
+              <button
+                *appHasPermission="['Permissions.SaleOrders.Closed']"
+                [hidden]="saleOrder?.status != 4 && saleOrder?.status != 7"
+                mat-raised-button
+                color="warn"
+                class="small-button"
+                matTooltip="Close"
+                matTooltipShowDelay="300"
+                matTooltipPosition="above"
+                [disabled]="isLoadingCloseSOButton"
+                (click)="confirmClose(saleOrder?.id, saleOrder?.saleOrderNo)"
+              >
+                <ng-container *ngIf="isLoadingCloseSOButton; else closeSo">
+                  <mat-icon>
+                    <mat-spinner diameter="20"></mat-spinner>
+                  </mat-icon>
+
+                  {{ "Processing..." }}
+                </ng-container>
+                <ng-template #closeSo>
+                  {{ "Close SO" }}
+                </ng-template>
+              </button>
+
+              <button
+                *appHasPermission="['Permissions.SaleOrders.Delete']"
+                [hidden]="
+                  saleOrder?.status >= 2 ||
+                  saleOrder?.financialYearId != currentFinancialYearId
+                "
+                mat-icon-button
+                color="warn"
+                matTooltip="Delete"
+                matTooltipShowDelay="300"
+                matTooltipPosition="above"
+                (click)="confirmDelete(saleOrder?.id, saleOrder?.saleOrderNo)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                color="primary"
+                matTooltip="print pdf"
+                matTooltipShowDelay="300"
+                matTooltipPosition="above"
+                (click)="printPdf(saleOrder?.id)"
+              >
+                <mat-icon>print</mat-icon>
+              </button>
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+          <ng-container matColumnDef="expandedDetail">
+            <td
+              mat-cell
+              *matCellDef="let element"
+              [attr.colspan]="(displayedColumns$ | async)?.length"
+            >
+              <div
+                class="example-element-detail"
+                [@detailExpand]="
+                  element == expandedElement ? expanded : collapsed
+                "
+              >
+                <app-sales-order-detail
+                  [data]="element?.saleOrderDetails"
+                ></app-sales-order-detail>
+              </div>
+            </td>
+          </ng-container>
+          <!-- -------------- Expanded Content End----------------- -->
+
+          <!--  -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns$ | async"></tr>
+          <tr
+            mat-row
+            *matRowDef="let element; columns: displayedColumns$ | async"
+            class="example-element-row"
+            [class.example-expanded-row]="expandedElement === element"
+            (dblclick)="
+              expandedElement = expandedElement === element ? null : element
+            "
+            tabindex="1"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: ['expandedDetail']"
+            class="example-detail-row"
+          ></tr>
+          <tr mat-footer-row *matFooterRowDef="displayedColumns$ | async"></tr>
+        </table>
+      </div>
+      <mat-paginator
+        *ngIf="totalCount > 0"
+        [length]="totalCount"
+        [pageSizeOptions]="pageSizeOptions"
+        (page)="onPageChange($event)"
+        showFirstLastButtons
+        aria-label="Select page of sale order list"
+      >
+      </mat-paginator>
+    </ng-container>
+  </mat-card-content>
+</mat-card>
+<!-- loader start -->
+<ng-template #loadingSkeleton>
+  <app-loading-skeleton></app-loading-skeleton>
+</ng-template>
+<!-- No Data Found -->
+<ng-template #noDataFound>
+  <app-no-data-found></app-no-data-found>
+</ng-template>

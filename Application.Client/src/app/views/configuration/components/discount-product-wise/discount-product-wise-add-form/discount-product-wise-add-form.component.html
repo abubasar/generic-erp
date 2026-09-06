@@ -1,0 +1,117 @@
+<h2 mat-dialog-title>{{ formTitle }}</h2>
+<form [formGroup]="discountProductWiseForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="mat-typography">
+    <input mat type="hidden" formControlName="id" />
+    <div class="row row-cols-1 row-cols-md-3 gx-3">
+      <div class="col">
+        <mat-form-field class="full-width">
+          <mat-label>Offer Name</mat-label>
+          <input
+            type="text"
+            matInput
+            name="name"
+            formControlName="name"
+            placeholder="Enter Offer Name"
+          />
+        </mat-form-field>
+      </div>
+
+      <!-- Offer Date -->
+      <div class="col">
+        <mat-form-field class="full-width">
+          <mat-label>Enter a date range</mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input
+              matStartDate
+              formControlName="startDate"
+              placeholder="Start date"
+              (focus)="picker.open()"
+            />
+            <input
+              matEndDate
+              formControlName="endDate"
+              placeholder="End date"
+              (focus)="picker.open()"
+            />
+          </mat-date-range-input>
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="picker"
+          ></mat-datepicker-toggle>
+          <mat-date-range-picker #picker></mat-date-range-picker>
+        </mat-form-field>
+      </div>
+
+      <div class="col">
+        <mat-checkbox
+          class="checkbox-margin"
+          formControlName="isActive"
+          (click)="handleActiveOffer($event)"
+        >
+          Is Active
+        </mat-checkbox>
+      </div>
+    </div>
+
+    <!-- Customer Wise Product Discount Details -->
+    <ng-container formArrayName="discountProductWiseDetails">
+      <h3 class="subheading-2">Discount Product Wise Details</h3>
+      <mat-divider></mat-divider>
+      <ng-container
+        *ngFor="let p of discountProductWiseDetails.controls; let i = index"
+        [formGroupName]="i"
+      >
+        <div class="row">
+          <!-- productId -->
+          <div class="col-6">
+            <mat-form-field class="full-width">
+              <mat-label>Product</mat-label>
+
+              <mat-select name="productId" formControlName="productId" disabled>
+                <mat-option *ngFor="let d of products" [value]="d.id">
+                  {{ d.name }}
+                </mat-option>
+              </mat-select>
+              <mat-error>ProductId is required</mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Discount Amount Per Kg -->
+          <div class="col-3">
+            <mat-form-field
+              class="full-width"
+              matTooltip="Discount Amount Per Kg"
+              matTooltipPosition="above"
+            >
+              <mat-label>Discount Amount Per Kg</mat-label>
+              <input
+                matInput
+                type="text"
+                name="discountAmountPerKg"
+                formControlName="discountAmountPerKg"
+                (click)="$event.target.select()"
+              />
+              <mat-error>Discount Amount Per Kg is required</mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="d-flex justify-content-end">
+    <div>
+      <button mat-raised-button mat-dialog-close>Cancel</button>
+      <button
+        mat-raised-button
+        cdkFocusInitial
+        color="primary"
+        type="submit"
+        [mat-dialog-close]="true"
+        [disabled]="this.discountProductWiseForm.invalid"
+      >
+        Save
+      </button>
+    </div>
+  </mat-dialog-actions>
+</form>

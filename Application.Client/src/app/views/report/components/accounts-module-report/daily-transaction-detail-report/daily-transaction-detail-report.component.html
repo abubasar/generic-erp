@@ -1,0 +1,55 @@
+<mat-card>
+  <mat-card-title>Daily Transaction Detail : Report</mat-card-title>
+  <form autocomplete="off" [formGroup]="searchForm" (ngSubmit)="printPdf()">
+    <div class="row row-cols-2 gx-5">
+      <div class="col">
+        <mat-form-field class="full-width">
+          <mat-label>Enter a date range</mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input
+              matStartDate
+              formControlName="fromDate"
+              placeholder="Start date"
+              (focus)="picker.open()"
+            />
+            <input
+              matEndDate
+              formControlName="toDate"
+              placeholder="End date"
+              (focus)="picker.open()"
+            />
+          </mat-date-range-input>
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="picker"
+          ></mat-datepicker-toggle>
+          <mat-date-range-picker #picker></mat-date-range-picker>
+          <mat-error
+            *ngIf="
+              searchForm.get('fromDate').hasError('required') ||
+              searchForm.get('toDate').hasError('required')
+            "
+          >
+            Date range is required.
+          </mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <button
+          mat-raised-button
+          matTooltip="PDF"
+          color="primary"
+          type="submit"
+          [disabled]="isLoading || this.searchForm.invalid"
+        >
+          <ng-container *ngIf="isLoading; else saveText">
+            {{ "Processing..." }}
+          </ng-container>
+          <ng-template #saveText>
+            <mat-icon>picture_as_pdf</mat-icon>
+          </ng-template>
+        </button>
+      </div>
+    </div>
+  </form>
+</mat-card>

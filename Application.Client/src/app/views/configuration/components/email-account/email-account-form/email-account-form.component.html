@@ -1,0 +1,136 @@
+<h2 mat-dialog-title>{{ formTitle }}</h2>
+<form [formGroup]="emailAccountForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="mat-typography">
+    <input mat type="hidden" formControlName="id" />
+    <mat-form-field class="full-width">
+      <mat-label>Display Name</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Enter Display Name"
+        formControlName="displayName"
+      />
+      <mat-error
+        *ngIf="
+          emailAccountForm.controls['displayName'].hasError('required') &&
+          emailAccountForm.controls['displayName'].touched
+        "
+      >
+        Display Name is required
+      </mat-error>
+    </mat-form-field>
+    <mat-form-field class="full-width">
+      <mat-label>Email</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Enter Email"
+        formControlName="email"
+      />
+      <mat-error
+        *ngIf="
+          emailAccountForm.controls['email'].hasError('required') &&
+          emailAccountForm.controls['email'].touched
+        "
+      >
+        Email is required
+      </mat-error>
+    </mat-form-field>
+    <mat-form-field class="full-width">
+      <mat-label>Host</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Enter Host"
+        formControlName="host"
+      />
+      <mat-error
+        *ngIf="
+          emailAccountForm.controls['host'].hasError('required') &&
+          emailAccountForm.controls['host'].touched
+        "
+      >
+        Host is required
+      </mat-error>
+    </mat-form-field>
+    <mat-form-field class="full-width">
+      <mat-label>Username</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Enter Username"
+        formControlName="username"
+      />
+      <mat-error
+        *ngIf="
+          emailAccountForm.controls['username'].hasError('required') &&
+          emailAccountForm.controls['username'].touched
+        "
+      >
+        Username is required
+      </mat-error>
+    </mat-form-field>
+    <mat-form-field class="full-width">
+      <mat-label>Password</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Enter Password"
+        formControlName="password"
+      />
+      <mat-error
+        *ngIf="
+          emailAccountForm.controls['password'].hasError('required') &&
+          emailAccountForm.controls['password'].touched
+        "
+      >
+        Password is required
+      </mat-error>
+    </mat-form-field>
+    <mat-form-field class="full-width">
+      <mat-label>Port</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Enter Port"
+        formControlName="port"
+      />
+      <mat-error
+        *ngIf="
+          emailAccountForm.controls['port'].hasError('required') &&
+          emailAccountForm.controls['port'].touched
+        "
+      >
+        Port is required
+      </mat-error>
+    </mat-form-field>
+    <!-- enableSsl -->
+    <section required>
+      <mat-checkbox class="checkbox-margin" formControlName="enableSsl">
+        Is Enable SSL?
+      </mat-checkbox>
+    </section>
+    <!-- isDefaultEmailAccount -->
+    <section required>
+      <mat-checkbox
+        class="checkbox-margin"
+        formControlName="isDefaultEmailAccount"
+      >
+        Is Default Email Account?
+      </mat-checkbox>
+    </section>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-raised-button mat-dialog-close>Cancel</button>
+    <button
+      mat-raised-button
+      [mat-dialog-close]="true"
+      cdkFocusInitial
+      color="primary"
+      [disabled]="!emailAccountForm.dirty || !emailAccountForm.valid"
+      type="submit"
+    >
+      Save
+    </button>
+  </mat-dialog-actions>
+</form>

@@ -1,0 +1,296 @@
+<div class="container-fluid">
+  <div class="d-flex justify-content-between">
+    <h3 mat-dialog-title>{{ dialogTitle }}</h3>
+    <div>
+      <button mat-dialog-close mat-icon-button color="warn" type="button">
+        <mat-icon>closeIcon</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="d-flex justify-content-between">
+  <div class="col">
+    <button
+      mat-raised-button
+      color="primary"
+      matBadgeColor="accent"
+      [mat-dialog-close]="selectedDeliveryNote"
+      [disabled]="selectedDeliveryNote == null"
+    >
+      Continue
+    </button>
+  </div>
+  <!-- its need for multiple selection -->
+  <!-- <div>
+    <button
+      mat-raised-button
+      color="primary"
+      matBadge="{{ selection.selected.length }}"
+      matBadgePosition="after"
+      matBadgeColor="accent"
+      [mat-dialog-close]="selection.selected"
+      [disabled]="!selection.selected.length"
+    >
+      Continue
+    </button>
+  </div> -->
+  <div class="col">
+    <form autocomplete="off" [formGroup]="searchForm" (ngSubmit)="onSearch()">
+      <div class="row row-cols-3 gx-2">
+        <div class="col">
+          <!-- customerId -->
+          <mat-form-field class="full-width">
+            <mat-label>Select Customer</mat-label>
+            <input
+              type="text"
+              matInput
+              name="customerId"
+              formControlName="customerId"
+              [matAutocomplete]="auto"
+              (input)="handleCustomerSearch($event)"
+            />
+            <div matSuffix>
+              <button
+                (click)="clearInput($event, 'customerId')"
+                *ngIf="
+                  searchForm?.get('customerId')?.value !== null &&
+                  searchForm?.get('customerId')?.value !== ''
+                "
+                aria-label="Clear"
+                mat-icon-button
+                type="button"
+              >
+                <mat-icon>clear</mat-icon>
+              </button>
+            </div>
+            <mat-autocomplete
+              #auto="matAutocomplete"
+              [displayWith]="getCustomerName.bind(this)"
+            >
+              <mat-option
+                matTooltip="{{ d.address }}"
+                *ngFor="let d of filterCustomers"
+                [value]="d.id"
+              >
+                {{ d.name }} ({{ d.code.slice(-4) }}) {{ d.address }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Delivery Note No.</mat-label>
+            <input
+              type="text"
+              placeholder="Search Delivery Note No"
+              aria-label="Filter Delivery Note No"
+              matInput
+              name="deliveryNoteNo"
+              formControlName="deliveryNoteNo"
+              [matAutocomplete]="deliveryNoteNumber"
+              (input)="onDeliveryNoteNoChange()"
+            />
+            <div matSuffix>
+              <button
+                (click)="clearInput($event, 'deliveryNoteNo')"
+                *ngIf="
+                  searchForm?.get('deliveryNoteNo')?.value !== null &&
+                  searchForm?.get('deliveryNoteNo')?.value !== ''
+                "
+                aria-label="Clear"
+                mat-icon-button
+                type="button"
+              >
+                <mat-icon>clear</mat-icon>
+              </button>
+            </div>
+            <mat-autocomplete
+              autoActiveFirstOption
+              #deliveryNoteNumber="matAutocomplete"
+            >
+              <mat-option
+                *ngFor="let d of deliveryNotes"
+                [value]="d.deliveryNoteNo"
+              >
+                {{ d.deliveryNoteNo }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+        <div class="col">
+          <button mat-raised-button color="primary" type="submit">
+            <mat-icon>search_icon</mat-icon>Search
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<ng-container *ngIf="!loading; else loadingSkeleton">
+  <div class="table-responsive table-container">
+    <table
+      class="border border-1"
+      mat-table
+      multiTemplateDataRows
+      [dataSource]="dataSource"
+    >
+      <!-- Select Column -->
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>Select</th>
+        <td mat-cell *matCellDef="let deliveryNote">
+          <mat-radio-button
+            (click)="$event.stopPropagation()"
+            (change)="handleRadioChange($event)"
+            [value]="deliveryNote"
+          >
+          </mat-radio-button>
+        </td>
+      </ng-container>
+      <!-- checkbox  // its need for multiple selection -->
+      <!-- <ng-container matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef>Select</th>
+      <td mat-cell *matCellDef="let row">
+        <mat-checkbox
+          (click)="$event.stopPropagation()"
+          (change)="$event ? selection.toggle(row) : null"
+          [checked]="selection.isSelected(row)"
+        >
+        </mat-checkbox>
+      </td>
+    </ng-container> -->
+      <!-- Expend Column -->
+      <ng-container matColumnDef="expand">
+        <th
+          mat-header-cell
+          class="header"
+          *matHeaderCellDef
+          aria-label="row actions"
+        >
+          &nbsp;
+        </th>
+        <td mat-cell *matCellDef="let element">
+          <button
+            mat-icon-button
+            aria-label="expand row"
+            (click)="
+              expandedElement = expandedElement === element ? null : element;
+              $event.stopPropagation()
+            "
+          >
+            <mat-icon *ngIf="expandedElement !== element"
+              >keyboard_arrow_down</mat-icon
+            >
+            <mat-icon *ngIf="expandedElement === element"
+              >keyboard_arrow_up</mat-icon
+            >
+          </button>
+        </td>
+      </ng-container>
+
+      <!-- saleOrderNo Column -->
+      <ng-container matColumnDef="saleOrderNo">
+        <th mat-header-cell *matHeaderCellDef>Sale Order No</th>
+        <td mat-cell *matCellDef="let deliveryNote">
+          {{ deliveryNote.saleOrderNo }}
+        </td>
+      </ng-container>
+      <!-- deliveryNoteNo Column -->
+      <ng-container matColumnDef="deliveryNoteNo">
+        <th mat-header-cell *matHeaderCellDef>Delivery Note No</th>
+        <td mat-cell *matCellDef="let deliveryNote">
+          {{ deliveryNote.deliveryNoteNo }}
+        </td>
+      </ng-container>
+
+      <!-- customerId Column -->
+      <ng-container matColumnDef="customerId">
+        <th mat-header-cell *matHeaderCellDef>Customer</th>
+        <td mat-cell *matCellDef="let deliveryNote">
+          {{ deliveryNote?.customer?.name }}
+        </td>
+      </ng-container>
+
+      <!-- storeId Column -->
+      <ng-container matColumnDef="storeId">
+        <th mat-header-cell *matHeaderCellDef>Store</th>
+        <td mat-cell *matCellDef="let deliveryNote">
+          {{ deliveryNote.store.name }}
+        </td>
+      </ng-container>
+      <!-- referenceNo Column -->
+      <ng-container matColumnDef="referenceNo">
+        <th mat-header-cell *matHeaderCellDef>Reference No</th>
+        <td mat-cell *matCellDef="let deliveryNote">
+          {{ deliveryNote.referenceNo }}
+        </td>
+      </ng-container>
+      <!-- status -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell class="header" *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let deliveryNote">
+          <mat-chip
+            class="align-middle py-4 px-8"
+            [color]="getDeliveryNoteStatus(deliveryNote.status).color"
+            selected
+          >
+            {{ getDeliveryNoteName(deliveryNote.status) }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+      <ng-container matColumnDef="expandedDetail">
+        <td
+          mat-cell
+          *matCellDef="let element"
+          [attr.colspan]="displayedColumns.length"
+        >
+          <div
+            class="example-element-detail"
+            [@detailExpand]="
+              element == expandedElement ? 'expanded' : 'collapsed'
+            "
+          >
+            <app-delivery-note-detail
+              [data]="element.deliveryNoteDetails"
+            ></app-delivery-note-detail>
+          </div>
+        </td>
+      </ng-container>
+      <!-- -------------- Expanded Content End----------------- -->
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let element; columns: displayedColumns"
+        class="example-element-row"
+        [class.example-expanded-row]="expandedElement === element"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: ['expandedDetail']"
+        class="example-detail-row"
+      ></tr>
+    </table>
+  </div>
+  <mat-paginator
+    *ngIf="totalCount > 0"
+    [length]="totalCount"
+    [pageSizeOptions]="[15, 20, 50, 100]"
+    (page)="onPageChange($event)"
+    showFirstLastButtons
+    aria-label="Select page of deliveryNote list"
+  >
+  </mat-paginator>
+</ng-container>
+
+<!-- loader start -->
+<!-- <ng-container *ngIf="loading">
+  <app-loading-skeleton skeletonRowsCount="3"></app-loading-skeleton>
+</ng-container> -->
+<!-- loader end -->
+
+<!-- loader start -->
+<ng-template #loadingSkeleton>
+  <app-loading-skeleton skeletonRowsCount="3"></app-loading-skeleton>
+</ng-template>

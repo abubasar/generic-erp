@@ -1,0 +1,559 @@
+<mat-card>
+  <mat-expansion-panel
+    class="mat-elevation-z0"
+    (opened)="openExpansionPanel()"
+    (closed)="panelOpenState = false"
+  >
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>search_icon</mat-icon> Search
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <form autocomplete="off" [formGroup]="searchForm" (ngSubmit)="onSearch()">
+      <div class="row row-cols-2 gx-5">
+        <!-- Keyword -->
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Search By Keyword / Fund Transfer No.</mat-label>
+            <input matInput formControlName="keyword" />
+          </mat-form-field>
+        </div>
+
+        <!-- Cost Center -->
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Select Cost Center</mat-label>
+            <mat-select formControlName="costCenterId">
+              <mat-option [value]="null">-- None --</mat-option>
+              <mat-option *ngFor="let d of costCenters" [value]="d?.id">
+                {{ d?.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Fund Transfer Status -->
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Select Fund Transfer Status</mat-label>
+            <mat-select formControlName="fundTransferStatus">
+              <mat-option [value]="null">-- None --</mat-option>
+              <mat-option
+                *ngFor="let d of fundTransferStatuses"
+                [value]="d?.value"
+              >
+                {{ d?.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!--Fund Transfer from Account Id -->
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Select Transfer From(Cash/Bank Account)</mat-label>
+            <input
+              type="text"
+              matInput
+              name="transferFromAccountId"
+              formControlName="transferFromAccountId"
+              [matAutocomplete]="auto"
+              (input)="handleCashBankFromAccountSearch($event)"
+              [readonly]="cashBankLoading"
+            />
+            <div matSuffix>
+              <button
+                (click)="clearInput($event, 'transferFromAccountId')"
+                *ngIf="
+                  searchForm?.get('transferFromAccountId')?.value !== null &&
+                  searchForm?.get('transferFromAccountId')?.value !== ''
+                "
+                aria-label="Clear"
+                mat-icon-button
+                type="button"
+              >
+                <mat-icon>clear</mat-icon>
+              </button>
+            </div>
+            <mat-autocomplete
+              #auto="matAutocomplete"
+              [displayWith]="getCashBankFromAccountName.bind(this)"
+            >
+              <mat-option
+                *ngFor="let d of filteredCashBankAccounts"
+                [value]="d?.id"
+              >
+                {{ d.name }}
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error>From Account is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!--Fund Transfer to Account Id -->
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Select Transfer To(Cash/Bank Account)</mat-label>
+            <input
+              type="text"
+              matInput
+              name="transferToAccountId"
+              formControlName="transferToAccountId"
+              [matAutocomplete]="auto"
+              (input)="handleCashBankToAccountSearch($event)"
+              [readonly]="cashBankLoading"
+            />
+            <div matSuffix>
+              <button
+                (click)="clearInput($event, 'transferToAccountId')"
+                *ngIf="
+                  searchForm?.get('transferToAccountId')?.value !== null &&
+                  searchForm?.get('transferToAccountId')?.value !== ''
+                "
+                aria-label="Clear"
+                mat-icon-button
+                type="button"
+              >
+                <mat-icon>clear</mat-icon>
+              </button>
+            </div>
+            <mat-autocomplete
+              #auto="matAutocomplete"
+              [displayWith]="getCashBankToAccountName.bind(this)"
+            >
+              <mat-option
+                *ngFor="let d of filteredCashBankAccounts"
+                [value]="d?.id"
+              >
+                {{ d.name }}
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error>To Account is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- From Date - To Date -->
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Enter a date range</mat-label>
+            <mat-date-range-input [rangePicker]="picker">
+              <input
+                matStartDate
+                formControlName="fromDate"
+                placeholder="Start date"
+                (focus)="picker.open()"
+              />
+              <input
+                matEndDate
+                formControlName="toDate"
+                placeholder="End date"
+                (focus)="picker.open()"
+              />
+            </mat-date-range-input>
+            <mat-datepicker-toggle
+              matSuffix
+              [for]="picker"
+            ></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <button mat-raised-button color="primary" type="submit">
+        <mat-icon>search_icon</mat-icon>Search
+      </button>
+    </form>
+  </mat-expansion-panel>
+</mat-card>
+
+<mat-card>
+  <mat-card-content>
+    <div class="button-container d-flex justify-content-between">
+      <div
+        class="d-flex flex-column flex-md-row gap-2 align-items-start align-items-md-center"
+      >
+        <button
+          *appHasPermission="['Permissions.FundTransfers.Create']"
+          mat-stroked-button
+          color="primary"
+          (click)="navigateToAddNew()"
+        >
+          <mat-icon>add_box</mat-icon>
+          Add New
+        </button>
+        <button
+          mat-stroked-button
+          color="accent"
+          matBadge="{{ pendingCheckedModel?.pendingCount }}"
+          matBadgePosition="after"
+          matBadgeColor="primary"
+          (click)="getPending()"
+          [disabled]="pendingCheckedModel?.pendingCount == 0"
+        >
+          <mat-icon> present_to_all</mat-icon>
+          Pending For Check
+        </button>
+        <button
+          mat-stroked-button
+          color="warn"
+          matBadge="{{ pendingCheckedModel?.checkedCount }}"
+          matBadgePosition="after"
+          matBadgeColor="primary"
+          (click)="getChecked()"
+          [disabled]="pendingCheckedModel?.checkedCount == 0"
+        >
+          <mat-icon>done_outline</mat-icon>
+          Waiting For Approval
+        </button>
+      </div>
+
+      <!-- Views Column Button -->
+      <div>
+        <button
+          mat-icon-button
+          color="primary"
+          matTooltip="print summary pdf"
+          matTooltipShowDelay="300"
+          matTooltipPosition="above"
+          (click)="printFundTransferPdf('fund-transfer-summary-print')"
+        >
+          <mat-icon>print</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          color="primary"
+          (click)="reload()"
+          matTooltip="Reload"
+          matTooltipPosition="above"
+        >
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          matTooltip="Views Column"
+          matTooltipShowDelay="300"
+          [matMenuTriggerFor]="viewsColumn"
+        >
+          <mat-icon>view_module_icon</mat-icon>
+        </button>
+        <mat-menu
+          class="margin-0 padding-0"
+          #viewsColumn="matMenu"
+          [formGroup]="viewColumnForm"
+        >
+          <span
+            class="padding-0"
+            mat-menu-item
+            [disableRipple]="true"
+            (click)="$event.stopPropagation()"
+          >
+            <mat-list role="list" class="margin-0 padding-0">
+              <mat-list-item
+                role="listitem"
+                *ngFor="let cd of columnDefinitions"
+              >
+                <mat-checkbox [formControlName]="cd?.def">
+                  {{ cd?.label }}
+                </mat-checkbox>
+              </mat-list-item>
+            </mat-list>
+          </span>
+        </mat-menu>
+      </div>
+    </div>
+    <ng-container *ngIf="!loading; else loadingSkeleton">
+      <div
+        class="table-responsive"
+        *ngIf="dataSource.data.length > 0; else noDataFound"
+      >
+        <table
+          class="border border-1 table-bordered"
+          mat-table
+          multiTemplateDataRows
+          [dataSource]="dataSource"
+          [trackBy]="trackBy"
+        >
+          <!-- code Column -->
+          <ng-container matColumnDef="fundTransferNo">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Fund Transfer No
+            </th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.fundTransferNo }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>Total</td>
+          </ng-container>
+
+          <!-- Fund Transfer Date Column -->
+          <ng-container matColumnDef="fundTransferDate">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Fund Transfer Date
+            </th>
+            <td mat-cell *matCellDef="let element">
+              {{ dateFormatService?.getDateFormat(element?.fundTransferDate) }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- fundTransferTransactionTypeId Column -->
+          <ng-container matColumnDef="fundTransferTransactionTypeId">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Transaction Type
+            </th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.fundTransferTransactionType?.name }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- saleInvoiceId Column -->
+          <!-- <ng-container matColumnDef="fundTransferNo">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Sale Invoice No
+            </th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.saleInvoice?.invoiceNo }}
+            </td>
+          </ng-container> -->
+
+          <!-- customerId Column -->
+          <!-- <ng-container matColumnDef="customerId">
+            <th mat-header-cell class="header" *matHeaderCellDef>Customer</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.saleInvoice?.customer?.name }}
+            </td>
+          </ng-container> -->
+
+          <!-- costCenterId Column -->
+          <ng-container matColumnDef="costCenterId">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Cost Center
+            </th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.costCenter?.name }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- transferFromAccountId Column -->
+          <ng-container matColumnDef="transferFromAccountId">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Transfer From Account
+            </th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.transferFromAccount?.name }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- transferToAccountId Column -->
+          <ng-container matColumnDef="transferToAccountId">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Transfer To Account
+            </th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.transferToAccount?.name }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- amount Column -->
+          <ng-container matColumnDef="amount">
+            <th mat-header-cell class="header" *matHeaderCellDef>Amount</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.amount | currency : "BDT" : "" : "1.2-2" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              {{
+                reportAggregator?.aggregatorAmount
+                  | currency : "BDT" : "" : "1.2-2"
+              }}
+            </td>
+          </ng-container>
+
+          <!-- charges Column -->
+          <ng-container matColumnDef="charges">
+            <th mat-header-cell class="header" *matHeaderCellDef>Charges</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.charges | currency : "BDT" : "" : "1.2-2" }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>
+              {{
+                reportAggregator?.aggregatorCharges
+                  | currency : "BDT" : "" : "1.2-2"
+              }}
+            </td>
+          </ng-container>
+
+          <!-- remark Column -->
+          <ng-container matColumnDef="remark">
+            <th mat-header-cell class="header" *matHeaderCellDef>Remark</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.remark }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Status -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Fund Transfer Status
+            </th>
+            <td mat-cell *matCellDef="let element">
+              <mat-chip
+                class="align-middle py-4 px-8"
+                [color]="getFundTransferStatus(element?.status)?.color"
+                selected
+              >
+                {{
+                  getFundTransferStatusName(element?.status)?.replaceAll(
+                    "_",
+                    " "
+                  )
+                }}
+              </mat-chip>
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Checked By Column -->
+          <ng-container matColumnDef="checkedBy">
+            <th mat-header-cell class="header" *matHeaderCellDef>Checked By</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.checkedBy }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Approved By Column -->
+          <ng-container matColumnDef="approvedBy">
+            <th mat-header-cell class="header" *matHeaderCellDef>
+              Approved By
+            </th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.approvedBy }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Created On Column -->
+          <ng-container matColumnDef="createdOn">
+            <th mat-header-cell class="header" *matHeaderCellDef>Created On</th>
+            <td mat-cell *matCellDef="let element">
+              {{ dateFormatService?.getDateAndTime(element?.createdOn) }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Updated On Column -->
+          <ng-container matColumnDef="updatedOn">
+            <th mat-header-cell class="header" *matHeaderCellDef>Updated On</th>
+            <td mat-cell *matCellDef="let element">
+              {{ dateFormatService?.getDateAndTime(element?.updatedOn) }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Created By Column -->
+          <ng-container matColumnDef="createdBy">
+            <th mat-header-cell class="header" *matHeaderCellDef>Created By</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.createdBy }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Updated By Column -->
+          <ng-container matColumnDef="updatedBy">
+            <th mat-header-cell class="header" *matHeaderCellDef>Updated By</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element?.updatedBy }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th
+              style="text-align: center"
+              class="header"
+              mat-header-cell
+              *matHeaderCellDef
+            >
+              Actions
+            </th>
+            <td align="center" mat-cell *matCellDef="let element">
+              <button
+                mat-icon-button
+                color="accent"
+                matTooltip="View, Check, Approve"
+                matTooltipShowDelay="300"
+                matTooltipPosition="above"
+                (click)="navigateToView(element)"
+              >
+                <mat-icon>published_with_changes</mat-icon>
+              </button>
+
+              <button
+                *appHasPermission="['Permissions.FundTransfers.Delete']"
+                [hidden]="
+                  element?.status >= 2 ||
+                  element.financialYearId != currentFinancialYearId
+                "
+                mat-icon-button
+                color="warn"
+                matTooltip="Delete"
+                matTooltipShowDelay="300"
+                matTooltipPosition="above"
+                (click)="confirmDelete(element?.id, element?.code)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                color="primary"
+                matTooltip="print pdf"
+                matTooltipShowDelay="300"
+                matTooltipPosition="above"
+                (click)="printPdf(element?.id)"
+              >
+                <mat-icon>print</mat-icon>
+              </button>
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+
+          <!--  -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns$ | async"></tr>
+          <tr
+            class="example-element-row"
+            mat-row
+            *matRowDef="let element; columns: displayedColumns$ | async"
+            tabindex="1"
+          ></tr>
+          <tr mat-footer-row *matFooterRowDef="displayedColumns$ | async"></tr>
+        </table>
+      </div>
+      <mat-paginator
+        *ngIf="totalCount > 0"
+        [length]="totalCount"
+        [pageSizeOptions]="[15, 20, 50, 100]"
+        (page)="onPageChange($event)"
+        showFirstLastButtons
+        aria-label="Select page of element list"
+      >
+      </mat-paginator>
+    </ng-container>
+  </mat-card-content>
+</mat-card>
+
+<!-- loader start -->
+<ng-template #loadingSkeleton>
+  <app-loading-skeleton></app-loading-skeleton>
+</ng-template>
+<!-- loader end -->
+<ng-template #noDataFound>
+  <app-no-data-found></app-no-data-found>
+</ng-template>

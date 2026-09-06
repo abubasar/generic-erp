@@ -1,0 +1,36 @@
+﻿Architecture:
+- Clean Architecture (Onion Architecture)
+- Repository Pattern
+- Unit of Work Pattern
+
+Implemented
+1.Global Exception Middleware
+2.Global Model Validation Filter
+3.Audit Trail
+4.Autofac
+5.Auto Mapper
+6.Fluent Validation
+7.Serilog for Database Logging
+8.Custom JWT Authentication
+10.Shared Database Multitenancy
+11.Global Query Filter(QueryFilters need to be applied before base.OnModelCreating, modelBuilder.ApplyGlobalFilter<bool>("Deleted",false);)
+12.EF Core for ORM
+13.iTextSharp for Report Design
+14.EP Plus for Excel Design
+15.Activity Log in Database
+
+REVERSE STOCK ENTRY WHEN UNPOST
+1.Manufacturing Order (stock out => yes)
+2.Delivery Note (stock out => yes)
+3.Purchase Return (stock out => yes)
+4.Stock Transfer-Issue (stock out => yes)
+5.Stock Adjustment Minus (stock out => yes)
+6.Adjust Issued Items During Production(Stock Adjustment Minus)  (stock out => yes)
+
+STOCK IN:
+1.Goods Receive Note/Purchase
+2.Production
+3.Stock Transfer Receive
+4.Stock Adjustment Plus
+5.Sale Return
+6.Adjust Material during production entry(Stock Adjustment Plus)

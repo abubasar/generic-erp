@@ -1,0 +1,1385 @@
+<div class="container-fluid">
+  <div *ngIf="isViewMode" class="d-flex justify-content-between">
+    <div class="d-flex gap-2 align-items-center">
+      <button mat-icon-button (click)="navigateToList()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h3 class="m-0">Purchase Invoice No: {{ data?.purchaseInvoiceNo }}</h3>
+      <div>
+        <mat-chip
+          class="align-middle py-4 px-8"
+          [color]="getPurchaseInvoiceStatus(data?.status)?.color"
+          selected
+          >{{
+            getPurchaseInvoiceStatusName(data?.status)?.replaceAll("_", " ")
+          }}</mat-chip
+        >
+      </div>
+      <button
+        mat-icon-button
+        color="primary"
+        matTooltip="print pdf"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printPdf(data?.id)"
+      >
+        <mat-icon>print</mat-icon>
+      </button>
+      <button
+        *appHasPermission="['Permissions.PurchaseInvoices.Edit']"
+        [hidden]="
+          data?.status > 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-icon-button
+        color="primary"
+        matTooltip="Edit"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="showEdit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+    <div>
+      <button
+        #btnCheck
+        *appHasPermission="['Permissions.PurchaseInvoices.Check']"
+        [hidden]="
+          data?.status != 1 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        type="button"
+        color="accent"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmCheck(data?.id, data?.purchaseInvoiceNo)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Check" }}
+        </ng-template>
+      </button>
+
+      <button
+        #btnApprove
+        *appHasPermission="['Permissions.PurchaseInvoices.Approve']"
+        [hidden]="
+          data?.status != 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        color="primary"
+        type="button"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmApprove(data?.id, data?.purchaseInvoiceNo)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Approve" }}
+        </ng-template>
+      </button>
+
+      <button
+        *appHasPermission="['Permissions.PurchaseInvoices.Unpost']"
+        [hidden]="
+          data?.status >= 4 ||
+          data?.status == 1 ||
+          data?.status == 'undefined' ||
+          data?.financialYearId != currentFinancialYearId
+        "
+        type="button"
+        mat-mini-fab
+        color="warn"
+        matTooltip="Undo"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmUnpost(data?.id, data?.purchaseInvoiceNo, data?.status)"
+      >
+        <ng-container *ngIf="isLoading; else undo">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+        </ng-container>
+        <ng-template #undo>
+          <mat-icon>undo</mat-icon>
+        </ng-template>
+      </button>
+    </div>
+  </div>
+  <mat-stepper
+    class="mat-stepper-card"
+    (selectionChange)="handleStepChange($event)"
+    [disableRipple]="true"
+    [linear]="true"
+    #stepper
+  >
+    <mat-step [stepControl]="purchaseInvoiceForm">
+      <form autocomplete="off" [formGroup]="purchaseInvoiceForm">
+        <ng-template matStepLabel>Purchase Invoice Form</ng-template>
+        <div>
+          <!-- Toggle button for more field -->
+          <ng-container>
+            <mat-slide-toggle
+              [checked]="getImportPurchaseValue()"
+              [disabled]="
+                purchaseInvoiceForm.get('ponumber')?.value ? true : false
+              "
+              formControlName="isImportPurchase"
+              (change)="toggleImportPurchase()"
+              >Is Import Purchase</mat-slide-toggle
+            >
+          </ng-container>
+          <ng-container *ngIf="getImportPurchaseValue()">
+            <div class="row row-cols-2 gx-5">
+              <!-- proformaInvoiceNo -->
+              <div class="col">
+                <mat-form-field class="full-width">
+                  <mat-label>Proforma Invoice No</mat-label>
+                  <input
+                    type="text"
+                    matInput
+                    autocomplete="off"
+                    placeholder="Enter Proforma Invoice No"
+                    formControlName="proformaInvoiceNo"
+                    readonly
+                  />
+                </mat-form-field>
+              </div>
+
+              <!-- lcNumber -->
+              <div class="col">
+                <mat-form-field class="full-width">
+                  <mat-label>LC Number</mat-label>
+                  <input
+                    type="text"
+                    matInput
+                    autocomplete="off"
+                    placeholder="Enter LC Number"
+                    formControlName="lcNumber"
+                    readonly
+                  />
+                </mat-form-field>
+              </div>
+
+              <!-- currencyId -->
+              <div class="col">
+                <mat-form-field class="full-width">
+                  <mat-label>Select Currency</mat-label>
+                  <mat-select [disabled]="true" formControlName="currencyId">
+                    <mat-option [value]="null">-- None --</mat-option>
+                    <mat-option *ngFor="let d of currencies" [value]="d?.id">
+                      {{ d?.name }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <!-- exchangeRate -->
+              <div class="col">
+                <mat-form-field class="full-width">
+                  <mat-label>Exchange Rate</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    name="exchangeRate"
+                    placeholder="0.00"
+                    formControlName="exchangeRate"
+                    min="0"
+                    (click)="$event.target.select()"
+                    readonly
+                  />
+                </mat-form-field>
+              </div>
+
+              <!-- importPurchaseIncoTerm -->
+              <div class="col">
+                <mat-form-field class="full-width">
+                  <mat-label>Select Import Purchase Inco Term</mat-label>
+                  <mat-select
+                    [disabled]="true"
+                    formControlName="importPurchaseIncoTerm"
+                  >
+                    <mat-option [value]="null">-- None --</mat-option>
+                    <mat-option
+                      *ngFor="let d of importPurchaseIncoTerms"
+                      [value]="d?.value"
+                    >
+                      {{ d?.name }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <!-- importPurchasePaymentTerm -->
+              <div class="col">
+                <mat-form-field class="full-width">
+                  <mat-label>Select Import Purchase Payment Term</mat-label>
+                  <mat-select
+                    [disabled]="true"
+                    formControlName="importPurchasePaymentTerm"
+                  >
+                    <mat-option [value]="null">-- None --</mat-option>
+                    <mat-option
+                      *ngFor="let d of importPurchasePaymentTerms"
+                      [value]="d?.value"
+                    >
+                      {{ d?.name == "LCAtSite" ? "LC at Site" : d?.name }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <!-- portOfLoading -->
+              <div class="col">
+                <mat-form-field class="full-width">
+                  <mat-label>Port of Loading</mat-label>
+                  <input
+                    type="text"
+                    matInput
+                    autocomplete="off"
+                    placeholder="Enter Port of Loading"
+                    formControlName="portOfLoading"
+                    readonly
+                  />
+                </mat-form-field>
+              </div>
+
+              <!-- portOfDestination -->
+              <div class="col">
+                <mat-form-field class="full-width">
+                  <mat-label>Port of Destination</mat-label>
+                  <input
+                    type="text"
+                    matInput
+                    autocomplete="off"
+                    placeholder="Enter Port of Destination"
+                    formControlName="portOfDestination"
+                    readonly
+                  />
+                </mat-form-field>
+              </div>
+            </div>
+          </ng-container>
+          <div class="row row-cols-2 gx-5">
+            <!-- GRN No -->
+            <div class="col d-flex">
+              <mat-form-field class="full-width">
+                <mat-label>GRN No.</mat-label>
+                <input matInput name="grnno" formControlName="grnno" readonly />
+                <mat-error>GRN no is required</mat-error>
+              </mat-form-field>
+              <button
+                [hidden]="this.data?.id"
+                type="button"
+                mat-icon-button
+                color="primary"
+                (click)="openGRNDialog()"
+              >
+                <mat-icon>help</mat-icon>
+              </button>
+            </div>
+
+            <!-- PO number -->
+            <div class="col d-flex">
+              <mat-form-field class="full-width">
+                <mat-label>PO No.</mat-label>
+                <input
+                  matInput
+                  name="ponumber"
+                  formControlName="ponumber"
+                  readonly
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- invoiceDate -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Choose Invoice Date</mat-label>
+                <input
+                  #input1
+                  matInput
+                  name="invoiceDate"
+                  [matDatepicker]="picker1"
+                  [min]="applyMinMax ? financialYearStartDate : null"
+                  [max]="applyMinMax ? financialYearEndDate : null"
+                  formControlName="invoiceDate"
+                  (focus)="picker1.open()"
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker1"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker1
+                  (closed)="input1.blur()"
+                ></mat-datepicker>
+                <mat-error
+                  *ngIf="
+                    purchaseInvoiceForm.get('invoiceDate').hasError('required')
+                  "
+                >
+                  Invoice Date is required
+                </mat-error>
+                <mat-error
+                  *ngIf="
+                    purchaseInvoiceForm
+                      .get('invoiceDate')
+                      .hasError('inFinancialYear')
+                  "
+                >
+                  Please choose a date within the financial year period:
+                  {{ financialYearStartDate | date : "mediumDate" }} -
+                  {{ financialYearEndDate | date : "mediumDate" }}.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- storeId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Store</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  name="storeId"
+                  formControlName="storeId"
+                  [matAutocomplete]="autoStore"
+                  (input)="handleStoreSearch($event)"
+                  readonly
+                />
+                <div matSuffix>
+                  <button
+                    hidden
+                    (click)="clearInput($event, 'storeId')"
+                    *ngIf="
+                      purchaseInvoiceForm?.get('storeId')?.value !== null &&
+                      purchaseInvoiceForm?.get('storeId')?.value !== ''
+                    "
+                    aria-label="Clear"
+                    mat-icon-button
+                    type="button"
+                  >
+                    <mat-icon>clear</mat-icon>
+                  </button>
+                </div>
+                <mat-autocomplete
+                  #autoStore="matAutocomplete"
+                  [displayWith]="getStoreName.bind(this)"
+                >
+                  <mat-option
+                    matTooltip="{{ d.name }}"
+                    *ngFor="let d of filterStores"
+                    [value]="d.id"
+                  >
+                    {{ d.name }}
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error>Store is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- supplierId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Supplier</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  name="supplierId"
+                  formControlName="supplierId"
+                  [matAutocomplete]="autoSupplier"
+                  (input)="handleSupplierSearch($event)"
+                  readonly
+                />
+                <div matSuffix>
+                  <button
+                    hidden
+                    (click)="clearInput($event, 'supplierId')"
+                    *ngIf="
+                      purchaseInvoiceForm?.get('supplierId')?.value !== null &&
+                      purchaseInvoiceForm?.get('supplierId')?.value !== ''
+                    "
+                    aria-label="Clear"
+                    mat-icon-button
+                    type="button"
+                  >
+                    <mat-icon>clear</mat-icon>
+                  </button>
+                </div>
+                <mat-autocomplete
+                  #autoSupplier="matAutocomplete"
+                  [displayWith]="getSupplierName.bind(this)"
+                >
+                  <mat-option
+                    matTooltip="{{ d.address }}"
+                    *ngFor="let d of filterSuppliers"
+                    [value]="d.id"
+                  >
+                    {{ d.name }} ({{ d.code.slice(-4) }}) {{ d.address }}
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error>Supplier is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <ng-container *ngIf="!getImportPurchaseValue()">
+              <!-- supplierInvoiceNo -->
+              <div class="col">
+                <mat-form-field class="full-width">
+                  <mat-label>Supplier Invoice No</mat-label>
+                  <input
+                    matInput
+                    autocomplete="off"
+                    placeholder="Enter Supplier Invoice No"
+                    name="supplierInvoiceNo"
+                    formControlName="supplierInvoiceNo"
+                  />
+                  <mat-error
+                    *ngIf="
+                      purchaseInvoiceForm
+                        .get('supplierInvoiceNo')
+                        .hasError('supplierInvoiceNoRequired')
+                    "
+                  >
+                    Supplier Invoice No is required.
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <!-- supplierInvoiceDate -->
+              <div class="col">
+                <mat-form-field class="full-width">
+                  <mat-label>Choose Supplier Invoice Date</mat-label>
+                  <input
+                    #input2
+                    matInput
+                    name="supplierInvoiceDate"
+                    [matDatepicker]="picker2"
+                    formControlName="supplierInvoiceDate"
+                    (focus)="picker2.open()"
+                  />
+                  <mat-datepicker-toggle
+                    matSuffix
+                    [for]="picker2"
+                  ></mat-datepicker-toggle>
+                  <mat-datepicker
+                    #picker2
+                    (closed)="input2.blur()"
+                  ></mat-datepicker>
+                  <mat-error
+                    *ngIf="
+                      purchaseInvoiceForm
+                        .get('supplierInvoiceDate')
+                        .hasError('supplierInvoiceDateRequired')
+                    "
+                  >
+                    Supplier Invoice Date is required.
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="getImportPurchaseValue()">
+              <!-- billOfEntryNo -->
+              <div class="col">
+                <mat-form-field class="full-width">
+                  <mat-label>Bill Of Entry No</mat-label>
+                  <input
+                    matInput
+                    autocomplete="off"
+                    placeholder="Enter Bill Of Entry No"
+                    name="billOfEntryNo"
+                    formControlName="billOfEntryNo"
+                  />
+                  <mat-error
+                    *ngIf="
+                      purchaseInvoiceForm
+                        .get('billOfEntryNo')
+                        .hasError('billOfEntryNoRequired')
+                    "
+                  >
+                    Bill Of Entry No is required.
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <!-- billOfEntryDate -->
+              <div class="col">
+                <mat-form-field class="full-width">
+                  <mat-label>Choose Bill Of Entry Date</mat-label>
+                  <input
+                    #input4
+                    matInput
+                    name="billOfEntryDate"
+                    [matDatepicker]="billOfEntryDatePicker"
+                    formControlName="billOfEntryDate"
+                    (focus)="billOfEntryDatePicker.open()"
+                  />
+                  <mat-datepicker-toggle
+                    matSuffix
+                    [for]="billOfEntryDatePicker"
+                  ></mat-datepicker-toggle>
+                  <mat-datepicker
+                    #billOfEntryDatePicker
+                    (closed)="input4.blur()"
+                  ></mat-datepicker>
+                  <mat-error
+                    *ngIf="
+                      purchaseInvoiceForm
+                        .get('billOfEntryDate')
+                        .hasError('billOfEntryDateRequired')
+                    "
+                  >
+                    Bill Of entry Date is required.
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </ng-container>
+
+            <!-- paymentTermInDays -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Payment Term In Days</mat-label>
+                <input
+                  type="number"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Enter payment Term"
+                  formControlName="paymentTermInDays"
+                  min="0"
+                  (click)="$event.target.select()"
+                />
+              </mat-form-field>
+            </div>
+
+            <!-- remark -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Remark</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Leave a message..."
+                  formControlName="remark"
+                />
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Start of Form Array -->
+          <ng-container formArrayName="purchaseInvoiceDetails">
+            <h3 class="subheading-2">Purchase Invoice Details</h3>
+            <mat-divider></mat-divider>
+            <ng-container
+              *ngFor="let p of purchaseInvoiceDetails.controls; let i = index"
+              [formGroupName]="i"
+            >
+              <div class="row">
+                <div class="col-3">
+                  <!-- Product Autocomplete -->
+                  <mat-form-field class="full-width">
+                    <mat-label>Product</mat-label>
+                    <input
+                      type="text"
+                      placeholder="Search Product"
+                      aria-label="Filter Product"
+                      matInput
+                      name="productId"
+                      formControlName="productId"
+                      [matAutocomplete]="product"
+                      (input)="handleProductSearch($event, i)"
+                      readonly
+                    />
+                    <div matSuffix>
+                      <button
+                        hidden
+                        (click)="clearInputFromDetails($event, i)"
+                        *ngIf="
+                          purchaseInvoiceDetails?.at(i).get('productId')
+                            ?.value !== null &&
+                          purchaseInvoiceDetails?.at(i).get('productId')
+                            ?.value !== ''
+                        "
+                        aria-label="Clear"
+                        mat-icon-button
+                        type="button"
+                      >
+                        <mat-icon>clear</mat-icon>
+                      </button>
+                    </div>
+                    <mat-autocomplete
+                      autoActiveFirstOption
+                      #product="matAutocomplete"
+                      (optionSelected)="handleProductSelection($event, i)"
+                      [displayWith]="getProductName.bind(this)"
+                    >
+                      <mat-option
+                        *ngFor="let product of searchProducts"
+                        [value]="product.id"
+                      >
+                        {{ product.name }}
+                        {{
+                          businessType === "2"
+                            ? ""
+                            : "(" + product?.packSize?.name + ")"
+                        }}
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error>Product is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <!-- Measurement Unit -->
+                <div class="col-1">
+                  <mat-form-field class="full-width">
+                    <mat-label>Unit</mat-label>
+                    <input
+                      matInput
+                      name="measurementUnitName"
+                      formControlName="measurementUnitName"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+                <!-- grn no -->
+                <div class="col-2">
+                  <mat-form-field class="full-width">
+                    <mat-label>GRN NO</mat-label>
+                    <input
+                      matInput
+                      name="grnno"
+                      formControlName="grnno"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+                <!-- grn date -->
+                <div class="col-1">
+                  <mat-form-field class="full-width">
+                    <mat-label>GRN Date</mat-label>
+                    <input
+                      #input3
+                      matInput
+                      name="grndate"
+                      [matDatepicker]="picker3"
+                      formControlName="grndate"
+                      (focus)="picker3.open()"
+                      disabled
+                    />
+                    <mat-datepicker-toggle
+                      matSuffix
+                      [for]="picker3"
+                    ></mat-datepicker-toggle>
+                    <mat-datepicker
+                      #picker3
+                      (closed)="input3.blur()"
+                    ></mat-datepicker>
+                  </mat-form-field>
+                </div>
+                <!-- QTY -->
+                <div class="col-1">
+                  <mat-form-field class="full-width">
+                    <mat-label>QTY</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="grnquantity"
+                      formControlName="grnquantity"
+                      min="0"
+                      placeholder="0"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                      readonly
+                    />
+                    <mat-error> Quantity is required </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- currencyRate -->
+                <div class="col-1" *ngIf="getImportPurchaseValue()">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Currency Rate"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Currency Rate</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="currencyRate"
+                      formControlName="currencyRate"
+                      min="0"
+                      placeholder="0.00"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+
+                <div class="col-1">
+                  <mat-form-field class="full-width">
+                    <mat-label>Rate</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="rate"
+                      formControlName="rate"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                      readonly
+                    />
+                    <mat-error>Rate per unit is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- currencyAmount -->
+                <div class="col-1" *ngIf="getImportPurchaseValue()">
+                  <mat-form-field
+                    class="full-width"
+                    matTooltip="Currency Amount"
+                    matTooltipPosition="above"
+                  >
+                    <mat-label>Currency Amount</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="currencyAmount"
+                      formControlName="currencyAmount"
+                      placeholder="0.00"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+
+                <div class="col-1">
+                  <mat-form-field class="full-width">
+                    <mat-label>Amount</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="amount"
+                      formControlName="amount"
+                      placeholder=""
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+                <!-- <div class="col-1">
+                  <mat-form-field class="full-width">
+                    <mat-label>Vat(%)</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="vatPercentage"
+                      formControlName="vatPercentage"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                    />
+                  </mat-form-field>
+                </div> -->
+                <!-- <div class="col-1">
+                  <button
+                    mat-mini-fab
+                    type="button"
+                    color="warn"
+                    (click)="onDeleteItem(p?.get('id')?.value, i)"
+                  >
+                    <mat-icon>delete_forever</mat-icon>
+                  </button>
+                </div> -->
+              </div>
+            </ng-container>
+          </ng-container>
+          <!-- End of Form Array -->
+
+          <!-- Bottom Section -->
+          <div class="d-flex justify-content-end">
+            <!-- Button Container -->
+            <!-- <div class="button-container">
+              <button
+                mat-mini-fab
+                type="button"
+                color="primary"
+                (click)="addItem()"
+              >
+                <mat-icon>add</mat-icon>
+              </button>
+            </div> -->
+
+            <!-- Calculation Container -->
+            <div>
+              <!-- subtotal -->
+              <div class="label-data justify-content-between">
+                <span>Subtotal</span>
+                <span>
+                  {{
+                    purchaseInvoiceForm?.get("subtotal")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+
+              <ng-container *ngIf="!getImportPurchaseValue()">
+                <!-- discount -->
+                <div class="label-data justify-content-between">
+                  <span>Discount</span>
+                  <div
+                    style="width: 200px"
+                    class="d-flex justify-content-end align-items-center"
+                  >
+                    <mat-form-field style="width: 35%">
+                      <mat-label>Discount</mat-label>
+                      <input
+                        type="number"
+                        matInput
+                        autocomplete="off"
+                        placeholder="0"
+                        name="discount"
+                        formControlName="discount"
+                        min="0"
+                        [defaultValue]="0"
+                        (click)="$event.target.select()"
+                        (change)="onControlChange($event)"
+                        (input)="onControlChange($event)"
+                      />
+                    </mat-form-field>
+                    <span>
+                      {{
+                        purchaseInvoiceForm?.get("discount")?.value || 0
+                          | currency : "BDT" : "" : "1.2-2"
+                      }}
+                    </span>
+                  </div>
+                </div>
+              </ng-container>
+              <!-- totalVat -->
+              <!-- <div class="label-data justify-content-between">
+                <span>Vat</span>
+                <span>
+                  {{
+                    purchaseInvoiceForm?.get("totalVat")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div> -->
+
+              <!-- total -->
+              <div class="label-data justify-content-between">
+                <span>Total</span>
+                <span>
+                  {{
+                    purchaseInvoiceForm?.get("total")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+
+              <ng-container *ngIf="!getImportPurchaseValue()">
+                <!-- advancePaymentAmount -->
+                <div class="label-data justify-content-between">
+                  <div>
+                    <span>Advance Supplier Payment</span>
+                    <button
+                      [hidden]="this.data?.supplierPaymentCode"
+                      type="button"
+                      mat-icon-button
+                      matBadge="{{ totalSupplierPaymentCount }}"
+                      matBadgePosition="before"
+                      matBadgeColor="accent"
+                      color="primary"
+                      (click)="openSupplierPaymentDialog()"
+                      matTooltip="Select Advance Supplier Payment"
+                      matTooltipPosition="above"
+                    >
+                      <mat-icon>help</mat-icon>
+                    </button>
+                    <button
+                      [hidden]="!data?.supplierPaymentCode"
+                      type="button"
+                      mat-icon-button
+                      color="warn"
+                      matTooltip="Reset Supplier Payment Amount"
+                      matTooltipPosition="above"
+                      (click)="confirmResetAdvanceAmount(data?.id)"
+                    >
+                      <mat-icon>undo</mat-icon>
+                    </button>
+                  </div>
+                  <div>
+                    <mat-form-field class="full-width">
+                      <input
+                        matInput
+                        type="number"
+                        name="advancePaymentAmount"
+                        formControlName="advancePaymentAmount"
+                        min="0"
+                        readonly
+                      />
+                      <mat-error
+                        *ngIf="
+                          purchaseInvoiceForm
+                            .get('advancePaymentAmount')
+                            .hasError('customRequired')
+                        "
+                      >
+                        Advance Payment Amount is required.
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+                  <span>
+                    {{
+                      purchaseInvoiceForm?.get("advancePaymentAmount")?.value
+                        | currency : "BDT" : "" : "1.2-2"
+                    }}
+                  </span>
+                </div>
+
+                <!-- totalGrnAdjustmentAmount -->
+                <div class="label-data justify-content-between">
+                  <span>Total GRN Adjustment Amount</span>
+                  <span>
+                    {{
+                      purchaseInvoiceForm?.get("totalGrnAdjustmentAmount")
+                        ?.value | currency : "BDT" : "" : "1.2-2"
+                    }}
+                  </span>
+                </div>
+              </ng-container>
+
+              <ng-container *ngIf="getImportPurchaseValue()">
+                <!-- adjustmentValue -->
+                <div class="label-data justify-content-between">
+                  <span>Adjustment Value</span>
+                  <span>
+                    {{
+                      purchaseInvoiceForm?.get("adjustmentValue")?.value
+                        | currency : "BDT" : "" : "1.2-2"
+                    }}
+                  </span>
+                </div>
+              </ng-container>
+
+              <!-- netPayable -->
+              <div class="label-data justify-content-between">
+                <span>Net Payable</span>
+                <span>
+                  {{
+                    purchaseInvoiceForm?.get("netPayable")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3" align="center">
+          <button
+            class="me-2"
+            type="button"
+            *ngIf="!isViewMode && this.purchaseInvoiceForm.get('id')?.value"
+            mat-raised-button
+            (click)="backToView()"
+            [disabled]="this.purchaseInvoiceForm.invalid"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            color="accent"
+            mat-raised-button
+            matStepperNext
+            class="mr-1"
+            [disabled]="this.purchaseInvoiceForm.invalid"
+          >
+            Continue
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step Review and Submit -->
+    <mat-step [editable]="false">
+      <form
+        (ngSubmit)="onSubmit()"
+        autocomplete="off"
+        [formGroup]="purchaseInvoiceForm"
+      >
+        <ng-template matStepLabel>
+          Review and Create Purchase Invoice
+        </ng-template>
+        <ng-container *ngIf="isPassingDataToNextStep">
+          <!-- Toggle button for more field -->
+          <ng-container *ngIf="getImportPurchaseValue()">
+            <mat-slide-toggle [checked]="getImportPurchaseValue()" disabled
+              >Is Import Purchase</mat-slide-toggle
+            >
+          </ng-container>
+          <ng-container *ngIf="getImportPurchaseValue()">
+            <div class="row row-cols-2 gx-5">
+              <!-- proformaInvoiceNo -->
+              <div class="col label-data">
+                <span>Proforma Invoice No</span>
+                <span>
+                  {{ purchaseInvoiceForm?.get("proformaInvoiceNo")?.value }}
+                </span>
+              </div>
+
+              <!-- lcNumber -->
+              <div class="col label-data">
+                <span>LC Number</span>
+                <span>
+                  {{ purchaseInvoiceForm?.get("lcNumber")?.value }}
+                </span>
+              </div>
+
+              <!-- Currency -->
+              <div class="col label-data">
+                <span>Currency</span>
+                <span>
+                  {{
+                    purchaseInvoiceForm?.get("currencyId")?.value
+                      ? getCurrencyName(
+                          purchaseInvoiceForm?.get("currencyId")?.value
+                        )
+                      : ""
+                  }}
+                </span>
+              </div>
+
+              <!-- exchangeRate -->
+              <div class="col label-data">
+                <span>Exchange Rate</span>
+                <span>
+                  {{ purchaseInvoiceForm?.get("exchangeRate")?.value }}
+                </span>
+              </div>
+
+              <!-- Import Purchase Inco Term -->
+              <div class="col label-data">
+                <span>Inco Term</span>
+                <span>
+                  {{
+                    purchaseInvoiceForm?.get("importPurchaseIncoTerm")?.value
+                      ? getImportPurchaseIncoTermName(
+                          purchaseInvoiceForm?.get("importPurchaseIncoTerm")
+                            ?.value
+                        )
+                      : ""
+                  }}
+                </span>
+              </div>
+
+              <!-- Import Purchase Payment Term -->
+              <div class="col label-data">
+                <span>Payment Term</span>
+                <span>
+                  {{
+                    purchaseInvoiceForm?.get("importPurchasePaymentTerm")?.value
+                      ? getImportPurchasePaymentTermName(
+                          purchaseInvoiceForm?.get("importPurchasePaymentTerm")
+                            ?.value
+                        )?.replaceAll("_", " ")
+                      : ""
+                  }}
+                </span>
+              </div>
+
+              <!-- portOfLoading -->
+              <div class="col label-data">
+                <span>Port of Loading</span>
+                <span>
+                  {{ purchaseInvoiceForm?.get("portOfLoading")?.value }}
+                </span>
+              </div>
+
+              <!-- portOfDestination -->
+              <div class="col label-data">
+                <span>Port of Destination</span>
+                <span>
+                  {{ purchaseInvoiceForm?.get("portOfDestination")?.value }}
+                </span>
+              </div>
+            </div>
+          </ng-container>
+          <div class="row row-cols-2 gx-5">
+            <!-- GRN No. -->
+            <div class="col label-data">
+              <span>GRN No</span>
+              <span>
+                {{
+                  purchaseInvoiceForm.get("grnno")?.value.split(",").join(",\n")
+                }}
+              </span>
+            </div>
+            <!-- ponumber -->
+            <div class="col label-data">
+              <span>PO. No</span>
+              <span>
+                {{ purchaseInvoiceForm.get("ponumber")?.value }}
+              </span>
+            </div>
+            <!-- supplierPaymentCode -->
+            <div class="col label-data">
+              <span>Supplier Payment Code</span>
+              <span>
+                {{
+                  purchaseInvoiceForm
+                    .get("supplierPaymentCode")
+                    ?.value.split(",")
+                    .join(",\n")
+                }}
+              </span>
+            </div>
+            <!-- Invoice Date -->
+            <div class="col label-data">
+              <span>Invoice Date</span>
+              <span>
+                {{
+                  dateFormatService.getDateFormat(
+                    purchaseInvoiceForm.get("invoiceDate")?.value
+                  )
+                }}
+              </span>
+            </div>
+            <!-- storeId -->
+            <div class="col label-data">
+              <span>Store</span>
+              <span>
+                {{ getStoreName(purchaseInvoiceForm?.get("storeId")?.value) }}
+              </span>
+            </div>
+
+            <!-- supplier -->
+            <div class="col label-data">
+              <span>Supplier</span>
+              <span>
+                {{
+                  getSupplierName(purchaseInvoiceForm?.get("supplierId")?.value)
+                }}
+              </span>
+            </div>
+
+            <ng-container *ngIf="!getImportPurchaseValue()">
+              <!-- Supplier Invoice No -->
+              <div class="col label-data">
+                <span>Supplier Invoice No</span>
+                <span>
+                  {{ purchaseInvoiceForm.get("supplierInvoiceNo")?.value }}
+                </span>
+              </div>
+              <!-- Supplier Invoice Date -->
+              <div class="col label-data">
+                <span>Supplier Invoice Date</span>
+                <span>
+                  {{
+                    dateFormatService.getDateFormat(
+                      purchaseInvoiceForm.get("supplierInvoiceDate")?.value
+                    )
+                  }}
+                </span>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="getImportPurchaseValue()">
+              <!-- billOfEntryNo -->
+              <div class="col label-data">
+                <span>Bill Of Entry No</span>
+                <span>
+                  {{ purchaseInvoiceForm.get("billOfEntryNo")?.value }}
+                </span>
+              </div>
+
+              <!-- billOfEntryDate -->
+              <div class="col label-data">
+                <span>Bill Of Entry Date</span>
+                <span>
+                  {{
+                    dateFormatService.getDateFormat(
+                      purchaseInvoiceForm.get("billOfEntryDate")?.value
+                    )
+                  }}
+                </span>
+              </div>
+            </ng-container>
+            <!-- Payment Term In Days -->
+            <div class="col label-data">
+              <span>Payment Term In Days</span>
+              <span>
+                {{ purchaseInvoiceForm.get("paymentTermInDays")?.value }}
+              </span>
+            </div>
+            <!-- Remark -->
+            <div class="col label-data">
+              <span>Remark</span>
+              <span>
+                {{ purchaseInvoiceForm.get("remark")?.value }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Details Table -->
+          <ng-container>
+            <app-purchase-invoice-detail
+              [data]="purchaseInvoiceDetailsData"
+            ></app-purchase-invoice-detail>
+          </ng-container>
+        </ng-container>
+
+        <!-- Calculation Container -->
+        <div class="calculation-align">
+          <mat-slide-toggle
+            [(ngModel)]="isChecked"
+            [ngModelOptions]="{ standalone: true }"
+          >
+            Transactional Journal Details
+          </mat-slide-toggle>
+          <div>
+            <!-- subtotal -->
+            <div class="label-data justify-content-between">
+              <span>Subtotal</span>
+              <span>
+                {{
+                  purchaseInvoiceForm?.get("subtotal")?.value
+                    | currency : "BDT" : "" : "1.2-2"
+                }}
+              </span>
+            </div>
+            <ng-container *ngIf="!getImportPurchaseValue()">
+              <!-- discount -->
+              <div class="label-data justify-content-between">
+                <span>Discount</span>
+                <span>
+                  {{
+                    purchaseInvoiceForm?.get("discount")?.value || 0
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+            </ng-container>
+
+            <!-- total -->
+            <div class="label-data justify-content-between">
+              <span>Total</span>
+              <span>
+                {{
+                  purchaseInvoiceForm?.get("total")?.value
+                    | currency : "BDT" : "" : "1.2-2"
+                }}
+              </span>
+            </div>
+
+            <ng-container *ngIf="!getImportPurchaseValue()">
+              <div class="label-data justify-content-between">
+                <span>Advance Payment Amount</span>
+                <span>
+                  {{
+                    purchaseInvoiceForm?.get("advancePaymentAmount")?.value || 0
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+            </ng-container>
+            <!-- totalVat -->
+            <!-- <div class="label-data justify-content-between">
+              <span>Vat</span>
+              <span>
+                {{
+                  purchaseInvoiceForm?.get("totalVat")?.value
+                    | currency : "BDT" : "" : "1.2-2"
+                }}
+              </span>
+            </div> -->
+            <ng-container *ngIf="!getImportPurchaseValue()">
+              <!-- totalGrnAdjustmentAmount -->
+              <div class="label-data justify-content-between">
+                <span>Total GRN Adjustment Amount</span>
+                <span>
+                  {{
+                    purchaseInvoiceForm?.get("totalGrnAdjustmentAmount")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="getImportPurchaseValue()">
+              <!-- adjustmentValue -->
+              <div class="label-data justify-content-between">
+                <span>Adjustment Value</span>
+                <span>
+                  {{
+                    purchaseInvoiceForm?.get("adjustmentValue")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+            </ng-container>
+
+            <!-- netPayable -->
+            <div class="label-data justify-content-between">
+              <span>Net Payable</span>
+              <span>
+                {{
+                  purchaseInvoiceForm?.get("netPayable")?.value
+                    | currency : "BDT" : "" : "1.2-2"
+                }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <ng-container *ngIf="isChecked">
+          <app-transactional-journal-details
+            [accounts]="transactionalJournalAccounts"
+          ></app-transactional-journal-details>
+        </ng-container>
+
+        <!-- Action Button -->
+        <ng-container *ngIf="!isViewMode">
+          <div class="p-3" align="center">
+            <button
+              class="me-2"
+              mat-raised-button
+              matStepperPrevious
+              (click)="isLoading = false"
+              type="button"
+            >
+              Back
+            </button>
+            <button
+              mat-raised-button
+              color="accent"
+              type="submit"
+              class="mr-1"
+              [disabled]="this.purchaseInvoiceForm.invalid || isLoading"
+            >
+              <ng-container *ngIf="isLoading; else saveText">
+                <mat-icon>
+                  <mat-spinner diameter="20"></mat-spinner>
+                </mat-icon>
+                {{ "Processing..." }}
+              </ng-container>
+              <ng-template #saveText>
+                {{ "Save" }}
+              </ng-template>
+            </button>
+          </div>
+        </ng-container>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</div>

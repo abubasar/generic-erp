@@ -1,0 +1,2 @@
+﻿modelBuilder.ApplyGlobalFilter<bool>("Deleted", false);
+modelBuilder.Entity<SPSupplierLedgerResult>().HasNoKey();

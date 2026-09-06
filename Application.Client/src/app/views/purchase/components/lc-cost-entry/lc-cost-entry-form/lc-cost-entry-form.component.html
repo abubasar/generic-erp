@@ -1,0 +1,531 @@
+<div class="container-fluid">
+  <div *ngIf="isViewMode" class="d-flex justify-content-between">
+    <div class="d-flex gap-2 align-items-center">
+      <button mat-icon-button (click)="navigateToList()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h3 class="m-0">LC Cost Entry No: {{ data?.code }}</h3>
+      <mat-chip
+        class="align-middle py-4 px-8"
+        [color]="getLCCostEntryStatus(data?.status).color"
+        selected
+      >
+        {{ getLCCostEntryStatusName(data?.status)?.replaceAll("_", " ") }}
+      </mat-chip>
+      <button
+        mat-icon-button
+        color="primary"
+        matTooltip="print pdf"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printPdf(data?.id)"
+      >
+        <mat-icon>print</mat-icon>
+      </button>
+      <button
+        *appHasPermission="['Permissions.LCCostEntries.Edit']"
+        [hidden]="
+          data?.status > 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-icon-button
+        color="primary"
+        matTooltip="Edit"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="showEdit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+
+    <div>
+      <button
+        #btnCheck
+        *appHasPermission="['Permissions.LCCostEntries.Check']"
+        [hidden]="
+          data?.status != 1 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        type="button"
+        color="accent"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmCheck(data?.id, data?.code)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Check" }}
+        </ng-template>
+      </button>
+
+      <button
+        #btnApprove
+        *appHasPermission="['Permissions.LCCostEntries.Approve']"
+        [hidden]="
+          data?.status != 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-raised-button
+        color="primary"
+        type="button"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmApprove(data?.id, data?.code)"
+      >
+        <ng-container *ngIf="isLoading; else saveText">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+          {{ "Processing..." }}
+        </ng-container>
+        <ng-template #saveText>
+          {{ "Approve" }}
+        </ng-template>
+      </button>
+
+      <button
+        *appHasPermission="['Permissions.LCCostEntries.Unpost']"
+        [hidden]="
+          data?.status == 1 ||
+          data?.status == 4 ||
+          data?.status === 'undefined' ||
+          data?.financialYearId != currentFinancialYearId
+        "
+        type="button"
+        mat-mini-fab
+        color="warn"
+        matTooltip="Undo"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        [disabled]="isDialogOpen || isLoading"
+        (click)="confirmUnpost(data?.id, data?.code, data?.status)"
+      >
+        <ng-container *ngIf="isLoading; else undo">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+        </ng-container>
+        <ng-template #undo>
+          <mat-icon>undo</mat-icon>
+        </ng-template>
+      </button>
+    </div>
+  </div>
+
+  <mat-stepper
+    class="mat-stepper-card"
+    (selectionChange)="handleStepChange($event)"
+    [disableRipple]="true"
+    [linear]="true"
+    #stepper
+  >
+    <mat-step [stepControl]="lcCostEntryForm">
+      <form autocomplete="off" [formGroup]="lcCostEntryForm">
+        <ng-template matStepLabel>LC Cost Entry Form</ng-template>
+        <div>
+          <div class="row row-cols-2 gx-5">
+            <!-- ponumber -->
+            <div class="col d-flex">
+              <mat-form-field class="full-width">
+                <mat-label>Purchase Order No.</mat-label>
+                <input
+                  matInput
+                  name="ponumber"
+                  formControlName="ponumber"
+                  readonly
+                />
+              </mat-form-field>
+              <button
+                [hidden]="this.data?.id"
+                type="button"
+                mat-icon-button
+                color="primary"
+                (click)="openPurchaseOrderDialog()"
+              >
+                <mat-icon>help</mat-icon>
+              </button>
+            </div>
+
+            <!-- lcNumber -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>LC Number</mat-label>
+                <input
+                  matInput
+                  type="text"
+                  name="lcNumber"
+                  formControlName="lcNumber"
+                  readonly
+                />
+                <mat-error>LC Number is required </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- entryDate -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Choose Entry Date</mat-label>
+                <input
+                  #input1
+                  matInput
+                  name="entryDate"
+                  [matDatepicker]="picker1"
+                  formControlName="entryDate"
+                  [min]="applyMinMax ? financialYearStartDate : null"
+                  [max]="applyMinMax ? financialYearEndDate : null"
+                  (focus)="picker1.open()"
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker1"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker1
+                  (closed)="input1.blur()"
+                ></mat-datepicker>
+                <mat-error
+                  *ngIf="lcCostEntryForm.get('entryDate').hasError('required')"
+                  >Entry Date is required</mat-error
+                >
+                <mat-error
+                  *ngIf="
+                    lcCostEntryForm.get('entryDate').hasError('inFinancialYear')
+                  "
+                >
+                  Please choose a date within the financial year period:
+                  {{ financialYearStartDate | date : "mediumDate" }} -
+                  {{ financialYearEndDate | date : "mediumDate" }}.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- costCenterId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Cost Center</mat-label>
+                <mat-select formControlName="costCenterId" autoFocus>
+                  <mat-option *ngFor="let d of costCenters" [value]="d.id">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Cost Center is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- total -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Total Amount</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  name="total"
+                  formControlName="total"
+                  min="0"
+                  placeholder="0.00"
+                  readonly
+                />
+                <mat-error>Total is required </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Remark -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Remark</mat-label>
+                <textarea
+                  rows="1"
+                  matInput
+                  formControlName="remark"
+                  placeholder="Leave a message..."
+                ></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Details -->
+          <ng-container formArrayName="lccostEntryDetails">
+            <h3 class="subheading-2">LC Cost Entry Details</h3>
+            <mat-divider></mat-divider>
+            <ng-container
+              *ngFor="let p of lccostEntryDetails.controls; let i = index"
+              [formGroupName]="i"
+            >
+              <div class="row">
+                <!-- debitAccountId -->
+                <div class="col-4">
+                  <mat-form-field class="full-width">
+                    <mat-label>Select Debit Account</mat-label>
+                    <input
+                      type="text"
+                      matInput
+                      name="debitAccountId"
+                      formControlName="debitAccountId"
+                      [matAutocomplete]="auto"
+                      (input)="handleDebitAccountSearch($event, i)"
+                    />
+                    <div matSuffix>
+                      <button
+                        (click)="clearDebitInputDetails($event, i)"
+                        *ngIf="
+                          lccostEntryDetails?.at(i).get('debitAccountId')
+                            ?.value !== null &&
+                          lccostEntryDetails?.at(i).get('debitAccountId')
+                            ?.value !== ''
+                        "
+                        aria-label="Clear"
+                        mat-icon-button
+                        type="button"
+                      >
+                        <mat-icon>clear</mat-icon>
+                      </button>
+                    </div>
+                    <mat-autocomplete
+                      #auto="matAutocomplete"
+                      (optionSelected)="handleDebitAccountSelection($event, i)"
+                      [displayWith]="getDebitAccountName.bind(this)"
+                      [panelWidth]="'500px'"
+                    >
+                      <mat-option
+                        *ngFor="let d of filteredDebitAccounts"
+                        [value]="d.id"
+                      >
+                        {{ d.name }}
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error>Debit Account is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- creditAccountId -->
+                <div class="col-4">
+                  <mat-form-field class="full-width">
+                    <mat-label>Select Credit Account</mat-label>
+                    <input
+                      type="text"
+                      matInput
+                      name="creditAccountId"
+                      formControlName="creditAccountId"
+                      [matAutocomplete]="creditAccount"
+                      (input)="handleCreditAccountSearch($event, i)"
+                    />
+                    <div matSuffix>
+                      <button
+                        (click)="clearCreditInputDetails($event, i)"
+                        *ngIf="
+                          lccostEntryDetails?.at(i).get('creditAccountId')
+                            ?.value !== null &&
+                          lccostEntryDetails?.at(i).get('creditAccountId')
+                            ?.value !== ''
+                        "
+                        aria-label="Clear"
+                        mat-icon-button
+                        type="button"
+                      >
+                        <mat-icon>clear</mat-icon>
+                      </button>
+                    </div>
+                    <mat-autocomplete
+                      #creditAccount="matAutocomplete"
+                      (optionSelected)="handleCreditAccountSelection($event, i)"
+                      [displayWith]="getCreditAccountName.bind(this)"
+                      [panelWidth]="'500px'"
+                    >
+                      <mat-option
+                        *ngFor="let d of filteredCreditAccounts"
+                        [value]="d.id"
+                      >
+                        {{ d.name }}
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error>Credit Account is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- Amount -->
+                <div class="col-2">
+                  <mat-form-field class="full-width">
+                    <mat-label>Amount</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="amount"
+                      formControlName="amount"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                    />
+                  </mat-form-field>
+                </div>
+
+                <!-- isIncludedWithinLandedCost -->
+                <div class="col-1 d-flex align-items-center">
+                  <mat-checkbox
+                    class="checkbox-margin"
+                    formControlName="isIncludedWithinLandedCost"
+                  >
+                    Is Landed Cost?
+                  </mat-checkbox>
+                </div>
+
+                <!-- Remove Button -->
+                <div class="col-1">
+                  <button
+                    mat-mini-fab
+                    type="button"
+                    color="warn"
+                    (click)="onDeleteItem(p?.get('id')?.value, i)"
+                  >
+                    <mat-icon>delete_forever</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </ng-container>
+          </ng-container>
+
+          <!-- Bottom Section -->
+          <div class="d-flex justify-content-between">
+            <!-- Button Container -->
+            <div class="button-container">
+              <button
+                mat-mini-fab
+                type="button"
+                color="primary"
+                (click)="addItem()"
+              >
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3" align="center">
+          <button
+            class="me-2"
+            type="button"
+            *ngIf="!isViewMode && this.lcCostEntryForm.get('id')?.value"
+            mat-raised-button
+            (click)="backToView()"
+            [disabled]="this.lcCostEntryForm.invalid"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            color="accent"
+            mat-raised-button
+            matStepperNext
+            class="mr-1"
+            [disabled]="this.lcCostEntryForm.invalid"
+          >
+            Continue
+          </button>
+          <!-- matStepperNext -->
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step Review and Submit -->
+    <mat-step [editable]="false">
+      <form
+        (ngSubmit)="onSubmit()"
+        autocomplete="off"
+        [formGroup]="lcCostEntryForm"
+      >
+        <ng-template matStepLabel>Review and Create LC Cost Entry</ng-template>
+        <div *ngIf="isPassingDataToNextStep">
+          <div class="row row-cols-2 gx-5">
+            <!-- ponumber -->
+            <div class="col label-data">
+              <span>PO Number</span>
+              <span>{{ lcCostEntryForm?.get("ponumber")?.value }}</span>
+            </div>
+
+            <!-- lcNumber -->
+            <div class="col label-data">
+              <span>LC Number</span>
+              <span>{{ lcCostEntryForm?.get("lcNumber")?.value }}</span>
+            </div>
+
+            <!-- entryEntry -->
+            <div class="col label-data">
+              <span>Entry Date</span>
+              <span>
+                {{
+                  dateFormatService.getDateFormat(
+                    lcCostEntryForm.get("entryDate").value
+                  )
+                }}
+              </span>
+            </div>
+
+            <!-- costCenterId -->
+            <div class="col label-data">
+              <span>Cost Center</span>
+              <span>
+                {{
+                  getCostCenterName(lcCostEntryForm?.get("costCenterId")?.value)
+                }}
+              </span>
+            </div>
+
+            <!-- total -->
+            <div class="col label-data">
+              <span>Total</span>
+              <span>{{ lcCostEntryForm?.get("total")?.value }}</span>
+            </div>
+
+            <!-- Remark -->
+            <div class="col label-data">
+              <span>Remark</span>
+              <span>
+                {{ lcCostEntryForm?.get("remark")?.value }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Start of Form Array -->
+          <div>
+            <ng-container>
+              <app-lc-cost-entry-detail
+                [data]="lcCostEntryDetailsData"
+              ></app-lc-cost-entry-detail>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="p-3" *ngIf="!isViewMode" align="center">
+          <button
+            class="me-2"
+            mat-raised-button
+            matStepperPrevious
+            (click)="isLoading = false"
+            type="button"
+          >
+            Back
+          </button>
+          <button
+            mat-raised-button
+            color="accent"
+            type="submit"
+            [disabled]="this.lcCostEntryForm.invalid || isLoading"
+          >
+            <ng-container *ngIf="isLoading; else saveText">
+              <mat-icon>
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              {{ "Processing..." }}
+            </ng-container>
+            <ng-template #saveText>
+              {{ "Save" }}
+            </ng-template>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</div>

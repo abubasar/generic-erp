@@ -1,0 +1,693 @@
+<div class="container-fluid">
+  <!-- <h3>{{ formTitle }}</h3> -->
+  <div *ngIf="isViewMode" class="d-flex justify-content-between">
+    <div class="d-flex gap-2 align-items-center">
+      <button mat-icon-button (click)="navigateToList()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h3 class="m-0">Vendor Quotation No: {{ data?.quotationNo }}</h3>
+      <mat-chip
+        class="align-middle py-4 px-8"
+        [color]="getVendorQuotationStatus(data?.status).color"
+        selected
+      >
+        {{ getVendorQuotationStatusName(data?.status)?.replaceAll("_", " ") }}
+      </mat-chip>
+      <button
+        *appHasPermission="['Permissions.VendorQuotations.Edit']"
+        [hidden]="
+          data?.status > 2 || data?.financialYearId != currentFinancialYearId
+        "
+        mat-icon-button
+        color="primary"
+        matTooltip="Edit"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="showEdit()"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+
+    <div>
+      <button
+        *appHasPermission="['Permissions.VendorQuotations.Unpost']"
+        [hidden]="
+          data?.status === 1 ||
+          data?.status === 3 ||
+          data?.financialYearId != currentFinancialYearId
+        "
+        type="button"
+        mat-mini-fab
+        color="warn"
+        matTooltip="Undo"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        [disabled]="isLoading"
+        (click)="unpost(data?.requisitionNo)"
+      >
+        <ng-container *ngIf="isLoading; else undo">
+          <mat-icon>
+            <mat-spinner diameter="20"></mat-spinner>
+          </mat-icon>
+        </ng-container>
+        <ng-template #undo>
+          <mat-icon>undo</mat-icon>
+        </ng-template>
+      </button>
+    </div>
+  </div>
+  <mat-stepper
+    class="mat-stepper-card"
+    (selectionChange)="handleStepChange($event)"
+    [disableRipple]="true"
+    [linear]="true"
+    #stepper
+  >
+    <mat-step [stepControl]="vendorQuotationForm">
+      <form autocomplete="off" [formGroup]="vendorQuotationForm">
+        <ng-template matStepLabel>Vendor Quotation Form</ng-template>
+        <div>
+          <div class="row row-cols-3 gx-5">
+            <!-- Requisition No -->
+            <div class="col d-flex">
+              <mat-form-field class="full-width">
+                <mat-label>Requisition No.</mat-label>
+                <input
+                  matInput
+                  name="requisitionNo"
+                  formControlName="requisitionNo"
+                  readonly
+                />
+              </mat-form-field>
+              <button
+                [hidden]="this.data?.id"
+                type="button"
+                mat-icon-button
+                color="primary"
+                (click)="openPurchaseRequisitionDialog()"
+              >
+                <mat-icon>help</mat-icon>
+              </button>
+            </div>
+            <!-- referenceNo -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Reference No</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Enter Reference No."
+                  formControlName="referenceNo"
+                />
+              </mat-form-field>
+            </div>
+            <!-- storeId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Store</mat-label>
+                <mat-select formControlName="storeId">
+                  <mat-option [value]="null">-- None --</mat-option>
+                  <mat-option *ngFor="let d of stores" [value]="d?.id">
+                    {{ d?.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Store is required</mat-error>
+              </mat-form-field>
+            </div>
+            <!-- supplierId -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Supplier</mat-label>
+                <mat-select formControlName="supplierId">
+                  <mat-option [value]="null">-- None --</mat-option>
+                  <mat-option *ngFor="let d of suppliers" [value]="d.id">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Supplier is required</mat-error>
+              </mat-form-field>
+            </div>
+            <!-- transport -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Transport</mat-label>
+                <mat-select formControlName="transport">
+                  <mat-option *ngFor="let d of transports" [value]="d.value">
+                    {{ d.name }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <!-- paymentMode -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Select Payment Mode</mat-label>
+                <mat-select formControlName="paymentMode">
+                  <mat-option *ngFor="let d of paymentModes" [value]="d?.value">
+                    {{ d?.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Payment mode is required</mat-error>
+              </mat-form-field>
+            </div>
+            <!-- paymentTermInDays -->
+            <ng-container *ngIf="isPaymentModeCredit()">
+              <div class="col">
+                <mat-form-field class="full-width">
+                  <mat-label>Payment Term In Days</mat-label>
+                  <input
+                    type="number"
+                    matInput
+                    autocomplete="off"
+                    placeholder="Enter payment Term"
+                    formControlName="paymentTermInDays"
+                    min="0"
+                  />
+                  <mat-error>Payment term is required</mat-error>
+                </mat-form-field>
+              </div>
+            </ng-container>
+
+            <!-- deliveryTermInDays -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Delivery Term In Days</mat-label>
+                <input
+                  type="number"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Enter delivery term"
+                  formControlName="deliveryTermInDays"
+                  min="0"
+                  (click)="$event.target.select()"
+                />
+              </mat-form-field>
+            </div>
+            <!-- deliveryDate -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Choose Delivery Date</mat-label>
+                <input
+                  #input1
+                  matInput
+                  name="deliveryDate"
+                  [matDatepicker]="picker1"
+                  [min]="financialYearStartDate"
+                  formControlName="deliveryDate"
+                  (focus)="picker1.open()"
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker1"
+                ></mat-datepicker-toggle>
+                <mat-datepicker
+                  #picker1
+                  (closed)="input1.blur()"
+                ></mat-datepicker>
+                <mat-error>Delivery Date is required</mat-error>
+              </mat-form-field>
+            </div>
+            <!-- termAndCondition -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Terms & Conditions</mat-label>
+                <textarea
+                  rows="1"
+                  matInput
+                  formControlName="termAndCondition"
+                  placeholder="Term and condition..."
+                ></textarea>
+              </mat-form-field>
+            </div>
+            <!-- remark -->
+            <div class="col">
+              <mat-form-field class="full-width">
+                <mat-label>Remark</mat-label>
+                <textarea
+                  rows="1"
+                  matInput
+                  autocomplete="off"
+                  placeholder="Leave a message..."
+                  formControlName="remark"
+                ></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Toggle button for more field -->
+          <ng-container>
+            <mat-slide-toggle
+              [(ngModel)]="isChecked"
+              [ngModelOptions]="{ standalone: true }"
+              >Import Purchase</mat-slide-toggle
+            >
+          </ng-container>
+          <ng-container *ngIf="isChecked">
+            <div class="row row-cols-3 gx-5">
+              <!-- currency -->
+              <div class="col">
+                <mat-form-field class="full-width">
+                  <mat-label>Select Currency</mat-label>
+                  <mat-select formControlName="currencyId">
+                    <mat-option [value]="null">-- None --</mat-option>
+                    <mat-option *ngFor="let d of currencies" [value]="d.id">
+                      {{ d.name }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error>Currency is required</mat-error>
+                </mat-form-field>
+              </div>
+              <!-- importPurchaseIncoTerm -->
+              <div class="col">
+                <mat-form-field class="full-width">
+                  <mat-label>Select Inco Term</mat-label>
+                  <mat-select formControlName="importPurchaseIncoTerm">
+                    <mat-option
+                      *ngFor="let d of importPurchaseIncoTerms"
+                      [value]="d.value"
+                    >
+                      {{ getImportPurchaseIncoTermName(d.value) }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <!-- importPurchasePaymentTerm -->
+              <div class="col">
+                <mat-form-field class="full-width">
+                  <mat-label>Select Payment Term</mat-label>
+                  <mat-select formControlName="importPurchasePaymentTerm">
+                    <mat-option
+                      *ngFor="let d of importPurchasePaymentTerms"
+                      [value]="d.value"
+                    >
+                      {{ getImportPurchasePaymentTermName(d?.value) }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Details -->
+          <ng-container formArrayName="vendorQuotationDetails">
+            <h3 class="subheading-2">Vendor Quotation Details</h3>
+            <mat-divider></mat-divider>
+            <ng-container
+              *ngFor="let p of vendorQuotationDetails.controls; let i = index"
+              [formGroupName]="i"
+            >
+              <div class="row">
+                <div class="col-3">
+                  <!-- Product Autocomplete -->
+                  <mat-form-field class="full-width">
+                    <mat-label>Product</mat-label>
+                    <input
+                      type="text"
+                      placeholder="Search Product"
+                      aria-label="Filter Product"
+                      matInput
+                      name="productId"
+                      formControlName="productId"
+                      [matAutocomplete]="product"
+                      (input)="handleProductSearch($event, i)"
+                    />
+                    <div matSuffix>
+                      <button
+                        (click)="clearInputFromDetails($event, i)"
+                        *ngIf="
+                          vendorQuotationDetails?.at(i).get('productId')?.value
+                        "
+                        aria-label="Clear"
+                        mat-icon-button
+                        type="button"
+                      >
+                        <mat-icon>clear</mat-icon>
+                      </button>
+                      <mat-icon>keyboard_arrow_down</mat-icon>
+                    </div>
+                    <mat-autocomplete
+                      autoActiveFirstOption
+                      #product="matAutocomplete"
+                      (optionSelected)="handleProductSelection($event, i)"
+                      [displayWith]="getProductName.bind(this)"
+                    >
+                      <mat-option
+                        *ngFor="let product of searchProducts"
+                        [value]="product.id"
+                      >
+                        {{ product.name }}
+                        {{
+                          businessType === "2"
+                            ? ""
+                            : "(" + product?.packSize?.name + ")"
+                        }}
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error>Product is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <!-- Measurement Unit -->
+                <div class="col-1">
+                  <mat-form-field class="full-width">
+                    <mat-label>Unit</mat-label>
+                    <input
+                      matInput
+                      name="measurementUnitName"
+                      formControlName="measurementUnitName"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+                <!-- QTY -->
+                <div class="col-2">
+                  <mat-form-field class="full-width">
+                    <mat-label>QTY</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="quantity"
+                      formControlName="quantity"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                    />
+                    <mat-error>Quantity is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <!-- Rate -->
+                <div class="col-2">
+                  <mat-form-field class="full-width">
+                    <mat-label>Rate</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="rate"
+                      formControlName="rate"
+                      min="0"
+                      placeholder="0.00"
+                      (change)="onControlChange($event, i)"
+                      (input)="onControlChange($event, i)"
+                    />
+                    <mat-error>Rate per unit is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <!-- Amount -->
+                <div class="col-2">
+                  <mat-form-field class="full-width">
+                    <mat-label>Amount</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      name="amount"
+                      formControlName="amount"
+                      placeholder="0.00"
+                      readonly
+                    />
+                  </mat-form-field>
+                </div>
+                <div class="col-2">
+                  <button
+                    mat-mini-fab
+                    type="button"
+                    color="warn"
+                    (click)="onDeleteItem(p?.get('id')?.value, i)"
+                  >
+                    <mat-icon>delete_forever</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </ng-container>
+          </ng-container>
+          <!-- End of Form Array -->
+
+          <!-- Bottom Section -->
+          <div class="d-flex justify-content-between">
+            <!-- Button Container -->
+            <div class="button-container">
+              <button
+                mat-mini-fab
+                type="button"
+                color="primary"
+                (click)="addItem()"
+              >
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+
+            <!-- Calculation Container -->
+            <div>
+              <mat-form-field class="full-width">
+                <mat-label>Total Amount</mat-label>
+                <input
+                  style="text-align: right"
+                  type="number"
+                  matInput
+                  autocomplete="off"
+                  name="totalAmount"
+                  formControlName="totalAmount"
+                  placeholder="0.00"
+                  readonly
+                />
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+        <div class="p-3" align="center">
+          <button
+            class="me-2"
+            type="button"
+            *ngIf="!isViewMode && this.vendorQuotationForm.get('id')?.value"
+            mat-raised-button
+            (click)="backToView()"
+            [disabled]="this.vendorQuotationForm.invalid"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            color="accent"
+            mat-raised-button
+            matStepperNext
+            class="mr-1"
+            [disabled]="this.vendorQuotationForm.invalid"
+          >
+            Continue
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step Review and Submit -->
+    <mat-step [editable]="false">
+      <form
+        (ngSubmit)="onSubmit()"
+        autocomplete="off"
+        [formGroup]="vendorQuotationForm"
+      >
+        <ng-template matStepLabel
+          >Review and Create Vendor Quotation</ng-template
+        >
+        <div *ngIf="isPassingDataToNextStep">
+          <div class="row row-cols-3 gx-5">
+            <!-- department -->
+            <div class="col label-data">
+              <span>Requisition No</span>
+              <span>
+                {{ vendorQuotationForm.get("requisitionNo").value }}
+              </span>
+            </div>
+            <!-- referenceNo -->
+            <div class="col label-data">
+              <span>Reference No</span>
+              <span>
+                {{ vendorQuotationForm.get("referenceNo").value }}
+              </span>
+            </div>
+            <!-- store -->
+            <div class="col label-data">
+              <span>Store</span>
+              <span>
+                {{ getStoreName(vendorQuotationForm?.get("storeId")?.value) }}
+              </span>
+            </div>
+            <!-- store -->
+            <div class="col label-data">
+              <span>Supplier</span>
+              <span>
+                {{
+                  getSupplierName(vendorQuotationForm?.get("supplierId")?.value)
+                }}
+              </span>
+            </div>
+            <!-- Transport -->
+            <div class="col label-data">
+              <span>Transport</span>
+              <span>
+                {{
+                  getTransportName(vendorQuotationForm.get("transport").value)
+                }}
+              </span>
+            </div>
+            <!-- Payment Mode -->
+            <div class="col label-data">
+              <span>Payment Mode</span>
+              <span>
+                {{
+                  getPaymentModeName(
+                    vendorQuotationForm.get("paymentMode").value
+                  )
+                }}
+              </span>
+            </div>
+            <!-- Payment Term In Days -->
+            <ng-container *ngIf="isPaymentModeCredit()">
+              <div class="col label-data">
+                <span>Payment Term In Days</span>
+                <span>
+                  {{ vendorQuotationForm.get("paymentTermInDays").value }}
+                </span>
+              </div>
+            </ng-container>
+
+            <!-- Delivery Term In Days -->
+            <div class="col label-data">
+              <span>Delivery Term In Days</span>
+              <span>
+                {{ vendorQuotationForm.get("deliveryTermInDays").value }}
+              </span>
+            </div>
+            <!-- Delivery Date -->
+            <div class="col label-data">
+              <span>Delivery Date</span>
+              <span>
+                {{
+                  dateFormatService.getDateFormat(
+                    vendorQuotationForm.get("deliveryDate").value
+                  )
+                }}
+              </span>
+            </div>
+            <!-- Term And Condition -->
+            <div class="col label-data">
+              <span>Terms & Conditions</span>
+              <span>
+                {{ vendorQuotationForm?.get("termAndCondition")?.value }}
+              </span>
+            </div>
+            <!-- Remark -->
+            <div class="col label-data">
+              <span>Remark</span>
+              <span>
+                {{ vendorQuotationForm.get("remark").value }}
+              </span>
+            </div>
+          </div>
+          <!-- Toggle button for more field -->
+          <ng-container>
+            <mat-slide-toggle
+              [(ngModel)]="isChecked"
+              [ngModelOptions]="{ standalone: true }"
+              >Import Purchase</mat-slide-toggle
+            >
+          </ng-container>
+          <ng-container *ngIf="isChecked">
+            <div class="row row-cols-3 gx-5">
+              <!-- Currency -->
+              <div class="col label-data">
+                <span>Currency</span>
+                <span>
+                  {{
+                    getCurrencyName(
+                      vendorQuotationForm?.get("currencyId")?.value
+                    )
+                  }}
+                </span>
+              </div>
+              <!-- Import Purchase Inco Term -->
+              <div class="col label-data">
+                <span>Inco Term</span>
+                <span>
+                  {{
+                    getImportPurchaseIncoTermName(
+                      vendorQuotationForm?.get("importPurchaseIncoTerm")?.value
+                    )
+                  }}
+                </span>
+              </div>
+              <!-- Import Purchase Payment Term -->
+              <div class="col label-data">
+                <span>Payment Term</span>
+                <span>
+                  {{
+                    getImportPurchasePaymentTermName(
+                      vendorQuotationForm?.get("importPurchasePaymentTerm")
+                        ?.value
+                    )
+                  }}
+                </span>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Details Table -->
+          <div>
+            <ng-container>
+              <app-vendor-quotation-detail
+                [data]="vendorQuotationDetailsData"
+              ></app-vendor-quotation-detail>
+            </ng-container>
+          </div>
+
+          <!-- Calculation Container -->
+          <div class="calculation-align-right">
+            <div>
+              <!-- totalAmount -->
+              <div class="label-data justify-content-between">
+                <span>Total</span>
+                <span>
+                  {{
+                    vendorQuotationForm?.get("totalAmount")?.value
+                      | currency : "BDT" : "" : "1.2-2"
+                  }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="p-3" *ngIf="!isViewMode" align="center">
+          <button
+            class="me-2"
+            mat-raised-button
+            matStepperPrevious
+            (click)="isLoading = false"
+            type="button"
+          >
+            Back
+          </button>
+          <button
+            mat-raised-button
+            color="accent"
+            type="submit"
+            class="mr-1"
+            [disabled]="this.vendorQuotationForm.invalid || isLoading"
+          >
+            <ng-container *ngIf="isLoading; else saveText">
+              <mat-icon>
+                <mat-spinner diameter="20"></mat-spinner>
+              </mat-icon>
+              {{ "Processing..." }}
+            </ng-container>
+            <ng-template #saveText>
+              {{ "Save" }}
+            </ng-template>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+  </mat-stepper>
+</div>

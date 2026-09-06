@@ -1,0 +1,286 @@
+<mat-card>
+  <mat-card-title>Collection Report</mat-card-title>
+  <form
+    autocomplete="off"
+    [formGroup]="searchForm"
+    (ngSubmit)="printPdf($event)"
+  >
+    <div class="row row-cols-2 gx-5">
+      <div class="col">
+        <mat-form-field class="full-width">
+          <mat-label>Enter a date range</mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input
+              matStartDate
+              formControlName="fromDate"
+              placeholder="Start date"
+              (focus)="picker.open()"
+            />
+            <input
+              matEndDate
+              formControlName="toDate"
+              placeholder="End date"
+              (focus)="picker.open()"
+            />
+          </mat-date-range-input>
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="picker"
+          ></mat-datepicker-toggle>
+          <mat-date-range-picker #picker></mat-date-range-picker>
+          <mat-error
+            *ngIf="
+              searchForm.get('fromDate').hasError('required') ||
+              searchForm.get('toDate').hasError('required')
+            "
+          >
+            Date range is required.
+          </mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <mat-form-field class="full-width">
+          <mat-label>Select Cost Center</mat-label>
+          <mat-select formControlName="costCenterId">
+            <mat-option>-- All --</mat-option>
+            <mat-option *ngFor="let d of costCenters" [value]="d?.id">
+              {{ d?.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <mat-form-field class="full-width">
+          <mat-label>Select Payment Mode</mat-label>
+          <mat-select formControlName="paymentModeId">
+            <mat-option>-- All --</mat-option>
+            <mat-option *ngFor="let d of paymentModes" [value]="d?.id">
+              {{ d?.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <mat-form-field class="full-width">
+          <mat-label>Select Option</mat-label>
+          <mat-select
+            formControlName="accountTransactionType"
+            (selectionChange)="onSelectedFilterType($event.value)"
+          >
+            <mat-option>-- All --</mat-option>
+            <mat-option
+              *ngFor="let d of collectionReportFilterTypes"
+              [value]="d?.value"
+            >
+              {{ d?.name?.replaceAll("_", " ") }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <ng-container *ngIf="showFilterByCustomer">
+        <!-- customerZoneId -->
+        <div class="col" *ngIf="businessType === '2'">
+          <mat-form-field class="full-width">
+            <mat-label>Select Zone</mat-label>
+            <input
+              placeholder="Search Zone"
+              aria-label="Filter Zone"
+              type="text"
+              matInput
+              name="customerZoneId"
+              formControlName="customerZoneId"
+              [matAutocomplete]="customerZoneAuto"
+              (input)="handleZoneSearch()"
+            />
+            <div matSuffix>
+              <button
+                (click)="clearInput($event, 'customerZoneId')"
+                *ngIf="
+                  searchForm?.get('customerZoneId')?.value !== null &&
+                  searchForm?.get('customerZoneId')?.value !== ''
+                "
+                aria-label="Clear"
+                mat-icon-button
+                type="button"
+              >
+                <mat-icon>clear</mat-icon>
+              </button>
+              <mat-icon>keyboard_arrow_down</mat-icon>
+            </div>
+            <mat-autocomplete
+              #customerZoneAuto="matAutocomplete"
+              [displayWith]="getZoneName.bind(this)"
+              (optionSelected)="onSelectedZone($event.option.value)"
+            >
+              <mat-option *ngFor="let d of filterZones" [value]="d.id">
+                {{ d?.name }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+        <!-- customerZoneId -->
+        <div class="col" *ngIf="businessType === '1'">
+          <mat-form-field class="full-width">
+            <mat-label>Select Zone</mat-label>
+            <input
+              placeholder="Search Zone"
+              aria-label="Filter Zone"
+              type="text"
+              matInput
+              name="customerZoneId"
+              formControlName="customerZoneId"
+              [matAutocomplete]="customerZoneAuto"
+              (input)="handleZoneSearch()"
+            />
+            <div matSuffix>
+              <button
+                (click)="clearInput($event, 'customerZoneId')"
+                *ngIf="
+                  searchForm?.get('customerZoneId')?.value !== null &&
+                  searchForm?.get('customerZoneId')?.value !== ''
+                "
+                aria-label="Clear"
+                mat-icon-button
+                type="button"
+              >
+                <mat-icon>clear</mat-icon>
+              </button>
+              <mat-icon>keyboard_arrow_down</mat-icon>
+            </div>
+            <mat-autocomplete
+              #customerZoneAuto="matAutocomplete"
+              [displayWith]="getZoneName.bind(this)"
+              (optionSelected)="onSelectedZone($event.option.value)"
+            >
+              <mat-option *ngFor="let d of filterRegions" [value]="d.id">
+                {{ d?.name }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+        <!-- customerId -->
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Customer</mat-label>
+            <input
+              type="text"
+              placeholder="Search Customer"
+              aria-label="Filter Customer"
+              matInput
+              name="customerId"
+              formControlName="customerId"
+              [matAutocomplete]="customer"
+              (input)="handleCustomerSearch()"
+            />
+            <div matSuffix>
+              <button
+                (click)="clearInput($event, 'customerId')"
+                *ngIf="
+                  searchForm?.get('customerId')?.value !== null &&
+                  searchForm?.get('customerId')?.value !== ''
+                "
+                aria-label="Clear"
+                mat-icon-button
+                type="button"
+              >
+                <mat-icon>clear</mat-icon>
+              </button>
+              <mat-icon>keyboard_arrow_down</mat-icon>
+            </div>
+            <mat-autocomplete
+              autoActiveFirstOption
+              #customer="matAutocomplete"
+              [displayWith]="getCustomerName.bind(this)"
+            >
+              <mat-option
+                *ngFor="let customer of filterCustomers"
+                [value]="customer.id"
+              >
+                ({{ customer.code.slice(-4) }}) {{ customer.name }}
+                {{ customer.address }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+        <!-- customerMarketingOfficerId -->
+        <div class="col">
+          <mat-form-field class="full-width">
+            <mat-label>Select Marketing Officer</mat-label>
+            <input
+              placeholder="Search Marketing Officer"
+              aria-label="Filter Marketing Officer"
+              type="text"
+              matInput
+              name="customerMarketingOfficerId"
+              formControlName="customerMarketingOfficerId"
+              [matAutocomplete]="customerMarketingOfficerAuto"
+              (input)="handleMarketingOfficerSearch()"
+            />
+            <div matSuffix>
+              <button
+                (click)="clearInput($event, 'customerMarketingOfficerId')"
+                *ngIf="
+                  searchForm?.get('customerMarketingOfficerId')?.value !==
+                    null &&
+                  searchForm?.get('customerMarketingOfficerId')?.value !== ''
+                "
+                aria-label="Clear"
+                mat-icon-button
+                type="button"
+              >
+                <mat-icon>clear</mat-icon>
+              </button>
+              <mat-icon>keyboard_arrow_down</mat-icon>
+            </div>
+            <mat-autocomplete
+              #customerMarketingOfficerAuto="matAutocomplete"
+              [displayWith]="getMarketingOfficerName.bind(this)"
+            >
+              <mat-option
+                *ngFor="let d of filterMarketingOfficers"
+                [value]="d.id"
+              >
+                {{ d?.firstName + " " + d?.lastName }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+      </ng-container>
+
+      <div class="col">
+        <button
+          [style.marginRight]="'5px'"
+          mat-raised-button
+          matTooltip="PDF"
+          name="pdf"
+          color="primary"
+          type="submit"
+          [disabled]="isLoading1 || this.searchForm.invalid"
+        >
+          <ng-container *ngIf="isLoading1; else saveText">
+            {{ "Processing..." }}
+          </ng-container>
+          <ng-template #saveText>
+            <mat-icon>picture_as_pdf</mat-icon>
+          </ng-template>
+        </button>
+        <button
+          mat-raised-button
+          matTooltip="EXCEL"
+          name="excel"
+          color="warn"
+          type="submit"
+          [disabled]="isLoading2 || this.searchForm.invalid"
+        >
+          <ng-container *ngIf="isLoading2; else saveText2">
+            {{ "Processing..." }}
+          </ng-container>
+          <ng-template #saveText2>
+            <mat-icon>insert_drive_file</mat-icon>
+          </ng-template>
+        </button>
+      </div>
+    </div>
+  </form>
+</mat-card>

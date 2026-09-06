@@ -1,0 +1,160 @@
+<h2 mat-dialog-title>{{ formTitle }}</h2>
+<form [formGroup]="discountProductWiseForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="mat-typography">
+    <input mat type="hidden" formControlName="id" />
+    <div class="row row-cols-1 row-cols-md-3 gx-3">
+      <!-- Offer Name -->
+      <div class="col">
+        <mat-form-field class="full-width">
+          <mat-label>Offer Name</mat-label>
+          <input
+            type="text"
+            matInput
+            name="name"
+            formControlName="name"
+            placeholder="Enter Offer Name"
+          />
+        </mat-form-field>
+      </div>
+      <!-- Offer Date -->
+      <div class="col">
+        <mat-form-field class="full-width">
+          <mat-label>Enter a date range</mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input
+              matStartDate
+              formControlName="startDate"
+              placeholder="Start date"
+              (focus)="picker.open()"
+            />
+            <input
+              matEndDate
+              formControlName="endDate"
+              placeholder="End date"
+              (focus)="picker.open()"
+            />
+          </mat-date-range-input>
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="picker"
+          ></mat-datepicker-toggle>
+          <mat-date-range-picker #picker></mat-date-range-picker>
+        </mat-form-field>
+      </div>
+      <!-- Is Active -->
+      <div class="col">
+        <mat-checkbox
+          class="checkbox-margin"
+          formControlName="isActive"
+          (click)="handleActiveOffer($event)"
+        >
+          Is Active
+        </mat-checkbox>
+      </div>
+    </div>
+
+    <!-- Customer Wise Product Discount Details -->
+    <ng-container formArrayName="discountProductWiseDetails">
+      <h3 class="subheading-2">Discount Product Wise Details</h3>
+      <mat-divider></mat-divider>
+      <ng-container
+        *ngFor="
+          let p of discountProductWiseDetails.controls;
+          let lastIndex = last;
+          let i = index
+        "
+        [formGroupName]="i"
+      >
+        <div class="row">
+          <!-- productId -->
+          <div class="col-6">
+            <!-- Product Autocomplete -->
+            <mat-form-field class="full-width">
+              <mat-label>Product</mat-label>
+              <input
+                type="text"
+                placeholder="Search Product"
+                aria-label="Filter Product"
+                matInput
+                name="productId"
+                formControlName="productId"
+                [matAutocomplete]="product"
+                (input)="onProductChange($event, i)"
+              />
+              <mat-autocomplete
+                autoActiveFirstOption
+                #product="matAutocomplete"
+                (optionSelected)="handleProductSelection($event, i)"
+                [displayWith]="getProductName.bind(this)"
+              >
+                <mat-option
+                  *ngFor="let product of productSearchResult"
+                  [value]="product.id"
+                >
+                  {{ product.name }}
+                </mat-option>
+              </mat-autocomplete>
+              <mat-error>Product is required</mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- discountAmountPerKg -->
+          <div class="col-4">
+            <mat-form-field
+              class="full-width"
+              matTooltip="Discount Amount Per Kg"
+              matTooltipPosition="above"
+            >
+              <mat-label>Discount Amount Per Kg</mat-label>
+              <input
+                matInput
+                type="text"
+                name="discountAmountPerKg"
+                formControlName="discountAmountPerKg"
+              />
+              <mat-error>Discount Amount Per Kg is required</mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Remove Button -->
+          <div *ngIf="!p.get('id').value" class="col-1 mb-3">
+            <button
+              mat-mini-fab
+              type="button"
+              color="warn"
+              (click)="onDeleteItem(p?.get('id')?.value, i)"
+            >
+              <mat-icon>delete_forever</mat-icon>
+            </button>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <!-- Bottom Section -->
+    <div class="d-flex justify-content-end justify-content-md-start">
+      <!-- Button Container -->
+      <div class="button-container">
+        <button mat-mini-fab type="button" color="primary" (click)="addItem()">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="d-flex justify-content-end">
+    <div>
+      <button mat-raised-button mat-dialog-close>Cancel</button>
+      <button
+        mat-raised-button
+        [mat-dialog-close]="true"
+        cdkFocusInitial
+        color="primary"
+        [disabled]="this.discountProductWiseForm.invalid"
+        type="submit"
+      >
+        Save
+      </button>
+    </div>
+  </mat-dialog-actions>
+</form>

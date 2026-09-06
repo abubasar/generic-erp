@@ -1,0 +1,12 @@
+table {
+  width: 100%;
+}
+
+.mat-header-cell {
+  background: rgba(245, 245, 245, 0.3);
+}
+
+.mat-column-debit,
+.mat-column-credit {
+  text-align: right;
+}

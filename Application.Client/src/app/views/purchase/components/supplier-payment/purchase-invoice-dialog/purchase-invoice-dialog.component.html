@@ -1,0 +1,343 @@
+<div class="container-fluid">
+  <div class="d-flex justify-content-between">
+    <h3 mat-dialog-title>{{ dialogTitle }}</h3>
+    <div>
+      <button mat-dialog-close mat-icon-button color="warn" type="button">
+        <mat-icon> closeIcon</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="d-flex justify-content-between">
+  <!-- Continue Button -->
+  <div>
+    <button
+      mat-raised-button
+      color="primary"
+      matBadgeColor="accent"
+      [mat-dialog-close]="selectedPurchaseInvoice"
+      [disabled]="selectedPurchaseInvoice == null"
+    >
+      Continue
+    </button>
+  </div>
+  <form autocomplete="off" [formGroup]="searchForm" (ngSubmit)="onSearch()">
+    <div class="d-flex justify-content-between">
+      <mat-form-field class="full-width">
+        <mat-label>Purchase Invoice No.</mat-label>
+        <input
+          type="text"
+          placeholder="Search Purchase Invoice No"
+          aria-label="Filter Purchase Invoice No"
+          matInput
+          name="purchaseInvoiceNo"
+          formControlName="purchaseInvoiceNo"
+          [matAutocomplete]="purchaseInvoiceNo"
+          (input)="onPurchaseInvoiceNoChange()"
+        />
+        <mat-autocomplete
+          autoActiveFirstOption
+          #purchaseInvoiceNo="matAutocomplete"
+        >
+          <mat-option
+            *ngFor="let d of purchaseInvoices"
+            [value]="d.purchaseInvoiceNo"
+          >
+            {{ d.purchaseInvoiceNo }}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+      <div>
+        <button mat-raised-button color="primary" type="submit">
+          <mat-icon>search_icon</mat-icon>Search
+        </button>
+      </div>
+    </div>
+  </form>
+  <!--Start viewColumnList Icon -->
+  <div class="button-container d-flex justify-content-end">
+    <div>
+      <button
+        mat-icon-button
+        matTooltip="Views Column"
+        matTooltipShowDelay="300"
+        [matMenuTriggerFor]="viewsColumn"
+      >
+        <mat-icon>view_module_icon</mat-icon>
+      </button>
+      <mat-menu
+        class="margin-0 padding-0"
+        #viewsColumn="matMenu"
+        [formGroup]="viewColumnForm"
+      >
+        <span
+          class="padding-0"
+          mat-menu-item
+          [disableRipple]="true"
+          (click)="$event.stopPropagation()"
+        >
+          <mat-list role="list" class="margin-0 padding-0">
+            <mat-list-item role="listitem" *ngFor="let cd of columnDefinitions">
+              <mat-checkbox [formControlName]="cd.def">
+                {{ cd.label }}
+              </mat-checkbox>
+            </mat-list-item>
+          </mat-list>
+        </span>
+      </mat-menu>
+    </div>
+  </div>
+  <!--End  viewColumnList Icon -->
+</div>
+
+<div class="table-responsive table-container">
+  <table
+    class="border border-1"
+    mat-table
+    multiTemplateDataRows
+    [dataSource]="dataSource"
+  >
+    <!-- Select Column -->
+    <ng-container matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef>Select</th>
+      <td mat-cell *matCellDef="let purchaseInvoice">
+        <mat-radio-button
+          (click)="$event.stopPropagation()"
+          (change)="handleRadioChange($event)"
+          [value]="purchaseInvoice"
+        >
+        </mat-radio-button>
+      </td>
+    </ng-container>
+    <!-- Expand Column -->
+    <ng-container matColumnDef="expand">
+      <th
+        mat-header-cell
+        class="header"
+        *matHeaderCellDef
+        aria-label="row actions"
+      >
+        &nbsp;
+      </th>
+      <td mat-cell *matCellDef="let element">
+        <button
+          mat-icon-button
+          aria-label="expand row"
+          (click)="
+            expandedElement = expandedElement === element ? null : element;
+            $event.stopPropagation()
+          "
+        >
+          <mat-icon *ngIf="expandedElement !== element"
+            >keyboard_arrow_down</mat-icon
+          >
+          <mat-icon *ngIf="expandedElement === element"
+            >keyboard_arrow_up</mat-icon
+          >
+        </button>
+      </td>
+    </ng-container>
+
+    <!-- purchaseInvoiceNo Column -->
+    <ng-container matColumnDef="purchaseInvoiceNo">
+      <th mat-header-cell *matHeaderCellDef>Purchase Invoice No</th>
+      <td mat-cell *matCellDef="let purchaseInvoice">
+        {{ purchaseInvoice.purchaseInvoiceNo }}
+      </td>
+    </ng-container>
+
+    <!-- invoiceDate Column -->
+    <ng-container matColumnDef="invoiceDate">
+      <th mat-header-cell *matHeaderCellDef>Invoice Date</th>
+      <td mat-cell *matCellDef="let purchaseInvoice">
+        {{ dateFormatService.getDateFormat(purchaseInvoice.invoiceDate) }}
+      </td>
+    </ng-container>
+
+    <!-- grnno Column -->
+    <ng-container matColumnDef="grnno">
+      <th mat-header-cell *matHeaderCellDef>GRN. No</th>
+      <td
+        style="white-space: pre-line"
+        mat-cell
+        *matCellDef="let purchaseInvoice"
+      >
+        {{ purchaseInvoice?.grnno.split(",").join("\n") }}
+      </td>
+    </ng-container>
+
+    <!-- ponumber Column -->
+    <ng-container matColumnDef="ponumber">
+      <th mat-header-cell *matHeaderCellDef>PO. No</th>
+      <td mat-cell *matCellDef="let purchaseInvoice">
+        {{ purchaseInvoice.ponumber }}
+      </td>
+    </ng-container>
+
+    <!-- storeId Column -->
+    <ng-container matColumnDef="storeId">
+      <th mat-header-cell *matHeaderCellDef>Store</th>
+      <td mat-cell *matCellDef="let purchaseInvoice">
+        {{ purchaseInvoice.store.name }}
+      </td>
+    </ng-container>
+
+    <!-- supplierId Column -->
+    <ng-container matColumnDef="supplierId">
+      <th mat-header-cell *matHeaderCellDef>Supplier</th>
+      <td mat-cell *matCellDef="let purchaseInvoice">
+        {{ purchaseInvoice.supplier.name }}
+      </td>
+    </ng-container>
+
+    <!-- supplierInvoiceNo Column -->
+    <ng-container matColumnDef="supplierInvoiceNo">
+      <th mat-header-cell *matHeaderCellDef>Supplier Invoice No</th>
+      <td mat-cell *matCellDef="let purchaseInvoice">
+        {{ purchaseInvoice.supplierInvoiceNo }}
+      </td>
+    </ng-container>
+
+    <!-- supplierInvoiceDate Column -->
+    <ng-container matColumnDef="supplierInvoiceDate">
+      <th mat-header-cell *matHeaderCellDef>Supplier Invoice Date</th>
+      <td mat-cell *matCellDef="let purchaseInvoice">
+        {{
+          dateFormatService.getDateFormat(purchaseInvoice.supplierInvoiceDate)
+        }}
+      </td>
+    </ng-container>
+
+    <!-- paymentTermInDays Column -->
+    <ng-container matColumnDef="paymentTermInDays">
+      <th mat-header-cell *matHeaderCellDef>Payment Term(Days)</th>
+      <td mat-cell *matCellDef="let purchaseInvoice">
+        {{ purchaseInvoice.paymentTermInDays }}
+      </td>
+    </ng-container>
+
+    <!-- status Column -->
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let purchaseInvoice">
+        <mat-chip
+          class="align-middle py-4 px-8"
+          [color]="getPurchaseInvoiceStatus(purchaseInvoice.status).color"
+          selected
+          >{{
+            getPurchaseInvoiceStatusName(purchaseInvoice.status)?.replaceAll(
+              "_",
+              " "
+            )
+          }}</mat-chip
+        >
+      </td>
+    </ng-container>
+
+    <!-- subtotal Column -->
+    <ng-container matColumnDef="subtotal">
+      <th mat-header-cell *matHeaderCellDef>Subtotal</th>
+      <td mat-cell *matCellDef="let purchaseInvoice">
+        {{ purchaseInvoice.subtotal | currency : "BDT" : "" : "1.2-2" }}
+      </td>
+    </ng-container>
+
+    <!-- discount Column -->
+    <ng-container matColumnDef="discount">
+      <th mat-header-cell *matHeaderCellDef>Discount</th>
+      <td mat-cell *matCellDef="let purchaseInvoice">
+        {{ purchaseInvoice.discount | currency : "BDT" : "" : "1.2-2" }}
+      </td>
+    </ng-container>
+
+    <!-- totalVat Column -->
+    <ng-container matColumnDef="totalVat">
+      <th mat-header-cell *matHeaderCellDef>Vat</th>
+      <td mat-cell *matCellDef="let purchaseInvoice">
+        {{ purchaseInvoice.totalVat | currency : "BDT" : "" : "1.2-2" }}
+      </td>
+    </ng-container>
+
+    <!-- total Column -->
+    <ng-container matColumnDef="total">
+      <th mat-header-cell *matHeaderCellDef>Total Amount</th>
+      <td mat-cell *matCellDef="let purchaseInvoice">
+        {{ purchaseInvoice.total | currency : "BDT" : "" : "1.2-2" }}
+      </td>
+    </ng-container>
+    <!-- total Column -->
+    <ng-container matColumnDef="paidAmount">
+      <th mat-header-cell *matHeaderCellDef>Paid</th>
+      <td mat-cell *matCellDef="let purchaseInvoice">
+        {{ purchaseInvoice.paidAmount | currency : "BDT" : "" : "1.2-2" }}
+      </td>
+    </ng-container>
+
+    <!-- advancePaymentAmount Column -->
+    <ng-container matColumnDef="advancePaymentAmount">
+      <th mat-header-cell *matHeaderCellDef>Advance Payment Amount</th>
+      <td mat-cell *matCellDef="let purchaseInvoice">
+        {{ purchaseInvoice.advancePaymentAmount | currency : "BDT" : "" : "1.2-2" }}
+      </td>
+    </ng-container>
+    
+    <!-- payableAmount Column -->
+    <ng-container matColumnDef="payableAmount">
+      <th mat-header-cell *matHeaderCellDef>Payable Amount</th>
+      <td mat-cell *matCellDef="let purchaseInvoice">
+        {{
+          purchaseInvoice.netPayable - purchaseInvoice.paidAmount
+            | currency : "BDT" : "" : "1.2-2"
+        }}
+      </td>
+    </ng-container>
+
+    <!-- remark Column -->
+    <ng-container matColumnDef="remark">
+      <th mat-header-cell *matHeaderCellDef>Remark</th>
+      <td mat-cell *matCellDef="let purchaseInvoice">
+        {{ purchaseInvoice.remark }}
+      </td>
+    </ng-container>
+
+    <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+    <ng-container matColumnDef="expandedDetail">
+      <td
+        mat-cell
+        *matCellDef="let element"
+        [attr.colspan]="(displayedColumns$ | async)?.length"
+      >
+        <div
+          class="example-element-detail"
+          [@detailExpand]="
+            element == expandedElement ? 'expanded' : 'collapsed'
+          "
+        >
+          <app-purchase-invoice-list-detail
+            [data]="element.purchaseInvoiceDetails"
+          ></app-purchase-invoice-list-detail>
+        </div>
+      </td>
+    </ng-container>
+    <!-- -------------- Expanded Content End----------------- -->
+
+    <!--  -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns$ | async"></tr>
+    <tr
+      mat-row
+      *matRowDef="let element; columns: displayedColumns$ | async"
+      class="example-element-row"
+      [class.example-expanded-row]="expandedElement === element"
+    ></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: ['expandedDetail']"
+      class="example-detail-row"
+    ></tr>
+  </table>
+</div>
+<!-- loader start -->
+<ng-container *ngIf="loading">
+  <app-loading-skeleton></app-loading-skeleton>
+</ng-container>
+<!-- loader end -->

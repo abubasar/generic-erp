@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>{{ formTitle }}</h2>
+<form [formGroup]="paymentMethodForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="mat-typography">
+    <input mat type="hidden" formControlName="id" />
+    <mat-form-field>
+      <mat-label>Payment Method Name</mat-label>
+      <input
+        matInput
+        autocomplete="off"
+        placeholder="Enter Payment Method name"
+        formControlName="name"
+      />
+      <mat-error
+        *ngIf="
+          paymentMethodForm.controls['name'].hasError('required') &&
+          paymentMethodForm.controls['name'].touched
+        "
+      >
+        Payment Method name is required
+      </mat-error>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-raised-button mat-dialog-close>Cancel</button>
+    <button
+      mat-raised-button
+      [mat-dialog-close]="true"
+      cdkFocusInitial
+      color="primary"
+      [disabled]="!paymentMethodForm.dirty || !paymentMethodForm.valid"
+      type="submit"
+    >
+      Save
+    </button>
+  </mat-dialog-actions>
+</form>

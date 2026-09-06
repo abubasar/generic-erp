@@ -1,0 +1,179 @@
+﻿1.‘?’ posfixed to the type name at declaration, to make the variable nullable
+2.‘!’ posfixed to the variables so as to convey compiler that the value would not be null
+** Global query filter is so powerful.(soft delete)if we delete one entity ,all related entity will also be deleted
+
+angular datepicker always set utc date (for bangladesh always set 6 hours back from starting of the day)
+if 22/01/2023 then it set 21/01/2023 18:00 
+
+"here Customer property is not marked as virtual, so it will not be lazy-loaded. However, 
+the OrderItems property is still marked as ICollection so it will be lazy-loaded by default.
+Disabling lazy loading can help improve performance by reducing the number of database queries that are executed"
+
+Database Indexing(IX_TableName_ColumnName)
+1.The clustered index will be the default index type if no other index is specified. Most of cases, use it on the Primary Key.
+2.Nonclustered indexes can be helpful in scenarios where columns are often used in the WHERE clause.
+3.Full-text indexes are interesting when you have text-based data that is often searched for particular words or phrases.
+4.Columnstore indexes are helpful in data warehouse applications where it is necessary to scan and aggregate massive amounts of data.
+
+**Tracking with Entity Framework Core
+When you query an EntitySet EF persists the state of the records returned and keeps track of any changes that are applied on the records.
+It is so that when you call SaveChanges() over the dbContext, all those changes are updated over to the database.
+Use AsNoTracking() when you don’t require the entities returned by your query need to be tracked and updated back to database.
+
+DI in dotnet core:
+AddSingleton: a single object present across the application
+AddScoped: One request for one instance (if we are injecting the same service more than once, then it will share the same instance.)
+AddTransient: always create a new instance (if we are injecting the same service more than once, then it will provide a new instance every time.)
+
+Principles of Clean Architecture
+The core principles of Clean Architecture include:
+
+Dependency Rule: Dependencies should always flow inwards, from outer layers to inner layers.
+Stable Abstractions: Components in higher-level layers should depend on stable abstractions, not on lower-level details.
+Single Responsibility Principle: Each component should have a single responsibility.
+Open/Closed Principle: Components should be open for extension but closed for modification.
+Liskov Substitution Principle: Subtypes should be substitutable for their base types.
+Interface Segregation Principle: Clients should not be forced to depend on interfaces they don’t use.
+Dependency Inversion Principle: High-level modules should not depend on low-level modules; both should depend on abstractions.
+
+
+CLEAN ARCHITECTURE:
+Core: Contains the application’s business logic, domain models, and interfaces for external dependencies.
+Infrastructure: Implements the interfaces defined in the Core layer. Includes database access, external services, and other infrastructure-related code.
+Web (or Presentation): Houses the user interface components such as controllers, views, and other web-related code.
+
+EAGER LOADING:
+Eager Loading helps you to load all your needed entities at once; i.e., all your child entities will be loaded at single database call. 
+This can be achieved, using the Include method, which returs the related entities as a part of the query and a large amount of data is loaded at once.
+
+LAZY LOADING:
+It is the default behavior of an Entity Framework, where a child entity is loaded only when it is accessed for the first time. 
+It simply delays the loading of the related data, until you ask for it.
+***Lazy Loading can lead to the N+1 query problem, where accessing a collection of entities triggers individual queries for each related entity. 
+This can cause performance degradation if not carefully managed. Techniques like eager loading or explicit loading can be used to mitigate this issue.
+
+EXPLICIT LOADING:
+There are options to disable Lazy Loading in an Entity Framework. After turning Lazy Loading off, you can still load the entities 
+by explicitly calling the Load method for the related entities. There are two ways to use Load method
+
+
+
+// Inefficient way
+string result = "";
+for (int i = 0; i < 1000000; i++)
+{
+    result += i.ToString();
+}
+
+// Better way
+StringBuilder sb = new StringBuilder();
+for (int i = 0; i < 1000000; i++)
+{
+    sb.Append(i.ToString());
+}
+string result = sb.ToString();
+The first implementation uses the += operator inside a loop to concatenate strings, which can be inefficient 
+because it creates a new string object in each iteration, resulting in unnecessary memory allocations and copying. 
+The second implementation uses the StringBuilder class, which provides a more efficient way to concatenate strings, 
+especially within loops. By using the Append method of StringBuilder to build the string gradually, 
+we avoid unnecessary memory overhead and achieve better performance.
+
+
+// Inefficient LINQ query
+var result = myList.Where(item => item.SomeProperty == someValue)
+                   .OrderBy(item => item.AnotherProperty)
+                   .ToList();
+
+// Optimized query
+var result = myList.Where(item => item.SomeProperty == someValue)
+                   .ToList();
+In this example, we have a LINQ query that filters a collection based on a condition and then orders the results.
+However, if ordering is not necessary for the application’s logic, it introduces unnecessary overhead. 
+By removing the OrderBy operation from the LINQ query, we optimize the query to perform only the filtering operation, 
+resulting in improved performance.
+
+
+// Inefficient object instantiation
+for (int i = 0; i < 1000; i++)
+{
+    var obj = new MyObject();
+    // Do something with obj
+}
+
+// Better approach - instantiate once
+var obj = new MyObject();
+for (int i = 0; i < 1000; i++)
+{
+    // Do something with obj
+}
+Creating objects unnecessarily can lead to increased memory usage and overhead. 
+By instantiating the object outside the loop and reusing it within the loop, 
+we avoid the overhead of creating new objects repeatedly,
+resulting in improved performance.
+
+
+Avoid Boxing and Unboxing
+
+// Boxing example
+object boxed = 10; // Boxing occurs here
+
+// Unboxing example
+int unboxed = (int)boxed; // Unboxing occurs here
+Boxing and unboxing operations involve converting value types to reference types and vice versa, 
+which can introduce performance overhead. In the example, the assignment of an integer value 
+to an object (boxed) results in boxing, while casting the object back to an integer (unboxed) results in unboxing. 
+By minimizing the use of boxing and unboxing operations, we can improve the performance of the application.
+
+
+// Inefficient loop
+for (int i = 0; i < myList.Length; i++)
+{
+    // Do something with myList[i]
+}
+
+// Optimized loop
+int length = myList.Length;
+for (int i = 0; i < length; i++)
+{
+    // Do something with myList[i]
+}
+
+
+// Using MemoryCache to cache frequently accessed data
+MemoryCache cache = new MemoryCache(new MemoryCacheOptions());
+string key = "CachedData";
+if (!cache.TryGetValue(key, out string cachedData))
+{
+    // Data not in cache, retrieve it from source
+    cachedData = GetDataFromSource();
+    cache.Set(key, cachedData, TimeSpan.FromMinutes(10)); // Cache data for 10 minutes
+}
+
+
+Use Structs for Small Data Structures
+For small, lightweight data structures, consider using structs instead of classes. Structs are value types and are often more efficient in terms of memory allocation and access.
+
+// Class example
+class Point
+{
+    public int X { get; set; }
+    public int Y { get; set; }
+}
+
+// Struct example
+struct Point
+{
+    public int X { get; set; }
+    public int Y { get; set; }
+}
+
+// Inefficient resource usage
+var file = File.OpenRead("file.txt");
+// Process file
+file.Close(); // Resource not properly disposed
+
+// Optimized resource usage
+using (var file = File.OpenRead("file.txt"))
+{
+    // Process file
+}
