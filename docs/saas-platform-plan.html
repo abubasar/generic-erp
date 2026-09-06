@@ -669,9 +669,9 @@
         </tr>
         <tr>
           <td><b>PMSAdminReact</b></td>
-          <td class="mono">React 16.8 · MUI v4 · react-scripts 3 · redux · formik</td>
-          <td>Pharmacy back-office UI — configuration, transactions, accounts, reports</td>
-          <td>Single deployment per customer, pointed at that customer's POS API.</td>
+          <td class="mono">React 16.8 · MUI v4 · react-scripts 3 (via <code>react-app-rewired</code>) · formik · MatX React template (<code>matx-react</code> 2.0.0) · redux present but only MatX boilerplate reducers (no domain state)</td>
+          <td>Pharmacy POS back-office UI — <b>not small</b>: Configuration (~40 files: Branch, Category, Product, Supplier, Customer, User, Role, PaymentMethod, MeasurementUnit, Generic, FiscalYear, ExpenseType…), Transaction (~46: Purchase, PurchaseReturn, Sale, CustomerPayment, SupplierPayment, Expense, DamageLost, StockAdjustment, StockAdjustmentBatch, Transfer/Detail/Multiple), Accounts (AccountHead, JournalEntry, PayReceive), Dashboard, and a split <code>Report</code> vs <code>LegacyReports</code> (ItemWise*, Stock… vs BalanceReport, CustomerLedger, SupplierLedger, ProfitLoss). ~380 files, ~54 routes.</td>
+          <td>Single deployment per customer; <code>.env</code>-per-build API URL (the checked-in <code>CopyOfDotEnv</code> rotates demopos / ghp / vetmed API hosts).</td>
           <td><span class="pill retire">Retire — dead-end stack</span></td>
         </tr>
         <tr>
@@ -1184,7 +1184,7 @@ YOUR TEAM & LOCATIONS
         <li>Port batch/expiry → <code>Pharmacy</code> industry module (extension tables on Product/Stock).</li>
         <li>POS terminal UI: port <code>PMSShopAngular</code> <code>modules/pos</code> + <code>pos-layout</code> into the tenant shell as a terminal mode — a contained lift (~18 components under one <code>PosComponent</code>; the app's <code>admin</code>/<code>home</code> modules are stubs, nothing to bring).</li>
         <li>Migration tooling for existing POS customers (per-DB → tenant rows).</li>
-        <li>Retire <code>PMSAdminReact</code>; migrate its back-office screens into the Angular shell.</li>
+        <li>Retire <code>PMSAdminReact</code>. Its ~380 files / ~54 routes are mostly the POS back-office twin of screens the ERP shell already has — do a screen-by-screen overlap pass against Configuration / Accounts / Report, and rebuild only the POS-only ones (DamageLost, StockAdjustmentBatch, POS Sale / CustomerPayment, the <code>LegacyReports</code> ledgers) in Angular. Its redux is MatX boilerplate — drop it.</li>
       </ul>
     </div>
   </div>
@@ -1230,7 +1230,7 @@ YOUR TEAM & LOCATIONS
         <tbody>
           <tr><td><b>Tenant shell</b> (Angular, current LTS)</td><td><code>Application.Client</code> (was ERPAngular, already in the <code>GenericERP</code> repo), upgraded from <b>14.2 → current (≈4 majors)</b>; POS screens ported from PMSShopAngular</td><td>The whole product for a logged-in tenant: ERP modules lazy-loaded by entitlement, plus a POS terminal mode. Menu, routes and guards driven by <code>/api/me</code>.</td></tr>
           <tr><td><b>Platform console</b> (Angular)</td><td>New, small</td><td>Internal ops: tenants, modules, pricing, metrics, support impersonation.</td></tr>
-          <tr><td><span class="pill retire">retire</span> PMSAdminReact</td><td>—</td><td>React 16 + MUI 4 + react-scripts 3 is a dead-end toolchain. Rebuild its handful of unique screens in the shell.</td></tr>
+          <tr><td><span class="pill retire">retire</span> PMSAdminReact</td><td>—</td><td>React 16 + MUI 4 + react-scripts 3 is a dead-end toolchain. <b>Bigger than "a handful of screens"</b> (~380 files, ~54 routes) — but most of it is the POS back-office twin of screens the ERP shell already has (Category, Product, Supplier, Customer, Purchase, JournalEntry…). Do a screen-by-screen overlap pass; rebuild only the genuinely POS-only ones (DamageLost, StockAdjustmentBatch, POS Sale / CustomerPayment, the <code>LegacyReports</code> ledgers) in the shell.</td></tr>
         </tbody>
       </table>
     </div>
