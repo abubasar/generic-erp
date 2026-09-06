@@ -892,10 +892,11 @@ something usable.
   Autofac per-domain module, `BaseService`, `UnitOfWork` audit/soft-delete
   pipeline (the POS has none of these; ~40 controllers call generic
   command/query services directly, no `Deleted` filter).
-- Design the missing **shift / cash-drawer / register** model — it exists in
-  neither the POS backend nor the `PMSShopAngular` terminal. Decide whether the
-  terminal needs an **offline mode** (today it is online-only) while you are
-  rebuilding it.
+- Design the missing **POS till session** (shift / cash-drawer / register) model
+  — it exists in neither the POS backend nor the `PMSShopAngular` terminal.
+  (The ERP's `Shift` table is *employee scheduling* — `Name` / `FromTime` /
+  `ToTime` — a name collision, not this.) Decide whether the terminal needs an
+  **offline mode** (today it is online-only) while you are rebuilding it.
 - Port batch/expiry → `Pharmacy` industry module (extension tables on
   Product/Stock; reuse `StockItem.BatchNo/.ExpiryDate`, `Product.IsExpiryItem`).
 - POS terminal UI: port `PMSShopAngular` `modules/pos` + `pos-layout` into the
@@ -1092,9 +1093,23 @@ Every requirement block from the brief, mapped to where this plan addresses it.
 New tables, all *cross-tenant* (owned by the Platform layer, not filtered by
 `TenantId`). Field lists are indicative, not final.
 
+**Cross-checked against `generic-erp-db` (2026-09-06):** of the tables below,
+**only `Tenant` exists** (and `Setting`, partially — see `TenantSetting`).
+Everything else is greenfield. There is no `Module`, `Subscription`, `Plan`,
+`PriceBook`, `Entitlement`, `UsageRecord`, `Invoice`, `BusinessTemplate` or
+`OnboardingSession` table, and nothing resembling them.
+
+**House conventions to follow** (every one of the 110 domain tables obeys these;
+the new platform tables should too, minus the tenant parts): PK is
+`Id uniqueidentifier` (Guid) — no `int`/`string` keys anywhere in the domain;
+audit columns are `CreatedOn` / `UpdatedOn` `datetime2` + `CreatedBy` /
+`UpdatedBy` `nvarchar(200)` **(the username string, not a user Guid)** + a
+`Deleted bit`. Cross-tenant platform tables keep the audit columns but are
+exempt from `TenantId` stamping and the `Deleted` query filter.
+
 | Table | Key fields | Purpose |
 |---|---|---|
-| `Tenant` *(exists — extend)* | *today:* Id · Code · Name · TimeZoneId · Address · ContactNo · BINNo · Email · BusinessType · Logo + audit + Deleted &nbsp;•&nbsp; *add:* Subdomain · CustomDomain? · BusinessTemplateKey · Status · CountryId · Currency · DbConnectionKey? | The customer. `DbConnectionKey` null = shared pool. `BusinessType` (1 = Pharmaceutical, 2 = Feed) stays as a compatibility shim until `BusinessTemplateKey` fully replaces it. |
+| `Tenant` *(exists — extend)* | *today (verified):* `Id uniqueidentifier` · `Code nvarchar(20)` · `Name nvarchar(400)` · `TimeZoneId nvarchar(max)` · `Address nvarchar(max)` · `ContactNo` · `BINNo` · `Email` · `BusinessType int` · `Logo` + audit + `Deleted` &nbsp;•&nbsp; *add:* Subdomain · CustomDomain? · BusinessTemplateKey · Status · Currency (ISO string) · DbConnectionKey? | The customer. `DbConnectionKey` null = shared pool; nothing stored today — `TenantDataContextExtension` derives the DB from the sub-domain. `BusinessType` (1 = Pharmaceutical, 2 = Feed) stays as a shim until `BusinessTemplateKey` replaces it. **No `CountryId`** in the "add" list: `Country` is a *per-tenant* lookup table (`Id`, `Name`, `TenantId`), so there is no global country master to FK — store a country code string if needed. |
 | `BusinessTemplate` | Key · Name · Description · DefaultModuleKeys[] · SeedPackKey · QuestionnaireKey | Pharmacy, Feed, Super Shop, … |
 | `Module` | Key · Name · Category {Core\|Business\|Industry} · DependsOn[] · MeteredBy? · PermissionGroup | The catalog. Seeded from code. |
 | `TenantModule` | TenantId · ModuleKey · Status · ActivatedOn · ExpiresOn? | What this tenant has switched on. |
@@ -1103,11 +1118,11 @@ New tables, all *cross-tenant* (owned by the Platform layer, not filtered by
 | `Subscription` | Id · TenantId · PlanKey? · Status · PriceBookVersion · PeriodStart · PeriodEnd · TrialEndsOn | One active per tenant. `PlanKey` null = build-your-own. |
 | `SubscriptionItem` | SubscriptionId · Sku · Quantity · UnitPriceSnapshot | Frozen line items = the tenant's locked price. |
 | `Entitlement` | TenantId · Key {max_users, max_branches, max_pos_terminals, storage_mb} · Limit | Derived from plan + items; checked on create. |
-| `TenantSetting` | TenantId · Key · Value | Typed setting store. The current `Setting` table is **not** tenant-scoped (no `TenantId` column) — either add one or supersede it with this. |
+| `TenantSetting` | TenantId · Key · Value | Typed setting store. The existing `Setting` table is `Id` · `Name` · `Value` only — **not tenant-scoped, and no audit columns** (one of only four such tables). Add `TenantId` (+ rename `Name`→`Key`) or supersede it. |
 | `UsageRecord` | TenantId · Meter · Quantity · PeriodDate | Metering input for billing. |
-| `Invoice` / `InvoiceLine` | TenantId · Number · PeriodStart/End · Status · Total • Sku · Description · Qty · Amount | Phase 4. |
+| `TenantInvoice` / `TenantInvoiceLine` | TenantId · Number · PeriodStart/End · Status · Total • Sku · Description · Qty · Amount | Phase 4. **Do not call it `Invoice`** — `SaleInvoice` and `PurchaseInvoice` are existing, unrelated ERP documents. |
 | `OnboardingSession` | Id · Email · Answers(json) · RecommendedTemplateKey · SelectedModuleKeys[] · Quote(json) · Step · ConvertedTenantId? | Pre-tenant signup state. |
-| `PlatformUser` / `PlatformRole` | Id · Email · PasswordHash · Role {SuperAdmin\|Ops\|Support\|Billing} | Console identities. Separate from tenant `User`. |
+| `PlatformUser` / `PlatformRole` | Id · Email · PasswordHash · Role {SuperAdmin\|Ops\|Support\|Billing} | Console identities, deliberately **separate from and unlike tenant `User`** — which is `Username` (not email) + `PasswordHash`/`PasswordSalt` `varbinary` (salted, not one string) + a `RoleId` FK to the tenant-scoped `Role` table (one role per user, not an enum). |
 
 ### Enforcement primitives (C#)
 
