@@ -39,3 +39,10 @@ export interface PlatformUsageSummary {
 }
 
 export interface ImpersonateResult { accessToken: string; refreshToken: string; tenantId: string; tenantName: string; actingAs: string; }
+
+export interface ProvisioningStepStatus { stepKey: string; status: string; error?: string; attempts: number; completedOn?: string; }
+export interface ProvisioningResult { tenantId: string; complete: boolean; ownerUsername?: string; ownerTempPassword?: string; steps: ProvisioningStepStatus[]; }
+export interface CreateTenantResult { tenant: TenantDetail; provisioning: ProvisioningResult; }
+
+export interface PricingLine { label: string; detail: string; amount: number; }
+export interface PricingQuote { currency: string; priceBookVersion?: number; lines: PricingLine[]; monthlyTotal: number; pricingConfigured: boolean; }
