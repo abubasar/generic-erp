@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import {
   ApiResult, TenantListItem, TenantDetail, ModuleDto, BusinessTemplateDto, PlanDto,
   PriceBookDto, PlatformUsageSummary, AuditEntryDto, ImpersonateResult,
+  CreateTenantResult, ProvisioningResult, ProvisioningStepStatus, PricingQuote,
 } from './models';
 
 @Injectable({ providedIn: 'root' })
@@ -33,7 +34,10 @@ export class PlatformApi {
     return this.get<TenantListItem[]>(`/api/platform/tenants?${q}`);
   }
   tenant(id: string) { return this.get<TenantDetail>(`/api/platform/tenants/${id}`); }
-  createTenant(body: unknown) { return this.post<TenantDetail>('/api/platform/tenants', body); }
+  createTenant(body: unknown) { return this.post<CreateTenantResult>('/api/platform/tenants', body); }
+  provision(id: string, body: unknown = {}) { return this.post<ProvisioningResult>(`/api/platform/tenants/${id}/provision`, body); }
+  provisioningStatus(id: string) { return this.get<ProvisioningStepStatus[]>(`/api/platform/tenants/${id}/provisioning`); }
+  quote(body: unknown) { return this.post<PricingQuote>('/api/platform/pricing/quote', body); }
   setStatus(id: string, status: string) { return this.post<TenantDetail>(`/api/platform/tenants/${id}/status`, { status }); }
   setSubscription(id: string, body: unknown) { return this.post<TenantDetail>(`/api/platform/tenants/${id}/subscription`, body); }
   toggleModule(id: string, moduleKey: string, enabled: boolean) { return this.post<TenantDetail>(`/api/platform/tenants/${id}/modules`, { moduleKey, enabled }); }

@@ -63,5 +63,11 @@ namespace Application.Api.Controllers.Platform
         [PlatformAuthorize(PlatformRoles.Admin)]
         public async Task<Result> Publish(Guid id) =>
             await Result<PriceBookDto>.SuccessAsync(await _catalog.PublishPriceBookAsync(id), "Published");
+
+        // ---- Pricing quote ----
+
+        [HttpPost("pricing/quote")]
+        public async Task<Result> Quote([FromServices] IPricingEngine pricing, PricingRequest request) =>
+            await Result<PricingQuote>.SuccessAsync(await pricing.QuoteAsync(request), "OK");
     }
 }

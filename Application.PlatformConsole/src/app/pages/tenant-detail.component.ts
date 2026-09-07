@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PlatformApi } from '../core/api.service';
 import { AuthService } from '../core/auth.service';
-import { TenantDetail, ModuleDto, PlanDto } from '../core/models';
+import { TenantDetail, ModuleDto, PlanDto, ProvisioningStepStatus } from '../core/models';
 
 @Component({
   standalone: true,
@@ -82,6 +82,20 @@ import { TenantDetail, ModuleDto, PlanDto } from '../core/models';
         }
       </div>
 
+      <h2>Provisioning</h2>
+      <div class="card">
+        <div class="row" style="gap:6px;flex-wrap:wrap;align-items:center">
+          @for (s of provSteps(); track s.stepKey) {
+            <span class="pill" [class.ok]="s.status==='Done'" [class.bad]="s.status==='Failed'" [class.mute]="s.status!=='Done' && s.status!=='Failed'"
+                  [title]="s.error || ''">{{ s.stepKey }}@if (s.attempts > 1) { ·{{ s.attempts }} }</span>
+          } @empty { <span class="muted">No provisioning record.</span> }
+        </div>
+        @if (auth.hasRole('Admin')) {
+          <button style="margin-top:10px" (click)="rerunProvisioning()">Re-run provisioning</button>
+          <span class="muted" style="font-size:12px;margin-left:8px">idempotent — only retries failed / missing steps</span>
+        }
+      </div>
+
       @if (auth.hasRole('Support')) {
         <h2>Support</h2>
         <div class="card">
@@ -109,11 +123,22 @@ export class TenantDetailComponent {
   qLimit: number | null = null;
   impToken = signal('');
   impActor = signal('');
+  provSteps = signal<ProvisioningStepStatus[]>([]);
 
   constructor() {
     this.reload();
     this.api.modules().then((m) => this.allModules.set(m));
     this.api.plans().then((p) => this.plans.set(p));
+    this.loadProvisioning();
+  }
+
+  private loadProvisioning(): void {
+    this.api.provisioningStatus(this.id).then((s) => this.provSteps.set(s)).catch(() => {});
+  }
+
+  rerunProvisioning(): void {
+    this.error.set('');
+    this.api.provision(this.id).then((r) => { this.provSteps.set(r.steps); this.reload(); }).catch((e) => this.error.set(e.message));
   }
 
   private reload(): void {

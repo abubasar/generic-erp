@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PlatformApi } from '../core/api.service';
 import { AuthService } from '../core/auth.service';
-import { TenantListItem, BusinessTemplateDto, PlanDto } from '../core/models';
+import { TenantListItem, BusinessTemplateDto, PlanDto, CreateTenantResult } from '../core/models';
 
 @Component({
   standalone: true,
@@ -56,6 +56,22 @@ import { TenantListItem, BusinessTemplateDto, PlanDto } from '../core/models';
       </div>
     }
 
+    @if (created(); as c) {
+      <div class="card" style="margin-top:12px;border-color:var(--ok)">
+        <h2>{{ c.tenant.name }} — provisioning {{ c.provisioning.complete ? 'complete' : 'incomplete' }}</h2>
+        @if (c.provisioning.ownerTempPassword) {
+          <p><b>Owner sign-in (shown once):</b> <code>{{ c.provisioning.ownerUsername }}</code> / <code>{{ c.provisioning.ownerTempPassword }}</code></p>
+        }
+        <div class="row" style="gap:6px;flex-wrap:wrap">
+          @for (s of c.provisioning.steps; track s.stepKey) {
+            <span class="pill" [class.ok]="s.status==='Done'" [class.bad]="s.status==='Failed'" [class.mute]="s.status==='Pending'">{{ s.stepKey }}</span>
+          }
+        </div>
+        <button style="margin-top:10px" (click)="goToCreated(c.tenant.id)">Open tenant</button>
+        <button class="ghost" style="margin-left:8px" (click)="created.set(null)">Dismiss</button>
+      </div>
+    }
+
     @if (error() && !showNew()) { <div class="err">{{ error() }}</div> }
     <div class="card" style="margin-top:14px">
       <table>
@@ -88,6 +104,7 @@ export class TenantsComponent {
   showNew = signal(false);
   busy = signal(false);
   error = signal('');
+  created = signal<CreateTenantResult | null>(null);
   search = '';
   status = '';
   nt: any = { code: '', name: '', subdomain: '', businessTemplateKey: 'feed', planKey: '', currency: 'BDT' };
@@ -110,12 +127,16 @@ export class TenantsComponent {
     this.busy.set(true); this.error.set('');
     try {
       const body = { ...this.nt, subdomain: this.nt.subdomain || null, planKey: this.nt.planKey || null };
-      const created = await this.api.createTenant(body);
-      this.router.navigate(['/tenants', created.id]);
+      const result = await this.api.createTenant(body);
+      this.created.set(result);
+      this.showNew.set(false);
+      this.load();
     } catch (e: any) {
       this.error.set(e.message);
     } finally {
       this.busy.set(false);
     }
   }
+
+  goToCreated(id: string): void { this.created.set(null); this.router.navigate(['/tenants', id]); }
 }

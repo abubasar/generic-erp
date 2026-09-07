@@ -15,6 +15,8 @@ namespace Application.Services.Services.Platform
             builder.RegisterType<PlatformTenantService>().As<IPlatformTenantService>().InstancePerLifetimeScope();
             builder.RegisterType<PlatformCatalogService>().As<IPlatformCatalogService>().InstancePerLifetimeScope();
             builder.RegisterType<PlatformUsageService>().As<IPlatformUsageService>().InstancePerLifetimeScope();
+            builder.RegisterType<ProvisioningService>().As<IProvisioningService>().InstancePerLifetimeScope();
+            builder.RegisterType<PricingEngine>().As<IPricingEngine>().InstancePerLifetimeScope();
         }
     }
 }

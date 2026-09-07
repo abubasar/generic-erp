@@ -14,7 +14,7 @@ namespace Application.Core.Data.Configurations
         {
             entity.ToTable("PurchaseOrder");
 
-            entity.HasIndex(e => e.Ponumber, "UQ_PONumber").IsUnique();
+            entity.HasIndex(e => new { e.TenantId, e.Ponumber }, "UQ_PONumber").IsUnique();
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.AdditionalLandedCost).HasColumnType("decimal(22, 12)");
