@@ -4,6 +4,7 @@ using Application.Core.Entities;
 using Application.Core.Enums;
 using Application.Core.Exceptions;
 using Application.Core.Extensions;
+using Application.Core.Industry;
 using Application.Core.Interfaces;
 using Application.Core.SignalR;
 using Application.Services.Dtos.Sale.SaleOrder;
@@ -38,9 +39,10 @@ namespace Application.Services.Services.Sale.SaleOrders
         private readonly INotificationService _notificationService;
         private readonly IHubContext<BroadcastHub, IHubClient> _hubContext;
         private readonly ITenantService _tenantService;
+        private readonly IIndustryProfile _industry;
 
         public SaleOrderService(IUnitOfWork unitOfWork, IMapper mapper, IWorkContext workContext, IAccountService accountService, ICustomerService customerService,
-            INotificationService notificationService, IHubContext<BroadcastHub, IHubClient> hubContext, ITenantService tenantService) : base(unitOfWork, mapper, workContext)
+            INotificationService notificationService, IHubContext<BroadcastHub, IHubClient> hubContext, ITenantService tenantService, IIndustryProfile industry) : base(unitOfWork, mapper, workContext)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -50,6 +52,7 @@ namespace Application.Services.Services.Sale.SaleOrders
             _notificationService = notificationService;
             _hubContext = hubContext;
             _tenantService = tenantService;
+            _industry = industry;
         }
 
         public async Task<SaleOrderAggregatorModel> PrepareSaleOrderAggregatorModel(SaleOrderRequestModel saleOrderRequest)
@@ -367,7 +370,7 @@ namespace Application.Services.Services.Sale.SaleOrders
                 {
                     foreach (var item in saleOrder.SaleOrderDetails)
                     {
-                        var quantity = item.Quantity - item.DeliveredPrimaryQuantity * item.Product.BagWeight;
+                        var quantity = item.Quantity - _industry.Uom.ToSellable(item.DeliveredPrimaryQuantity, item.Product);
                         var rate = item.NetRate - item.OtherDiscountPerUnit + item.TransportationCostPerUnit + item.DepoChargePerUnit;
                         transitAmountInPartialDeliveredSaleOrder += (quantity * rate);
                     }
