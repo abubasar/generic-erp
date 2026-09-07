@@ -108,10 +108,15 @@ namespace Application.Infrastructure
                 eventLog.EntityId = entityId;
                 eventLog.NewValues = JsonConvert.SerializeObject(entityEntry?.CurrentValues?.ToObject());
                 var isTenantScoped = entityEntry?.Entity is ITenantScoped;
+                // A row already carrying the shared sentinel (the CoA skeleton) is
+                // owned by no tenant — never re-stamp it or guard it as cross-tenant.
+                var isSharedRow = isTenantScoped
+                    && entityEntry!.Entity is ITenantSharable
+                    && (Guid?)entityEntry.Property("TenantId").CurrentValue == TenancyConstants.SystemTenantId;
                 switch (entityEntry?.State)
                 {
                     case EntityState.Added:
-                        if (isTenantScoped)
+                        if (isTenantScoped && !isSharedRow)
                             entityEntry.Property("TenantId").CurrentValue = tenantId;
                         SetIfPresent(entityEntry, "CreatedOn", DateTime.UtcNow);
                         SetIfPresent(entityEntry, "CreatedBy", username);
@@ -123,7 +128,7 @@ namespace Application.Infrastructure
                         {
                             var dbValues = entityEntry.GetDatabaseValues();
                             GuardTenantOwnership(isTenantScoped, dbValues, tenantId, entityEntry.Entity.GetType().Name);
-                            if (isTenantScoped)
+                            if (isTenantScoped && !isSharedRow)
                                 entityEntry.Property("TenantId").CurrentValue = tenantId;
                             SetIfPresent(entityEntry, "UpdatedOn", DateTime.UtcNow);
                             SetIfPresent(entityEntry, "UpdatedBy", username);
@@ -171,7 +176,9 @@ namespace Application.Infrastructure
         {
             if (!isTenantScoped || databaseValues is null) return;
             var storedTenantId = databaseValues.GetValue<Guid>("TenantId");
-            if (storedTenantId != Guid.Empty && storedTenantId != currentTenantId)
+            // Guid.Empty = unstamped; SystemTenantId = shared CoA skeleton (owned by no tenant).
+            if (storedTenantId == Guid.Empty || storedTenantId == TenancyConstants.SystemTenantId) return;
+            if (storedTenantId != currentTenantId)
                 throw new UnauthorizationException($"Cross-tenant write blocked on {entityName}.");
         }
     }

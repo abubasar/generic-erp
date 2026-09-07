@@ -14,7 +14,9 @@ namespace Application.Core.Data.Configurations
         {
             entity.ToTable("Account");
 
-            entity.HasIndex(e => e.Code, "UQ_Account_Code").IsUnique();
+            // Code is unique per tenant (the shared CoA skeleton carries the
+            // SystemTenantId, so its fixed codes don't clash with any tenant's).
+            entity.HasIndex(e => new { e.TenantId, e.Code }, "UQ_Account_Code").IsUnique();
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Address).HasMaxLength(100);
