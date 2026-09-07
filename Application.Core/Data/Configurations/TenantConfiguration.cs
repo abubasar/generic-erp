@@ -30,6 +30,17 @@ namespace Application.Core.Data.Configurations
                 .HasMaxLength(200);
             entity.Property(e => e.UpdatedBy).HasMaxLength(100);
 
+            // ---- Platform layer (Phase 1) ----
+            entity.Property(e => e.Subdomain).HasMaxLength(63);
+            entity.Property(e => e.CustomDomain).HasMaxLength(253);
+            entity.Property(e => e.BusinessTemplateKey).HasMaxLength(50);
+            entity.Property(e => e.Status).HasMaxLength(20);
+            entity.Property(e => e.Currency).HasMaxLength(3);
+            entity.Property(e => e.DbConnectionKey).HasMaxLength(100);
+            entity.HasIndex(e => e.Subdomain)
+                .IsUnique()
+                .HasFilter("[Subdomain] IS NOT NULL");
+
             OnConfigurePartial(entity);
         }
 

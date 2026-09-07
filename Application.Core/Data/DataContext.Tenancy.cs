@@ -1,5 +1,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
+using Application.Core.Data.Configurations.Platform;
+using Application.Core.Entities.Platform;
 using Application.Core.Extensions;
 using Application.Core.Interfaces;
 using Application.Core.StoredProcedureResult;
@@ -34,8 +36,24 @@ namespace Application.Core.Data
             typeof(DataContext).GetField(nameof(_currentTenantId),
                 BindingFlags.NonPublic | BindingFlags.Instance)!;
 
+        // ---- Platform layer (Phase 1). Not ITenantScoped: the platform admin needs
+        //      cross-tenant access; a tenant reaches its own rows via ITenantContext. ----
+        public virtual DbSet<PlatformModule> Modules => Set<PlatformModule>();
+        public virtual DbSet<TenantModule> TenantModules => Set<TenantModule>();
+        public virtual DbSet<BusinessTemplate> BusinessTemplates => Set<BusinessTemplate>();
+        public virtual DbSet<Subscription> Subscriptions => Set<Subscription>();
+        public virtual DbSet<Entitlement> Entitlements => Set<Entitlement>();
+        public virtual DbSet<TenantSetting> TenantSettings => Set<TenantSetting>();
+
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfiguration(new ModuleConfiguration());
+            modelBuilder.ApplyConfiguration(new TenantModuleConfiguration());
+            modelBuilder.ApplyConfiguration(new BusinessTemplateConfiguration());
+            modelBuilder.ApplyConfiguration(new SubscriptionConfiguration());
+            modelBuilder.ApplyConfiguration(new EntitlementConfiguration());
+            modelBuilder.ApplyConfiguration(new TenantSettingConfiguration());
+
             // SP result type — keyless, and not a real table.
             modelBuilder.Entity<SPSupplierLedgerResult>().HasNoKey().ToView(null);
 
