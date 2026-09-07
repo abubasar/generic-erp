@@ -1129,14 +1129,17 @@ YOUR TEAM & LOCATIONS
   <div class="phase">
     <div class="phase-tag">PHASE 0</div>
     <div>
-      <h3>Tenancy foundation</h3>
-      <div class="goal">goal — one hardened, fail-closed isolation model in Application.Api</div>
+      <h3>Tenancy foundation &nbsp;·&nbsp; <span style="color:var(--ok)">largely done</span></h3>
+      <div class="goal">goal — one hardened, fail-closed isolation model in Application.Api &nbsp;·&nbsp; details: docs/phase0-tenancy.md</div>
       <ul>
-        <li>Add <code>ITenantContext</code> (scoped) + <code>ITenantScoped</code> marker interface on all tenant entities.</li>
-        <li>Replace manual <code>WHERE TenantId</code> in <code>BaseRepository</code> with EF global query filters; remove the <code>TableWithoutTenant()</code> bypass. Harden the <code>UnitOfWork.OnBeforeSaveChangesAsync</code> guard: today it only checks an ambient tenant exists — make it also reject any <code>Modified</code>/<code>Deleted</code> scoped entity whose stored <code>TenantId</code> differs from the current one (not blindly re-stamp it).</li>
-        <li>Write the tenant-isolation integration test suite (every endpoint, two tenants, assert no bleed).</li>
-        <li>Tenant-resolution middleware: JWT claim first, host fallback.</li>
-        <li>Re-scaffold rule: leading <code>TenantId</code> on all main indexes.</li>
+        <li>✅ <code>ITenantScoped</code> marker on the 109 tenant entities + <code>ITenantContext</code>; ambient <code>TenantScope</code> (<code>AsyncLocal</code>) set by <code>JwtMiddleware</code>.</li>
+        <li>✅ Automatic EF query filter (tenant + soft-delete) on every <code>ITenantScoped</code> type in a re-scaffold-safe <code>DataContext</code> partial; <code>BaseRepository</code> no longer hand-writes <code>WHERE TenantId</code>; <code>TableWithoutTenant()</code> → <code>TableUnfiltered()</code> (pre-auth paths only).</li>
+        <li>✅ <code>UnitOfWork</code> fail-closed write guard: throws on any <code>Modified</code>/<code>Deleted</code> scoped entity whose stored <code>TenantId</code> ≠ current; <code>FindAsync(id)</code> re-checks (it bypasses filters).</li>
+        <li>✅ Isolation test suite (<code>Application.Tests</code>, xUnit + EF InMemory) — reads scoped, writes blocked, <code>FindAsync</code> isolated, DI picks the tenant-aware ctor.</li>
+        <li>✅ Deleted the orphan net6 <code>Application.Infrastructure/</code> project.</li>
+        <li>◻️ Leading <code>TenantId</code> index on every scoped table — <code>docs/sql/2026-09-07_tenant-id-indexes.sql</code> ready; run per environment.</li>
+        <li>◻️ Host / sub-domain tenant resolution — deferred to Phase 1 (needs <code>Tenant.Subdomain</code>). JWT-claim path is live.</li>
+        <li>◻️ End-to-end (real HTTP, every endpoint) isolation tests — alongside Phase 1's second seeded tenant.</li>
       </ul>
     </div>
   </div>
