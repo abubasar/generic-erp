@@ -1,18 +1,23 @@
 using System.Linq.Expressions;
 using System.Reflection;
+using Application.Core.Extensions;
 using Application.Core.Interfaces;
+using Application.Core.StoredProcedureResult;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Core.Data
 {
     /// <summary>
-    /// Hand-authored partial of the scaffolded <see cref="DataContext"/> that adds
-    /// automatic per-tenant isolation. Kept in a separate file so an EF Power Tools
-    /// re-scaffold (which regenerates <c>Data/DataContext.cs</c>) cannot wipe it.
-    ///
-    /// The re-scaffold keeps its single-argument constructor; runtime DI still
-    /// selects the tenant-aware overload below because <see cref="ITenantContext"/>
-    /// is registered and it is the greedier constructor. See docs/saas-platform-plan.md §11.
+    /// Hand-authored partial of the scaffolded <see cref="DataContext"/>. Everything
+    /// here must live outside <c>Data/DataContext.cs</c> so an EF Power Tools
+    /// re-scaffold (which regenerates that file) cannot wipe it:
+    ///  - the tenant-aware constructor (the scaffold keeps its single-arg one; runtime
+    ///    DI picks this greedier one because <see cref="ITenantContext"/> is registered);
+    ///  - the global soft-delete filter (<c>ApplyGlobalFilter</c>) — previously a
+    ///    hand-added line in the generated file;
+    ///  - the per-<see cref="ITenantScoped"/> tenant + soft-delete query filter;
+    ///  - the keyless SP-result mapping.
+    /// See docs/saas-platform-plan.md §11 and docs/phase0-tenancy.md.
     /// </summary>
     public partial class DataContext
     {
@@ -31,6 +36,14 @@ namespace Application.Core.Data
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder)
         {
+            // SP result type — keyless, and not a real table.
+            modelBuilder.Entity<SPSupplierLedgerResult>().HasNoKey().ToView(null);
+
+            // Global soft-delete filter for every entity that has a Deleted flag
+            // (covers the non-tenant-scoped ones like Tenant). The ITenantScoped
+            // loop below then REPLACES it with a combined tenant + soft-delete filter.
+            modelBuilder.ApplyGlobalFilter<bool>("Deleted", false);
+
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 if (!typeof(ITenantScoped).IsAssignableFrom(entityType.ClrType))
