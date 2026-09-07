@@ -43,6 +43,8 @@ namespace Application.Core.Data.Configurations
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_DeliveryNoteDetail_Product");
 
+            entity.Property(e => e.StockIssueCogs).HasColumnType("decimal(18, 4)");
+
             OnConfigurePartial(entity);
         }
 

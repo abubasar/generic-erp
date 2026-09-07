@@ -30,6 +30,7 @@ namespace Application.Core.Data.Configurations
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_JournalEntry_CostCenter");
 
+            entity.Property(e => e.InactivatedBy).HasMaxLength(100);
             OnConfigurePartial(entity);
         }
 

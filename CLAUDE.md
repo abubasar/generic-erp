@@ -14,12 +14,15 @@ dotnet run --project Application.Api
 # Run with watch (hot reload)
 dotnet watch --project Application.Api run
 
-# EF Core migrations (from Application.Core)
+# EF Core migrations — code-first since InitialBaseline (dotnet-ef is a local tool; run `dotnet tool restore` first)
 dotnet ef migrations add <MigrationName> --project Application.Core --startup-project Application.Api
 dotnet ef database update --project Application.Core --startup-project Application.Api
 
-# Re-scaffold entities from DB (uses efpt.config.json in Application.Core)
-# Run via EF Core Power Tools in Visual Studio
+# The entities in Application.Core/Entities/ + Data/Configurations/ are now the
+# source of truth. Do NOT re-scaffold with EF Core Power Tools — hand-edit the
+# entity/config and add a migration. generic-erp-db was baselined at InitialBaseline
+# (an existing __EFMigrationsHistory row, no schema change). efpt.config.json is
+# kept for reference only.
 ```
 
 API runs on `http://localhost:5254` by default. Swagger UI available at `/swagger`.

@@ -45,6 +45,10 @@ public partial class PurchaseReturn
 
     public Guid TenantId { get; set; }
 
+    public bool IsInactive { get; set; }
+
+    public string InactivatedBy { get; set; }
+
     public virtual ICollection<PurchaseReturnDetail> PurchaseReturnDetails { get; set; } = new List<PurchaseReturnDetail>();
 
     public virtual Store Store { get; set; }

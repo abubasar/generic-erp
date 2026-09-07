@@ -37,6 +37,10 @@ public partial class JournalEntry
 
     public Guid TenantId { get; set; }
 
+    public bool IsInactive { get; set; }
+
+    public string InactivatedBy { get; set; }
+
     public virtual CostCenter CostCenter { get; set; }
 
     public virtual ICollection<JournalEntryDetail> JournalEntryDetails { get; set; } = new List<JournalEntryDetail>();

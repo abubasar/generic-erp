@@ -73,6 +73,8 @@ public partial class DeliveryNoteDetail
 
     public Guid TenantId { get; set; }
 
+    public decimal StockIssueCogs { get; set; }
+
     public virtual DeliveryNote DeliveryNote { get; set; }
 
     public virtual Product Product { get; set; }

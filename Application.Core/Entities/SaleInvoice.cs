@@ -89,6 +89,22 @@ public partial class SaleInvoice
 
     public Guid TenantId { get; set; }
 
+    public DateTime? DeliveryDate { get; set; }
+
+    public DateTime? StockIssuedDate { get; set; }
+
+    public string StockIssuedBy { get; set; }
+
+    public decimal AdjustmentOtherDiscount { get; set; }
+
+    public decimal TotalAdjustmentAmount { get; set; }
+
+    public decimal TotalAdjustmentPercentageDiscountAmount { get; set; }
+
+    public bool IsInactive { get; set; }
+
+    public string InactivatedBy { get; set; }
+
     public virtual Account Customer { get; set; }
 
     public virtual Territory CustomerTerritory { get; set; }

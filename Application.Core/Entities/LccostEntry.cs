@@ -45,6 +45,10 @@ public partial class LccostEntry
 
     public Guid TenantId { get; set; }
 
+    public bool IsInactive { get; set; }
+
+    public string InactivatedBy { get; set; }
+
     public virtual CostCenter CostCenter { get; set; }
 
     public virtual ICollection<LccostEntryDetail> LccostEntryDetails { get; set; } = new List<LccostEntryDetail>();

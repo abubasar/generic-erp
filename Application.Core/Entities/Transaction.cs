@@ -52,4 +52,6 @@ public partial class Transaction
     public bool Deleted { get; set; }
 
     public Guid TenantId { get; set; }
+
+    public int SaleInvoiceType { get; set; }
 }

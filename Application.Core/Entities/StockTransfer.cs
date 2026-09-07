@@ -41,6 +41,10 @@ public partial class StockTransfer
 
     public Guid TenantId { get; set; }
 
+    public bool IsInactive { get; set; }
+
+    public string InactivatedBy { get; set; }
+
     public virtual Store Destination { get; set; }
 
     public virtual Store Source { get; set; }

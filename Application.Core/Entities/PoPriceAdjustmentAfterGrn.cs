@@ -47,6 +47,10 @@ public partial class PoPriceAdjustmentAfterGrn
 
     public Guid TenantId { get; set; }
 
+    public bool IsInactive { get; set; }
+
+    public string InactivatedBy { get; set; }
+
     public virtual ICollection<PoPriceAdjustmentAfterGrnDetail> PoPriceAdjustmentAfterGrnDetails { get; set; } = new List<PoPriceAdjustmentAfterGrnDetail>();
 
     public virtual Store Store { get; set; }

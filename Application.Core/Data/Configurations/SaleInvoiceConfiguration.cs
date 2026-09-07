@@ -60,6 +60,12 @@ namespace Application.Core.Data.Configurations
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_SaleInvoice_Store");
 
+            entity.Property(e => e.InactivatedBy).HasMaxLength(100);
+            entity.Property(e => e.StockIssuedBy).HasMaxLength(100);
+            entity.Property(e => e.AdjustmentOtherDiscount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.TotalAdjustmentAmount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.TotalAdjustmentPercentageDiscountAmount).HasColumnType("decimal(18, 2)");
+
             OnConfigurePartial(entity);
         }
 

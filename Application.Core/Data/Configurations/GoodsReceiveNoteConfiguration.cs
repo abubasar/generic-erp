@@ -55,6 +55,7 @@ namespace Application.Core.Data.Configurations
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_GoodsReceiveNote_Supplier");
 
+            entity.Property(e => e.InactivatedBy).HasMaxLength(100);
             OnConfigurePartial(entity);
         }
 

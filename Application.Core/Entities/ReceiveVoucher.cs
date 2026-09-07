@@ -49,6 +49,10 @@ public partial class ReceiveVoucher
 
     public Guid TenantId { get; set; }
 
+    public bool IsInactive { get; set; }
+
+    public string InactivatedBy { get; set; }
+
     public virtual Account CashBankAccount { get; set; }
 
     public virtual CostCenter CostCenter { get; set; }

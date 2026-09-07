@@ -81,6 +81,16 @@ public partial class SaleInvoiceDetail
 
     public Guid TenantId { get; set; }
 
+    public decimal AdjustmentAmount { get; set; }
+
+    public int AdjustmentBonusQuantity { get; set; }
+
+    public decimal AdjustmentPercentageDiscountAmount { get; set; }
+
+    public int AdjustmentQuantity { get; set; }
+
+    public decimal StockIssueCogs { get; set; }
+
     public virtual Product Product { get; set; }
 
     public virtual SaleInvoice SaleInvoice { get; set; }

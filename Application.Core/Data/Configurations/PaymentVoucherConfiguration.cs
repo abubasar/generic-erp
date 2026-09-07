@@ -49,6 +49,7 @@ namespace Application.Core.Data.Configurations
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_PaymentVoucher_PaymentMode");
 
+            entity.Property(e => e.InactivatedBy).HasMaxLength(100);
             OnConfigurePartial(entity);
         }
 

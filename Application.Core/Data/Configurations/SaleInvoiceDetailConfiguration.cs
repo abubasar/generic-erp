@@ -48,6 +48,10 @@ namespace Application.Core.Data.Configurations
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_SaleInvoiceDetail_SaleInvoice");
 
+            entity.Property(e => e.AdjustmentAmount).HasColumnType("decimal(18, 4)");
+            entity.Property(e => e.AdjustmentPercentageDiscountAmount).HasColumnType("decimal(18, 4)");
+            entity.Property(e => e.StockIssueCogs).HasColumnType("decimal(18, 4)");
+
             OnConfigurePartial(entity);
         }
 
