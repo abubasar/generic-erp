@@ -31,6 +31,7 @@
     "@ngx-translate/http-loader": "^7.0.0",
     "bootstrap": "^5.2.2",
     "core-js": "^3.25.1",
+    "echarts": "5.5.0",
     "highlight.js": "^11.6.0",
     "hopscotch": "^0.3.1",
     "moment": "^2.29.4",
