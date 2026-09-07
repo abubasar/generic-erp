@@ -79,6 +79,10 @@ public partial class Production
 
     public Guid TenantId { get; set; }
 
+    public bool IsInactive { get; set; }
+
+    public string InactivatedBy { get; set; }
+
     public virtual Store Fgstore { get; set; }
 
     public virtual Product FinishedProduct { get; set; }

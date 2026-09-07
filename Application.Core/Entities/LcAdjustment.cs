@@ -45,6 +45,10 @@ public partial class LcAdjustment
 
     public Guid TenantId { get; set; }
 
+    public bool IsInactive { get; set; }
+
+    public string InactivatedBy { get; set; }
+
     public virtual CostCenter CostCenter { get; set; }
 
     public virtual ICollection<LcAdjustmentDetail> LcAdjustmentDetails { get; set; } = new List<LcAdjustmentDetail>();

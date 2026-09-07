@@ -101,6 +101,10 @@ public partial class PurchaseInvoice
 
     public Guid TenantId { get; set; }
 
+    public bool IsInactive { get; set; }
+
+    public string InactivatedBy { get; set; }
+
     public virtual ICollection<LcAdjustment> LcAdjustments { get; set; } = new List<LcAdjustment>();
 
     public virtual ICollection<PurchaseInvoiceDetail> PurchaseInvoiceDetails { get; set; } = new List<PurchaseInvoiceDetail>();

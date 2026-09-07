@@ -45,6 +45,7 @@ namespace Application.Core.Data.Configurations
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_PoPriceAdjustmentAfterGrn_Supplier");
 
+            entity.Property(e => e.InactivatedBy).HasMaxLength(100);
             OnConfigurePartial(entity);
         }
 

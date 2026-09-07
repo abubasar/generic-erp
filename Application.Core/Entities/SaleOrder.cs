@@ -79,6 +79,10 @@ public partial class SaleOrder
 
     public Guid TenantId { get; set; }
 
+    public bool IsInactive { get; set; }
+
+    public string InactivatedBy { get; set; }
+
     public virtual Account Customer { get; set; }
 
     public virtual Territory CustomerTerritory { get; set; }

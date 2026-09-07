@@ -89,6 +89,10 @@ public partial class GoodsReceiveNote
 
     public Guid TenantId { get; set; }
 
+    public bool IsInactive { get; set; }
+
+    public string InactivatedBy { get; set; }
+
     public virtual ICollection<GoodsReceiveNoteDetail> GoodsReceiveNoteDetails { get; set; } = new List<GoodsReceiveNoteDetail>();
 
     public virtual Store Store { get; set; }

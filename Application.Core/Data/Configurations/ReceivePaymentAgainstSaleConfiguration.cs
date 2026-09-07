@@ -42,6 +42,7 @@ namespace Application.Core.Data.Configurations
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ReceivePaymentAgainstSale_ToAccount");
 
+            entity.Property(e => e.InactivatedBy).HasMaxLength(100);
             OnConfigurePartial(entity);
         }
 

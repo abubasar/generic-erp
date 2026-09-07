@@ -43,6 +43,10 @@ public partial class BillOfMaterial
 
     public Guid TenantId { get; set; }
 
+    public bool IsInactive { get; set; }
+
+    public string InactivatedBy { get; set; }
+
     public virtual ICollection<BillOfMaterialDetail> BillOfMaterialDetails { get; set; } = new List<BillOfMaterialDetail>();
 
     public virtual Product FinishedProduct { get; set; }

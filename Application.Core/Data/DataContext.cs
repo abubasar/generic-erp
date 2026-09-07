@@ -355,8 +355,6 @@ public partial class DataContext : DbContext
         modelBuilder.ApplyConfiguration(new Configurations.VoucherEntryConfiguration());
         modelBuilder.ApplyConfiguration(new Configurations.VoucherEntryDetailConfiguration());
         modelBuilder.ApplyConfiguration(new Configurations.ZoneConfiguration());
-        modelBuilder.ApplyGlobalFilter<bool>("Deleted", false);
-        modelBuilder.Entity<SPSupplierLedgerResult>().HasNoKey();
         OnModelCreatingPartial(modelBuilder);
     }
 

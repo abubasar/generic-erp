@@ -55,6 +55,10 @@ public partial class ReceivePayment
 
     public Guid TenantId { get; set; }
 
+    public bool IsInactive { get; set; }
+
+    public string InactivatedBy { get; set; }
+
     public virtual CostCenter CostCenter { get; set; }
 
     public virtual Account Customer { get; set; }

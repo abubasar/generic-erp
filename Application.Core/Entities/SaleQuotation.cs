@@ -51,6 +51,10 @@ public partial class SaleQuotation
 
     public Guid TenantId { get; set; }
 
+    public bool IsInactive { get; set; }
+
+    public string InactivatedBy { get; set; }
+
     public virtual Account Customer { get; set; }
 
     public virtual ICollection<SaleQuotationDetail> SaleQuotationDetails { get; set; } = new List<SaleQuotationDetail>();

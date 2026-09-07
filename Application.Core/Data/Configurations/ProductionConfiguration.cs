@@ -64,6 +64,7 @@ namespace Application.Core.Data.Configurations
                 .HasForeignKey(d => d.ShiftId)
                 .HasConstraintName("FK_Production_Shift");
 
+            entity.Property(e => e.InactivatedBy).HasMaxLength(100);
             OnConfigurePartial(entity);
         }
 

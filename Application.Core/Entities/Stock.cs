@@ -61,6 +61,10 @@ public partial class Stock
 
     public Guid TenantId { get; set; }
 
+    public bool IsStockIssuedForCustomer { get; set; }
+
+    public int SaleInvoiceType { get; set; }
+
     public virtual Product Product { get; set; }
 
     public virtual Store Store { get; set; }

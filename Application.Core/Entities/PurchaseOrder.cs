@@ -97,6 +97,10 @@ public partial class PurchaseOrder
 
     public Guid TenantId { get; set; }
 
+    public bool IsInactive { get; set; }
+
+    public string InactivatedBy { get; set; }
+
     public virtual DeliveryPlace DeliveryPlace { get; set; }
 
     public virtual ICollection<LccostEntry> LccostEntries { get; set; } = new List<LccostEntry>();
