@@ -1,3 +1,4 @@
+using Application.Core.Common;
 using Application.Core.Data;
 using Application.Core.Entities;
 using Application.Core.Interfaces;
@@ -86,7 +87,7 @@ public sealed class TenantIsolationTests
         var options = new DbContextOptionsBuilder<DataContext>()
             .UseInMemoryDatabase(_dbName)
             .Options;
-        return new DataContext(options, new FakeTenantContext(tenantId));
+        return new DataContext(options, new NullTenantContext(tenantId));
     }
 
     private static List<string> Names(DataContext db) =>
@@ -101,10 +102,4 @@ public sealed class TenantIsolationTests
         CreatedOn = DateTime.UtcNow,
         UpdatedOn = DateTime.UtcNow,
     };
-
-    private sealed class FakeTenantContext(Guid tenantId) : ITenantContext
-    {
-        public Guid TenantId { get; } = tenantId;
-        public bool HasTenant => TenantId != Guid.Empty;
-    }
 }

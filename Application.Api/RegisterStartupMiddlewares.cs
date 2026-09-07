@@ -17,7 +17,8 @@ public static class RegisterStartupMiddlewares
         }
         app.UseMiddleware<GlobalExceptionMiddleware>();
         app.UseMiddleware<JwtMiddleware>();
-     
+        app.UseMiddleware<TenantResolutionMiddleware>();
+
         app.UseHttpsRedirection();
         app.UseRouting();
         app.UseCors("CorsPolicy");

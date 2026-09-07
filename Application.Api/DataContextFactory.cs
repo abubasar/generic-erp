@@ -1,5 +1,5 @@
+using Application.Core.Common;
 using Application.Core.Data;
-using Application.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
@@ -28,13 +28,7 @@ namespace Application.Api
                 .UseSqlServer(config.GetConnectionString("DefaultConnection"))
                 .Options;
 
-            return new DataContext(options, new EmptyTenantContext());
-        }
-
-        private sealed class EmptyTenantContext : ITenantContext
-        {
-            public Guid TenantId => Guid.Empty;
-            public bool HasTenant => false;
+            return new DataContext(options, new NullTenantContext());
         }
     }
 }

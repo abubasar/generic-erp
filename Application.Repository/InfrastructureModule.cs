@@ -10,7 +10,7 @@ namespace Application.Infrastructure
         protected override void Load(ContainerBuilder builder)
         {
             // Scoped
-            builder.RegisterType<HttpTenantContext>().As<ITenantContext>().InstancePerLifetimeScope();
+            builder.RegisterType<HttpTenantContext>().AsSelf().As<ITenantContext>().InstancePerLifetimeScope();
             builder.RegisterType<UnitOfWork>().As<IUnitOfWork>().InstancePerLifetimeScope();
             builder.RegisterGeneric(typeof(BaseRepository<>)).As(typeof(IBaseRepository<>)).InstancePerDependency();
             builder.RegisterType<MailService>().As<IMailService>().InstancePerLifetimeScope();
