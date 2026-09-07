@@ -181,25 +181,12 @@ namespace Application.Services.Services.Purchase.Pdf
             headerTable.SetWidths(widths[numColumns]);
 
             headerTable.DefaultCell.Border = Rectangle.NO_BORDER;
-            if (tenantData!.BusinessType == (int)BusinessType.Primary)
+            if (!string.IsNullOrWhiteSpace(tenantData?.Logo))
             {
+                // Tenant.Logo is stored as a bare filename under wwwroot; GetFileName
+                // also tolerates a stored path. (Was a BusinessType branch that only
+                // differed by whether GetFileName was applied.)
                 var logo = Image.GetInstance(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", Path.GetFileName(tenantData.Logo!)));
-                logo.ScaleToFit(100f, 500f);
-                logo.Alignment = iTextSharp.text.Image.ALIGN_CENTER;
-                logo.IndentationLeft = 9f;
-                logo.IndentationRight = 9f;
-                logo.SpacingBefore = 5f;
-                logo.SpacingAfter = 2f;
-                //Item
-
-                var logocell = new PdfPCell { Border = Rectangle.NO_BORDER };
-                logocell.AddElement(logo);
-                //logocell.Colspan = 2;
-                headerTable.AddCell(logocell);
-            }
-            if (tenantData!.BusinessType == (int)BusinessType.Secondary)
-            {
-                var logo = Image.GetInstance(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", tenantData.Logo!));
                 logo.ScaleToFit(100f, 500f);
                 logo.Alignment = iTextSharp.text.Image.ALIGN_CENTER;
                 logo.IndentationLeft = 9f;

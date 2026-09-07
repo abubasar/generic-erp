@@ -2,6 +2,7 @@
 using Application.Core.Entities;
 using Application.Core.Enums;
 using Application.Core.Extensions;
+using Application.Core.Industry;
 using Application.Core.Interfaces;
 using Application.Services.Services.Common;
 using Application.Services.Services.Configuration.Tenants;
@@ -15,18 +16,18 @@ namespace Application.Services.Services.Report.Dashboard
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWorkContext _workContext;
-        private readonly ITenantService _tenantService;
-        public DashboardService(IWorkContext workContext, IUnitOfWork unitOfWork, ITenantService tenantService)
+        private readonly IIndustryProfile _industry;
+        public DashboardService(IWorkContext workContext, IUnitOfWork unitOfWork, IIndustryProfile industry)
         {
             _workContext = workContext;
             _unitOfWork = unitOfWork;
-            _tenantService = tenantService;
+            _industry = industry;
         }
 
         public async Task<DashboardStatisticsViewModel> PrepareStatistics(int filterType)
         {
-            Guid? tenantId = _workContext.GetTenantId();
-            var tenantData = await _tenantService.GetByIdAsync(tenantId);
+            var showQty = _industry.Dashboard.ShowQuantityKpis;
+            var showValue = _industry.Dashboard.ShowValueKpis;
             DateTime fromDate = DateTime.Now;
             DateTime toDate = DateTime.Now;
             var today = DateTime.Today;
@@ -60,21 +61,21 @@ namespace Application.Services.Services.Report.Dashboard
             }
             return new DashboardStatisticsViewModel
             {
-                PurchaseTotal = tenantData.BusinessType == 2 ? await GetPurchaseTotal(fromDate, toDate) : 0m,
-                RMPurchaseValueTotal = tenantData.BusinessType == 1 ? await GetRMPurchaseValueTotal(fromDate, toDate) : 0m,
+                PurchaseTotal = showQty ? await GetPurchaseTotal(fromDate, toDate) : 0m,
+                RMPurchaseValueTotal = showValue ? await GetRMPurchaseValueTotal(fromDate, toDate) : 0m,
                 RmConsumptionTotal = await GetRmConsumptionTotal(fromDate, toDate),
-                ProductionTotalQty = tenantData.BusinessType == 2 ? await GetProductionQtyTotal(fromDate, toDate) : 0m,
-                ProductionTotalValue = tenantData.BusinessType == 1 ? await GetProductionValueTotal(fromDate, toDate) : 0m,
-                SalesTotalQty = tenantData.BusinessType == 2 ? await GetSaleQtyTotal(fromDate, toDate) : 0m,
+                ProductionTotalQty = showQty ? await GetProductionQtyTotal(fromDate, toDate) : 0m,
+                ProductionTotalValue = showValue ? await GetProductionValueTotal(fromDate, toDate) : 0m,
+                SalesTotalQty = showQty ? await GetSaleQtyTotal(fromDate, toDate) : 0m,
                 SalesTotalValue = await GetSaleTotal(fromDate, toDate),
-                FGPurchaseValueTotal = tenantData.BusinessType == 1 ? await GetFGPurchaseValueTotal(fromDate, toDate) : 0m,
+                FGPurchaseValueTotal = showValue ? await GetFGPurchaseValueTotal(fromDate, toDate) : 0m,
                 SupplierPaymentTotal = await GetSupplierPayment(fromDate, toDate),
                 PaymentForExpenseTotal = await GetOtherPayment(fromDate, toDate),
                 ReceivedFromCustomerTotal = await GetCustomerReceipt(fromDate, toDate),
                 ReceivedFromOtherSourceTotal = await GetOtherReceipt(fromDate, toDate),
                 RMValueTotal = await GetRMValueTotal(fromDate, toDate),
-                FGQtyTotal = tenantData.BusinessType == 2 ? await GetFGQtyTotal(fromDate, toDate) : 0m,
-                FGValueTotal = tenantData.BusinessType == 1 ? await GetFGValueTotal(fromDate, toDate) : 0m,
+                FGQtyTotal = showQty ? await GetFGQtyTotal(fromDate, toDate) : 0m,
+                FGValueTotal = showValue ? await GetFGValueTotal(fromDate, toDate) : 0m,
             };
         }
 

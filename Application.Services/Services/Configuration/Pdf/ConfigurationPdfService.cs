@@ -2,6 +2,7 @@
 using Application.Core.Constants;
 using Application.Core.Entities;
 using Application.Core.Extensions;
+using Application.Core.Industry;
 using Application.Core.Interfaces;
 using Application.Services.SearchRequestModels.Accounts;
 using Application.Services.SearchRequestModels.Configuration;
@@ -19,12 +20,14 @@ namespace Application.Services.Services.Configuration.Pdf
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWorkContext _workContext;
         private readonly ITenantService _tenantService;
+        private readonly IIndustryProfile _industry;
 
-        public ConfigurationPdfService(IUnitOfWork unitOfWork, IWorkContext workContext, ITenantService tenantService)
+        public ConfigurationPdfService(IUnitOfWork unitOfWork, IWorkContext workContext, ITenantService tenantService, IIndustryProfile industry)
         {
             _unitOfWork = unitOfWork;
             _workContext = workContext;
             _tenantService = tenantService;
+            _industry = industry;
         }
         protected virtual PdfPCell GetPdfCell(object text, Font font)
         {
@@ -726,7 +729,7 @@ namespace Application.Services.Services.Configuration.Pdf
             return headerPage;
         }
 
-        public async Task<(PdfPTable filterTable, PdfPTable dataTable)> PrintProductListReportToPdf(MemoryStream stream, List<ProductViewModel> itemList, int businessType, string headerText, ProductRequestModel request)
+        public async Task<(PdfPTable filterTable, PdfPTable dataTable)> PrintProductListReportToPdf(MemoryStream stream, List<ProductViewModel> itemList, string headerText, ProductRequestModel request)
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream));
@@ -734,7 +737,7 @@ namespace Application.Services.Services.Configuration.Pdf
             if (itemList == null)
                 throw new ArgumentNullException(nameof(itemList));
 
-            Rectangle rectangle = businessType == 2 ? new(PageSize.A4) : new(PageSize.A4.Height, PageSize.A4.Width);
+            Rectangle rectangle = _industry.Reports.CompactLayout ? new(PageSize.A4) : new(PageSize.A4.Height, PageSize.A4.Width);
             Document document = new(rectangle, 72, 72, 72, 72);
             document.SetMargins(20f, 20f, 20f, 20f);
             var pdfWriter = PdfWriter.GetInstance(document, stream);
@@ -753,7 +756,7 @@ namespace Application.Services.Services.Configuration.Pdf
 
             var headerTable = await AddHeaderAsync(headerText, fontArial13Bold, fontArial14Bold, fontArial10);
             var filterTable = FilteringDataTable(fontArial9, request);
-            var dataTable = PrimaryProductListDataTable(itemList, businessType, fontArial7, fontArial8Bold);
+            var dataTable = PrimaryProductListDataTable(itemList, fontArial7, fontArial8Bold);
             document.Add(headerTable);
             document.Add(filterTable);
             document.Add(dataTable);
@@ -761,9 +764,9 @@ namespace Application.Services.Services.Configuration.Pdf
             document.Close();
             return (filterTable, dataTable);
         }
-        public PdfPTable PrimaryProductListDataTable(List<ProductViewModel> list, int businessType, Font fontArial7, Font fontArial8Bold)
+        public PdfPTable PrimaryProductListDataTable(List<ProductViewModel> list, Font fontArial7, Font fontArial8Bold)
         {
-            if (businessType == 2)
+            if (_industry.Reports.CompactLayout)
             {
                 PdfPTable productListData = new(13);
                 float[] widthsCellsHeaderPage = new float[] { 4f, 5f, 18f, 12f, 12f, 6f, 5f, 6f, 6f, 6f, 6f, 4f, 4f };

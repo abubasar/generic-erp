@@ -3,6 +3,7 @@ using Application.Core.Common;
 using Application.Core.Constants;
 using Application.Core.Entities;
 using Application.Core.Enums;
+using Application.Core.Industry;
 using Application.Core.ExcelHelper;
 using Application.Core.Extensions;
 using Application.Core.Interfaces;
@@ -27,13 +28,15 @@ namespace ErpReport.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWorkContext _workContext;
         private readonly ITenantService _tenantService;
+        private readonly IIndustryProfile _industry;
         private readonly ISaleOrderPdfService _saleOrderPdfService;
 
-        public ReportSaleOrderController(IUnitOfWork unitOfWork, IWorkContext workContext, ITenantService tenantService, ISaleOrderPdfService saleOrderPdfService)
+        public ReportSaleOrderController(IUnitOfWork unitOfWork, IWorkContext workContext, ITenantService tenantService, IIndustryProfile industry, ISaleOrderPdfService saleOrderPdfService)
         {
             _unitOfWork = unitOfWork;
             _workContext = workContext;
             _tenantService = tenantService;
+            _industry = industry;
             _saleOrderPdfService = saleOrderPdfService;
         }
 
@@ -51,9 +54,9 @@ namespace ErpReport.Controllers
             {
                 var headerText = "Sale Order";
 
-                if (tenantData!.BusinessType == (int)BusinessType.Primary)
+                if (!_industry.Reports.CompactLayout)
                     await _saleOrderPdfService.PrintSaleOrderPrimaryReportToPdfAsync(stream, salesOrder, tenantData, headerText);
-                if (tenantData!.BusinessType == (int)BusinessType.Secondary)
+                if (_industry.Reports.CompactLayout)
                     await _saleOrderPdfService.PrintSaleOrderSecondaryReportToPdfAsync(stream, salesOrder, tenantData, headerText);
 
                 bytes = stream.ToArray();

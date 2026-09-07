@@ -3,6 +3,7 @@ using Application.Core.Entities;
 using Application.Core.Enums;
 using Application.Core.Exceptions;
 using Application.Core.Extensions;
+using Application.Core.Industry;
 using Application.Core.Interfaces;
 using Application.Services.Dtos.Accounts.AccountIncludingCustomerSupplier;
 using Application.Services.SearchRequestModels.Accounts;
@@ -21,12 +22,14 @@ namespace Application.Services.Services.Accounts.Accounts
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IWorkContext _workContext;
+        private readonly IIndustryProfile _industry;
 
-        public AccountService(IUnitOfWork unitOfWork, IMapper mapper, IWorkContext workContext) : base(unitOfWork, mapper, workContext)
+        public AccountService(IUnitOfWork unitOfWork, IMapper mapper, IWorkContext workContext, IIndustryProfile industry) : base(unitOfWork, mapper, workContext)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _workContext = workContext;
+            _industry = industry;
         }
 
 
@@ -1271,7 +1274,7 @@ namespace Application.Services.Services.Accounts.Accounts
             return await accountTransactions.OrderBy(x => x.TransactionDate).ToListAsync();
         }
 
-        public async Task<List<Transaction>> PrepareCollectionReport(PaymentCollectionRequestModel requestModel, int businessType)
+        public async Task<List<Transaction>> PrepareCollectionReport(PaymentCollectionRequestModel requestModel)
         {
             var financialYears = await _unitOfWork.Repository<FinancialYear>().TableNoTracking()
                     .Where(fy => (requestModel.FromDate == null || fy.EndDate >= requestModel.FromDate)
@@ -1287,7 +1290,7 @@ namespace Application.Services.Services.Accounts.Accounts
             if (requestModel.CostCenterId.HasValue) accountTransactions = accountTransactions.Where(x => x.CostCenterId == requestModel.CostCenterId.Value);
             if (requestModel.CustomerZoneId.HasValue)
             {
-                if (businessType == (int)BusinessType.Secondary) //for distributor business type
+                if (_industry.Sales.CollectionReportGroupsByZone) //distributor (feed) groups by zone; others by region
                 {
                     customers = customers.Where(x => x.CustomerZoneId == requestModel.CustomerZoneId.Value).ToList();
                 }

@@ -1,6 +1,7 @@
 ﻿using Application.Api.Attributes;
 using Application.Core.Common;
 using Application.Core.Enums;
+using Application.Core.Industry;
 using Application.Services.Services.Common;
 using Application.Services.Services.Configuration.Tenants;
 using Application.Services.Services.Report.Sales;
@@ -15,12 +16,14 @@ namespace Application.Api.ReportApiControllers
     {
         private readonly IWorkContext _workContext;
         private readonly ITenantService _tenantService;
+        private readonly IIndustryProfile _industry;
         private readonly IDeliveryNotePdfService _deliveryNotePdfService;
 
-        public ReportDeliveryNoteController(IWorkContext workContext, ITenantService tenantService, IDeliveryNotePdfService deliveryNotePdfService)
+        public ReportDeliveryNoteController(IWorkContext workContext, ITenantService tenantService, IIndustryProfile industry, IDeliveryNotePdfService deliveryNotePdfService)
         {
             _workContext = workContext;
             _tenantService = tenantService;
+            _industry = industry;
             _deliveryNotePdfService = deliveryNotePdfService;
         }
 
@@ -35,9 +38,9 @@ namespace Application.Api.ReportApiControllers
             {
                 var headerText = "DELIVERY CHALLAN";
 
-                if (tenantData!.BusinessType == (int)BusinessType.Primary)
+                if (!_industry.Reports.CompactLayout)
                     await _deliveryNotePdfService.PrintDeliveryNotePrimaryReportToPdfAsync(stream, deliveryNoteId, tenantData, userName, headerText);
-                if (tenantData!.BusinessType == (int)BusinessType.Secondary)
+                if (_industry.Reports.CompactLayout)
                     await _deliveryNotePdfService.PrintDeliveryNoteSecondaryReportToPdfAsync(stream, deliveryNoteId, tenantData, userName, headerText);
 
                 bytes = stream.ToArray();

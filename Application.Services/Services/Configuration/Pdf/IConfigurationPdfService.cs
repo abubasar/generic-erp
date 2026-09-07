@@ -14,6 +14,6 @@ namespace Application.Services.Services.Configuration.Pdf
         Task PrintSupplierReportToPdfAsync(MemoryStream stream, List<SupplierViewModel> supplierViewModels, string reportTitleName);
         Task<(PdfPTable filterTable, PdfPTable dataTable)> PrintProductPriceListReportToPdf(MemoryStream stream, List<ProductViewModel> list, string headerText, ProductRequestModel request);
         Task<(PdfPTable filterTable, PdfPTable dataTable)> PrintProductAuditReportToPdfAsync(MemoryStream stream, List<ProductAuditViewModel> list, string headerText, ProductAuditRequestModel request);
-        Task<(PdfPTable filterTable, PdfPTable dataTable)> PrintProductListReportToPdf(MemoryStream stream, List<ProductViewModel> itemList, int businessType, string headerText, ProductRequestModel request);
+        Task<(PdfPTable filterTable, PdfPTable dataTable)> PrintProductListReportToPdf(MemoryStream stream, List<ProductViewModel> itemList, string headerText, ProductRequestModel request);
     }
 }

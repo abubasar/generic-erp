@@ -205,7 +205,7 @@ namespace Application.Api.Controllers
                 Guid? tenantId = _workContext.GetTenantId();
                 var tenantData = await _tenantService.GetByIdAsync(tenantId);
 
-                var list = await _accountService.PrepareCollectionReport(request, tenantData.BusinessType);
+                var list = await _accountService.PrepareCollectionReport(request);
 
                 byte[] bytes;
                 using (var stream = new MemoryStream())

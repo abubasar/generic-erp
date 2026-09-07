@@ -3,6 +3,7 @@ using Application.Core.Common;
 using Application.Core.Constants;
 using Application.Core.Entities;
 using Application.Core.Enums;
+using Application.Core.Industry;
 using Application.Core.ExcelHelper;
 using Application.Core.Extensions;
 using Application.Core.Interfaces;
@@ -23,12 +24,14 @@ namespace Application.Api.ReportApiControllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWorkContext _workContext;
         private readonly ITenantService _tenantService;
+        private readonly IIndustryProfile _industry;
 
-        public ReportBillOfMaterialController(IUnitOfWork unitOfWork, IWorkContext workContext, ITenantService tenantService)
+        public ReportBillOfMaterialController(IUnitOfWork unitOfWork, IWorkContext workContext, ITenantService tenantService, IIndustryProfile industry)
         {
             _unitOfWork = unitOfWork;
             _workContext = workContext;
             _tenantService = tenantService;
+            _industry = industry;
         }
 
         [HttpGet("{billOfMaterialId}/{reportType}")]
@@ -100,10 +103,7 @@ namespace Application.Api.ReportApiControllers
                 String? finishedProductName = billOfMaterial.FinishedProduct.Name;
                 String? finishedProductPackSize = billOfMaterial.FinishedProduct?.PackSize?.Name;
                 string productInfo;
-                if (tenantData!.BusinessType == (int)BusinessType.Primary)
-                    productInfo = finishedProductName + " (" + finishedProductPackSize + ") (" + finishedProductCode + ")";
-                else
-                    productInfo = finishedProductName + " (" + finishedProductCode + ")";
+                productInfo = _industry.Reports.ProductLabel(finishedProductName, finishedProductCode, finishedProductPackSize);
 
                 String? bomNo = billOfMaterial.BomNo;
                 String? formulationNo = billOfMaterial.FormulationNo;

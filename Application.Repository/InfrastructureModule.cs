@@ -1,5 +1,6 @@
 ﻿
 using Application.Core.Common;
+using Application.Core.Industry;
 using Application.Core.Interfaces;
 using Autofac;
 
@@ -11,6 +12,11 @@ namespace Application.Infrastructure
         {
             // Scoped
             builder.RegisterType<HttpTenantContext>().AsSelf().As<ITenantContext>().InstancePerLifetimeScope();
+
+            // Industry behaviour profile — resolved per request from the tenant's template.
+            builder.Register(c => IndustryProfiles.For(c.Resolve<ITenantContext>().BusinessTemplateKey))
+                   .As<IIndustryProfile>()
+                   .InstancePerLifetimeScope();
             builder.RegisterType<UnitOfWork>().As<IUnitOfWork>().InstancePerLifetimeScope();
             builder.RegisterGeneric(typeof(BaseRepository<>)).As(typeof(IBaseRepository<>)).InstancePerDependency();
             builder.RegisterType<MailService>().As<IMailService>().InstancePerLifetimeScope();

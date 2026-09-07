@@ -3,6 +3,7 @@ using Application.Core.Common;
 using Application.Core.Constants;
 using Application.Core.Entities;
 using Application.Core.Enums;
+using Application.Core.Industry;
 using Application.Core.ExcelHelper;
 using Application.Core.Extensions;
 using Application.Core.Interfaces;
@@ -23,12 +24,14 @@ namespace Application.Api.ReportApiControllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWorkContext _workContext;
         private readonly ITenantService _tenantService;
+        private readonly IIndustryProfile _industry;
 
-        public ReportProductionController(IUnitOfWork unitOfWork, IWorkContext workContext, ITenantService tenantService)
+        public ReportProductionController(IUnitOfWork unitOfWork, IWorkContext workContext, ITenantService tenantService, IIndustryProfile industry)
         {
             _unitOfWork = unitOfWork;
             _workContext = workContext;
             _tenantService = tenantService;
+            _industry = industry;
         }
 
         [Authorize(Permissions.Productions.Production_Bill_Details_Report)]
@@ -103,10 +106,7 @@ namespace Application.Api.ReportApiControllers
                 String? finishedProductMeasurementUnitName = production.FinishedProduct?.MeasurementUnit?.Name;
                 String? finishedProductPackSize = production.FinishedProduct?.PackSize?.Name;
                 string productInfo;
-                if (tenantData!.BusinessType == (int)BusinessType.Primary)
-                    productInfo = finishedProductName + " (" + finishedProductPackSize + ") (" + finishedProductCode + ")";
-                else
-                    productInfo = finishedProductName + " (" + finishedProductCode + ")";
+                productInfo = _industry.Reports.ProductLabel(finishedProductName, finishedProductCode, finishedProductPackSize);
                 String? rawMaterialStoreName = production.Fgstore.Name;
                 String? productionNo = production.ProductionNo;
                 String? manufacturingOrderNo = production.ManufacturingOrderNo;
@@ -387,10 +387,7 @@ namespace Application.Api.ReportApiControllers
                 String? finishedProductMeasurementUnitName = production.FinishedProduct?.MeasurementUnit?.Name;
                 String? finishedProductPackSize = production.FinishedProduct?.PackSize?.Name;
                 string productInfo;
-                if (tenantData!.BusinessType == (int)BusinessType.Primary)
-                    productInfo = finishedProductName + " (" + finishedProductPackSize + ") (" + finishedProductCode + ")";
-                else
-                    productInfo = finishedProductName + " (" + finishedProductCode + ")";
+                productInfo = _industry.Reports.ProductLabel(finishedProductName, finishedProductCode, finishedProductPackSize);
                 String? rawMaterialStoreName = production.Fgstore.Name;
                 String? productionNo = production.ProductionNo;
                 String? manufacturingOrderNo = production.ManufacturingOrderNo;
