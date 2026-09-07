@@ -66,7 +66,7 @@ namespace Application.Infrastructure
 
         public IBaseRepository<T> Repository<T>() where T : class
         {
-            return new BaseRepository<T>(_context, _contextAccessor);
+            return new BaseRepository<T>(_context);
         }
 
 

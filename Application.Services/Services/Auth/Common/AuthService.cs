@@ -38,7 +38,7 @@ namespace Application.Services.Services.Auth.Common
 
         public async Task<Result<LoginViewModel>> Login(string username, string password)
         {
-            User? user = await _unitOfWork.Repository<User>().TableWithoutTenant().FirstOrDefaultAsync(x => x.Username.ToLower().Equals(username.ToLower()));
+            User? user = await _unitOfWork.Repository<User>().TableUnfiltered().FirstOrDefaultAsync(x => x.Username.ToLower().Equals(username.ToLower()));
             if (user == null) throw new NotFoundResultException("User Not Found");
             else if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt)) throw new BadRequestException("Wrong Password");
             else
@@ -51,7 +51,7 @@ namespace Application.Services.Services.Auth.Common
 
         public async Task<Result<List<RoleClaimModel>>> GetAllPermissionsAsync(Guid roleId)
         {
-            Tenant? tenant = _unitOfWork.Repository<Tenant>().TableWithoutTenant().FirstOrDefault(x => x.Id == _workContext.GetTenantId());
+            Tenant? tenant = _unitOfWork.Repository<Tenant>().TableUnfiltered().FirstOrDefault(x => x.Id == _workContext.GetTenantId());
             if (tenant is null) throw new NotFoundResultException("User has no Tenant!");
             var allPermissions = new List<RoleClaimModel>();
             allPermissions.GetAllPermissions(tenant.BusinessType);
@@ -126,7 +126,7 @@ namespace Application.Services.Services.Auth.Common
 
         public async Task<bool> UserExists(string username)
         {
-            if (await _unitOfWork.Repository<User>().TableWithoutTenant().AnyAsync(x => x.Username.ToLower() == username.ToLower()))
+            if (await _unitOfWork.Repository<User>().TableUnfiltered().AnyAsync(x => x.Username.ToLower() == username.ToLower()))
                 return true;
             return false;
         }
@@ -150,18 +150,18 @@ namespace Application.Services.Services.Auth.Common
         public IList<string> GetAllPermissionsByUserRoleId(Guid roleId)
         {
             var permissionClaims = new List<string>();
-            var roleClaims = _unitOfWork.Repository<RoleClaim>().TableWithoutTenant().Where(x => x.RoleId == roleId);
+            var roleClaims = _unitOfWork.Repository<RoleClaim>().TableUnfiltered().Where(x => x.RoleId == roleId);
             foreach (var roleClaim in roleClaims)
                 permissionClaims.Add(roleClaim.Value);
             return permissionClaims;
         }
         public IEnumerable<Claim> PrepareClaims(User user)
         {
-            Role? role = _unitOfWork.Repository<Role>().TableWithoutTenant().FirstOrDefault(x => x.Id == user.RoleId);
+            Role? role = _unitOfWork.Repository<Role>().TableUnfiltered().FirstOrDefault(x => x.Id == user.RoleId);
             if (role == null) throw new NotFoundResultException("Role not Found");
-            Tenant? tenant = _unitOfWork.Repository<Tenant>().TableWithoutTenant().FirstOrDefault(x => x.Id == user.TenantId);
+            Tenant? tenant = _unitOfWork.Repository<Tenant>().TableUnfiltered().FirstOrDefault(x => x.Id == user.TenantId);
             if (tenant is null) throw new NotFoundResultException("User has no Tenant!");
-            FinancialYear? activeFinancialYear = _unitOfWork.Repository<FinancialYear>().TableWithoutTenant().FirstOrDefault(x => x.IsActive && x.TenantId == tenant.Id);
+            FinancialYear? activeFinancialYear = _unitOfWork.Repository<FinancialYear>().TableUnfiltered().FirstOrDefault(x => x.IsActive && x.TenantId == tenant.Id);
             if (activeFinancialYear == null) throw new NotFoundResultException("Active Financial Year not Found");
             return new List<Claim>
             {
@@ -207,7 +207,7 @@ namespace Application.Services.Services.Auth.Common
         {
 
             // Retrieve the refresh token from the database
-            var storedRefreshToken = await _unitOfWork.Repository<RefreshToken>().TableWithoutTenant().FirstOrDefaultAsync(X => X.TokenId == refreshToken);
+            var storedRefreshToken = await _unitOfWork.Repository<RefreshToken>().TableUnfiltered().FirstOrDefaultAsync(X => X.TokenId == refreshToken);
             if (storedRefreshToken is null)
             {
                 throw new UnauthorizationException("Refresh Token not Found!");
@@ -224,7 +224,7 @@ namespace Application.Services.Services.Auth.Common
             storedRefreshToken.Deleted = true;
             await _unitOfWork.Repository<RefreshToken>().UpdateAsync(storedRefreshToken);
 
-            User? user = await _unitOfWork.Repository<User>().TableWithoutTenant().FirstOrDefaultAsync(x => x.Id == Guid.Parse(userId));
+            User? user = await _unitOfWork.Repository<User>().TableUnfiltered().FirstOrDefaultAsync(x => x.Id == Guid.Parse(userId));
             if (user is null) throw new UnauthorizationException("User not Found");
             // Generate new access and refresh tokens
             var accessToken = GenerateAccessToken(PrepareClaims(user));
@@ -250,7 +250,7 @@ namespace Application.Services.Services.Auth.Common
 
         public virtual async Task<string> DeleteRefreshTokenAsync(string refreshToken)
         {
-            var refreshTokenEntity = await _unitOfWork.Repository<RefreshToken>().TableWithoutTenant().FirstOrDefaultAsync(x => x.TokenId == refreshToken);
+            var refreshTokenEntity = await _unitOfWork.Repository<RefreshToken>().TableUnfiltered().FirstOrDefaultAsync(x => x.TokenId == refreshToken);
             if (refreshTokenEntity is not null)
             {
                 await _unitOfWork.Repository<RefreshToken>().DeleteAsync(refreshTokenEntity.Id);
