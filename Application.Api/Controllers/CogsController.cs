@@ -20,6 +20,7 @@ namespace Application.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("accounts")]
     public class CogsController : ControllerBase
     {
         private readonly IStockService _stockService;

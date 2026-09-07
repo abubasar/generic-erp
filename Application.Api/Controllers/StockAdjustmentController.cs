@@ -16,6 +16,7 @@ namespace Application.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("inventory")]
     public class StockAdjustmentController : ControllerBase
     {
         protected readonly IMapper _mapper;

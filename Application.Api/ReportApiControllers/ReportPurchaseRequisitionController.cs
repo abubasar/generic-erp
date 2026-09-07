@@ -1,4 +1,5 @@
-﻿using Application.Core.Entities;
+﻿using Application.Api.Attributes;
+using Application.Core.Entities;
 using Application.Core.Interfaces;
 using Application.Services.Services.Common;
 using Application.Services.Services.Configuration.Tenants;
@@ -11,6 +12,7 @@ namespace Application.Api.ReportApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("report")]
     public class ReportPurchaseRequisitionController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;

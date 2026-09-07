@@ -1,4 +1,5 @@
-﻿using Application.Core.Common;
+﻿using Application.Api.Attributes;
+using Application.Core.Common;
 using Application.Core.Enums;
 using Application.Services.Services.Common;
 using Application.Services.Services.Configuration.Tenants;
@@ -9,6 +10,7 @@ namespace Application.Api.ReportApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("report")]
     public class ReportDeliveryNoteController : ControllerBase
     {
         private readonly IWorkContext _workContext;

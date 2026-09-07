@@ -15,6 +15,7 @@ namespace Application.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("sales")]
     public class DiscountProductWiseController : ControllerBase
     {
         protected readonly IMapper _mapper;

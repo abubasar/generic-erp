@@ -16,6 +16,7 @@ namespace Application.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("purchase")]
     public class LcAdjustmentController : ControllerBase
     {
         protected readonly IMapper _mapper;

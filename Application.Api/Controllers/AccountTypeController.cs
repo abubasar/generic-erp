@@ -16,6 +16,7 @@ namespace Application.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("accounts")]
     public class AccountTypeController : ControllerBase
     {
         private readonly string cacheKey = "accountTypes";

@@ -14,6 +14,7 @@ namespace Application.Api.ReportApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("report")]
     public class ReportVatInvoiceForPrePrintedPdfWriterController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;

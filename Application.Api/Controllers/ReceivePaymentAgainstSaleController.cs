@@ -18,6 +18,7 @@ namespace Application.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("accounts")]
     public class ReceivePaymentAgainstSaleController : ControllerBase
     {
         protected readonly IMapper _mapper;
