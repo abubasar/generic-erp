@@ -23,6 +23,7 @@ namespace Application.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("report")]
     public class ReportController : ControllerBase
     {
         private readonly IStockService _stockService;

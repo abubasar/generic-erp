@@ -24,11 +24,12 @@ namespace Application.Api.Middlewares
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
             if (token != null)
             {
-                var (userId, roleId, username, tenantId) = ValidateAccessToken(token);
+                var (userId, roleId, username, tenantId, businessType) = ValidateAccessToken(token);
                 context.Items["UserId"] = userId;
                 context.Items["RoleId"] = roleId;
                 context.Items["UserName"] = username;
                 context.Items["TenantId"] = tenantId;
+                context.Items["BusinessType"] = businessType;
 
                 // Ambient tenant for EF Core query filters + the UnitOfWork save guard.
                 if (Guid.TryParse(tenantId, out var tenantGuid))
@@ -38,7 +39,7 @@ namespace Application.Api.Middlewares
             await _next(context);
         }
 
-        private (string? userId, string? roleId, string? username, string? tenantId) ValidateAccessToken(string accessToken)
+        private (string? userId, string? roleId, string? username, string? tenantId, string? businessType) ValidateAccessToken(string accessToken)
         {
             try
             {
@@ -63,11 +64,12 @@ namespace Application.Api.Middlewares
                 var roleId = jwtToken?.Claims.FirstOrDefault(x => x.Type == JwtConst.RoleId)?.Value;
                 var username = jwtToken?.Claims.FirstOrDefault(x => x.Type == JwtConst.Username)?.Value;
                 var tenantId = jwtToken?.Claims.FirstOrDefault(x => x.Type == JwtConst.TenantId)?.Value;
-                return (userId, roleId, username, tenantId);
+                var businessType = jwtToken?.Claims.FirstOrDefault(x => x.Type == JwtConst.BusinessType)?.Value;
+                return (userId, roleId, username, tenantId, businessType);
             }
             catch
             {
-                return (null, null, null, null);
+                return (null, null, null, null, null);
             }
         }
     }

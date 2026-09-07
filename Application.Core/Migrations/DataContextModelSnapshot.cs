@@ -3045,6 +3045,297 @@ namespace Application.Core.Migrations
                     b.ToTable("Picture", (string)null);
                 });
 
+            modelBuilder.Entity("Application.Core.Entities.Platform.BusinessTemplate", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("DefaultModuleKeys")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("IndustryProfileKey")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("BusinessTemplate", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Key = "pharmacy",
+                            DefaultModuleKeys = "configuration,inventory,purchase,sales,production,accounts,report",
+                            Description = "Pharmaceutical manufacturing & distribution.",
+                            IndustryProfileKey = "pharmacy",
+                            IsPublic = true,
+                            Name = "Pharmaceutical",
+                            SortOrder = 1
+                        },
+                        new
+                        {
+                            Key = "feed",
+                            DefaultModuleKeys = "configuration,inventory,purchase,sales,production,accounts,report",
+                            Description = "Animal feed / poultry feed manufacturing & distribution.",
+                            IndustryProfileKey = "feed",
+                            IsPublic = true,
+                            Name = "Feed industry",
+                            SortOrder = 2
+                        });
+                });
+
+            modelBuilder.Entity("Application.Core.Entities.Platform.Entitlement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("Limit")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Key")
+                        .IsUnique();
+
+                    b.ToTable("Entitlement", (string)null);
+                });
+
+            modelBuilder.Entity("Application.Core.Entities.Platform.PlatformModule", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("DependsOn")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsMetered")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PermissionGroup")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("Module", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Key = "configuration",
+                            Category = "Core",
+                            Description = "Company, stores, products, customers, suppliers, settings.",
+                            IsMetered = false,
+                            Name = "Configuration & masters",
+                            PermissionGroup = "Permissions.AccessModules.Configuration",
+                            SortOrder = 1
+                        },
+                        new
+                        {
+                            Key = "inventory",
+                            Category = "Business",
+                            Description = "Stock ledger, adjustments, transfers.",
+                            IsMetered = false,
+                            Name = "Inventory & stock",
+                            PermissionGroup = "Permissions.AccessModules.Inventory",
+                            SortOrder = 2
+                        },
+                        new
+                        {
+                            Key = "purchase",
+                            Category = "Business",
+                            DependsOn = "inventory",
+                            Description = "Requisition, PO, GRN, purchase invoice, returns, LC.",
+                            IsMetered = false,
+                            Name = "Purchase",
+                            PermissionGroup = "Permissions.AccessModules.Purchase",
+                            SortOrder = 3
+                        },
+                        new
+                        {
+                            Key = "sales",
+                            Category = "Business",
+                            DependsOn = "inventory",
+                            Description = "Quotation, sale order, delivery note, invoice, returns.",
+                            IsMetered = false,
+                            Name = "Sales",
+                            PermissionGroup = "Permissions.AccessModules.Sales",
+                            SortOrder = 4
+                        },
+                        new
+                        {
+                            Key = "production",
+                            Category = "Business",
+                            DependsOn = "inventory",
+                            Description = "BOM / formula, manufacturing orders, raw material.",
+                            IsMetered = false,
+                            Name = "Production",
+                            PermissionGroup = "Permissions.AccessModules.Production",
+                            SortOrder = 5
+                        },
+                        new
+                        {
+                            Key = "accounts",
+                            Category = "Business",
+                            Description = "Chart of accounts, journals, vouchers, fund transfers.",
+                            IsMetered = false,
+                            Name = "Accounting",
+                            PermissionGroup = "Permissions.AccessModules.Accounts",
+                            SortOrder = 6
+                        },
+                        new
+                        {
+                            Key = "report",
+                            Category = "Business",
+                            Description = "COGS, ledgers, stock and sales analysis.",
+                            IsMetered = false,
+                            Name = "Reports & analytics",
+                            PermissionGroup = "Permissions.AccessModules.Report",
+                            SortOrder = 7
+                        });
+                });
+
+            modelBuilder.Entity("Application.Core.Entities.Platform.Subscription", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("PeriodEnd")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("PeriodStart")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PlanKey")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("TrialEndsOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("Subscription", (string)null);
+                });
+
+            modelBuilder.Entity("Application.Core.Entities.Platform.TenantModule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ActivatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ExpiresOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModuleKey")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ModuleKey");
+
+                    b.HasIndex("TenantId", "ModuleKey")
+                        .IsUnique();
+
+                    b.ToTable("TenantModule", (string)null);
+                });
+
+            modelBuilder.Entity("Application.Core.Entities.Platform.TenantSetting", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Key")
+                        .IsUnique();
+
+                    b.ToTable("TenantSetting", (string)null);
+                });
+
             modelBuilder.Entity("Application.Core.Entities.PoPriceAdjustmentAfterGrn", b =>
                 {
                     b.Property<Guid>("Id")
@@ -5315,7 +5606,7 @@ namespace Application.Core.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("RoleClaims", (string)null);
+                    b.ToTable("RoleClaims");
                 });
 
             modelBuilder.Entity("Application.Core.Entities.SaleInvoice", b =>
@@ -7083,6 +7374,10 @@ namespace Application.Core.Migrations
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("BINNo");
 
+                    b.Property<string>("BusinessTemplateKey")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<int>("BusinessType")
                         .HasColumnType("int");
 
@@ -7102,6 +7397,18 @@ namespace Application.Core.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Currency")
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<string>("CustomDomain")
+                        .HasMaxLength(253)
+                        .HasColumnType("nvarchar(253)");
+
+                    b.Property<string>("DbConnectionKey")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<bool>("Deleted")
                         .HasColumnType("bit");
 
@@ -7118,6 +7425,14 @@ namespace Application.Core.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<string>("Status")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Subdomain")
+                        .HasMaxLength(63)
+                        .HasColumnType("nvarchar(63)");
+
                     b.Property<string>("TimeZoneId")
                         .HasColumnType("nvarchar(max)");
 
@@ -7129,6 +7444,10 @@ namespace Application.Core.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Subdomain")
+                        .IsUnique()
+                        .HasFilter("[Subdomain] IS NOT NULL");
 
                     b.ToTable("Tenant", (string)null);
                 });
@@ -8194,6 +8513,58 @@ namespace Application.Core.Migrations
                     b.Navigation("Account");
 
                     b.Navigation("PaymentVoucher");
+                });
+
+            modelBuilder.Entity("Application.Core.Entities.Platform.Entitlement", b =>
+                {
+                    b.HasOne("Application.Core.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("Application.Core.Entities.Platform.Subscription", b =>
+                {
+                    b.HasOne("Application.Core.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("Application.Core.Entities.Platform.TenantModule", b =>
+                {
+                    b.HasOne("Application.Core.Entities.Platform.PlatformModule", "Module")
+                        .WithMany()
+                        .HasForeignKey("ModuleKey")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Application.Core.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Module");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("Application.Core.Entities.Platform.TenantSetting", b =>
+                {
+                    b.HasOne("Application.Core.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Application.Core.Entities.PoPriceAdjustmentAfterGrn", b =>

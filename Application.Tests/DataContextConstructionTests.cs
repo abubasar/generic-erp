@@ -1,3 +1,4 @@
+using Application.Core.Common;
 using Application.Core.Data;
 using Application.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +19,7 @@ public sealed class DataContextConstructionTests
     public void AddDbContext_resolves_the_tenant_aware_constructor()
     {
         var services = new ServiceCollection();
-        services.AddScoped<ITenantContext>(_ => new Ctx(Guid.Parse("33333333-3333-3333-3333-333333333333")));
+        services.AddScoped<ITenantContext>(_ => new NullTenantContext(Guid.Parse("33333333-3333-3333-3333-333333333333")));
         services.AddDbContext<DataContext>(o => o.UseInMemoryDatabase("ctor-check"));
 
         using var provider = services.BuildServiceProvider();
@@ -32,11 +33,5 @@ public sealed class DataContextConstructionTests
         db.ChangeTracker.Clear();
 
         Assert.Single(db.Categories.ToList());
-    }
-
-    private sealed class Ctx(Guid id) : ITenantContext
-    {
-        public Guid TenantId { get; } = id;
-        public bool HasTenant => true;
     }
 }

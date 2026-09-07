@@ -1,4 +1,5 @@
-﻿using Application.Core.Common;
+﻿using Application.Api.Attributes;
+using Application.Core.Common;
 using Application.Core.Entities;
 using Application.Core.Enums;
 using Application.Core.Interfaces;
@@ -13,6 +14,7 @@ namespace ErpReport.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("report")]
     public class ReportSaleInvoiceController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;

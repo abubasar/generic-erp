@@ -18,6 +18,7 @@ namespace Application.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("sales")]
     public class DeliveryNoteController : ControllerBase
     {
         protected readonly IMapper _mapper;

@@ -1,4 +1,5 @@
-﻿using Application.Core.Common;
+﻿using Application.Api.Attributes;
+using Application.Core.Common;
 using Application.Core.Constants;
 using Application.Core.Entities;
 using Application.Core.Enums;
@@ -16,6 +17,7 @@ namespace Application.Api.ReportApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("report")]
     public class ReportBillOfMaterialController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;

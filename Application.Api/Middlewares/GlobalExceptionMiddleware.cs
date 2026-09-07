@@ -56,6 +56,9 @@ namespace Application.Api.Middlewares
                     case UnauthorizationException:
                         responseModel.StatusCode = (int)HttpStatusCode.Unauthorized;
                         break;
+                    case ModuleNotEnabledException:
+                        responseModel.StatusCode = (int)HttpStatusCode.Forbidden;
+                        break;
                     case NotFoundResultException:
                         responseModel.StatusCode = (int)HttpStatusCode.NotFound;
                         break;

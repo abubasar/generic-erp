@@ -17,6 +17,7 @@ namespace Application.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("production")]
     public class ManufacturingOrderController : ControllerBase
     {
         protected readonly IMapper _mapper;

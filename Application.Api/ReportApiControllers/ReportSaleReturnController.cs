@@ -1,4 +1,5 @@
-﻿using Application.Core.Common;
+﻿using Application.Api.Attributes;
+using Application.Core.Common;
 using Application.Core.Enums;
 using Application.Core.Interfaces;
 using Application.Services.Services.Common;
@@ -9,6 +10,7 @@ namespace Application.Api.ReportApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("report")]
     public class ReportSaleReturnController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;

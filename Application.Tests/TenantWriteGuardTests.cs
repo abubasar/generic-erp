@@ -98,7 +98,7 @@ public sealed class TenantWriteGuardTests : IDisposable
     private DataContext NewContext(Guid tenantId)
     {
         var options = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase(_dbName).Options;
-        return new DataContext(options, new Ctx(tenantId));
+        return new DataContext(options, new NullTenantContext(tenantId));
     }
 
     private static IHttpContextAccessor HttpContextWithUser()
@@ -109,10 +109,4 @@ public sealed class TenantWriteGuardTests : IDisposable
     }
 
     public void Dispose() => TenantScope.CurrentTenantId = Guid.Empty;
-
-    private sealed class Ctx(Guid id) : ITenantContext
-    {
-        public Guid TenantId { get; } = id;
-        public bool HasTenant => TenantId != Guid.Empty;
-    }
 }

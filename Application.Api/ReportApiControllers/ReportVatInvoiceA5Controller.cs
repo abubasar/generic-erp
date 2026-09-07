@@ -1,4 +1,5 @@
-﻿using Application.Core.Entities;
+﻿using Application.Api.Attributes;
+using Application.Core.Entities;
 using Application.Core.Extensions;
 using Application.Core.Interfaces;
 using Application.Services.Services.Common;
@@ -12,6 +13,7 @@ namespace Application.Api.ReportApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("report")]
     public class ReportVatInvoiceA5Controller : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;

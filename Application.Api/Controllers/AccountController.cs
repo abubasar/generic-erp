@@ -23,6 +23,7 @@ namespace Application.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("accounts")]
     public class AccountController : ControllerBase
     {
         private readonly string cacheKey_accounts = "accounts";

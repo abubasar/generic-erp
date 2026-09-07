@@ -16,6 +16,7 @@ namespace Application.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("production")]
     public class BillOfMaterialController : ControllerBase
     {
         protected readonly IMapper _mapper;

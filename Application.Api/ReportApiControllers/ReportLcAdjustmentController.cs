@@ -1,4 +1,5 @@
-﻿
+﻿using Application.Api.Attributes;
+
 using Application.Core.Common;
 using Application.Core.Entities;
 using Application.Core.Interfaces;
@@ -14,6 +15,7 @@ namespace Application.Api.ReportApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("report")]
     public class ReportLcAdjustmentController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;

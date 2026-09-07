@@ -21,6 +21,7 @@ namespace Application.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("purchase")]
     public class GoodsReceiveNoteController : ControllerBase
     {
         protected readonly IMapper _mapper;

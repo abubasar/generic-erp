@@ -23,6 +23,7 @@ namespace Application.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequiresModule("accounts")]
     public class VoucherEntryController : ControllerBase
     {
         protected readonly IMapper _mapper;
