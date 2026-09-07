@@ -1,6 +1,6 @@
 # Adding the Garments (RMG) vertical to the ERP SaaS platform
 
-**Enhancement plan — v0.2 draft** *(v0.2: full area-by-area coverage check; skill matrix / org tree / calendar moved out of the HR cut; quality, notifications, documents, tasks, gate, maintenance, CRM added as modules)*
+**Enhancement plan — v0.3 draft** *(v0.3: explicit stack comparison + provenance note — legacy is .NET Framework MVC5/EF6/Crystal, target is .NET 9 + Angular + EF Core; this is a rewrite, not a migration. v0.2: full area-by-area coverage check)*
 
 How to bring an existing garments-manufacturing ERP ("SCERP") into the
 `GenericERP` multi-tenant platform as a **Garments Industry** business template,
@@ -8,12 +8,43 @@ reusing everything except HR/Payroll.
 
 | | |
 |---|---|
-| **Requested** | Provision a garments-manufacturing tenant; reuse all SCERP modules except HR. |
+| **Requested** | Provision a garments-manufacturing tenant; reuse every SCERP feature except HR. |
 | **Source system** | `D:\MyDocuments\MyDocuments\job\Development` — `SCERP.sln` (SCERP.Model / .DAL / .BLL / .Common / .Web) |
-| **Target** | `GenericERP` — .NET 9 Clean Architecture API + Angular, pooled multi-tenancy, `BusinessTemplate` + `IIndustryProfile` + `[RequiresModule]` |
-| **Prepared** | 2026-09-07 · derived from the SCERP Visual Studio content index (source folders not present on disk) |
+| **Target** | `GenericERP` — **.NET 9** Clean Architecture API + **Angular** (current), EF Core, pooled multi-tenancy, `BusinessTemplate` + `IIndustryProfile` + `[RequiresModule]` |
+| **Nature of the work** | **A rewrite to the modern stack, not a migration.** No SCERP binary, project, DLL or `.cs` file is referenced or carried over. Every feature is re-implemented from its spec on .NET 9 + EF Core + Angular. |
+| **Prepared** | 2026-09-07 · **feature list derived from the SCERP Visual Studio content index** (file & class names only — the source project folders are not on disk) |
 | **Sibling doc** | `docs/saas-platform-plan.md` — the platform this plugs into |
 | **Interactive version** | https://claude.ai/code/artifact/afce3336-ea50-497a-8b57-1cce44aef440 |
+
+> **How this feature list was compiled.** The five SCERP project folders are not
+> on disk — only the `.sln` files, `packages/`, and Visual Studio's search index
+> (`.vs/SCERP/FileContentIndex/*.vsidx`, ~52 MB). That index holds every file and
+> class *name* in the codebase. Extracting them gave the 16 areas, ~426 controller
+> names, ~3,810 file names and the `OM_` / `PROD_` / `PLAN_` entity families —
+> and for a codebase named by function (`CostSheetMasterController`,
+> `SewingOutPutProcessController`, `LcCashIncentiveController`) the names *are* the
+> feature inventory, which is what the module map and Appendix are built on. What
+> the index does **not** contain: the code itself — entity fields, SQL, and the
+> business rules (costing formulas, consumption explosion, TNA date maths, SMV,
+> LC accounting entries, report layouts). Those are what every phase below "blocks
+> on: SCERP source".
+
+### Stack — then and now
+
+| | SCERP (legacy) | GenericERP platform (target) |
+|---|---|---|
+| Runtime | .NET Framework 4.x | **.NET 9** |
+| Web | ASP.NET **MVC 5** (server-rendered Razor, 16 Areas, ~590 `.cshtml`) | **REST API** (`[ApiController]`) + **Angular** SPA (current), menu/guards from `/api/me` |
+| ORM | **EF 6, database-first** (`SCERP.edmx` designer) | **EF Core**, code-first, entities are the source of truth |
+| DI | Autofac.Mvc5 | Autofac modules per domain, `BaseService` / `BaseRepository` / `IUnitOfWork` |
+| Auth | ASP.NET Identity + a custom permission/menu Area | Platform JWT + `RoleClaim` + `[Authorize("Permission")]` + `[RequiresModule]` |
+| Tenancy | none — single-tenant per deployment, no `TenantId`, no soft-delete filter, no audit | pooled multi-tenant — `ITenantScoped` + global query filter + `UnitOfWork` audit on every entity |
+| Reporting | **Crystal Reports** (`.rpt`) | EPPlus (Excel) + iTextSharp (PDF) |
+| Grids / UI kit | **Handsontable 0.38**, Bootstrap 3, jQuery | Angular components / data-grid in the tenant shell |
+| Client apps | web + a mobile client | Angular tenant shell (POS mode incl.) + Angular platform console |
+
+Every row is a **replacement**. Nothing on the left is reused as-is; the right
+column is where each feature is rebuilt.
 
 ---
 
@@ -284,9 +315,13 @@ retrofitted:
 
 ## 05 · Porting strategy
 
-Same discipline as the plan's "re-platform, not a lift" for the POS.
+Same discipline as the plan's "re-platform, not a lift" for the POS — except here
+there is nothing to lift, since the source is unavailable and the stacks don't
+overlap. **"Port" here means: read the SCERP spec (once the source is in hand),
+re-implement the feature on .NET 9 + EF Core + Angular.** The `→` column is the
+target; the left column is thrown away.
 
-| SCERP | → | `GenericERP` |
+| SCERP (.NET Framework MVC5) | → | `GenericERP` (.NET 9 + Angular) |
 |---|---|---|
 | EF 6 **database-first** (`SCERP.edmx`) | | EF Core **code-first**, entities as source of truth (`Application.Core/Entities`), hand-written configs, one migration per change — the repo already works this way since `InitialBaseline` |
 | ~810 `*Repository` + ~760 `*Manager` (BLL) | | `BaseService<TEntity, …>` + `BaseRepository` + `IUnitOfWork`; one Autofac module per garments sub-domain. Most SCERP repos are thin CRUD → collapse into `BaseService`; port only the real logic (costing calc, consumption explosion, TNA date maths, SMV) |
@@ -553,6 +588,8 @@ equivalent.
 
 ---
 
-*Garments vertical plan · v0.2 draft · 2026-09-07 · reconstructed from the SCERP
-Visual Studio content index — source folders were not present on disk. Figures
-are indicative pending access to the SCERP source and database.*
+*Garments vertical plan · v0.3 draft · 2026-09-07 · the feature inventory was
+reconstructed from the SCERP Visual Studio content index (file & class names only) —
+the source project folders were not present on disk. SCERP is .NET Framework MVC5 /
+EF6 / Crystal; the target is .NET 9 + Angular + EF Core; this is a rewrite, not a
+migration. Figures are indicative pending access to the SCERP source and database.*
