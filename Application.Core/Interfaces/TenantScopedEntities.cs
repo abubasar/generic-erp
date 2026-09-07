@@ -5,7 +5,7 @@ using Application.Core.Interfaces;
 
 namespace Application.Core.Entities;
 
-public partial class Account : ITenantScoped { }
+public partial class Account : ITenantSharable { } // ITenantSharable : ITenantScoped — the standard CoA skeleton is shared
 public partial class AccountType : ITenantScoped { }
 public partial class Area : ITenantScoped { }
 public partial class BankAccount : ITenantScoped { }

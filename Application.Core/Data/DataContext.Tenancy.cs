@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
+using Application.Core.Common;
 using Application.Core.Data.Configurations.Platform;
 using Application.Core.Entities.Platform;
 using Application.Core.Extensions;
@@ -80,9 +81,19 @@ namespace Application.Core.Data
                 var e = Expression.Parameter(entityType.ClrType, "e");
 
                 // e => EF.Property<Guid>(e, "TenantId") == this._currentTenantId
+                var tenantId = EfProperty<Guid>(e, "TenantId");
                 Expression body = Expression.Equal(
-                    EfProperty<Guid>(e, "TenantId"),
+                    tenantId,
                     Expression.Field(Expression.Constant(this), CurrentTenantIdField));
+
+                // ITenantSharable: also match rows shared across every tenant
+                // (the standard chart-of-accounts skeleton).
+                if (typeof(ITenantSharable).IsAssignableFrom(entityType.ClrType))
+                {
+                    body = Expression.OrElse(body, Expression.Equal(
+                        tenantId,
+                        Expression.Constant(TenancyConstants.SystemTenantId)));
+                }
 
                 // ... && EF.Property<bool>(e, "Deleted") == false
                 // (every ITenantScoped entity carries a Deleted flag; keep the
