@@ -103,7 +103,7 @@ namespace Application.Api.Controllers
                 using (var stream = new MemoryStream())
                 {
                     var headerText = "Product List";
-                    var tables = await _configurationPdfService.PrintProductListReportToPdf(stream, itemList, tenantData.BusinessType, headerText, request);
+                    var tables = await _configurationPdfService.PrintProductListReportToPdf(stream, itemList, headerText, request);
                     if (request.ReportType == 2)
                     {
                         var excelBytes = ExcelGenerator.GenerateExcelByteArrayFromItextTable(tables.filterTable, tables.dataTable, SheetNameGenerator.Generate("Sheet1", null, null), tenantData.Name, tenantData.Address, headerText);

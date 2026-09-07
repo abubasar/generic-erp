@@ -56,4 +56,51 @@ public sealed class IndustryProfileTests
         ITenantContext ctx = tenantContext;
         Assert.Equal(expectedProfileKey, IndustryProfiles.For(ctx.BusinessTemplateKey).Key);
     }
+
+    [Fact]
+    public void Feed_sales_policy_matches_the_pre_refactor_BusinessType_2_branches()
+    {
+        var sales = new FeedProfile().Sales;
+        Assert.True(sales.RequireApprovedCustomerDiscountOnOrder);   // was: if (BusinessType == 2) on SaleOrder create
+        Assert.False(sales.OneInvoicePerSaleOrder);                  // was: if (BusinessType == Primary) on SaleInvoice create
+        Assert.False(sales.BlockInvoiceUnpostWhenReceiptExists);     // was: if (BusinessType == Primary) on SaleInvoice unpost
+        Assert.True(sales.CollectionReportGroupsByZone);             // was: if (businessType == Secondary) -> zone else region
+    }
+
+    [Fact]
+    public void Pharmacy_sales_policy_matches_the_pre_refactor_BusinessType_1_branches()
+    {
+        var sales = new PharmacyProfile().Sales;
+        Assert.False(sales.RequireApprovedCustomerDiscountOnOrder);
+        Assert.True(sales.OneInvoicePerSaleOrder);
+        Assert.True(sales.BlockInvoiceUnpostWhenReceiptExists);
+        Assert.False(sales.CollectionReportGroupsByZone);
+    }
+
+    [Fact]
+    public void Dashboard_kpis_are_quantity_for_feed_and_value_for_pharmacy()
+    {
+        Assert.True(new FeedProfile().Dashboard.ShowQuantityKpis);
+        Assert.False(new FeedProfile().Dashboard.ShowValueKpis);
+        Assert.False(new PharmacyProfile().Dashboard.ShowQuantityKpis);
+        Assert.True(new PharmacyProfile().Dashboard.ShowValueKpis);
+    }
+
+    [Fact]
+    public void Report_layout_is_compact_for_feed_and_full_for_pharmacy()
+    {
+        Assert.True(new FeedProfile().Reports.CompactLayout);
+        Assert.False(new PharmacyProfile().Reports.CompactLayout);
+    }
+
+    [Theory]
+    [InlineData("feed", "Broiler Starter (BS-01)")]
+    [InlineData("pharmacy", "Napa (500mg) (NP-500)")]
+    public void Product_label_includes_pack_size_only_for_pharmacy(string profileKey, string expected)
+    {
+        var name = profileKey == "feed" ? "Broiler Starter" : "Napa";
+        var code = profileKey == "feed" ? "BS-01" : "NP-500";
+        var pack = profileKey == "feed" ? "50kg" : "500mg";
+        Assert.Equal(expected, IndustryProfiles.For(profileKey).Reports.ProductLabel(name, code, pack));
+    }
 }

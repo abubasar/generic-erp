@@ -35,7 +35,7 @@ namespace Application.Services.Services.Accounts.Accounts
         Task<List<CashBankTransactionDetailLedgerViewModel>> PrepareCashBankTransactionDetailLedger(DateTime? fromDate, DateTime? toDate);
         Task<CashBookReportViewModel> PrepareCashBookTransactionDetailLedger(CashBookReportRequestModel requestModel);
         Task<List<Transaction>> PreparePaymentReport(DateTime? fromDate, DateTime? toDate, int? transactionType, Guid? costCenterId, Guid? supplierId, Guid? paymentModeId);
-        Task<List<Transaction>> PrepareCollectionReport(PaymentCollectionRequestModel requestModel, int businessType);
+        Task<List<Transaction>> PrepareCollectionReport(PaymentCollectionRequestModel requestModel);
         Task<string> GetContraAccountName(Transaction item);
         Task<List<SalesAndCollectionViewModel>> PrepareCustomerWiseSalesAndCollection(SalesAndCollectionRequestModel request);
         Task<List<MarketingOfficerMonthlySalesCollectionViewModel>> PrepareYearlyCustomerWiseSalesAndCollection(MarketingOfficerYearlySalesAndCollectionRequestModel request);

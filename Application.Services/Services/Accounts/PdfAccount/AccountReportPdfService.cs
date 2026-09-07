@@ -2,6 +2,7 @@
 using Application.Core.Constants;
 using Application.Core.Entities;
 using Application.Core.Enums;
+using Application.Core.Industry;
 using Application.Core.Interfaces;
 using Application.Services.SearchRequestModels.Accounts;
 using Application.Services.Services.Accounts.Accounts;
@@ -22,13 +23,15 @@ namespace Application.Services.Services.Accounts.PdfAccount
         private readonly IWorkContext _workContext;
         private readonly ITenantService _tenantService;
         private readonly IAccountService _accountService;
+        private readonly IIndustryProfile _industry;
 
-        public AccountReportPdfService(IUnitOfWork unitOfWork, IWorkContext workContext, ITenantService tenantService, IAccountService accountService)
+        public AccountReportPdfService(IUnitOfWork unitOfWork, IWorkContext workContext, ITenantService tenantService, IAccountService accountService, IIndustryProfile industry)
         {
             _unitOfWork = unitOfWork;
             _workContext = workContext;
             _tenantService = tenantService;
             _accountService = accountService;
+            _industry = industry;
         }
 
         public Paragraph CreateSmallLineSeparator()
@@ -229,7 +232,7 @@ namespace Application.Services.Services.Accounts.PdfAccount
             return headerPage;
         }
 
-        public PdfPTable AddPrimarySubHeader(Font fontArial10, PaymentCollectionRequestModel request, int businessType)
+        public PdfPTable AddPrimarySubHeader(Font fontArial10, PaymentCollectionRequestModel request)
         {
             PdfPTable subHeaderTable = new(1);
             float[] widthsCellsHeaderPage = new float[] { 100f };
@@ -252,7 +255,7 @@ namespace Application.Services.Services.Accounts.PdfAccount
             }
             if (request.CustomerZoneId.HasValue)
             {
-                if (businessType == (int)BusinessType.Secondary)
+                if (_industry.Sales.CollectionReportGroupsByZone)
                 {
                     var customerZoneName = _unitOfWork.Repository<Zone>().TableNoTracking().FirstOrDefault(x => x.Id == request.CustomerZoneId)?.Name;
                     subHeaderTable.AddCell(new PdfPCell(new Phrase("Zone : " + customerZoneName, fontArial10)) { Border = 0, HorizontalAlignment = 0 });
@@ -330,7 +333,7 @@ namespace Application.Services.Services.Accounts.PdfAccount
             pdfGenerator.AddHeader(reportTitleName, tenantData.Name!, tenantData?.Address!, tenantData?.ContactNo!, tenantData?.Email!);
 
             //Add subheader (filter info)
-            var filterTable = pdfGenerator.AddTable(AddPrimarySubHeader(fontArial9, request, tenantData!.BusinessType));
+            var filterTable = pdfGenerator.AddTable(AddPrimarySubHeader(fontArial9, request));
 
             // Add main data table
             var dataTable = pdfGenerator.AddTable(tableData, headers, columnWidths, tableHeaderFont, tableDataFont, numericColumnsForSum);

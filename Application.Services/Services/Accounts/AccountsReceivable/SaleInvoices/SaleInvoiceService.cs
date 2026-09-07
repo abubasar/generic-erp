@@ -4,6 +4,7 @@ using Application.Core.Entities;
 using Application.Core.Enums;
 using Application.Core.Exceptions;
 using Application.Core.Extensions;
+using Application.Core.Industry;
 using Application.Core.Interfaces;
 using Application.Core.SignalR;
 using Application.Services.Dtos.Accounts.AccountsReceivable.SaleInvoice;
@@ -43,11 +44,13 @@ namespace Application.Services.Services.Accounts.AccountsReceivable.SaleInvoices
         private readonly ISmsService _smsService;
         private readonly IConfiguration _configuration;
         private readonly ITenantService _tenantService;
+        private readonly IIndustryProfile _industry;
 
         public SaleInvoiceService(IUnitOfWork unitOfWork, IMapper mapper, IWorkContext workContext, INotificationService notificationService,
             IHubContext<BroadcastHub, IHubClient> hubContext, IAccountService accountService, ICustomerService customerService
-            , IMailService mailService, ISmsService smsService, IConfiguration configuration, ITenantService tenantService) : base(unitOfWork, mapper, workContext)
+            , IMailService mailService, ISmsService smsService, IConfiguration configuration, ITenantService tenantService, IIndustryProfile industry) : base(unitOfWork, mapper, workContext)
         {
+            _industry = industry;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _workContext = workContext;
@@ -92,9 +95,7 @@ namespace Application.Services.Services.Accounts.AccountsReceivable.SaleInvoices
 
         public new async Task<AddUpdateResponseModel> AddAsync(SaleInvoiceCreationDto saleInvoiceCreationDto)
         {
-            Guid? tenantId = _workContext.GetTenantId();
-            var tenantData = await _tenantService.GetByIdAsync(tenantId);
-            if (tenantData!.BusinessType == (int)BusinessType.Primary)
+            if (_industry.Sales.OneInvoicePerSaleOrder)
             {
                 var isSaleInvoiceExistAgainstSO = await _unitOfWork.Repository<SaleInvoice>().TableNoTracking().AnyAsync(x => x.SaleOrderNo == saleInvoiceCreationDto.SaleOrderNo);
                 if (isSaleInvoiceExistAgainstSO) throw new BadRequestException($"You have already made an invoice using this Sale Order {saleInvoiceCreationDto.SaleOrderNo}");
@@ -518,9 +519,7 @@ namespace Application.Services.Services.Accounts.AccountsReceivable.SaleInvoices
                     dbSaleInvoice.CheckedBy = "";
                     break;
                 case (int)SaleInvoiceStatus.Approved:
-                    Guid? tenantId = _workContext.GetTenantId();
-                    var tenantData = await _tenantService.GetByIdAsync(tenantId);
-                    if (tenantData!.BusinessType == (int)BusinessType.Primary)
+                    if (_industry.Sales.BlockInvoiceUnpostWhenReceiptExists)
                     {
                         var isReceivePaymentExistAgainstSI = await _unitOfWork.Repository<ReceivePaymentAgainstSaleSaleInvoiceMapping>().TableNoTracking().AnyAsync(x => x.SaleInvoiceId == dbSaleInvoice.Id);
                         if (isReceivePaymentExistAgainstSI) throw new BadRequestException("Unposting blocked: money receipt already exists. Please unpost the receipt first.");

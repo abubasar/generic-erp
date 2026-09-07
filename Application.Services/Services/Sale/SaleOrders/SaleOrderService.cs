@@ -112,8 +112,6 @@ namespace Application.Services.Services.Sale.SaleOrders
                 });
             }
             //.....
-            Guid? tenantId = _workContext.GetTenantId();
-            var tenantData = await _tenantService.GetByIdAsync(tenantId);
             var customerWiseProductDiscount = await _unitOfWork.Repository<CustomerWiseProductDiscount>()
                                                        .TableNoTracking().SingleOrDefaultAsync(x => x.CustomerId == saleOrder.CustomerId && x.IsActive && x.Status == (int)CustomerWiseProductDiscountStatus.Approved);
             var totalOrderedQty = saleOrder.SaleOrderDetails.Sum(x => x.Quantity);
@@ -125,7 +123,7 @@ namespace Application.Services.Services.Sale.SaleOrders
                 item.DepoChargePerUnit = saleOrder.DepoCharge / totalOrderedQty;
                 item.TransportationCostPerUnit = saleOrder.TransportationCost / totalOrderedQty;
 
-                if (tenantData.BusinessType == 2)
+                if (_industry.Sales.RequireApprovedCustomerDiscountOnOrder)
                 {
                     if (customerWiseProductDiscount is not null)
                     {
