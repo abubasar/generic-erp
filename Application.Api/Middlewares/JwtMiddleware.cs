@@ -1,4 +1,5 @@
-﻿using Application.Core.Constants;
+﻿using Application.Core.Common;
+using Application.Core.Constants;
 using Application.Core.Settings;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -28,6 +29,10 @@ namespace Application.Api.Middlewares
                 context.Items["RoleId"] = roleId;
                 context.Items["UserName"] = username;
                 context.Items["TenantId"] = tenantId;
+
+                // Ambient tenant for EF Core query filters + the UnitOfWork save guard.
+                if (Guid.TryParse(tenantId, out var tenantGuid))
+                    TenantScope.CurrentTenantId = tenantGuid;
             }
 
             await _next(context);
