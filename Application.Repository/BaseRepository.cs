@@ -80,8 +80,16 @@ namespace Application.Infrastructure
         }
         public async Task<T> FindAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var entity = await _context.Set<T>().FindAsync(id);
+            // DbSet.FindAsync bypasses query filters, so re-check the tenant here:
+            // a scoped entity belonging to another tenant is "not found".
+            var entity = await _context.Set<T>().FindAsync(new object?[] { id }, cancellationToken);
             if (entity is null) throw new NotFoundResultException("Entity not found!");
+            if (entity is ITenantScoped scoped
+                && scoped.TenantId != Application.Core.Common.TenantScope.CurrentTenantId)
+            {
+                _context.Entry(entity).State = EntityState.Detached;
+                throw new NotFoundResultException("Entity not found!");
+            }
             return entity;
         }
 
