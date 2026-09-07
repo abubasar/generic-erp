@@ -39,6 +39,7 @@ public static class RegisterStartupServices
         //app settings
         builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
         builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+        builder.Services.Configure<PlatformAuthSettings>(builder.Configuration.GetSection("PlatformAuth"));
         builder.Services.Configure<CacheSettings>(builder.Configuration.GetSection("CacheSettings"));
         //Rate Limiting
         builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));

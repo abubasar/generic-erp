@@ -44,6 +44,11 @@ namespace Application.Core.Data
         public virtual DbSet<Subscription> Subscriptions => Set<Subscription>();
         public virtual DbSet<Entitlement> Entitlements => Set<Entitlement>();
         public virtual DbSet<TenantSetting> TenantSettings => Set<TenantSetting>();
+        public virtual DbSet<PlatformAdmin> PlatformAdmins => Set<PlatformAdmin>();
+        public virtual DbSet<Plan> Plans => Set<Plan>();
+        public virtual DbSet<PriceBook> PriceBooks => Set<PriceBook>();
+        public virtual DbSet<PriceBookEntry> PriceBookEntries => Set<PriceBookEntry>();
+        public virtual DbSet<PlatformAuditLog> PlatformAuditLogs => Set<PlatformAuditLog>();
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder)
         {
@@ -53,6 +58,11 @@ namespace Application.Core.Data
             modelBuilder.ApplyConfiguration(new SubscriptionConfiguration());
             modelBuilder.ApplyConfiguration(new EntitlementConfiguration());
             modelBuilder.ApplyConfiguration(new TenantSettingConfiguration());
+            modelBuilder.ApplyConfiguration(new PlatformAdminConfiguration());
+            modelBuilder.ApplyConfiguration(new PlanConfiguration());
+            modelBuilder.ApplyConfiguration(new PriceBookConfiguration());
+            modelBuilder.ApplyConfiguration(new PriceBookEntryConfiguration());
+            modelBuilder.ApplyConfiguration(new PlatformAuditLogConfiguration());
 
             // SP result type — keyless, and not a real table.
             modelBuilder.Entity<SPSupplierLedgerResult>().HasNoKey().ToView(null);

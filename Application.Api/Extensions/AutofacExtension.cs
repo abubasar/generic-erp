@@ -6,6 +6,7 @@ using Application.Services.Services.Configuration;
 using Application.Services.Services.Inventory;
 using Application.Services.Services.Productions;
 using Application.Services.Services.Purchase;
+using Application.Services.Services.Platform;
 using Application.Services.Services.Report;
 using Application.Services.Services.Sale;
 using Autofac;
@@ -30,6 +31,7 @@ namespace Application.Api.Extensions
                  containerBuilder.RegisterModule<ReportModule>();
                  containerBuilder.RegisterModule<CommonModule>();
                  containerBuilder.RegisterModule<InventoryModule>();
+                 containerBuilder.RegisterModule<PlatformServiceModule>();
              });
         }
     }

@@ -124,6 +124,13 @@ namespace Application.Services.Services.Auth.Common
 
 
 
+        public async Task<(string accessToken, string refreshToken)> IssueTokensForUserAsync(Guid userId)
+        {
+            User? user = await _unitOfWork.Repository<User>().TableUnfiltered().FirstOrDefaultAsync(x => x.Id == userId && !x.Deleted);
+            if (user is null) throw new NotFoundResultException("User not Found");
+            return await AccessTokenAsync(user);
+        }
+
         public async Task<bool> UserExists(string username)
         {
             if (await _unitOfWork.Repository<User>().TableUnfiltered().AnyAsync(x => x.Username.ToLower() == username.ToLower()))
