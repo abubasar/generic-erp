@@ -12,8 +12,14 @@
  * Currency, Zone, Region, PackSize, ...).
  *
  * Generated 2026-09-07 from generic-erp-db.
+ *
+ * QUOTED_IDENTIFIER / ANSI_NULLS must be ON to CREATE INDEX (SQL Server requires
+ * it, and some tables here trip the check). Set below; if you run this through
+ * sqlcmd, also pass -I  (e.g. sqlcmd -S . -E -I -d generic-erp-db -i <thisfile>).
  */
 SET NOCOUNT ON;
+SET QUOTED_IDENTIFIER ON;
+SET ANSI_NULLS ON;
 GO
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Account_TenantId' AND object_id = OBJECT_ID(N'dbo.Account'))
     CREATE NONCLUSTERED INDEX [IX_Account_TenantId] ON [dbo].[Account] ([TenantId]);
