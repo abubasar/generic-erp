@@ -1,10 +1,7 @@
 ﻿
-using Application.Core.Common;
 using Application.Core.Data;
 using Application.Core.Exceptions;
 using Application.Core.Interfaces;
-using Application.Core.PermissionHelpers;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
@@ -16,22 +13,31 @@ namespace Application.Infrastructure
     public class BaseRepository<T> : IBaseRepository<T> where T : class
     {
         private readonly DataContext _context;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        public BaseRepository(DataContext context, IHttpContextAccessor httpContextAccessor)
+        public BaseRepository(DataContext context)
         {
             _context = context;
-            _httpContextAccessor = httpContextAccessor;
         }
 
-        public IQueryable<T> TableWithoutTenant()
+        /// <summary>
+        /// Tenant-scoped read set. The DataContext query filter restricts
+        /// <see cref="ITenantScoped"/> entities to the current tenant and hides
+        /// soft-deleted rows automatically — no manual WHERE needed. With no
+        /// tenant in scope, tenant-scoped queries return nothing.
+        /// </summary>
+        public IQueryable<T> TableNoTracking()
         {
             return _context.Set<T>().AsNoTracking();
         }
-        public IQueryable<T> TableNoTracking()
+
+        /// <summary>
+        /// Bypasses BOTH the tenant filter and the soft-delete filter. Only for
+        /// the pre-authentication paths that have no tenant yet — login, refresh
+        /// token, tenant lookup/provisioning. Every caller must constrain the
+        /// query itself (by username, token, or an explicit TenantId).
+        /// </summary>
+        public IQueryable<T> TableUnfiltered()
         {
-            Guid? tenantId = _httpContextAccessor?.HttpContext?.GetTenantId();
-            if (tenantId.HasValue) return _context.Set<T>().AsNoTracking().Where(ExpressionGenerator.CreateEqualityExpression<T>("TenantId", tenantId.Value));
-            else throw new BadRequestException("Tenant Not Found!!!");
+            return _context.Set<T>().AsNoTracking().IgnoreQueryFilters();
         }
         public async Task AddAsync(T entity, CancellationToken cancellationToken = default)
         {
@@ -74,8 +80,16 @@ namespace Application.Infrastructure
         }
         public async Task<T> FindAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var entity = await _context.Set<T>().FindAsync(id);
+            // DbSet.FindAsync bypasses query filters, so re-check the tenant here:
+            // a scoped entity belonging to another tenant is "not found".
+            var entity = await _context.Set<T>().FindAsync(new object?[] { id }, cancellationToken);
             if (entity is null) throw new NotFoundResultException("Entity not found!");
+            if (entity is ITenantScoped scoped
+                && scoped.TenantId != Application.Core.Common.TenantScope.CurrentTenantId)
+            {
+                _context.Entry(entity).State = EntityState.Detached;
+                throw new NotFoundResultException("Entity not found!");
+            }
             return entity;
         }
 

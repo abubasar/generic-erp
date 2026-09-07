@@ -826,22 +826,29 @@ throughout — they are already tenants with a business type, so they become
 tenants #1..n on their templates. No big-bang rewrite. Each phase ships
 something usable.
 
-### Phase 0 — Tenancy foundation
+### Phase 0 — Tenancy foundation  ·  *largely done — see `docs/phase0-tenancy.md`*
 
 *Goal — one hardened, fail-closed isolation model in `Application.Api`.*
 
-- Add `ITenantContext` (scoped) + `ITenantScoped` marker interface on all tenant
-  entities.
-- Replace manual `WHERE TenantId` in `BaseRepository` with EF global query
-  filters; remove the `TableWithoutTenant()` bypass. Harden the
-  `UnitOfWork.OnBeforeSaveChangesAsync` guard: today it only checks an ambient
-  tenant exists — make it also reject any `Modified`/`Deleted` scoped entity
-  whose stored `TenantId` differs from the current one (not just blindly
-  re-stamp it).
-- Write the tenant-isolation integration test suite (every endpoint, two
-  tenants, assert no bleed).
-- Tenant-resolution middleware: JWT claim first, host fallback.
-- Re-scaffold rule: leading `TenantId` on all main indexes.
+- ✅ `ITenantScoped` marker on the 109 tenant entities + `ITenantContext`;
+  ambient `TenantScope` (`AsyncLocal`) set by `JwtMiddleware`.
+- ✅ Automatic EF query filter (tenant + soft-delete) on every `ITenantScoped`
+  type in a re-scaffold-safe `DataContext` partial; `BaseRepository` no longer
+  hand-writes `WHERE TenantId`; `TableWithoutTenant()` → `TableUnfiltered()`
+  (pre-auth paths only).
+- ✅ `UnitOfWork` fail-closed write guard: throws on any `Modified`/`Deleted`
+  scoped entity whose stored `TenantId` ≠ current; `FindAsync(id)` re-checks
+  (it bypasses filters).
+- ✅ Isolation test suite (`Application.Tests`, xUnit + EF InMemory) — reads
+  scoped, writes blocked, `FindAsync` isolated, DI picks the tenant-aware ctor.
+- ✅ Deleted the orphan net6 `Application.Infrastructure/` project.
+- ◻️ Leading `TenantId` index on every scoped table —
+  `docs/sql/2026-09-07_tenant-id-indexes.sql` ready; run per environment.
+- ◻️ Host / sub-domain tenant resolution — deferred to Phase 1 (needs
+  `Tenant.Subdomain`). JWT-claim path is live.
+- ◻️ End-to-end (`WebApplicationFactory`, real HTTP, every endpoint) isolation
+  tests — the InMemory suite covers the mechanism; add HTTP-level coverage
+  alongside Phase 1's second seeded tenant.
 
 ### Phase 1 — Platform layer + module gating
 

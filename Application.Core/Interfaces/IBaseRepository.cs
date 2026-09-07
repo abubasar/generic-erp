@@ -7,7 +7,8 @@ namespace Application.Core.Interfaces
 {
     public interface IBaseRepository<T> where T : class
     {
-        IQueryable<T> TableWithoutTenant();
+        /// <summary>Bypasses the tenant and soft-delete filters. Pre-auth paths only — see <c>BaseRepository</c>.</summary>
+        IQueryable<T> TableUnfiltered();
         IQueryable<T> TableNoTracking();
         Task<bool> IsExists(Expression<Func<T, bool>> expression);
         Task<T> FindAsync(Guid id, CancellationToken cancellationToken = default);

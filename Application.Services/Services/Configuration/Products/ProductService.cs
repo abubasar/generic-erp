@@ -40,7 +40,7 @@ namespace Application.Services.Services.Configuration.Products
         }
         public async Task<bool> ProductExists(string name)
         {
-            if (await _unitOfWork.Repository<Product>().TableNoTracking().AnyAsync(x => x.Name.ToLower() == name.ToLower())) //TableWithoutTenant()
+            if (await _unitOfWork.Repository<Product>().TableNoTracking().AnyAsync(x => x.Name.ToLower() == name.ToLower())) //TableUnfiltered()
                 return true;
             return false;
         }

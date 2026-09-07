@@ -51,9 +51,9 @@ This is a .NET 9 ERP REST API using **Clean Architecture** with four projects:
 
 **Permission-based auth**: Use the custom `[Authorize("PermissionName")]` attribute (not the built-in one). Permissions are seeded and managed via `PermissionHelpers` in `Application.Core`.
 
-**Soft deletes**: Global EF query filters exclude soft-deleted records automatically. Set `IsDeleted = true`; never hard-delete domain entities.
+**Soft deletes**: Global EF query filters exclude soft-deleted records automatically. Set `Deleted = true`; never hard-delete domain entities (except the types in `UnitOfWork`'s hard-delete list).
 
-**Multi-tenancy**: `IWorkContext` provides `TenantId`, `UserId`, and `Domain` for the current request. Inject it wherever tenant isolation is needed.
+**Multi-tenancy (Phase 0 — see `docs/phase0-tenancy.md`)**: Every entity with a `Guid TenantId` is marked `ITenantScoped` in `Application.Core/Interfaces/TenantScopedEntities.cs` and gets an automatic EF query filter (tenant + soft-delete). The current tenant comes from the JWT `tenantId` claim via `TenantScope.CurrentTenantId` (and `ITenantContext` for DI). `UnitOfWork` stamps `TenantId` on insert and throws on any cross-tenant modify/delete. Do **not** hand-write `WHERE TenantId`. `BaseRepository.TableUnfiltered()` bypasses both filters — pre-auth paths only. `IWorkContext` still exposes `TenantId`/`UserId` for services.
 
 ### Domain Areas
 

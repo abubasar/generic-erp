@@ -24,7 +24,7 @@ namespace Application.Services.Services.Configuration.Tenants
 
         public override async Task<Tuple<List<TenantViewModel>, int>> SearchAsync(TenantRequestModel request)
         {
-            var queryable = _unitOfWork.Repository<Tenant>().TableWithoutTenant().Where(request.GetExpression());
+            var queryable = _unitOfWork.Repository<Tenant>().TableUnfiltered().Where(request.GetExpression());
             if (!queryable.Any()) throw new NotFoundResultException("Ooo! No Search Result Found.");
             queryable = request.CreateOrderByQueryable(queryable);
             int count = queryable.Count();
@@ -46,7 +46,7 @@ namespace Application.Services.Services.Configuration.Tenants
         public override async Task<Guid> AddAsync(TenantCreationDto tenantCreationDto)
         {
             var tenant = _mapper.Map<Tenant>(tenantCreationDto);
-            var count = _unitOfWork.Repository<Tenant>().TableWithoutTenant().IgnoreQueryFilters().Count() + 1;
+            var count = _unitOfWork.Repository<Tenant>().TableUnfiltered().IgnoreQueryFilters().Count() + 1;
             tenant.Id = Guid.NewGuid();
             tenant.Code = count.ToString().PadLeft(3, '0');
             await _unitOfWork.Repository<Tenant>().AddAsync(tenant);
