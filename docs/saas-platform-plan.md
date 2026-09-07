@@ -665,7 +665,7 @@ decision to make when the feed module is formalised.
 | **Pharmacy profile** — expiry/near-expiry emphasis, drug schedule, A5 invoice layout | Industry (profile + optional sub-features) | `Application.Api` (`Primary` branches) + ButsPosDotnet6 (batch/expiry) | Behaviour + report pack over the shared features; batch/expiry tracking is an optional sub-feature any tenant can enable. |
 | **Feed profile** — bags↔Kg conversion, by-product yield, mandatory customer-wise discount, feed report layouts | Industry (profile) | `Application.Api` (`Secondary` branches) | Pure behaviour over the shared features — units, one sales rule, report layouts. No feature is feed-exclusive. |
 | **Super Shop** — promotions, combo/gift items, shelf, weigh-scale | Industry | Effectively new (POS has only `GifItem`: `Id·Name·Quantity·PurchaseItemId` — a gift-with-purchase line, no promo engine) | New thin module over POS + Barcode. |
-| **Buying House** — style costing, order tracking, export documentation | Industry | New | Reuses Purchase + Sales + Accounting; adds style/costing entities only. |
+| **Buying House** — style costing, order tracking, export documentation | Industry | New | Reuses Purchase + Sales + Accounting; adds style/costing entities only. The *manufacturing* cousin — **Garments / RMG** (merchandising + costing + LC/trade + TNA planning + shop-floor production) — is a much larger vertical with an existing source system to port; see `docs/garments-vertical-plan.md`. |
 | **Wholesale** — routes/territory, van sales, credit control | Industry | `Application.Api` (territory, MO-wise collection) | Mostly config over Sales; small module. |
 
 ### Adding a new business type later
@@ -680,6 +680,13 @@ decision to make when the feed module is formalised.
 No forking, no per-customer code. A "Restaurant" or "Auto Workshop" template is a
 weekend of template + seed work plus however much genuinely new domain logic it
 needs.
+
+> **A large vertical is not a weekend.** The "genuinely new domain logic" clause
+> dominates for a manufacturing vertical. **Garments / RMG** — merchandising,
+> costing, trade finance (LC/BB-LC), TNA planning and shop-floor production are
+> four domains this platform does not have. Bringing in the existing `SCERP`
+> garments ERP (minus HR) is a multi-quarter re-platform, not a template tweak —
+> see **`docs/garments-vertical-plan.md`**.
 
 ---
 
