@@ -14,7 +14,7 @@ namespace Application.Core.Data.Configurations
         {
             entity.ToTable("SaleOrder");
 
-            entity.HasIndex(e => e.SaleOrderNo, "UQ_SaleOrderNo").IsUnique();
+            entity.HasIndex(e => new { e.TenantId, e.SaleOrderNo }, "UQ_SaleOrderNo").IsUnique();
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.ApprovedBy).HasMaxLength(100);

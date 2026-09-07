@@ -20,7 +20,11 @@ namespace Application.Services.Services.Platform
 
     public sealed record CreateTenantRequest(
         string Code, string Name, string BusinessTemplateKey, string? Subdomain,
-        string? PlanKey, string? Currency, string? Email, string? ContactNo, string? Address);
+        string? PlanKey, string? Currency, string? Email, string? ContactNo, string? Address,
+        string? OwnerUsername, string? OwnerPassword);
+
+    /// <summary>Result of creating a tenant — the detail plus what provisioning produced.</summary>
+    public sealed record CreateTenantResult(TenantDetail Tenant, ProvisioningResult Provisioning);
 
     public sealed record SetSubscriptionRequest(string Status, string? PlanKey, DateTime? PeriodEnd, DateTime? TrialEndsOn);
     public sealed record ToggleModuleRequest(string ModuleKey, bool Enabled);

@@ -14,7 +14,7 @@ namespace Application.Core.Data.Configurations
         {
             entity.ToTable("FinancialYear");
 
-            entity.HasIndex(e => e.Code, "UQ_FinancialYear_Code").IsUnique();
+            entity.HasIndex(e => new { e.TenantId, e.Code }, "UQ_FinancialYear_Code").IsUnique();
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Code)

@@ -4,6 +4,7 @@ using Application.Core.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Application.Core.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20260907103820_ShareSystemLookups")]
+    partial class ShareSystemLookups
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -497,7 +500,7 @@ namespace Application.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "TenantId", "Code" }, "UQ_Company_Code")
+                    b.HasIndex(new[] { "Code" }, "UQ_Company_Code")
                         .IsUnique();
 
                     b.ToTable("Company", (string)null);
@@ -1507,7 +1510,7 @@ namespace Application.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "TenantId", "Code" }, "UQ_FinancialYear_Code")
+                    b.HasIndex(new[] { "Code" }, "UQ_FinancialYear_Code")
                         .IsUnique();
 
                     b.ToTable("FinancialYear", (string)null);
@@ -3441,46 +3444,6 @@ namespace Application.Core.Migrations
                     b.ToTable("PriceBookEntry", (string)null);
                 });
 
-            modelBuilder.Entity("Application.Core.Entities.Platform.ProvisioningStep", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Attempts")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("CompletedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Error")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<DateTime?>("StartedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("StepKey")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TenantId", "StepKey")
-                        .IsUnique();
-
-                    b.ToTable("ProvisioningStep", (string)null);
-                });
-
             modelBuilder.Entity("Application.Core.Entities.Platform.Subscription", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3839,7 +3802,7 @@ namespace Application.Core.Migrations
 
                     b.HasIndex("ProductTypeId");
 
-                    b.HasIndex(new[] { "TenantId", "Code" }, "UQ_Code")
+                    b.HasIndex(new[] { "Code" }, "UQ_Code")
                         .IsUnique();
 
                     b.ToTable("Product", null, t =>
@@ -4736,7 +4699,7 @@ namespace Application.Core.Migrations
 
                     b.HasIndex("SupplierId");
 
-                    b.HasIndex(new[] { "TenantId", "Ponumber" }, "UQ_PONumber")
+                    b.HasIndex(new[] { "Ponumber" }, "UQ_PONumber")
                         .IsUnique();
 
                     b.ToTable("PurchaseOrder", (string)null);
@@ -6301,7 +6264,7 @@ namespace Application.Core.Migrations
 
                     b.HasIndex("StoreId");
 
-                    b.HasIndex(new[] { "TenantId", "SaleOrderNo" }, "UQ_SaleOrderNo")
+                    b.HasIndex(new[] { "SaleOrderNo" }, "UQ_SaleOrderNo")
                         .IsUnique();
 
                     b.ToTable("SaleOrder", (string)null);
@@ -7251,7 +7214,7 @@ namespace Application.Core.Migrations
 
                     b.HasIndex("InventoryTypeId");
 
-                    b.HasIndex(new[] { "TenantId", "Code" }, "UQ_Store_Code")
+                    b.HasIndex(new[] { "Code" }, "UQ_Store_Code")
                         .IsUnique();
 
                     b.ToTable("Store", (string)null);

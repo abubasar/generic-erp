@@ -19,7 +19,7 @@ namespace Application.Core.Data.Configurations
                     tb.HasTrigger("trg_Product_Update");
                 });
 
-            entity.HasIndex(e => e.Code, "UQ_Code").IsUnique();
+            entity.HasIndex(e => new { e.TenantId, e.Code }, "UQ_Code").IsUnique();
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.BagWeight).HasDefaultValue(1);

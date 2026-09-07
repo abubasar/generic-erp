@@ -59,6 +59,19 @@ public class PriceBookEntryConfiguration : IEntityTypeConfiguration<PriceBookEnt
     }
 }
 
+public class ProvisioningStepConfiguration : IEntityTypeConfiguration<ProvisioningStep>
+{
+    public void Configure(EntityTypeBuilder<ProvisioningStep> e)
+    {
+        e.ToTable("ProvisioningStep");
+        e.HasKey(x => x.Id);
+        e.Property(x => x.StepKey).IsRequired().HasMaxLength(50);
+        e.Property(x => x.Status).IsRequired().HasMaxLength(20);
+        e.Property(x => x.Error).HasMaxLength(2000);
+        e.HasIndex(x => new { x.TenantId, x.StepKey }).IsUnique();
+    }
+}
+
 public class PlatformAuditLogConfiguration : IEntityTypeConfiguration<PlatformAuditLog>
 {
     public void Configure(EntityTypeBuilder<PlatformAuditLog> e)

@@ -12,7 +12,7 @@ namespace Application.Services.Services.Platform
     {
         Task<IReadOnlyList<TenantListItem>> ListAsync(string? search, string? status);
         Task<TenantDetail?> GetAsync(Guid tenantId);
-        Task<TenantDetail> CreateAsync(CreateTenantRequest request);
+        Task<CreateTenantResult> CreateAsync(CreateTenantRequest request);
         Task<TenantDetail> SetStatusAsync(Guid tenantId, string status);
         Task<TenantDetail> SetSubscriptionAsync(Guid tenantId, SetSubscriptionRequest request);
         Task<TenantDetail> ToggleModuleAsync(Guid tenantId, ToggleModuleRequest request);
@@ -25,12 +25,14 @@ namespace Application.Services.Services.Platform
         private readonly DataContext _db;
         private readonly IPlatformAuditWriter _audit;
         private readonly IAuthService _authService;
+        private readonly IProvisioningService _provisioning;
 
-        public PlatformTenantService(DataContext db, IPlatformAuditWriter audit, IAuthService authService)
+        public PlatformTenantService(DataContext db, IPlatformAuditWriter audit, IAuthService authService, IProvisioningService provisioning)
         {
             _db = db;
             _audit = audit;
             _authService = authService;
+            _provisioning = provisioning;
         }
 
         public async Task<IReadOnlyList<TenantListItem>> ListAsync(string? search, string? status)
@@ -85,7 +87,7 @@ namespace Application.Services.Services.Platform
                 modules, quotas);
         }
 
-        public async Task<TenantDetail> CreateAsync(CreateTenantRequest request)
+        public async Task<CreateTenantResult> CreateAsync(CreateTenantRequest request)
         {
             var code = request.Code.Trim();
             var name = request.Name.Trim();
@@ -150,7 +152,10 @@ namespace Application.Services.Services.Platform
             _audit.Add("tenant.create", tenant.Id, $"code={code}; template={template.Key}; plan={plan?.Key ?? "-"}; modules={string.Join('|', moduleKeys)}");
             await _db.SaveChangesAsync();
 
-            return (await GetAsync(tenant.Id))!;
+            var provisioning = await _provisioning.ProvisionAsync(tenant.Id,
+                new ProvisionRequest(request.OwnerUsername, request.Email, request.OwnerPassword));
+
+            return new CreateTenantResult((await GetAsync(tenant.Id))!, provisioning);
         }
 
         public async Task<TenantDetail> SetStatusAsync(Guid tenantId, string status)

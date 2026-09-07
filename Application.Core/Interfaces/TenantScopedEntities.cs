@@ -6,7 +6,7 @@ using Application.Core.Interfaces;
 namespace Application.Core.Entities;
 
 public partial class Account : ITenantSharable { } // ITenantSharable : ITenantScoped — the standard CoA skeleton is shared
-public partial class AccountType : ITenantScoped { }
+public partial class AccountType : ITenantSharable { } // system account types (13) are shared
 public partial class Area : ITenantScoped { }
 public partial class BankAccount : ITenantScoped { }
 public partial class BillOfMaterial : ITenantScoped { }
@@ -36,7 +36,7 @@ public partial class FundTransferTransactionType : ITenantScoped { }
 public partial class Generic : ITenantScoped { }
 public partial class GoodsReceiveNote : ITenantScoped { }
 public partial class GoodsReceiveNoteDetail : ITenantScoped { }
-public partial class InventoryType : ITenantScoped { }
+public partial class InventoryType : ITenantSharable { } // system inventory types (3) are shared
 public partial class JobLocation : ITenantScoped { }
 public partial class JournalEntry : ITenantScoped { }
 public partial class JournalEntryDetail : ITenantScoped { }
@@ -52,7 +52,7 @@ public partial class MeasurementUnit : ITenantScoped { }
 public partial class Notification : ITenantScoped { }
 public partial class PackSize : ITenantScoped { }
 public partial class PaymentMethod : ITenantScoped { }
-public partial class PaymentMode : ITenantScoped { }
+public partial class PaymentMode : ITenantSharable { } // system payment modes are shared
 public partial class PaymentVoucher : ITenantScoped { }
 public partial class PaymentVoucherDetail : ITenantScoped { }
 public partial class Picture : ITenantScoped { }
@@ -61,7 +61,7 @@ public partial class PoPriceAdjustmentAfterGrnDetail : ITenantScoped { }
 public partial class Product : ITenantScoped { }
 public partial class ProductAudit : ITenantScoped { }
 public partial class ProductCostSetup : ITenantScoped { }
-public partial class ProductType : ITenantScoped { }
+public partial class ProductType : ITenantSharable { } // the 1 system product type is shared; tenant types stay scoped
 public partial class Production : ITenantScoped { }
 public partial class ProductionDetail : ITenantScoped { }
 public partial class PurchaseInvoice : ITenantScoped { }

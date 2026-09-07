@@ -13,8 +13,13 @@ namespace Application.Api.Controllers.Platform
     public class PlatformTenantsController : ControllerBase
     {
         private readonly IPlatformTenantService _tenants;
+        private readonly IProvisioningService _provisioning;
 
-        public PlatformTenantsController(IPlatformTenantService tenants) => _tenants = tenants;
+        public PlatformTenantsController(IPlatformTenantService tenants, IProvisioningService provisioning)
+        {
+            _tenants = tenants;
+            _provisioning = provisioning;
+        }
 
         [HttpGet]
         public async Task<Result> List([FromQuery] string? search, [FromQuery] string? status) =>
@@ -30,7 +35,16 @@ namespace Application.Api.Controllers.Platform
         [HttpPost]
         [PlatformAuthorize(PlatformRoles.Admin)]
         public async Task<Result> Create(CreateTenantRequest request) =>
-            await Result<TenantDetail>.SuccessAsync(await _tenants.CreateAsync(request), "Tenant created");
+            await Result<CreateTenantResult>.SuccessAsync(await _tenants.CreateAsync(request), "Tenant created");
+
+        [HttpPost("{id:guid}/provision")]
+        [PlatformAuthorize(PlatformRoles.Admin)]
+        public async Task<Result> Provision(Guid id, ProvisionRequest request) =>
+            await Result<ProvisioningResult>.SuccessAsync(await _provisioning.ProvisionAsync(id, request), "Provisioning run");
+
+        [HttpGet("{id:guid}/provisioning")]
+        public async Task<Result> ProvisioningStatus(Guid id) =>
+            await Result<IReadOnlyList<ProvisioningStepStatus>>.SuccessAsync(await _provisioning.GetStatusAsync(id), "OK");
 
         [HttpPost("{id:guid}/status")]
         [PlatformAuthorize(PlatformRoles.Admin)]
