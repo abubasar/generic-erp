@@ -12,5 +12,8 @@ namespace Application.Services.Services.Auth.Common
         Task<Result<List<RoleClaimModel>>> GetAllPermissionsAsync(Guid roleId);
         Task<Result<string>> UpdatePermissionsAsync(PermissionRequest request);
         Task<bool> UserExists(string username);
+
+        /// <summary>Issues a tenant access + refresh token for an existing user id. Used by platform-admin impersonation.</summary>
+        Task<(string accessToken, string refreshToken)> IssueTokensForUserAsync(Guid userId);
     }
 }

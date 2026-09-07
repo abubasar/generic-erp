@@ -37,6 +37,8 @@ This is a .NET 9 ERP REST API using **Clean Architecture** with four projects:
 | `Application.Core` | Entities, EF DbContext, interfaces, enums, settings |
 | `Application.Services` | Business logic, DTOs, validators, AutoMapper profiles |
 | `Application.Repository` / `Application.Infrastructure` | UnitOfWork, BaseRepository, external services |
+| `Application.Client` | Tenant-facing Angular 14 ERP UI |
+| `Application.PlatformConsole` | Standalone Angular 20 platform-admin console (separate app, own login) |
 
 **Dependency direction**: Api → Services → Core ← Repository
 
@@ -67,6 +69,8 @@ This is a .NET 9 ERP REST API using **Clean Architecture** with four projects:
 - `Dashboard` — `ShowQuantityKpis` (Feed) / `ShowValueKpis` (Pharma).
 
 All business-logic `BusinessType` branches are migrated (sale order/invoice services, `AccountService`/`AccountReportPdfService` collection report, `DashboardService`, the report controllers, `ConfigurationPdfService` product list, `PurchasePdfService` logo). Still on `BusinessType` as a deliberate compat shim: the `businesstype` JWT claim (`JwtMiddleware`/`AuthService`), `Tenant.BusinessType` column, and `ClaimsHelper.GetAllPermissions` (industry permission catalog at login — becomes a module `PermissionGroup` later). Also deferred: the `* BagWeight` expressions inside EF `Select` projections (`SaleOrderService` report queries, `DeliveryNoteService`) need query restructuring. See `docs/saas-platform-plan.md` §11.
+
+**Platform-admin surface (Phase 1 — plan §07)**: a second auth surface, kept apart from tenant auth. `PlatformAdmin` account store; `PlatformAuthService` issues a token with a `scope=platform` claim and **no** tenant id; `PlatformAuthMiddleware` validates it (its own `PlatformAuth` appsettings section / audience) and fills `IPlatformAdminContext` **without** touching `TenantScope`. `[PlatformAuthorize(minRole)]` (`Owner`>`Admin`>`Support`>`ReadOnly`) gates `/api/platform/*`. Platform services (`Application.Services/Services/Platform/`) inject `DataContext` directly (never `IUnitOfWork` — its `OnBeforeSaveChangesAsync` requires a tenant) and use `IgnoreQueryFilters()` for cross-tenant reads; every mutation appends a `PlatformAuditLog` row. New schema: `PlatformAdmin`, `Plan`, `PriceBook`+`PriceBookEntry`, `PlatformAuditLog` (migration `AddPlatformAdminAndBilling`). First API start seeds an admin from `PlatformAuth:SeedEmail`/`SeedPassword`. Impersonation (`/tenants/{id}/impersonate`) issues a tenant token via `IAuthService.IssueTokensForUserAsync`, audited. The console UI is the separate `Application.PlatformConsole` app (`npm install && npm start`, proxies `/api` to :5254).
 
 ### Domain Areas
 

@@ -1,5 +1,6 @@
 ﻿using Application.Api.Middlewares;
 using Application.Core.PermissionHelpers;
+using Application.Services.Services.Platform;
 using AspNetCoreRateLimit;
 using Serilog;
 using Serilog.Context;
@@ -18,6 +19,14 @@ public static class RegisterStartupMiddlewares
         app.UseMiddleware<GlobalExceptionMiddleware>();
         app.UseMiddleware<JwtMiddleware>();
         app.UseMiddleware<TenantResolutionMiddleware>();
+        app.UseMiddleware<PlatformAuthMiddleware>();
+
+        // First-run: create the seed platform admin from PlatformAuth config if the table is empty.
+        using (var scope = app.Services.CreateScope())
+        {
+            scope.ServiceProvider.GetRequiredService<IPlatformAuthService>()
+                 .EnsureSeedAdminAsync().GetAwaiter().GetResult();
+        }
 
         app.UseHttpsRedirection();
         app.UseRouting();
