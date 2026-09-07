@@ -24,7 +24,13 @@ public static class RegisterStartupServices
 {
     public static WebApplicationBuilder RegisterServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddDbContext<DataContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+        // Command timeout is deliberately generous — a dev box running a full copy of
+        // production data (tens of thousands of rows on the big tables) has slow
+        // reports/dashboards. Override with DatabaseSettings:CommandTimeoutSeconds.
+        var commandTimeout = builder.Configuration.GetValue<int?>("DatabaseSettings:CommandTimeoutSeconds") ?? 180;
+        builder.Services.AddDbContext<DataContext>(x => x.UseSqlServer(
+            builder.Configuration.GetConnectionString("DefaultConnection"),
+            sql => sql.CommandTimeout(commandTimeout)));
         //  builder.Services.AddTenantDbContext(builder.Configuration);
         //autofac
         builder.Host.AddAutofac();
