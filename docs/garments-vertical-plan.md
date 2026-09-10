@@ -1,243 +1,220 @@
 # Adding the Garments (RMG) vertical to the ERP SaaS platform
 
-**Enhancement plan — v0.3 draft** *(v0.3: explicit stack comparison + provenance note — legacy is .NET Framework MVC5/EF6/Crystal, target is .NET 9 + Angular + EF Core; this is a rewrite, not a migration. v0.2: full area-by-area coverage check)*
+**Enhancement plan — v1.0** *(v1.0: SCERP source is now on disk and has been read — real numbers, real code patterns, the accounting decision confirmed against the actual coupling. Supersedes the v0.x drafts that were built from the Visual Studio file index.)*
 
-How to bring an existing garments-manufacturing ERP ("SCERP") into the
-`GenericERP` multi-tenant platform as a **Garments Industry** business template,
-reusing everything except HR/Payroll.
+Bring the existing garments-manufacturing ERP ("SCERP") into the `GenericERP`
+multi-tenant platform as a **Garments Industry** business template — reusing every
+feature **except HRM/Payroll and Accounting**. Accounting is handled by the
+platform's existing (Feed ERP) `accounts` module.
 
 | | |
 |---|---|
-| **Requested** | Provision a garments-manufacturing tenant; reuse every SCERP feature except HR. |
-| **Source system** | `D:\MyDocuments\MyDocuments\job\Development` — `SCERP.sln` (SCERP.Model / .DAL / .BLL / .Common / .Web) |
-| **Target** | `GenericERP` — **.NET 9** Clean Architecture API + **Angular** (current), EF Core, pooled multi-tenancy, `BusinessTemplate` + `IIndustryProfile` + `[RequiresModule]` |
-| **Nature of the work** | **A rewrite to the modern stack, not a migration.** No SCERP binary, project, DLL or `.cs` file is referenced or carried over. Every feature is re-implemented from its spec on .NET 9 + EF Core + Angular. |
-| **Prepared** | 2026-09-07 · **feature list derived from the SCERP Visual Studio content index** (file & class names only — the source project folders are not on disk) |
-| **Sibling doc** | `docs/saas-platform-plan.md` — the platform this plugs into |
+| **Requested** | Provision a garments-manufacturing tenant; reuse every SCERP feature except **HRM/Payroll** and **Accounting** (use the platform's Feed-ERP accounts instead). |
+| **Source system** | `D:\MyDocuments\MyDocuments\Development\Development` — `SCERP.sln`: `SCERP.Model` / `SCERP.DAL` / `SCERP.BLL` / `SCERP.Common` / `SCERP.Web` (+ `SCERP.Mail`, `SCERP.Message.Service`). **.NET Framework 4.5.1**. |
+| **Target** | `GenericERP` — **.NET 9** Clean Architecture API + **Angular** (current), EF Core code-first, pooled multi-tenancy, `BusinessTemplate` + `IIndustryProfile` + `[RequiresModule]`. |
+| **Nature of the work** | **A rewrite to the modern stack, not a code migration.** No SCERP binary, project, DLL or `.cs` is referenced; each feature is re-implemented from the SCERP source on .NET 9 + EF Core + Angular. |
+| **Prepared** | 2026-09-10 · from a full read of the SCERP source. |
+| **Sibling doc** | `docs/saas-platform-plan.md` — the platform this plugs into. |
 | **Interactive version** | https://claude.ai/code/artifact/afce3336-ea50-497a-8b57-1cce44aef440 |
-
-> **How this feature list was compiled.** The five SCERP project folders are not
-> on disk — only the `.sln` files, `packages/`, and Visual Studio's search index
-> (`.vs/SCERP/FileContentIndex/*.vsidx`, ~52 MB). That index holds every file and
-> class *name* in the codebase. Extracting them gave the 16 areas, ~426 controller
-> names, ~3,810 file names and the `OM_` / `PROD_` / `PLAN_` entity families —
-> and for a codebase named by function (`CostSheetMasterController`,
-> `SewingOutPutProcessController`, `LcCashIncentiveController`) the names *are* the
-> feature inventory, which is what the module map and Appendix are built on. What
-> the index does **not** contain: the code itself — entity fields, SQL, and the
-> business rules (costing formulas, consumption explosion, TNA date maths, SMV,
-> LC accounting entries, report layouts). Those are what every phase below "blocks
-> on: SCERP source".
-
-### Stack — then and now
-
-| | SCERP (legacy) | GenericERP platform (target) |
-|---|---|---|
-| Runtime | .NET Framework 4.x | **.NET 9** |
-| Web | ASP.NET **MVC 5** (server-rendered Razor, 16 Areas, ~590 `.cshtml`) | **REST API** (`[ApiController]`) + **Angular** SPA (current), menu/guards from `/api/me` |
-| ORM | **EF 6, database-first** (`SCERP.edmx` designer) | **EF Core**, code-first, entities are the source of truth |
-| DI | Autofac.Mvc5 | Autofac modules per domain, `BaseService` / `BaseRepository` / `IUnitOfWork` |
-| Auth | ASP.NET Identity + a custom permission/menu Area | Platform JWT + `RoleClaim` + `[Authorize("Permission")]` + `[RequiresModule]` |
-| Tenancy | none — single-tenant per deployment, no `TenantId`, no soft-delete filter, no audit | pooled multi-tenant — `ITenantScoped` + global query filter + `UnitOfWork` audit on every entity |
-| Reporting | **Crystal Reports** (`.rpt`) | EPPlus (Excel) + iTextSharp (PDF) |
-| Grids / UI kit | **Handsontable 0.38**, Bootstrap 3, jQuery | Angular components / data-grid in the tenant shell |
-| Client apps | web + a mobile client | Angular tenant shell (POS mode incl.) + Angular platform console |
-
-Every row is a **replacement**. Nothing on the left is reused as-is; the right
-column is where each feature is rebuilt.
-
----
-
-## Start here — the plain version
-
-You want a garments factory to be able to sign up for this platform and run its
-whole business on it: take a buyer's order, cost it, plan the time-and-action
-calendar, book yarn and fabric, knit / dye / cut / sew / finish, ship it, and
-keep the books — **without** the HR and payroll side, which you already handle
-elsewhere.
-
-**The good news:** the platform is built exactly for this. Adding an industry is
-"new `BusinessTemplate` row + `IIndustryProfile` + seed pack + whichever modules
-fit + only the genuinely new domain logic" — no forking, no per-customer code.
-Inventory, Purchase, Accounting and Reports are already here and a garments
-factory uses them almost unchanged.
-
-**The hard truth:** a garments manufacturer is the **largest vertical the
-platform has taken on** — far bigger than Feed or Pharmacy. Merchandising,
-Commercial (LC / export), Planning (TNA) and shop-floor Production are four
-domains that **do not exist anywhere in `GenericERP` today** — plus quality,
-templated notifications, document attachments and an ad-hoc report builder the
-platform also lacks. SCERP has all of it, but SCERP is a ~3,800-file / ~348
-in-scope-controller ASP.NET MVC5 / EF6 / Crystal Reports application from around
-2015. Its modules cannot be "referenced" or "imported" — every one is
-**re-platformed** the same way the plan re-platforms the Pharmacy POS: entities
-to EF Core, business logic to `BaseService`, screens to Angular, reports to the
-PDF/Excel stack, every entity through the Phase-0 tenancy pipeline. "Reuse every
-feature except HR" is real and this plan covers all of it (see the Appendix) —
-but it is an **18–30 engineer-month programme**, not a template tweak.
-
-**This document** inventories what SCERP contains, maps each part to a platform
-module, defines the `garments` template, and lays out a phased way to get there —
-plus the two things that block starting: the SCERP source code, and a decision on
-how aggressively to port vs. integrate.
 
 ---
 
 ## Contents
 
-- [00 · What blocks starting today](#00--what-blocks-starting-today)
-- [01 · What SCERP is](#01--what-scerp-is)
-- [02 · Reuse map — SCERP area → platform module](#02--reuse-map--scerp-area--platform-module)
-- [03 · The `garments` business template](#03--the-garments-business-template)
-- [04 · "Except HR" — where the cut actually falls](#04--except-hr--where-the-cut-actually-falls)
-- [05 · Porting strategy](#05--porting-strategy)
-- [06 · Data & tenant strategy](#06--data--tenant-strategy)
-- [07 · Phased roadmap](#07--phased-roadmap)
-- [08 · Effort & sequencing](#08--effort--sequencing)
-- [09 · Risks & guardrails](#09--risks--guardrails)
-- [10 · What I need from you](#10--what-i-need-from-you)
+- [00 · Executive summary](#00--executive-summary)
+- [01 · What SCERP is — measured](#01--what-scerp-is--measured)
+- [02 · The accounting decision](#02--the-accounting-decision)
+- [03 · Reuse map — SCERP area → platform module](#03--reuse-map--scerp-area--platform-module)
+- [04 · The `garments` business template](#04--the-garments-business-template)
+- [05 · "Except HRM and Accounts" — the precise cut](#05--except-hrm-and-accounts--the-precise-cut)
+- [06 · Porting strategy — SCERP patterns → platform patterns](#06--porting-strategy--scerp-patterns--platform-patterns)
+- [07 · Data & tenant strategy](#07--data--tenant-strategy)
+- [08 · Phased roadmap](#08--phased-roadmap)
+- [09 · Effort](#09--effort)
+- [10 · Risks & guardrails](#10--risks--guardrails)
+- [11 · What I need from you](#11--what-i-need-from-you)
+- [Appendix · Coverage check](#appendix--coverage-check)
 
 ---
 
-## 00 · What blocks starting today
+## 00 · Executive summary
 
-**1. The SCERP source is not on disk.** `D:\MyDocuments\MyDocuments\job\Development`
-contains only the solution files (`SCERP.sln`, `SCERP_2015.sln`, …), the
-`packages/` folder and the `.vs/` content index. The five project folders it
-references — `SCERP.Model`, `SCERP.DAL`, `SCERP.BLL`, `SCERP.Common`,
-`SCERP.Web` — are **missing**. Everything below is reconstructed from the Visual
-Studio file-content index (file names and identifiers only), so it is a reliable
-map of *what* SCERP does but tells us nothing about *how* — entity shapes, SQL,
-business rules, report layouts. **Nothing can be ported until the source (and the
-database / `SCERP.edmx`) is available.**
+**SCERP is a complete, mature RMG ERP** — order-to-ship for a knit/woven garments
+factory: buyer → inquiry → sample/approval → style → buyer order → cost sheet →
+consumption → booking → LC/import → TNA plan → knit/dye/cut/sew/finish → quality
+→ shipment/export. Measured: **~437 controllers, ~384 business-logic managers,
+~417 repositories, ~1,050 EF entities (353 `DbSet`s, a 54 k-line EDMX), ~2,900
+Razor views, ~477 report definitions.** ASP.NET MVC 5 / EF 6 database-first /
+Crystal + RDLC / Handsontable / Bootstrap 3, on .NET Framework 4.5.1.
 
-**2. A strategy decision.** SCERP is genuinely large (see §01). There are two
-legitimate paths and they need your call before design starts — see §06.
+**Excluding HRM/Payroll and Accounting leaves ~291 controllers in scope** across
+Merchandising (105), Production (43), Inventory (52), Commercial (24), Planning
+(21), Common (15), and the small Tracking / Task / Maintenance / CRM / MIS /
+Marketing areas — plus a handful of org-tree / skill-matrix / calendar entities
+that physically live in the HRM model but are Planning/Config concerns.
+
+**The accounting exclusion is clean.** SCERP's shop-floor, merchandising,
+commercial and inventory managers **do not post to the general ledger** — no
+auto-vouchers, no GL coupling. Accounting in SCERP is a separate manual
+voucher-entry system (`Acc_VoucherMaster`/`Detail`, `Acc_GLAccounts`, cost
+centres). The only cross-module accounting link is Payroll → salary vouchers,
+and Payroll is excluded anyway. So SCERP's entire `Acc_*` model (33 entities, 26
+controllers, its `AccountingManager`) is **dropped**, and the platform's
+Feed-ERP `accounts` module is used unchanged, with **thin adapter services** for
+the four money events garments produces (style payment received, export proceeds,
+cash incentive, supplier/LC settlement).
+
+**This is a multi-quarter re-platform, not a template tweak.** Realistic: a
+**merchandiser-to-cost-sheet MVP in ~4–6 months** (G0–G2), **full in-scope
+feature parity in ~16–26 engineer-months**. The one lucky break: SCERP entities
+already carry a `string CompId` company discriminator on every row, which maps
+directly onto the platform's `TenantId` during migration.
 
 ---
 
-## 01 · What SCERP is
+## 01 · What SCERP is — measured
 
-A full **RMG (ready-made garments) manufacturing ERP** covering the whole
-order-to-ship lifecycle. From the content index:
+| | Count | Notes |
+|---|---:|---|
+| Controllers | ~437 | ~291 in scope after excluding HRM (96) + Payroll (10) + Accounting (26) + User Management (9) |
+| BLL "Manager" classes | ~384 | ctor-injected repositories, `PortalContext.CurrentUser.CompId` for company scope, `System.Transactions.TransactionScope` for multi-table writes |
+| "Repository" classes | ~417 | `IRepository<T>` generic + per-entity repos with hand-written LINQ / SQL |
+| EF entity types | ~1,050 | EF 6 **database-first** — a 54 k-line `SCERP.edmx`, 353 `DbSet`s in `SCERPDBContext` |
+| Model `.cs` files | ~721 | generated partial entities + hand ViewModels + `*_Result` (stored-proc) types |
+| Razor views | ~2,893 | server-rendered; **Handsontable** grids for matrices/cost sheets; jQuery |
+| Report definitions | ~477 | ~451 **RDLC** (Microsoft.Reporting) + ~26 **Crystal** (`.rpt`) |
+| Stand-alone services | 2 | `SCERP.Mail` (SMTP worker) + `SCERP.Message.Service` (Windows service — email + SMS on a timer, own EDMX) |
+| Runtime | — | **.NET Framework 4.5.1**, ASP.NET **MVC 5**, Autofac.Mvc5, AutoMapper, Bootstrap 3 |
 
-| Metric | Count (approx.) |
-|---|---|
-| MVC areas | 16 (+ 2 stand-alone services: SMS, email) |
-| Controllers | 426 total — **~348 in scope**, ~78 HR/Payroll excluded |
-| BLL "Manager" classes | ~760 |
-| "Repository" classes | ~810 |
-| ViewModels | ~330 |
-| Razor views (`.cshtml`) | ~590 |
-| Total C# files | ~3,810 |
-| **Tech stack** | ASP.NET **MVC 5**, **EF 6 database-first (`SCERP.edmx`)**, Autofac.Mvc5, AutoMapper 3, **Crystal Reports**, **Handsontable 0.38** grids, Bootstrap 3, SignalR (`ProductionHub`), a **mobile client** (consumes `MobileAppsReport`) |
+### The pattern, from the source
 
-### The 16 areas — full inventory
+```
+Controller (Area)  →  IManager (BLL)  →  IRepository<T> / I…Repository (DAL)  →  SCERPDBContext (EF6 EDMX)
+     Crystal/RDLC        TransactionScope        LINQ + raw SQL + SPs
+     Handsontable        PortalContext.CurrentUser.CompId   (ambient company + user)
+```
 
-Every non-HR area is in scope. Controller counts are from the VS index and
-overlap (some controllers touch two areas); they size effort, not a shopping list.
+- **Every business entity has `string CompId`** — SCERP is already multi-company
+  within one deployment. Filtering is manual (`x.CompId == _compId` in every
+  manager query).
+- **PKs are `long` / `int`; foreign keys are frequently `string`** (e.g.
+  `OM_BuyerOrder.MerchandiserId`, `BuyerRefId` are strings).
+- Controllers are large (400–800 lines) and mix data access, PDF/Excel/Crystal
+  generation, and view-model shaping.
+- No soft-delete filter, no audit trail, no row-level tenancy enforcement — a
+  `CompId` mismatch is only caught by the manager remembering to filter.
 
-| Area | Ctrls | What it does — the complete feature set | Disposition |
+### The 16 areas
+
+| Area | Ctrls | In scope? | What it does |
 |---|---:|---|---|
-| **Merchandising** | ~86 | Buyer / buyer client / contact / agent / consignee / party; inquiry; **style** (colour / size grid); **buyer order** (colour × size); order type / season / brand / category; **sample** (development → submission → approval, by size & colour) + sample type & documents; **lab dip** (development → submission → approval → options → documents); **embellishment** (type → development → submission → approval → documents); **trims & accessories** (type → development → submission → approval → history → documents); **spec sheet**; **cost sheet** (template, master, costing head, cost definition, multi-layer cost centre); **consumption** (fabric / yarn / thread / component, per style, with cost); style payment; order document | **New** — `garments-merchandising` + `garments-costing` |
-| **Commercial** | ~24 | Master **LC**, **Back-to-Back LC** (+ BB-LC purchase, cash LC, cash BB-LC, cash-LC dyes/chemical), LC-order / LC-style; **import** + import details; **export**; **shipment** + style shipment + buy-order-shipment; **packing credit**, packing / package / shipping information; port of loading; **cash incentive**; stamp amount; bank advice; LC/BB-LC info data | **New** — `garments-commercial` |
-| **Planning** | ~29 | **TNA** (time & action calendar, horizontal view, template, group update, responsible person), **process** (sequence, template, sequence default, group sub-process, key process, sub-process), **production line** & daily line layout, **target production**, **capacity**, **efficiency rate**, working-day calendar, knitting / collar-cuff / yarn-dyeing **programs**, fabric sub-process delivery/receive challan | **New** — `garments-planning` |
-| **Production** | ~69 | **Knitting** (batch, roll, roll issue, machine, processor, program, order program, collar-cuff program/receive, grey delivery gatepass, grey issue/register, general yarn delivery); **Dyeing** (job order, SP challan, dyeing factory, dyes/chemical register, yarn-dyeing program, re-dyeing receive/issue, fabric register, fabric manufacturing cost); **Cutting** (cutting, cutting sequence, cutting tag, cut bank, cut-fabric reject, lay / roll / part / bundle cutting, grading, cutting-process style-active); **Sewing** (sewing, input process, output process, standard-minute value, key process, group sub-process); **Finishing** (finishing, iron finishing, poly finishing); **Embroidery** (process, receive); **Printing** (process, print receive); **Subcontract** (fab sub-process delivery/receive); reject adjustment, machine interruption, non-productive time; **batch / batch-roll / lot** tracking; SignalR production board | **New** — `garments-production` |
-| **Quality** | ~4+ | **Quality certificate** + detail, **specification sheet**, in-line quality — cutting grading, cut-fabric reject, sewing reject, reject adjustment; AQL / defect capture at each process | **New** — `garments-quality` (some checks live inside `garments-production`) |
-| **Inventory** | ~76 | **Stores** — yarn, grey fabric, finish fabric, accessories, housekeeping/consumables, item store / type / mode; **item master** (inventory item, yarn count, fabric type); **material** requisition → issue → receive (general / advance / batch-wise / accessories / collar-cuff / fabric / yarn); **GRN** / goods-receiving-note / receive-against-PO; **returnable challan** (issue / receive / master); fabric & yarn return; store purchase & requisition; daily fabric receive; **booking** (bulk / yarn / accessories); inventory approval status & authorised person | **Reuse + extend** — `inventory` |
-| **Accounting** | ~26 | Chart of accounts, **control accounts** + reparent (GL head group change / by parent, control change by parent, GL account hidden); **voucher entry** — cash / bank / journal / contra / common + voucher list & segregation to cost centre; **cost centre** (single + multi-layer); **opening balance**; **financial period / year**; **bank reconciliation** + list; **depreciation chart**; **multi-currency** (AccCurrency, currency common, currency-common vouchers); advanced income tax; bank account type | **Reuse + extend** — `accounts` (opening balance, GL reparent, multi-currency vouchers, AIT are additions) |
-| **Maintenance** | ~10 | **Machine** master + action + log, **machine interruption**, **non-productive time**, down-time category, **maintenance report**; **vehicle** master + vehicle gate entry | **New** — `maintenance` (add-on module) |
-| **CRM / Marketing** | ~9 | Marketing inquiry, marketing institute, sales contact, buyer client, feedback, marketing reports, visitor report | **New** — `crm` (add-on module) |
-| **Task Management** | ~8 | Task + status + type, assignee, follow-up, subject, **notification board** + recipients | **New** — `tasks` (add-on module) |
-| **Tracking** | ~7 | **Order tracking board** — order information, ready status, sending status, confirmation media, **process-status auto-mail**, approval status | **New** — folds into `garments-merchandising` (order board) + notifications |
-| **MIS** | ~25 | MIS dashboard, MIS report, MIS commercial report, **mobile-apps report** (a mobile client exists), **custom report** + **custom SQL query** (ad-hoc report builder), user report, style-costing report, production report, maintenance report, visitor report, report image | **Reuse + extend** — `report` (dashboards, the ad-hoc SQL builder, mobile-report API) |
-| **Common** | ~36 | **Geography** — country → state → city → district → police station, port of loading; **org tree** — company / companies / company sector / active company sector / company organogram / factory / dyeing factory / branch / branch unit / branch-unit-department / department / department-line / department-section / unit / unit-department / section / lines / head of department; **lookups** — measurement unit, unit, payment term(s), order type, yarn count, fabric type, generic name, colour, size, supplier company, party | **Merge** — `configuration` (shared system data + tenant masters) |
-| **Common — Email/SMS** | +2 solutions | **`SCERP.Message.Service`** (SMS gateway worker) + **`SCERP_2015_EmailService`** (email worker); email template + template-user + email user, mail send, process-status mail | **New** — `notifications` (templated email/SMS + event triggers; platform has raw `MailService`/`SmsService` only) |
-| **Document management** | ~10 | `Document`, common file upload, order / sample / lab-dip / embellishment / trims documents, project document info, report image, sticker/label | **New** — cross-cutting attachment service (platform has `Picture` only) |
-| **Security / Gate** | ~4 | **Gate pass**, **vehicle gate entry**, **visitor gate entry**, grey-delivery gatepass | **New** — `gate` (thin add-on) |
-| **User Management** | ~20 | Users, user role, user activity, department- / employee-level permissions, user–merchandiser & user–TNA-responsible mapping, authorization type, authorised person, modules / module feature, entitlements, menu tree | **Replace** — platform JWT + `RoleClaim` + `[RequiresModule]` + `/api/me`; keep only the user–merchandiser / user–line mapping concept |
-| **HRM + Payroll** | ~78 | Employee master + 12 sub-records; attendance (daily, in/out, manual, machine import, OT); **leave** (self / other / paper / approval / recommendation / types / settings / maternity / short / outstation / exception day); **salary** (setup / mapping / process / search / increment / advance / grade-% / excluded); bonus, attendance bonus, penalty, OT (settings / eligible / line hours); provident fund, gratuity, loan; job-card salary processing; holiday setup; work shift / roster / group; quit type; HR reporting hierarchy | **EXCLUDED** — see §04. **Skill matrix moves to Planning; a thin worker/line master and the org tree are kept.** |
-
-### The garments-specific "spine"
-
-The parts a garments factory cannot run without and that the platform has to
-grow:
-
-```
-Buyer ─▶ Inquiry ─▶ Sample dev → submission → approval
-                     (+ lab dip · embellishment · trims & accessories · spec sheet — each: dev → submit → approve)
-                          │
-                          ▼
-        Style ─▶ Buyer Order (colour × size grid) ─▶ Cost Sheet (template · costing heads) ─▶ approval
-                          │                              │
-                          ▼                              ▼
-        Consumption (fabric / yarn / thread / component, per style, with cost)
-                          │
-                          ▼
-        Bulk / Yarn / Accessories Booking ─▶ Yarn / Fabric Order ─▶ LC / BB-LC ─▶ import
-                          │
-                          ▼
-        TNA calendar ─▶ Planning (process sequence · line layout · target · capacity · efficiency)
-                          │
-                          ▼
-  Knitting ─▶ Dyeing ─▶ Cutting (lay / roll / bundle / tag / grading) ─▶ Sewing (input/output, SMV)
-        ─▶ Embroidery / Print ─▶ Finishing (iron / poly) ─▶ Finish-fabric / garment store
-        │        │
-        │        └─▶ Quality (certificate · spec sheet · reject/AQL at each process)
-        └─▶ Subcontract process delivery / receive
-                          │
-                          ▼
-        Shipment ─▶ Export docs / packing credit ─▶ cash incentive ─▶ Accounting
-              │
-              └─▶ Order tracking board · process-status auto-mail  ·  Documents attach at every step
-```
+| **Merchandising** | 105 | ✅ | buyer / agent / consignee / style / **buyer order (colour × size)** / order type / season / brand; **sample** + **lab-dip** + **embellishment** + **trims & accessories** (each: development → submission → approval, with size/colour detail + history + documents); **spec sheet**; **cost sheet** (template, master, costing head, cost definition, multi-layer cost centre); **consumption** (fabric / yarn / thread / component) with cost; style payment tracking |
+| **Production** | 43 | ✅ | knitting (batch / roll / roll-issue / machine / processor / program / grey register & issue / grey-delivery gatepass); dyeing (job order / SP challan / dyes-chemical register / re-dyeing); cutting (lay / roll / part / bundle / tag / grading / cut-bank / reject); sewing (input / output process, **SMV**, key process); finishing (iron / poly); embroidery / printing (+ receive); subcontract (fab sub-process delivery / receive); batch / roll / lot; reject adjustment; `ProductionHub` (SignalR) |
+| **Inventory** | 52 | ✅ | stores (yarn / grey / finish fabric / accessories / housekeeping); item master; **material requisition → issue → receive** (general / advance / batch-wise / accessories / collar-cuff / fabric / yarn); **GRN** / receive-against-PO; **returnable challan** (issue / receive / master); fabric & yarn return; store purchase & requisition; daily fabric receive; **booking** (bulk / yarn / accessories); approval status & authorised person |
+| **Commercial** | 24 | ✅ | Master **LC**, **BB-LC** (+ purchase, cash LC, cash BB-LC, cash-LC dyes/chemical), LC-order / LC-style; **import** + details + docs; **export** + details; **shipment**; **packing credit**, packing list; port of loading; **cash incentive**; bank advice; commercial bank head; LC/BB-LC info data |
+| **Planning** | 21 | ✅ | **TNA** (calendar, horizontal, template, group update, responsible person); **process** (sequence, template, sequence default, key/sub/group sub); **production line** & daily line layout; **target production**; capacity; programs (knitting / collar-cuff / yarn-dyeing) |
+| **Common** | 15 | ✅ | measurement unit, payment terms, order type, yarn count, fabric type, generic name, colour, size, supplier company, party, currency master, geography (some) |
+| **Tracking** | 8 | ✅ | order tracking board — order info, ready / sending status, confirmation media, process-status auto-mail, approval status |
+| **Task Management** | 7 | ✅ | task + status + type, assignee, follow-up, subject, notification board |
+| **Maintenance** | 4 | ✅ | machine action / log / interruption, down-time category, maintenance report, vehicle |
+| **CRM** | 4 | ✅ | buyer client, marketing inquiry (CRM side), feedback |
+| **MIS** | 5 | ✅ | MIS dashboard / report / commercial report, **mobile-apps report** API, **custom SQL query** report builder |
+| **Marketing** | 3 | ✅ | marketing inquiry, institute, sales contact |
+| **Accounting** | 26 | ❌ | CoA, control accounts, voucher entry (cash/bank/journal/contra/common), voucher list & cost-centre segregation, cost centre (single + multi-layer), opening/closing balance, financial period, bank reconciliation, depreciation chart, multi-currency, advanced income tax → **replaced by the platform `accounts` module** |
+| **User Management** | 9 | ❌ | users / roles / permissions / menu / module-feature / department- & employee-level permission → **replaced by platform JWT + `RoleClaim` + `[RequiresModule]` + `/api/me`** |
+| **HRM** | 96 | ❌ | employee master + ~30 sub-records, attendance, leave, job card, work shift/group/roster, holiday admin, skill matrix*, org tree*, efficiency*, geography*, HR lookups* → **excluded** (\* = the starred pieces move out — see §05) |
+| **Payroll** | 10 | ❌ | salary setup / mapping / process / search / increment / advance, bonus, penalty, OT, PF, gratuity, loan, pay slip → **excluded** |
 
 ---
 
-## 02 · Reuse map — SCERP area → platform module
+## 02 · The accounting decision
+
+**Your instruction — "for accounts, follow the existing Feed ERP system" — is
+both correct and cheap to execute, because SCERP's accounting is not wired into
+anything else.**
+
+### What the source shows
+
+- **No non-accounting BLL manager references `Acc_VoucherMaster`, `Acc_GLAccounts`,
+  `Acc_CostCentre` or any GL-posting call.** Merchandising, Production, Inventory,
+  Commercial and Planning managers do their operational writes and stop.
+- The **only** cross-module accounting coupling is `Payroll →
+  EmployeeSalaryProcessConfirmManager` (posts salary vouchers) and
+  `SalaryMappingController` (maps salary heads to GL) — both in the excluded set.
+- `Acc_StylePayment` (referenced from `Merchandising/StylePaymentController`) is a
+  **payment log**, not a ledger posting — it records *"buyer paid X against this
+  order/style on this date"* with no debit/credit lines.
+- `CommImport` / LC entities are **document trackers** — LC value, docs value,
+  invoice number — with no journal side.
+
+### What this means
+
+| Drop from SCERP | Use from the platform instead |
+|---|---|
+| `Acc_*` model — `VoucherMaster` / `VoucherDetail` / `GLAccounts` / `ControlAccounts` / `CostCentre` / `CostCentreMultiLayer` / `Currency` / `FinancialPeriod` / `OpeningClosing` / `BankReconcilation*` / `DepreciationChart` / `StylePayment` (33 entities) | `Application.Core/Entities` — `Account` (the shared CoA skeleton), `AccountType`, `CostCenter`, `Currency`, `JournalEntry`, `VoucherEntry`, `PaymentVoucher`, `ReceiveVoucher`, `ReceivePayment` / `ReceivePaymentAgainstSale`, `FundTransfer`, `Transaction`, `BankAccount` |
+| Accounting Area (26 controllers) + `AccountingManager` | `Application.Api/Controllers` accounts + report controllers, `AccountService` / `AccountReportPdfService` — already `[RequiresModule("accounts")]`, already the "keystone asset" per the SaaS plan |
+| SCERP cost centres (multi-layer) | `CostCenter` (verify the platform's tree depth covers the garments layers; extend if not — small) |
+| SCERP multi-currency vouchers | platform `Currency` + voucher lines; garments needs FX on the buyer order (`OM_BuyerOrder.CurrencyId` / `Exchange`) — that stays operational, settled through platform vouchers |
+
+### The adapter seams (thin services in `garments-*`, not a module)
+
+Garments produces four kinds of money event. Each becomes a small service that
+calls the existing accounts services — no new ledger:
+
+| Event | Source module | Posts through |
+|---|---|---|
+| Buyer payment received against an order/style | `garments-merchandising` (was `StylePayment`) | `ReceivePayment` / `ReceivePaymentAgainstSale` (AR) |
+| Export proceeds realised on a shipment | `garments-commercial` | `ReceiveVoucher` / `ReceivePayment` (AR + bank) |
+| Cash incentive received | `garments-commercial` | `ReceiveVoucher` (other income) |
+| LC / BB-LC settlement, import payment, subcontract bill | `garments-commercial` / `garments-production` | `PaymentVoucher` / `SupplierPayment` (AP) |
+
+Everything else stays operational (LC docs, import tracking, cost sheets) and
+never touches the ledger — exactly as in SCERP today.
+
+### Chart-of-accounts
+
+The platform ships a shared CoA skeleton (`ITenantSharable`, ~55 rows). The
+garments seed pack adds a **CoA overlay** — WIP-by-process, LC margin, cash-
+incentive receivable, packing-credit liability, subcontract-charges — as
+tenant-scoped children under the shared roots.
+
+---
+
+## 03 · Reuse map — SCERP area → platform module
 
 Platform catalog today: `configuration · inventory · purchase · sales ·
-production · accounts · report`. The garments vertical **reuses 4, extends 2, and
-adds a `garments-*` family + 4 cross-cutting add-ons** — nothing from SCERP is
-dropped except HR:
+production · accounts · report`. Garments **reuses 4, extends 2, adds a
+`garments-*` family + cross-cutting add-ons**, and **replaces 3** (accounts,
+user-management, HRM):
 
-| Module | Key | Source | Disposition |
+| Module | Key | Disposition | From SCERP |
 |---|---|---|---|
-| Configuration & masters | `configuration` | SCERP Common (geography tree, org tree, lookups) | **Reuse + extend** |
-| Inventory & stock | `inventory` | SCERP Inventory (stores, requisition/issue/receive, GRN, returnable challan, booking, housekeeping) | **Reuse + extend** |
-| Purchase | `purchase` | SCERP store purchase / GRN | **Reuse** |
-| Accounting | `accounts` | SCERP Accounting (+ opening balance, GL reparent, multi-currency vouchers, AIT, depreciation) | **Reuse + extend** |
-| Reports & analytics | `report` | SCERP MIS (dashboards, ad-hoc SQL builder, mobile-report API, all report packs) | **Reuse + extend** |
-| Merchandising | `garments-merchandising` | SCERP Merchandising + Tracking (buyer order colour×size, style, all sample / lab-dip / embellishment / trims approval workflows, spec sheet, order tracking board) | **New** |
-| Costing | `garments-costing` | SCERP cost sheet + consumption (templates, costing heads, cost definition, per-style consumption & cost, margin) | **New** |
-| Commercial / trade | `garments-commercial` | SCERP Commercial (Master LC, BB-LC, cash LC, import, export, shipment, packing credit, cash incentive, port of loading) | **New** |
-| Planning | `garments-planning` | SCERP Planning + skill matrix (TNA, process sequence/template, line layout, target, capacity, efficiency, programs, working-day calendar, **operator skill matrix**) | **New** |
-| Production floor | `garments-production` | SCERP Production (knitting, dyeing, cutting, sewing/SMV, finishing, embroidery, printing, subcontract, batch/roll/lot, reject, machine interruption) | **New** |
-| Quality | `garments-quality` | SCERP Quality (certificate, spec sheet, AQL/reject at each process) | **New** |
-| Maintenance | `maintenance` | SCERP Maintenance (machine action/log, interruption, down-time, vehicle) | **New add-on** |
-| CRM & marketing | `crm` | SCERP CRM/Marketing (marketing inquiry, institute, sales contact, feedback) | **New add-on** |
-| Tasks & notifications | `tasks` + `notifications` | SCERP Task Management + the SMS & Email service projects (task board, templated email/SMS, process-status auto-mail, notification board) | **New add-on** |
-| Gate & security | `gate` | SCERP gate pass / vehicle gate / visitor gate | **New add-on (thin)** |
-| Document attachments | *(cross-cutting service)* | SCERP Document / file upload / order-sample-labdip-trims documents | **New** — a tenant-scoped attachment store used by every module |
+| Configuration & masters | `configuration` | **Reuse + extend** | Common area + the org tree / geography / lookups that sit in the HRM model |
+| Inventory & stock | `inventory` | **Reuse + extend** | Inventory area — garment stores, requisition/issue/receive variants, returnable challan, booking, housekeeping |
+| Purchase | `purchase` | **Reuse** | store purchase / GRN against PO |
+| **Accounting** | `accounts` | **Reuse unchanged** — the platform's Feed-ERP module | *(SCERP `Acc_*` dropped; adapter seams only — §02)* |
+| Reports & analytics | `report` | **Reuse + extend** | MIS — dashboards, the ~477 report definitions (rebuilt), the ad-hoc SQL builder, the mobile-report API |
+| Merchandising | `garments-merchandising` | **New** | Merchandising + Tracking — buyer order (colour × size), style, all approval workflows, spec sheet, order board, style-payment (→ AR adapter) |
+| Costing | `garments-costing` | **New** | cost-sheet template & master, costing heads, cost definition, per-style consumption + cost, margin |
+| Commercial / trade | `garments-commercial` | **New** | Commercial — Master LC, BB-LC, import, export, shipment, packing credit, cash incentive, port of loading (+ AP/AR adapters) |
+| Planning | `garments-planning` | **New** | Planning + skill matrix / efficiency / working-day calendar (from HRM model) |
+| Production floor | `garments-production` | **New** | Production — knit / dye / cut / sew (SMV) / finish / embroidery / print / subcontract / batch-roll-lot / reject |
+| Quality | `garments-quality` | **New** | quality certificate, spec-sheet check, AQL / reject at each process |
+| Notifications | `notifications` | **New** | `SCERP.Mail` + `SCERP.Message.Service` — templated email/SMS + event triggers + process-status auto-mail (platform has raw `MailService`/`SmsService` only) |
+| Document attachments | *(cross-cutting service)* | **New** | SCERP `*Document` folders — files on order / style / sample / lab-dip / trims |
+| Maintenance · CRM · Tasks · Gate | `maintenance` · `crm` · `tasks` · `gate` | **New add-ons** | Maintenance / CRM / Marketing / Task Management / gate-pass |
+| — User Management | *(none)* | **Replaced** | platform JWT + `RoleClaim` + `[RequiresModule]` + `/api/me` |
+| — HRM / Payroll | *(none)* | **Excluded** | your external HR system + a production-output / roster integration seam (§05) |
 
 Dependencies: `garments-*` all `DependsOn = "inventory"`; `garments-costing` on
 `garments-merchandising`; `garments-planning` on `garments-merchandising`;
 `garments-production` on `garments-planning,garments-merchandising`;
 `garments-quality` on `garments-production`; `garments-commercial` on
-`garments-merchandising,purchase`.
-
-**Replaced, not ported:** SCERP's User Management area (users / roles /
-permissions / menu / module-feature) — the platform's JWT + `RoleClaim` +
-`[RequiresModule]` + `/api/me`-driven menu already does this and does it
-multi-tenant. Keep only the *user → merchandiser* and *user → line* mapping
-concept as data.
+`garments-merchandising,purchase,accounts`.
 
 ---
 
-## 03 · The `garments` business template
-
-Mirrors how `pharmacy` / `feed` are defined (`BusinessTemplateConfiguration` +
-`IndustryProfiles`):
+## 04 · The `garments` business template
 
 ```csharp
 new BusinessTemplate {
@@ -253,343 +230,285 @@ new BusinessTemplate {
 }
 ```
 
-**`GarmentsProfile : IIndustryProfile`** — what the industry actually changes in
-shared behaviour:
+**`GarmentsProfile : IIndustryProfile`** (mirrors `PharmacyProfile` / `FeedProfile`):
 
 | Member | Garments behaviour |
 |---|---|
-| `Uom` | Fabric in Kg / yds / metres, yarn in lbs / cones, garments in dozens / pcs — a richer `IUomPolicy` than feed's single bags↔Kg |
-| `Sales` | No walk-in sales; "sale" = shipment against a buyer order; revenue recognised on shipment / export realisation |
-| `Reports` | RMG report pack — cost sheet, TNA status, production efficiency (SMV), line target vs. actual, shipment / export register |
-| `Dashboard` | Order book, WIP by process, on-time-delivery %, machine / line utilisation, LC exposure |
+| `Uom` | Fabric in Kg / yds / metres, yarn in lbs / cones, garments in dozens / pcs — richer `IUomPolicy` than feed's single bags↔Kg; `OM_BuyerOrder` already carries `GUOMId` / `GUOMConv` / `BasUnit` |
+| `Sales` | No walk-in sale; "sale" = shipment against a buyer order; revenue on shipment / export realisation; buyer order carries currency + exchange rate |
+| `Reports` | RMG report pack — cost sheet, TNA status, sewing efficiency (SMV), line target vs. actual, shipment / export register, LC exposure |
+| `Dashboard` | Order book, WIP by process, on-time-delivery %, line / machine utilisation, LC exposure |
 
-**Seed pack** (provisioning steps, on top of the existing financial-year / roles /
-units / store / owner-user): garment UOMs, a default costing-head set, a default
-TNA template, standard process sequence (knit → dye → cut → sew → finish →
-ship), one production line, a garments chart-of-accounts overlay (WIP by process,
-LC margin, cash-incentive receivable).
-
----
-
-## 04 · "Except HR" — where the cut actually falls
-
-The HRM + Payroll areas are **~78 controllers**. But those areas also hold three
-things that Planning and Production genuinely need, and that are **not payroll** —
-so they move out of the excluded set rather than being lost:
-
-| Moves out of "HR" — kept | Goes to |
-|---|---|
-| **Operator skill matrix** — skill sets, skill operation, skill-set category / difficulty, skill-matrix grade / process | `garments-planning` — line balancing and process assignment depend on it |
-| **Org tree** — company / branch / branch-unit / department / department-line / department-section / section / line / unit | `configuration` — production, inventory stores and accounting cost centres all reference it |
-| **Working-day / holiday calendar** (the calendar, not leave admin) | `garments-planning` — TNA date arithmetic needs it |
-| A thin **worker / operator master** — name, card no, line, grade, skill — a subset of the platform's existing `Employee` | `configuration` |
-
-**Genuinely dropped** (kept in your external HR system):
-
-- Employee master's 12 sub-records — address, appointment, bank, company info, documents, education, entitlement, family, follow-up, job type, personal skill, type
-- Attendance — daily, in/out edit & process, manual, manual OT, machine-attendance import, job card (attendance side)
-- Leave — self / other-staff / paper-based / approval / recommendation / types / settings / maternity / short / outstation duty / exception day / general-day setup
-- Salary — setup / mapping / process / search / increment letter / advance / grade-% / excluded-from-process
-- Compensation — bonus, attendance bonus + settings, penalty + type, OT settings / eligible / line hours, provident fund, gratuity, loan given / return, salary advance
-- Roster — work shift / roster / group, holiday setup, individual holiday, branch-unit work shift
-- HR reporting hierarchy (organogram used for leave approval), quit type, appraisal, employee card print
-
-**One decision for you:** *piece-rate.* Sewing output is captured per line / per
-operator (`SewingOutputProcess` — kept, it is production data). The **salary
-calculation** off that output is dropped. Your external payroll reads the output.
-Confirm that split, and whether **loan given / return** is an employee-loan (HR,
-drop) or an inter-party loan (accounts, keep).
-
-**Integration seam** — built into `garments-production` from day one, not
-retrofitted:
-
-- `POST /garments/production-output` consumed by nothing internally — a **webhook /
-  export** your payroll polls: line × operator × style × process × qty × date × SMV.
-- `PUT /garments/worker-roster` — your HR pushes the active worker list (id, name,
-  card, line, grade, skill, active-from/to) so Planning always has a current
-  headcount without owning HR.
-- Leave affects capacity: your HR also pushes **daily availability** (line × date ×
-  present count) or the planning capacity numbers are entered manually.
+**Seed pack** (added to `ProvisioningService`, on top of financial-year / roles /
+units / store / owner-user): garment UOMs + conversions, default costing-head
+set, default TNA template, standard process sequence (knit → dye → cut → sew →
+finish → ship), one production line, the garments CoA overlay (§02).
 
 ---
 
-## 05 · Porting strategy
+## 05 · "Except HRM and Accounts" — the precise cut
 
-Same discipline as the plan's "re-platform, not a lift" for the POS — except here
-there is nothing to lift, since the source is unavailable and the stacks don't
-overlap. **"Port" here means: read the SCERP spec (once the source is in hand),
-re-implement the feature on .NET 9 + EF Core + Angular.** The `→` column is the
-target; the left column is thrown away.
+### Accounting — see §02. All `Acc_*` dropped; platform `accounts` used; four adapter seams.
 
-| SCERP (.NET Framework MVC5) | → | `GenericERP` (.NET 9 + Angular) |
+### HRM — what moves out, what's dropped
+
+The HRM model is 137 entities. Several are **not** HR and are needed by
+Planning / Production / Configuration — they move out rather than being lost:
+
+| Moves out of HRM — kept | Goes to | Why |
 |---|---|---|
-| EF 6 **database-first** (`SCERP.edmx`) | | EF Core **code-first**, entities as source of truth (`Application.Core/Entities`), hand-written configs, one migration per change — the repo already works this way since `InitialBaseline` |
-| ~810 `*Repository` + ~760 `*Manager` (BLL) | | `BaseService<TEntity, …>` + `BaseRepository` + `IUnitOfWork`; one Autofac module per garments sub-domain. Most SCERP repos are thin CRUD → collapse into `BaseService`; port only the real logic (costing calc, consumption explosion, TNA date maths, SMV) |
-| MVC 5 controllers returning views, 16 **Areas** | | `[ApiController]` REST controllers under `Application.Api/Controllers/Garments/`, each class gated by `[RequiresModule("garments-…")]` |
-| **Crystal Reports** (`.rpt`) | | EPPlus (Excel) + iTextSharp (PDF) — the stack the platform already uses; every report is a rebuild, costed individually |
-| **Handsontable** grids (colour/size matrices, cost sheets, line layout) | | Angular data-grid components in the tenant shell; the colour × size order grid and the cost sheet are the two hardest UI pieces |
-| ASP.NET Identity + custom menu/permission area | | Platform JWT + `RoleClaim` + `[Authorize("Permission")]` + `/api/me`-driven menu — **do not port** SCERP's User Management |
-| No `TenantId`, no soft-delete filter, no audit | | Every ported entity gets `TenantId` + `ITenantScoped` (or `ITenantSharable` for system lookups), the global query filter, and the `UnitOfWork` audit / soft-delete pipeline — non-negotiable, same as Phase 0 |
-| String / int PKs, `SCERPDBContext` | | `Guid` PKs, the single pooled `DataContext` with the tenancy partial |
+| Org tree — `Company`, `Branch`, `BranchUnit`, `BranchUnitDepartment`, `Department`, `DepartmentLine`, `DepartmentSection`, `Section`, `Line`, `HeadOfDepartment`, `CompanyOrganogram` | `configuration` | production, inventory stores and cost centres all reference it |
+| Geography — `Country`, `District`, `PoliceStation` | `configuration` | addresses on buyer / supplier / party |
+| Skill matrix — `HrmSkillMatrix`, `HrmSkillMatrixDetail`, `HrmSkillMatrixGrade`, `HrmSkillMatrixProcess`, `SkillLevel`, `SkillOperation`, `SkillSetCategory`, `SkillSetDifficulty`, `EmployeeSkill`, `EfficiencyRate` | `garments-planning` | line balancing and process assignment |
+| Working-day / holiday calendar — `GeneralDaySetup`, `ExceptionDay`, `OutStationDuty` (the calendar, not leave admin) | `garments-planning` | TNA date arithmetic |
+| Housekeeping — `HouseKeepingItem`, `HouseKeepingRegister` | `inventory` | consumables store |
+| HR lookups — `Gender`, `Religion`, `BloodGroup`, `MaritalState`, `EducationLevel` | `configuration` (cheap) | referenced by the thin worker master |
+| A thin **worker / operator master** — id, name, card no, line, grade, skill — a subset of `Employee` | `configuration` | Production records output per operator; SMV needs a headcount |
 
-**Naming:** SCERP prefixes entities `OM_` (merchandising, ~48), `PROD_`
-(production, ~46), `PLAN_` (planning, ~18). Drop the prefixes; namespace by
-folder (`Application.Core/Entities/Garments/Merchandising/BuyerOrder.cs`).
+**Dropped** (kept in your external HR system, ~110 entities / 96 + 10 controllers):
+employee master's ~30 sub-records; attendance (daily / in-out / manual / machine
+import / job card); leave (application / approval / recommendation / types /
+settings / maternity / short); salary (setup / mapping / process / search /
+increment / advance); compensation (bonus / attendance bonus / penalty / OT /
+PF / gratuity / loan); roster (work shift / group / roster, holiday admin);
+appraisal; quit / separation; employee card print.
 
-**Shared lookups:** SCERP's countries / ports / banks / currencies / UOM merge
-into the platform `configuration` masters as `ITenantSharable` system data (same
-mechanism as the shared chart-of-accounts skeleton), so every garments tenant
-starts with them.
+**One decision for you:** sewing *output* is kept (production data —
+`PROD_SewingOutPutProcess`); the *piece-rate salary calc* off it is dropped and
+belongs to your payroll. Confirm that split.
 
----
+### Integration seam — built into `garments-production` from day one
 
-## 06 · Data & tenant strategy
-
-**Two legitimate paths — pick one before design starts.**
-
-### Path A — Full port (the platform way)
-
-Re-platform the non-HR modules into `garments-*`. Existing SCERP customers are
-migrated tenant-by-tenant (their EDMX DB → platform tables, keyed on a new
-`TenantId`). This is the plan's model and the only path that ends with one
-codebase.
-
-- **Pro:** one platform, self-service onboarding, per-module pricing, no
-  garments silo to maintain.
-- **Con:** the biggest single body of work the platform has taken on — realistically
-  **12–24 engineer-months** for a credible MVP-to-parity, more for full parity.
-- **MVP that is still useful:** `configuration` + `inventory` + `accounts` +
-  `garments-merchandising` + `garments-costing` — a buyer/style/order/cost-sheet
-  system a merchandiser can run, with stock and books, *before* the shop-floor
-  modules land.
-
-### Path B — Connected silo first (the "ButsPos initially" way)
-
-Keep SCERP running as-is for existing garments customers. Provision a `garments`
-**tenant shell** on the platform now (masters + accounting + inventory +
-merchandising MVP), and **sync** the two: SCERP pushes orders / shipments /
-production output to the platform via an integration endpoint; the platform is
-the system of record for books and the customer-facing shell. Port modules into
-the platform over time and cut SCERP over module-by-module.
-
-- **Pro:** a garments tenant exists in weeks, not quarters; de-risks the port.
-- **Con:** an integration layer and a second running system until the port
-  completes.
-
-> **Recommendation:** Path B to get a garments tenant live and learn the domain,
-> with Path A running behind it. Do **not** attempt a big-bang port.
-
-Either way the **`garments` template, `GarmentsProfile` and seed pack (§03) are
-built first** — they are small, unblock provisioning a garments tenant, and are
-identical work in both paths.
+- `GET /api/garments/production-output` — a webhook/export your payroll polls:
+  line × operator × style × process × qty × date × SMV.
+- `PUT /api/garments/worker-roster` — your HR pushes the active worker list.
+- `PUT /api/garments/line-availability` — daily present-count per line, so
+  Planning has capacity without owning HR (or those numbers are entered by hand).
 
 ---
 
-## 07 · Phased roadmap
+## 06 · Porting strategy — SCERP patterns → platform patterns
 
-Slots after the platform's Phase 2 (self-service onboarding). Assumes the SCERP
-source is available.
+| SCERP (.NET Framework MVC5) | → | `GenericERP` (.NET 9) |
+|---|---|---|
+| **EF 6 database-first** — `SCERP.edmx`, 1,050 entities, `long`/`int` PKs, `string` FKs, `string CompId` on every row | | **EF Core code-first** — entities in `Application.Core/Entities/Garments/<Area>/`, `Guid` PKs, real FK navs, `Guid TenantId` via `ITenantScoped` (the global query filter replaces the manual `x.CompId == _compId`) |
+| **~384 `Manager` (BLL)** — ctor-injected repos, `PortalContext.CurrentUser.CompId`, `TransactionScope` | | `BaseService<TEntity, …>` + `BaseRepository` + `IUnitOfWork` (audit + soft-delete + cross-tenant guard); one Autofac module per garments sub-domain. Most managers are CRUD + paging → collapse into `BaseService.SearchAsync`; port only the real logic |
+| **~417 `Repository`** — generic + hand LINQ/SQL + stored procs | | `BaseRepository<T>` + a few `ExecuteStoredProcedureAsync` for the report SPs that are worth keeping |
+| **~437 MVC5 controllers**, 16 Areas, server Razor | | `[ApiController]` REST under `Application.Api/Controllers/Garments/`, each `[RequiresModule("garments-…")]`; Angular screens in the tenant shell |
+| **`PortalContext.CurrentUser`** (ambient company + user, session-backed) | | `TenantScope.CurrentTenantId` (JWT) + `IWorkContext` / `ITenantContext` (DI) |
+| **ASP.NET Identity + a UserManagement Area** (roles, menu, module-feature, dept/emp-level permissions) | | platform JWT + `RoleClaim` + `[Authorize("Permission")]` + `[RequiresModule]` + `/api/me`-driven menu — **do not port** |
+| **~477 reports** — ~451 RDLC + ~26 Crystal `.rpt` | | EPPlus (Excel) + iTextSharp (PDF) — the platform's stack; every report costed individually, rebuild only what customers use; the "custom SQL query" screen buys time for the long tail |
+| **Handsontable** grids — colour × size matrix, cost sheet, line layout | | Angular data-grid components; the **colour × size order grid** and the **cost sheet** are the two hardest UI pieces |
+| **`SCERP.Mail` + `SCERP.Message.Service`** (Windows service, own EDMX, timer-driven email + SMS) | | `notifications` module — templates + an outbox + a hosted `BackgroundService`; platform `MailService` / `SmsService` are the transports |
+| No tenancy / soft-delete / audit anywhere | | every ported entity through the Phase-0 pipeline — `ITenantScoped` (or `ITenantSharable` for system lookups), global query filter, `UnitOfWork` audit. Non-negotiable. |
 
-### Phase G0 — Template, profile, masters, extend the reused modules *(≈1 month)*
+**Naming:** SCERP prefixes entities `OM_` (merchandising), `PROD_` (production),
+`PLAN_` (planning), `Comm*` (commercial), `Acc_` (dropped). Drop the prefixes;
+namespace by folder (`Application.Core/Entities/Garments/Merchandising/BuyerOrder.cs`).
 
-- `garments` `BusinessTemplate` + `GarmentsProfile : IIndustryProfile` +
-  `garments-*` / add-on catalog entries + price-book entries.
-- Garments seed pack (UOMs, costing heads, default TNA template, process
-  sequence, one line, CoA overlay) in `ProvisioningService`.
-- **`configuration` extend:** geography tree, org tree (company → branch → unit →
-  department → section → line), garment lookups (yarn count, fabric type,
-  generic name, payment terms, party, supplier company), thin worker master.
-- **`accounts` extend:** opening balance, GL head reparent, multi-currency
-  vouchers, advanced income tax, depreciation chart.
-- **`inventory` extend:** garment store types, requisition → issue → receive
-  variants, returnable challan, booking, housekeeping/consumables store.
-- **Cross-cutting:** the tenant-scoped **document attachment** service; the
-  `notifications` module (email/SMS templates + event triggers).
+**Shared lookups:** SCERP's currency / UOM / country / port merge into the
+platform `configuration` masters as `ITenantSharable` system data (same mechanism
+as the shared CoA skeleton), so every garments tenant starts with them.
+
+---
+
+## 07 · Data & tenant strategy
+
+**Two paths — pick one before design starts.**
+
+### Path A — Full port
+
+Re-platform the in-scope modules; migrate existing SCERP customers tenant by
+tenant. **The `string CompId` on every SCERP row becomes the `TenantId`** — a
+one-to-one map, which makes the data migration far cleaner than it was for the
+POS. The only path that ends with one codebase.
+
+- **Pro:** one platform, self-service onboarding, per-module pricing.
+- **Con:** ~16–26 engineer-months to in-scope parity.
+- **Useful MVP:** `configuration` + `inventory` + `accounts` +
+  `garments-merchandising` + `garments-costing` — a merchandiser's
+  order-to-cost-sheet system with stock and books, before the shop floor lands.
+
+### Path B — Connected silo first
+
+Keep SCERP running for existing customers; provision a `garments` tenant shell on
+the platform now (masters + accounts + inventory + merchandising MVP); sync
+orders / shipments / production output between them; port module by module and
+cut SCERP over piece by piece.
+
+- **Pro:** a garments tenant in weeks; de-risks the port; learn the domain.
+- **Con:** an integration layer + two running systems for a while.
+
+> **Recommendation:** Path B to get live and learn, Path A running behind it. Do
+> not big-bang. The `garments` template + `GarmentsProfile` + seed pack are built
+> first regardless — small, and they unblock provisioning.
+
+---
+
+## 08 · Phased roadmap
+
+Slots after the platform's Phase 2 (self-service onboarding).
+
+### G0 — Template, masters, extend reused modules, cross-cutting services *(≈1 month)*
+
+- `garments` `BusinessTemplate` + `GarmentsProfile` + module catalog + price-book
+  entries + garments seed pack in `ProvisioningService`.
+- `configuration` extend: org tree, geography, garment lookups (yarn count,
+  fabric type, generic name, payment terms, party, supplier company, currency,
+  UOM + conversions), thin worker master.
+- `inventory` extend: garment store types, requisition → issue → receive variants,
+  returnable challan, booking, housekeeping store.
+- `accounts`: verify cost-centre depth; add the garments CoA overlay to the seed
+  pack. **No SCERP accounting code.**
+- Build the tenant-scoped **document-attachment** service and the
+  **`notifications`** module (templates + outbox + background sender).
 - **Done when:** a garments tenant is provisioned, logs in, runs Inventory /
-  Purchase / Accounts with garment masters and attachments.
+  Purchase / **the Feed-ERP accounts module**, with garment masters and attachments.
 
-### Phase G1 — Merchandising + costing MVP *(2–3 months)*
+### G1 — Merchandising + costing MVP *(2–3 months)*
 
-- Buyer / agent / consignee / party, style (colour × size), **buyer order
-  (colour × size grid)**, order type / season / brand.
-- **All approval workflows** — sample (dev → submission → approval by size &
-  colour), lab dip (+ options + documents), embellishment, **trims & accessories**
-  (+ history), spec sheet.
+- Buyer / agent / consignee / party; style (colour × size); **buyer order
+  (colour × size grid)** with currency + exchange.
+- **All approval workflows** on one generic approval engine — sample, lab-dip,
+  embellishment, trims & accessories; spec sheet.
 - **Costing** — costing head, cost definition, cost-sheet template & master,
-  multi-layer cost centre, per-style consumption (fabric / yarn / thread /
+  cost-centre allocation, per-style consumption (fabric / yarn / thread /
   component) with cost, margin.
-- **Order tracking board** — order info, ready / sending status, process-status
-  auto-mail (uses `notifications`).
-- Angular: the buyer-order grid and the cost-sheet grid (the two hard grids).
-- **Done when:** a merchandiser runs inquiry → sample approval → order →
-  cost-sheet on the platform, with documents and status mail.
+- **Style payment** → the AR adapter (posts a platform `ReceivePayment`).
+- **Order tracking board** + process-status auto-mail.
+- Angular: the buyer-order grid and the cost-sheet grid.
+- **Done when:** inquiry → sample approval → order → cost-sheet → buyer payment,
+  end to end.
 
-### Phase G2 — Commercial / trade *(2–3 months)*
+### G2 — Commercial / trade *(2–3 months)*
 
-- Master LC, **BB-LC** (+ purchase, cash LC, cash BB-LC, cash-LC dyes/chemical),
-  LC-order / LC-style; import + details; export; **shipment** (+ style shipment,
-  buy-order shipment); packing credit, packing / package / shipping info; port of
-  loading; **cash incentive**; stamp amount; bank advice.
-- Shipment → revenue recognition into the ledger (`GarmentsProfile.Sales`).
+- Master LC, BB-LC (+ cash LC, cash BB-LC, cash-LC dyes/chemical), LC-order /
+  LC-style; import + details + docs; export + details; **shipment**; packing
+  credit + packing list; port of loading; **cash incentive**; bank advice.
+- Adapters: LC/import settlement → `PaymentVoucher`; export proceeds + cash
+  incentive → `ReceiveVoucher`.
 - **Done when:** an order is booked under LC, imported against, shipped, and the
-  export proceeds + cash incentive hit the books.
+  proceeds + incentive land in the Feed-ERP ledger via the adapters.
 
-### Phase G3 — Planning (TNA) + skill matrix *(1–2 months)*
+### G3 — Planning (TNA) + skill matrix *(1–2 months)*
 
-- **TNA** (calendar, horizontal view, template, group update, responsible
-  person), **process** (sequence, template, sequence default, key/sub/group
-  sub-process), production line & daily line layout, **target production**,
-  **capacity**, **efficiency rate**, working-day calendar, knitting / collar-cuff
-  / yarn-dyeing programs.
-- **Operator skill matrix** (moved out of HR) for line balancing.
-- **Done when:** an order gets a TNA plan, a line assignment and a balanced
-  process layout.
+- TNA (calendar, horizontal, template, responsible person); process (sequence /
+  template / key / sub / group sub); production line & daily layout; target
+  production; capacity; programs; working-day calendar.
+- Operator skill matrix + efficiency rate.
+- **Done when:** an order gets a TNA plan, a line assignment and a balanced layout.
 
-### Phase G4 — Production floor + quality *(3–5 months)*
+### G4 — Production floor + quality *(3–5 months)*
 
-- Port in value order: **cutting** (lay / roll / part / bundle / tag / grading /
-  cut-bank / cut-fabric reject) → **sewing** (input / output process, SMV, key
-  process) → **finishing** (iron / poly) → **knitting** (batch / roll / roll
-  issue / machine / processor / grey register & issue / grey-delivery gatepass) →
-  **dyeing** (job order / SP challan / dyes-chemical register / re-dyeing) →
-  **embroidery / printing** (process + receive) → **subcontract** (fab
-  sub-process delivery / receive challan).
-- **`garments-quality`** — certificate, spec-sheet check, AQL / reject capture at
-  each process; reject adjustment.
-- WIP-by-process stock movements into `inventory`; batch / roll / lot tracking.
-- Machine interruption / non-productive time → feeds `maintenance`.
-- The HR integration seam (§04) — production-output export + worker-roster intake.
-- SignalR production board (`ProductionHub`) + mobile-report API.
+- Value order: cutting (lay / roll / bundle / tag / grading / cut-bank / reject)
+  → sewing (input / output, SMV) → finishing (iron / poly) → knitting → dyeing →
+  embroidery / print → subcontract.
+- `garments-quality` — certificate, spec-sheet check, AQL / reject at each process.
+- WIP-by-process movements into `inventory`; batch / roll / lot tracking.
+- Machine interruption / non-productive time → `maintenance`.
+- The HR integration seam (§05); SignalR production board + mobile-report API.
 - **Done when:** an order is tracked cut-to-ship with quality gates.
 
-### Phase G5 — Add-ons, report packs, mobile, retire SCERP *(ongoing)*
+### G5 — Add-ons, report packs, retire SCERP *(2–4 months, ongoing)*
 
-- **`maintenance`** (machine action / log / interruption, down-time category,
-  maintenance report, vehicle + vehicle gate), **`crm`** (marketing inquiry /
-  institute / sales contact / feedback), **`tasks`** (task board + notification
-  board), **`gate`** (gate pass / vehicle / visitor gate entry).
-- Rebuild every RMG report on EPPlus / iTextSharp — cost sheet, TNA status, SMV
-  efficiency, line target/actual, shipment / export register, LC exposure, MIS
-  commercial, plus the **ad-hoc "custom SQL query" report builder** and the
-  **mobile-apps report** API.
-- Migrate remaining SCERP customers; decommission SCERP.
+- `maintenance`, `crm`, `tasks`, `gate`.
+- Rebuild the RMG report pack on EPPlus / iTextSharp — cost sheet, TNA status,
+  SMV efficiency, line target/actual, shipment / export register, LC exposure —
+  plus the ad-hoc SQL builder and the mobile-apps report API.
+- Migrate remaining SCERP customers (`CompId` → `TenantId`); decommission SCERP.
 
 ---
 
-## 08 · Effort & sequencing
+## 09 · Effort
 
-| Phase | Scope | Rough size | Blocks on |
-|---|---|---|---|
-| G0 | template + masters + extend inventory/accounts + docs + notifications | ≈1 month | SCERP source (masters) |
-| G1 | merchandising + all approval workflows + costing + order board | 2–3 months | G0; the two Angular grids |
-| G2 | commercial / LC / trade | 2–3 months | G1; trade-finance domain knowledge |
-| G3 | planning / TNA + skill matrix | 1–2 months | G0 |
-| G4 | production floor + quality | 3–5 months | G3, G1; HR integration contract |
-| G5 | maintenance + crm + tasks + gate + full report packs + mobile API + retire | 2–4 months | G1–G4 |
+| Phase | Scope | Rough size |
+|---|---|---|
+| G0 | template + masters + extend inventory/accounts + docs + notifications | ≈1 month |
+| G1 | merchandising + approvals + costing + order board + AR adapter | 2–3 months |
+| G2 | commercial / LC / trade + AP/AR adapters | 2–3 months |
+| G3 | planning / TNA + skill matrix | 1–2 months |
+| G4 | production floor + quality | 3–5 months |
+| G5 | add-ons + ~477 reports + retire | 2–4 months |
 
-- **Credible garments MVP** (G0–G2 — a merchandiser + commercial + books tool):
-  **~6–9 months** with the source in hand.
-- **Full SCERP feature set minus HR:** realistically **18–30 engineer-months**.
-  This is the honest number for "reuse every feature except HR" — SCERP is
-  ~3,800 files and four of its domains do not exist in the platform.
+- **Merchandiser-to-cost-sheet MVP** (G0–G2): **~4–6 months** with the source in
+  hand *(faster than the full-SCERP estimate because accounting is out and the
+  `CompId`→`TenantId` map is clean)*.
+- **Full in-scope feature parity minus HRM & Accounts:** **~16–26
+  engineer-months.** The report rebuild (~477 defs) and the two hard Angular grids
+  are the schedule risks.
 
-The platform's own Phases 3–5 (POS, billing, breadth) run in parallel — garments
-does not block them and vice-versa, except for shared frontend-shell work
-(menu-from-`/api/me`, the Angular upgrade), which garments now depends on
-heavily (14+ modules of lazy-loaded screens).
+The platform's own Phases 3–5 run in parallel; garments depends heavily on the
+shared tenant-shell work (menu-from-`/api/me`, the Angular upgrade) since it adds
+14+ modules of lazy-loaded screens.
 
 ---
 
-## 09 · Risks & guardrails
+## 10 · Risks & guardrails
 
 | Risk | Guardrail |
 |---|---|
-| **No source access** — cannot port from a file index | Get `SCERP.Model/.DAL/.BLL/.Web` + the DB / `SCERP.edmx`. Nothing real starts without it. |
-| **Scale underestimate** — "reuse the modules" reads as config; it is a ~3,800-file / ~348-controller / 14-module port | This document. Phase it; ship G0–G2 as an MVP; Path B to de-risk. |
-| **HR entanglement** in Production/Planning — skill matrix, org tree, working-day calendar, piece-rate output all live in the HR area | The §04 cut moves the non-payroll pieces out explicitly; a designed integration seam (output export + roster + availability intake) from day one. |
-| **The approval workflows multiply** — sample, lab-dip, embellishment, trims each repeat dev → submit → approve with size/colour detail | Build one generic "approval submission" engine in `garments-merchandising`, configure the four flows on it, rather than porting four near-identical controllers sets. |
-| **Cross-cutting subsystems** the platform lacks — document attachments, templated notifications, the ad-hoc SQL report builder | Build these as shared services in G0/G5, not per-module; the platform only has `Picture`, raw `MailService`/`SmsService`, and fixed reports today. |
-| **Crystal Reports** — every `.rpt` is a manual rebuild, layouts are exacting | Cost each report; rebuild only reports customers actually use; MIS "custom SQL query" screen buys time. |
-| **Costing engine & consumption explosion** are the real IP — get them wrong and quotes are wrong | Port these with the original developer / a domain expert in the room; golden-file test against SCERP output. |
-| **Two running systems** (Path B) drift | One system of record per fact (books + masters = platform; shop-floor = SCERP until ported); idempotent one-way sync; reconcile nightly. |
-| **Trade finance (LC/BB-LC)** is regulated and bank-specific | Treat `garments-commercial` as its own hardening project; do not MVP it loosely. |
-| **Tenancy debt** — SCERP has no `TenantId` / filters / audit anywhere | Every ported entity goes through the Phase 0 pipeline. No exceptions, no "port now, tenant-ise later". |
+| **Scale** — ~291 in-scope controllers, ~1,050 entities, ~2,900 views, ~477 reports; four net-new domains | Phase it; ship G0–G2 as an MVP; Path B to de-risk. Not a big-bang. |
+| **EDMX → EF Core** — 1,050 EF6 entities, `string` FKs, `long` PKs, no navs | Do not machine-translate the EDMX. Re-model per garments sub-domain with `Guid` PKs and real navs; keep a `LegacyId` column per entity during migration to remap the `string`/`long` references. |
+| **~477 report definitions** (RDLC + Crystal) — each a manual rebuild | Cost each; rebuild only reports customers use; the "custom SQL query" screen covers the long tail; treat the report pack as its own G5 workstream. |
+| **Costing & consumption engine** — the real IP; wrong here = wrong quotes | Port with the original SCERP developer / a merchandising domain expert; golden-file test the new engine against SCERP output on real orders. |
+| **The approval workflows repeat** (sample / lab-dip / embellishment / trims) | One generic "approval submission" engine, four configured flows — not four controller sets. |
+| **Accounting adapters drift** from the operational data | The adapter is the *only* write path from garments to the ledger; each posts idempotently keyed on the source document id; reconcile the order-vs-ledger position nightly. |
+| **Trade finance (LC / BB-LC)** is regulated and bank-specific | `garments-commercial` is its own hardening project; don't MVP it loosely. |
+| **Tenancy debt** — SCERP enforces `CompId` only by manager convention | Every ported entity gets `ITenantScoped` + the global query filter + the `UnitOfWork` guard. The `CompId` field is dropped after migration maps it to `TenantId`. |
+| **Two running systems** (Path B) | One system of record per fact (masters + books = platform; shop floor = SCERP until ported); idempotent one-way sync; nightly reconcile. |
 
 ---
 
-## 10 · What I need from you
+## 11 · What I need from you
 
-1. **The SCERP source code** — the five project folders plus the database (a
-   backup) or at least `SCERP.edmx`. Without it this plan cannot become design.
-2. **Path A vs Path B** (§06) — full port, or connected-silo-first. This shapes
-   everything.
-3. **The HR integration contract** — what your external HR/payroll system needs
-   from production output, and what worker/roster data it can give back.
-4. **Priority buyers / modules** — which garments customer goes first, and which
-   of merchandising / commercial / planning / production they most need. That
-   sets the G1–G4 order.
-5. **"Parity or MVP"** for the first release — a merchandiser's order-to-cost-sheet
-   tool (G0–G2), or nothing until the shop floor is in too (G0–G4).
-6. **The piece-rate / loan decisions** from §04.
-
----
-
-## Appendix · Coverage check — every SCERP area, nothing dropped except HR
-
-| # | SCERP area (or sub-system) | In scope? | Lands in | Phase |
-|---:|---|---|---|---|
-| 1 | Merchandising — buyer / style / order | ✅ | `garments-merchandising` | G1 |
-| 2 | Merchandising — sample / lab-dip / embellishment / trims approvals, spec sheet | ✅ | `garments-merchandising` (generic approval engine) | G1 |
-| 3 | Costing — cost sheet, costing heads, consumption | ✅ | `garments-costing` | G1 |
-| 4 | Tracking — order board, ready/sending status, process-status mail | ✅ | `garments-merchandising` + `notifications` | G1 |
-| 5 | Commercial — Master LC / BB-LC / cash LC | ✅ | `garments-commercial` | G2 |
-| 6 | Commercial — import / export / shipment / packing credit / cash incentive | ✅ | `garments-commercial` | G2 |
-| 7 | Planning — TNA, process sequences, line layout, target, capacity, efficiency | ✅ | `garments-planning` | G3 |
-| 8 | Planning — programs (knitting / collar-cuff / yarn-dyeing) | ✅ | `garments-planning` | G3 |
-| 9 | Operator skill matrix *(was in HRM area)* | ✅ | `garments-planning` | G3 |
-| 10 | Production — knitting | ✅ | `garments-production` | G4 |
-| 11 | Production — dyeing (+ re-dyeing, dyes/chemical register) | ✅ | `garments-production` | G4 |
-| 12 | Production — cutting (lay / roll / bundle / tag / grading / cut-bank) | ✅ | `garments-production` | G4 |
-| 13 | Production — sewing (input / output, SMV, key process) | ✅ | `garments-production` | G4 |
-| 14 | Production — finishing / iron / poly / embroidery / printing | ✅ | `garments-production` | G4 |
-| 15 | Production — subcontract (fab sub-process delivery / receive) | ✅ | `garments-production` | G4 |
-| 16 | Production — batch / roll / lot tracking, reject adjustment | ✅ | `garments-production` | G4 |
-| 17 | Quality — certificate, spec-sheet check, AQL / reject | ✅ | `garments-quality` | G4 |
-| 18 | Inventory — stores, requisition / issue / receive, GRN, returnable challan | ✅ | `inventory` (extended) | G0 |
-| 19 | Inventory — booking (bulk / yarn / accessories), housekeeping store | ✅ | `inventory` (extended) | G0 |
-| 20 | Purchase — store purchase, GRN against PO | ✅ | `purchase` | G0 |
-| 21 | Accounting — CoA, control accounts, GL reparent | ✅ | `accounts` (extended) | G0 |
-| 22 | Accounting — voucher entry (cash / bank / journal / contra / common) | ✅ | `accounts` | G0 |
-| 23 | Accounting — cost centre (single + multi-layer), voucher segregation | ✅ | `accounts` (extended) | G0/G1 |
-| 24 | Accounting — opening balance, financial period, bank rec, depreciation, AIT | ✅ | `accounts` (extended) | G0 |
-| 25 | Accounting — multi-currency vouchers | ✅ | `accounts` (extended) | G0 |
-| 26 | Common — geography tree (country → … → police station), port of loading | ✅ | `configuration` | G0 |
-| 27 | Common — org tree (company → branch → unit → dept → section → line) *(part was in HRM)* | ✅ | `configuration` | G0 |
-| 28 | Common — lookups (UOM, yarn count, fabric type, generic name, payment terms, party, supplier company) | ✅ | `configuration` | G0 |
-| 29 | Common — working-day / holiday calendar *(was in HRM area)* | ✅ | `garments-planning` | G3 |
-| 30 | Thin worker / operator master *(subset of Employee)* | ✅ | `configuration` | G0 |
-| 31 | Email service + SMS service (2 stand-alone projects) + templates + process-status mail | ✅ | `notifications` | G0 |
-| 32 | Document management — attachments on order / style / sample / lab-dip / trims | ✅ | cross-cutting attachment service | G0 |
-| 33 | MIS — dashboards, MIS / commercial reports | ✅ | `report` (extended) | G5 |
-| 34 | MIS — custom report + **ad-hoc SQL query builder** | ✅ | `report` (extended) | G5 |
-| 35 | MIS — mobile-apps report API (a mobile client exists) | ✅ | `report` (extended) | G5 |
-| 36 | Maintenance — machine action / log / interruption, down-time, maintenance report | ✅ | `maintenance` | G5 |
-| 37 | Maintenance — vehicle master + vehicle gate | ✅ | `maintenance` + `gate` | G5 |
-| 38 | CRM / Marketing — inquiry, institute, sales contact, feedback | ✅ | `crm` | G5 |
-| 39 | Task Management — task board, assignee, follow-up, notification board | ✅ | `tasks` | G5 |
-| 40 | Security / Gate — gate pass, visitor gate, grey-delivery gatepass | ✅ | `gate` | G5 |
-| 41 | User Management — users / roles / permissions / menu / module-feature | ⚠️ **Replaced** | platform JWT + `RoleClaim` + `[RequiresModule]` + `/api/me` | done |
-| 42 | User Management — user→merchandiser / user→line mapping | ✅ | `configuration` (as data) | G1/G3 |
-| 43 | **HRM + Payroll** — attendance, leave, salary, bonus, penalty, OT, PF, gratuity, loan, roster, holiday admin, employee sub-records, HR hierarchy, job-card salary | ❌ **Excluded** | your external HR system; integration seam in `garments-production` | — |
-
-Everything in SCERP is accounted for. The only ❌ is HRM/Payroll; the only ⚠️ is
-User Management, which the platform already replaces with a better multi-tenant
-equivalent.
+1. **Path A vs Path B** (§07) — full port, or connected-silo-first.
+2. **The HR integration contract** — what your external payroll needs from
+   production output; what worker / roster / availability data it returns.
+3. **The piece-rate decision** (§05) — confirm sewing output stays, salary calc goes.
+4. **Priority customer & modules** — which garments factory goes first, and which
+   of merchandising / commercial / planning / production they most need. Sets the
+   G1–G4 order.
+5. **"Parity or MVP"** for the first release — a merchandiser's
+   order-to-cost-sheet tool (G0–G2), or nothing until the shop floor is in (G0–G4).
+6. **The SCERP database** — a backup, so the `CompId` → `TenantId` migration and
+   the golden-file costing tests can be built.
 
 ---
 
-*Garments vertical plan · v0.3 draft · 2026-09-07 · the feature inventory was
-reconstructed from the SCERP Visual Studio content index (file & class names only) —
-the source project folders were not present on disk. SCERP is .NET Framework MVC5 /
-EF6 / Crystal; the target is .NET 9 + Angular + EF Core; this is a rewrite, not a
-migration. Figures are indicative pending access to the SCERP source and database.*
+## Appendix · Coverage check — every SCERP area, nothing dropped except HRM & Accounts
+
+| SCERP area / sub-system | In scope | Lands in | Phase |
+|---|---|---|---|
+| Merchandising — buyer / style / order / all approval workflows / spec sheet / order board | ✅ | `garments-merchandising` | G1 |
+| Costing — cost sheet / costing heads / consumption | ✅ | `garments-costing` | G1 |
+| Style payment (buyer receipts) | ✅ | `garments-merchandising` → **`accounts` AR adapter** | G1 |
+| Commercial — Master LC / BB-LC / cash LC / import / export / shipment / packing credit / cash incentive | ✅ | `garments-commercial` (+ `accounts` AP/AR adapters) | G2 |
+| Planning — TNA / process / line layout / target / capacity / programs | ✅ | `garments-planning` | G3 |
+| Skill matrix / efficiency / working-day calendar *(from HRM model)* | ✅ | `garments-planning` | G3 |
+| Production — knit / dye / cut / sew (SMV) / finish / embroidery / print / subcontract / batch-roll-lot / reject | ✅ | `garments-production` | G4 |
+| Quality — certificate / spec-sheet check / AQL / reject | ✅ | `garments-quality` | G4 |
+| Inventory — stores / requisition → issue → receive / GRN / returnable challan / booking / housekeeping | ✅ | `inventory` (extended) | G0 |
+| Purchase — store purchase / GRN against PO | ✅ | `purchase` | G0 |
+| Common — org tree *(from HRM)* / geography / lookups / currency / UOM | ✅ | `configuration` | G0 |
+| Thin worker / operator master *(subset of Employee)* | ✅ | `configuration` | G0 |
+| `SCERP.Mail` + `SCERP.Message.Service` — templated email/SMS + process-status mail | ✅ | `notifications` | G0 |
+| Document management — attachments on order / style / sample / lab-dip / trims | ✅ | attachment service | G0 |
+| MIS — dashboards / report packs / ad-hoc SQL builder / mobile-apps report API | ✅ | `report` (extended) | G5 |
+| Maintenance — machine action / log / interruption / down-time / vehicle | ✅ | `maintenance` | G5 |
+| CRM / Marketing — inquiry / institute / sales contact / feedback | ✅ | `crm` | G5 |
+| Task Management — task board / assignee / follow-up / notification board | ✅ | `tasks` | G5 |
+| Gate — gate pass / vehicle / visitor gate | ✅ | `gate` | G5 |
+| **Accounting** — CoA / vouchers / cost centre / bank rec / depreciation / multi-currency / financial period | ❌ **Replaced** | the platform's **Feed-ERP `accounts` module**, unchanged; garments posts via 4 adapter seams | done |
+| User Management — users / roles / permissions / menu | ❌ **Replaced** | platform JWT + `RoleClaim` + `[RequiresModule]` + `/api/me` | done |
+| **HRM + Payroll** — attendance / leave / salary / bonus / penalty / OT / PF / gratuity / loan / roster / holiday admin / employee sub-records / appraisal | ❌ **Excluded** | your external HR + integration seam in `garments-production` | — |
+
+Only two exclusions (HRM/Payroll, Accounting) and one replacement (User
+Management) — everything else is in scope.
+
+---
+
+*Garments vertical plan · v1.0 · 2026-09-10 · from a full read of the SCERP source
+(`D:\MyDocuments\MyDocuments\Development\Development`). SCERP is .NET Framework
+4.5.1 / MVC5 / EF6 database-first / Crystal + RDLC; the target is .NET 9 + Angular
++ EF Core — this is a rewrite, not a migration. Effort figures are indicative
+pending the SCERP database backup and a priority-customer decision.*
