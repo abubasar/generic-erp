@@ -12,6 +12,7 @@ answering plain questions, and pay for by what they switch on.
 | **Prepared** | 2026-09-06 · rev. 2026-09-06 (repo consolidation; verified against code + local `generic-erp-db`) |
 | **Target** | Modular monolith · pooled multi-tenancy |
 | **Interactive version** | https://claude.ai/code/artifact/52c83647-f44f-433b-ae51-3a21d4950465 |
+| **Companion plans** | `docs/garments-vertical-plan.md` (the RMG vertical) · `docs/combined-vertical-roadmap.md` (portfolio view sequencing this plan and the garments plan across all seven business types) |
 
 ---
 
@@ -834,6 +835,12 @@ Incremental. Existing Pharmaceutical and Feed ERP customers keep working
 throughout — they are already tenants with a business type, so they become
 tenants #1..n on their templates. No big-bang rewrite. Each phase ships
 something usable.
+
+> **Portfolio view.** The phases below are the platform track. For how they
+> interleave with the Garments vertical (G0–G5) and the thin verticals
+> (Retail, Super Shop, Wholesale, Buying House), plus the combined timeline,
+> effort roll-up and portfolio-level risks, see
+> **`docs/combined-vertical-roadmap.md`**.
 
 ### Phase 0 — Tenancy foundation  ·  *largely done — see `docs/phase0-tenancy.md`*
 
