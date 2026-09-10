@@ -1,6 +1,6 @@
 # Adding the Garments (RMG) vertical to the ERP SaaS platform
 
-**Enhancement plan — v1.0** *(v1.0: SCERP source is now on disk and has been read — real numbers, real code patterns, the accounting decision confirmed against the actual coupling. Supersedes the v0.x drafts that were built from the Visual Studio file index.)*
+**Enhancement plan — v1.1** *(v1.1: verified area-by-area against `SCERP.Web/Areas` + a full `grep` of the BLL — corrections: no "Quality" area (it's assembled); the cost sheet uses its own cost-group model, not the accounting cost centre; `Acc_CompanySector` / `CurrencyCommon` are config not ledger and are kept; the Production cutting job card ≠ the HRM `EmployeeJobCard`; machine/gate live in the Tracking area, returnable challan in Maintenance. v1.0: SCERP source read.)*
 
 Bring the existing garments-manufacturing ERP ("SCERP") into the `GenericERP`
 multi-tenant platform as a **Garments Industry** business template — reusing every
@@ -44,7 +44,7 @@ factory: buyer → inquiry → sample/approval → style → buyer order → cos
 consumption → booking → LC/import → TNA plan → knit/dye/cut/sew/finish → quality
 → shipment/export. Measured: **~437 controllers, ~384 business-logic managers,
 ~417 repositories, ~1,050 EF entities (353 `DbSet`s, a 54 k-line EDMX), ~2,900
-Razor views, ~477 report definitions.** ASP.NET MVC 5 / EF 6 database-first /
+Razor views, ~307 report definitions (~298 RDLC + ~9 Crystal).** ASP.NET MVC 5 / EF 6 database-first /
 Crystal + RDLC / Handsontable / Bootstrap 3, on .NET Framework 4.5.1.
 
 **Excluding HRM/Payroll and Accounting leaves ~291 controllers in scope** across
@@ -82,8 +82,8 @@ directly onto the platform's `TenantId` during migration.
 | EF entity types | ~1,050 | EF 6 **database-first** — a 54 k-line `SCERP.edmx`, 353 `DbSet`s in `SCERPDBContext` |
 | Model `.cs` files | ~721 | generated partial entities + hand ViewModels + `*_Result` (stored-proc) types |
 | Razor views | ~2,893 | server-rendered; **Handsontable** grids for matrices/cost sheets; jQuery |
-| Report definitions | ~477 | ~451 **RDLC** (Microsoft.Reporting) + ~26 **Crystal** (`.rpt`) |
-| Stand-alone services | 2 | `SCERP.Mail` (SMTP worker) + `SCERP.Message.Service` (Windows service — email + SMS on a timer, own EDMX) |
+| Report definitions | ~307 | ~298 **RDLC** (Microsoft.Reporting) + ~9 **Crystal** (`.rpt`) — one `Report` controller per area |
+| Stand-alone services | 2 | `SCERP.Mail` (a trivial SMTP send helper) + `SCERP.Message.Service` (a **WCF** message host — email + SMS, own `MessageService.edmx`) |
 | Runtime | — | **.NET Framework 4.5.1**, ASP.NET **MVC 5**, Autofac.Mvc5, AutoMapper, Bootstrap 3 |
 
 ### The pattern, from the source
@@ -106,24 +106,31 @@ Controller (Area)  →  IManager (BLL)  →  IRepository<T> / I…Repository (DA
 
 ### The 16 areas
 
+The 16 MVC Areas, verified against `SCERP.Web/Areas`. **There is no "Quality" area** —
+quality is assembled from `QualityCertificate` (Inventory), `SpecificationSheet`
+(Merchandising) and the reject/grading controllers (Production). Some features are
+filed under a surprising area (machine & gate are in **Tracking**, not Maintenance;
+returnable challan is in **Maintenance**; TNA appears in Merchandising, Planning
+*and* Commercial).
+
 | Area | Ctrls | In scope? | What it does |
 |---|---:|---|---|
-| **Merchandising** | 105 | ✅ | buyer / agent / consignee / style / **buyer order (colour × size)** / order type / season / brand; **sample** + **lab-dip** + **embellishment** + **trims & accessories** (each: development → submission → approval, with size/colour detail + history + documents); **spec sheet**; **cost sheet** (template, master, costing head, cost definition, multi-layer cost centre); **consumption** (fabric / yarn / thread / component) with cost; style payment tracking |
-| **Production** | 43 | ✅ | knitting (batch / roll / roll-issue / machine / processor / program / grey register & issue / grey-delivery gatepass); dyeing (job order / SP challan / dyes-chemical register / re-dyeing); cutting (lay / roll / part / bundle / tag / grading / cut-bank / reject); sewing (input / output process, **SMV**, key process); finishing (iron / poly); embroidery / printing (+ receive); subcontract (fab sub-process delivery / receive); batch / roll / lot; reject adjustment; `ProductionHub` (SignalR) |
-| **Inventory** | 52 | ✅ | stores (yarn / grey / finish fabric / accessories / housekeeping); item master; **material requisition → issue → receive** (general / advance / batch-wise / accessories / collar-cuff / fabric / yarn); **GRN** / receive-against-PO; **returnable challan** (issue / receive / master); fabric & yarn return; store purchase & requisition; daily fabric receive; **booking** (bulk / yarn / accessories); approval status & authorised person |
-| **Commercial** | 24 | ✅ | Master **LC**, **BB-LC** (+ purchase, cash LC, cash BB-LC, cash-LC dyes/chemical), LC-order / LC-style; **import** + details + docs; **export** + details; **shipment**; **packing credit**, packing list; port of loading; **cash incentive**; bank advice; commercial bank head; LC/BB-LC info data |
-| **Planning** | 21 | ✅ | **TNA** (calendar, horizontal, template, group update, responsible person); **process** (sequence, template, sequence default, key/sub/group sub); **production line** & daily line layout; **target production**; capacity; programs (knitting / collar-cuff / yarn-dyeing) |
-| **Common** | 15 | ✅ | measurement unit, payment terms, order type, yarn count, fabric type, generic name, colour, size, supplier company, party, currency master, geography (some) |
-| **Tracking** | 8 | ✅ | order tracking board — order info, ready / sending status, confirmation media, process-status auto-mail, approval status |
-| **Task Management** | 7 | ✅ | task + status + type, assignee, follow-up, subject, notification board |
-| **Maintenance** | 4 | ✅ | machine action / log / interruption, down-time category, maintenance report, vehicle |
-| **CRM** | 4 | ✅ | buyer client, marketing inquiry (CRM side), feedback |
-| **MIS** | 5 | ✅ | MIS dashboard / report / commercial report, **mobile-apps report** API, **custom SQL query** report builder |
-| **Marketing** | 3 | ✅ | marketing inquiry, institute, sales contact |
-| **Accounting** | 26 | ❌ | CoA, control accounts, voucher entry (cash/bank/journal/contra/common), voucher list & cost-centre segregation, cost centre (single + multi-layer), opening/closing balance, financial period, bank reconciliation, depreciation chart, multi-currency, advanced income tax → **replaced by the platform `accounts` module** |
-| **User Management** | 9 | ❌ | users / roles / permissions / menu / module-feature / department- & employee-level permission → **replaced by platform JWT + `RoleClaim` + `[RequiresModule]` + `/api/me`** |
-| **HRM** | 96 | ❌ | employee master + ~30 sub-records, attendance, leave, job card, work shift/group/roster, holiday admin, skill matrix*, org tree*, efficiency*, geography*, HR lookups* → **excluded** (\* = the starred pieces move out — see §05) |
-| **Payroll** | 10 | ❌ | salary setup / mapping / process / search / increment / advance, bonus, penalty, OT, PF, gratuity, loan, pay slip → **excluded** |
+| **Merchandising** | 105 | ✅ | buyer / agent / consignee / style / **buyer order (colour × size)** / order type / season / brand; **sample** + **lab-dip** + **embellishment** + **trims & accessories** (each: development → submission → approval, with size/colour detail + history + documents); **spec sheet**; **cost sheet** (`CostSheetTemplate` / `CostSheetMaster` / `CostSheetDetail` with template line-rates, `CostingHead`, `CostDefination` with a `CostGroup` string — **not** the accounting cost centre); **consumption** (fabric / yarn / thread / component) with cost; **style payment tracking** (`Acc_StylePayment` — a payment log, no GL lines); order-level TNA calendar; order-tracking board (order info, ready / sending status, process-status auto-mail); sticker / label printing |
+| **Production** | 43 | ✅ | knitting (batch / roll / roll-issue / machine / processor / program / grey register & issue / grey-delivery gatepass); dyeing (job order / SP challan / dyes-chemical register / re-dyeing); cutting (lay / roll / part / bundle cutting, tag, grading, cut-bank, cut-fabric reject, cutting sequence) + the **cutting job card** (`SpCuttingJobCard` — bundle traceability, **distinct from the HRM `EmployeeJobCard`**); sewing (input / output process, **SMV** `StanderdMinValue`, key process); finishing (iron / poly); embroidery / printing (+ receive); subcontract (fab sub-process delivery / receive); **hourly production capture** (`Hour`); own & subcontractor factory masters (`Factory`, `DyeingFactory`); batch / roll / lot; reject adjustment; `ProductionHub` (SignalR) |
+| **Inventory** | 52 | ✅ | stores (yarn / grey / finish fabric / accessories); item master (`InventoryItem`, `ItemStore`, `ItemMode`, `ItemType`); **material requisition → issue → receive** (general / advance / batch-wise / accessories / collar-cuff / fabric / yarn / grey); **GRN** (`GoodsReceivingNote`) / receive-against-PO / `MaterialReceived`; fabric & yarn return; store purchase & requisition; daily fabric receive; **booking** (bulk / yarn / accessories); **quality certificate** (`Inventory_QualityCertificate` + detail — QC at GRN); style shipment; approval status & authorised person; `LoanGiven` / `LoanReturn` *(decision needed — employee loan? inter-party?)* |
+| **Commercial** | 24 | ✅ | Master **LC**, **BB-LC** (+ purchase, cash LC, cash BB-LC, cash-LC dyes/chemical), LC-order / LC-style; **import** + details + docs; **export**; **shipment**; **packing credit**, packing list; port of loading; **cash incentive**; bank advice (`CommBankAdvice` uses `CommAccHead`, a commercial-local bank head — not the GL); sales contact; commercial TNA; `CommImport` = a document tracker (LC value / invoice, no journal) |
+| **Planning** | 21 | ✅ | **TNA** (calendar, horizontal, template, `TNAToTemplate`, group update, responsible person); **process** (sequence, template, sequence default, key / sub / group sub); **production line** & daily line layout; **target production**; programs (knitting / collar-cuff / yarn-dyeing); **working-day calendar** (`WorkingDay`) |
+| **Common** | 15 | ✅ | measurement unit, payment terms, colour, size, party, `CurrencyCommon`; geography (`City`, `State`); **`Document`** + **email templates** (`EmailTemplate` / `EmailTemplateUser` / `EmailUser`) + `MailSend`; **`GatePass`**; **custom report** + **`CustomSqlQuary`** (ad-hoc SQL report builder); `UserReport` |
+| **Tracking** | 8 | ✅ | `ConfirmationMedia`; **`HouseKeeping`** (consumables → `inventory`); **machine** action & log (→ `maintenance`); **`Vehicle`**, **`VehicleGateEntry`**, **`VisitorGateEntry`** (→ `gate`); `VisitorReport` |
+| **Task Management** | 7 | ✅ | task + status + type, assignee, subject; `ReportImage`; a stray `Module` controller |
+| **Maintenance** | 4 | ✅ | `MaintenanceReport`; **`ReturnableChallan`** / receive / receive-master (a returnable-goods challan — belongs in `inventory`) |
+| **CRM** | 4 | ✅ | `Feedback`, `ProjectDocumentInfo` (→ attachment service), a `Report` controller |
+| **MIS** | 5 | ✅ | `MisDashboard`, `MisReport`, `MisCommercialReport`, **`MobileAppsReport`** API (a mobile client consumes it), `UserActivity` (audit → platform `EventLog`) |
+| **Marketing** | 3 | ✅ | `MarketingInquiry`, `MarketingInstitute`, `MarketingReports` |
+| **Accounting** | 26 | ❌ | CoA, control accounts, voucher entry (cash/bank/journal/contra/common), voucher list & cost-centre segregation, cost centre (single + multi-layer), opening/closing balance, financial period, bank reconciliation, depreciation chart, multi-currency, advanced income tax → **replaced by the platform `accounts` module** (§02). *Exception:* `Acc_CompanySector` / `Acc_ActiveCompanySector` (company/sector identity for report letterheads) and `CurrencyCommon` are **config, not ledger** — they map to the platform's `Company` / `Currency` and are kept. |
+| **User Management** | 9 | ❌ | users / roles / permissions / menu / module-feature / department- & employee-level permission (+ the root `AccountController` = ASP.NET login) → **replaced by platform JWT + `RoleClaim` + `[RequiresModule]` + `/api/me`** |
+| **HRM** | 96 | ❌ | employee master + ~30 sub-records, attendance, leave, `EmployeeJobCard` (salary side), work shift/group/roster, holiday admin, skill matrix\*, org tree\*, efficiency\*, geography\*, HR lookups\* → **excluded** (\* = the starred pieces move out — see §05) |
+| **Payroll** | 10 | ❌ | salary setup / mapping / process / search / increment / advance, bonus, penalty, OT, PF, gratuity, pay slip → **excluded** |
 
 ---
 
@@ -133,28 +140,41 @@ Controller (Area)  →  IManager (BLL)  →  IRepository<T> / I…Repository (DA
 both correct and cheap to execute, because SCERP's accounting is not wired into
 anything else.**
 
-### What the source shows
+### What the source shows (verified — a `grep` of every BLL manager and every Web controller)
 
-- **No non-accounting BLL manager references `Acc_VoucherMaster`, `Acc_GLAccounts`,
-  `Acc_CostCentre` or any GL-posting call.** Merchandising, Production, Inventory,
-  Commercial and Planning managers do their operational writes and stop.
-- The **only** cross-module accounting coupling is `Payroll →
-  EmployeeSalaryProcessConfirmManager` (posts salary vouchers) and
-  `SalaryMappingController` (maps salary heads to GL) — both in the excluded set.
-- `Acc_StylePayment` (referenced from `Merchandising/StylePaymentController`) is a
-  **payment log**, not a ledger posting — it records *"buyer paid X against this
-  order/style on this date"* with no debit/credit lines.
-- `CommImport` / LC entities are **document trackers** — LC value, docs value,
-  invoice number — with no journal side.
+- **No non-accounting BLL manager references `Acc_VoucherMaster`, `Acc_VoucherDetail`,
+  `Acc_GLAccounts`, `Acc_ControlAccounts`, `Acc_CostCentre`, `Acc_OpeningClosing`
+  or `Acc_FinancialPeriod`** — every hit is inside `AccountingManager/` or the
+  DI composition root. Merchandising, Production, Inventory, Commercial and
+  Planning managers do their operational writes and stop.
+- The **only** GL-posting coupling from another area is `Payroll →
+  EmployeeSalaryProcessConfirmManager` (posts salary vouchers) +
+  `SalaryMappingController` (maps salary heads to GL) — both excluded.
+- The one non-accounting Web controller that touches the `AccountingModel`
+  namespace is `Commercial/LcController` — and only for `Acc_CompanySector`
+  (the company letterhead for the LC report). Not a ledger call. That master
+  moves to `configuration` (see below).
+- `Acc_StylePayment` (managed by `AccountingManager/StylePaymentManager`, driven
+  from `Merchandising/StylePaymentController`) is a **payment log** — `PayDate`,
+  `OrderNo`, `OrderStyleRefId`, `CostGroup`, no debit/credit lines.
+- `CommImport` / LC entities are **document trackers** — `LcValue`, `DocsValue`,
+  `InvoiceNo`, `BillOfEntry` — with no journal side.
+- The cost sheet uses its **own** `CostGroup` string + `CostingHead`, **not**
+  `Acc_CostCentre` — so dropping the accounting cost centre costs nothing here.
 
 ### What this means
 
 | Drop from SCERP | Use from the platform instead |
 |---|---|
-| `Acc_*` model — `VoucherMaster` / `VoucherDetail` / `GLAccounts` / `ControlAccounts` / `CostCentre` / `CostCentreMultiLayer` / `Currency` / `FinancialPeriod` / `OpeningClosing` / `BankReconcilation*` / `DepreciationChart` / `StylePayment` (33 entities) | `Application.Core/Entities` — `Account` (the shared CoA skeleton), `AccountType`, `CostCenter`, `Currency`, `JournalEntry`, `VoucherEntry`, `PaymentVoucher`, `ReceiveVoucher`, `ReceivePayment` / `ReceivePaymentAgainstSale`, `FundTransfer`, `Transaction`, `BankAccount` |
+| `Acc_*` ledger model — `VoucherMaster` / `VoucherDetail` / `GLAccounts` / `GLAccounts_Hidden` / `ControlAccounts` / `CostCentre` / `CostCentreMultiLayer` / `Currency` / `FinancialPeriod` / `OpeningClosing` / `BankReconcilation*` / `DepreciationChart` / `VoucherToCostcentre` / `VoucherLimit` / `PermitedChartOfAccount` / `SalaryMapping` / `StylePayment` (~33 entities) | `Application.Core/Entities` — `Account` (the shared CoA skeleton), `AccountType`, `CostCenter`, `Currency`, `JournalEntry`, `VoucherEntry`, `PaymentVoucher`, `ReceiveVoucher`, `ReceivePayment` / `ReceivePaymentAgainstSale`, `FundTransfer`, `Transaction`, `BankAccount` |
 | Accounting Area (26 controllers) + `AccountingManager` | `Application.Api/Controllers` accounts + report controllers, `AccountService` / `AccountReportPdfService` — already `[RequiresModule("accounts")]`, already the "keystone asset" per the SaaS plan |
-| SCERP cost centres (multi-layer) | `CostCenter` (verify the platform's tree depth covers the garments layers; extend if not — small) |
-| SCERP multi-currency vouchers | platform `Currency` + voucher lines; garments needs FX on the buyer order (`OM_BuyerOrder.CurrencyId` / `Exchange`) — that stays operational, settled through platform vouchers |
+| SCERP cost centres (multi-layer) | `CostCenter` — the platform's cost centre. The garments cost *sheet* does **not** use it (own `CostGroup` model); verify voucher-level cost-centre depth covers the garments dimensions, extend if not (small). |
+| SCERP multi-currency vouchers | platform `Currency` + voucher lines; garments needs FX on the buyer order (`OM_BuyerOrder.CurrencyId` / `Exchange`) — that stays operational in `garments-merchandising`, settled through platform vouchers |
+
+**Kept, not dropped** (they sit in the `AccountingModel` namespace but are not
+ledger): `Acc_CompanySector` / `Acc_ActiveCompanySector` (company & sector
+identity for report letterheads, used by Commercial and others) → the platform's
+`Company` / `Tenant` profile; `CurrencyCommon` → platform `Currency`.
 
 ### The adapter seams (thin services in `garments-*`, not a module)
 
@@ -193,13 +213,13 @@ user-management, HRM):
 | Inventory & stock | `inventory` | **Reuse + extend** | Inventory area — garment stores, requisition/issue/receive variants, returnable challan, booking, housekeeping |
 | Purchase | `purchase` | **Reuse** | store purchase / GRN against PO |
 | **Accounting** | `accounts` | **Reuse unchanged** — the platform's Feed-ERP module | *(SCERP `Acc_*` dropped; adapter seams only — §02)* |
-| Reports & analytics | `report` | **Reuse + extend** | MIS — dashboards, the ~477 report definitions (rebuilt), the ad-hoc SQL builder, the mobile-report API |
+| Reports & analytics | `report` | **Reuse + extend** | MIS — dashboards, the ~307 report definitions (rebuilt), the ad-hoc SQL builder, the mobile-report API |
 | Merchandising | `garments-merchandising` | **New** | Merchandising + Tracking — buyer order (colour × size), style, all approval workflows, spec sheet, order board, style-payment (→ AR adapter) |
-| Costing | `garments-costing` | **New** | cost-sheet template & master, costing heads, cost definition, per-style consumption + cost, margin |
+| Costing | `garments-costing` | **New** | `CostSheetTemplate` / `Master` / `Detail` (template line-rates), `CostingHead`, `CostDefination` (+ `CostGroup`), per-style consumption + cost, margin — **its own cost-group model, no accounting cost centre** |
 | Commercial / trade | `garments-commercial` | **New** | Commercial — Master LC, BB-LC, import, export, shipment, packing credit, cash incentive, port of loading (+ AP/AR adapters) |
 | Planning | `garments-planning` | **New** | Planning + skill matrix / efficiency / working-day calendar (from HRM model) |
 | Production floor | `garments-production` | **New** | Production — knit / dye / cut / sew (SMV) / finish / embroidery / print / subcontract / batch-roll-lot / reject |
-| Quality | `garments-quality` | **New** | quality certificate, spec-sheet check, AQL / reject at each process |
+| Quality | `garments-quality` | **New** | assembled — `Inventory_QualityCertificate` (QC at GRN), `SpecificationSheet` (merchandising), reject / grading (production). **Not a lifted area** — SCERP has no Quality area. |
 | Notifications | `notifications` | **New** | `SCERP.Mail` + `SCERP.Message.Service` — templated email/SMS + event triggers + process-status auto-mail (platform has raw `MailService`/`SmsService` only) |
 | Document attachments | *(cross-cutting service)* | **New** | SCERP `*Document` folders — files on order / style / sample / lab-dip / trims |
 | Maintenance · CRM · Tasks · Gate | `maintenance` · `crm` · `tasks` · `gate` | **New add-ons** | Maintenance / CRM / Marketing / Task Management / gate-pass |
@@ -267,11 +287,22 @@ Planning / Production / Configuration — they move out rather than being lost:
 
 **Dropped** (kept in your external HR system, ~110 entities / 96 + 10 controllers):
 employee master's ~30 sub-records; attendance (daily / in-out / manual / machine
-import / job card); leave (application / approval / recommendation / types /
-settings / maternity / short); salary (setup / mapping / process / search /
-increment / advance); compensation (bonus / attendance bonus / penalty / OT /
-PF / gratuity / loan); roster (work shift / group / roster, holiday admin);
-appraisal; quit / separation; employee card print.
+import); `EmployeeJobCard` + `EmployeeJobCardProcess` (the salary side); leave
+(application / approval / recommendation / types / settings / maternity / short /
+outstation duty); salary (setup / mapping / process / search / increment /
+advance); compensation (bonus / attendance bonus / penalty / OT / PF / gratuity);
+roster (work shift / group / roster, holiday admin); appraisal; quit /
+separation; employee card print.
+
+**Not HRM despite the name — in scope:**
+
+- **`Production/JobCardController` + `SpCuttingJobCard`** — the *cutting job card*
+  (bundle-to-operation traceability on the shop floor, driven by
+  `CuttingBatchManager` / `LayCuttingManager` / `RollCuttingManager`). This is
+  `garments-production`, **not** the HRM `EmployeeJobCard`.
+- **`Inventory/LoanGiven` + `LoanReturn`** — a returnable-goods / advance-material
+  loan register, sitting in the Inventory area. **Decide:** if it's employee loans
+  → drop with HR; if it's inter-party material loans → keep in `inventory`.
 
 **One decision for you:** sewing *output* is kept (production data —
 `PROD_SewingOutPutProcess`); the *piece-rate salary calc* off it is dropped and
@@ -297,9 +328,9 @@ belongs to your payroll. Confirm that split.
 | **~437 MVC5 controllers**, 16 Areas, server Razor | | `[ApiController]` REST under `Application.Api/Controllers/Garments/`, each `[RequiresModule("garments-…")]`; Angular screens in the tenant shell |
 | **`PortalContext.CurrentUser`** (ambient company + user, session-backed) | | `TenantScope.CurrentTenantId` (JWT) + `IWorkContext` / `ITenantContext` (DI) |
 | **ASP.NET Identity + a UserManagement Area** (roles, menu, module-feature, dept/emp-level permissions) | | platform JWT + `RoleClaim` + `[Authorize("Permission")]` + `[RequiresModule]` + `/api/me`-driven menu — **do not port** |
-| **~477 reports** — ~451 RDLC + ~26 Crystal `.rpt` | | EPPlus (Excel) + iTextSharp (PDF) — the platform's stack; every report costed individually, rebuild only what customers use; the "custom SQL query" screen buys time for the long tail |
+| **~307 report definitions** — ~298 RDLC + ~9 Crystal `.rpt` | | EPPlus (Excel) + iTextSharp (PDF) — the platform's stack; every report costed individually, rebuild only what customers use; the "custom SQL query" screen buys time for the long tail |
 | **Handsontable** grids — colour × size matrix, cost sheet, line layout | | Angular data-grid components; the **colour × size order grid** and the **cost sheet** are the two hardest UI pieces |
-| **`SCERP.Mail` + `SCERP.Message.Service`** (Windows service, own EDMX, timer-driven email + SMS) | | `notifications` module — templates + an outbox + a hosted `BackgroundService`; platform `MailService` / `SmsService` are the transports |
+| **`SCERP.Mail` + `SCERP.Message.Service`** (a WCF message host, own `MessageService.edmx`, email + SMS) | | `notifications` module — templates + an outbox + a hosted `BackgroundService`; platform `MailService` / `SmsService` are the transports |
 | No tenancy / soft-delete / audit anywhere | | every ported entity through the Phase-0 pipeline — `ITenantScoped` (or `ITenantSharable` for system lookups), global query filter, `UnitOfWork` audit. Non-negotiable. |
 
 **Naming:** SCERP prefixes entities `OM_` (merchandising), `PROD_` (production),
@@ -371,9 +402,10 @@ Slots after the platform's Phase 2 (self-service onboarding).
   (colour × size grid)** with currency + exchange.
 - **All approval workflows** on one generic approval engine — sample, lab-dip,
   embellishment, trims & accessories; spec sheet.
-- **Costing** — costing head, cost definition, cost-sheet template & master,
-  cost-centre allocation, per-style consumption (fabric / yarn / thread /
-  component) with cost, margin.
+- **Costing** — `CostingHead`, `CostDefination` (+ `CostGroup`), cost-sheet
+  template / master / detail (template line-rates), per-style consumption
+  (fabric / yarn / thread / component) with cost, margin. *(No accounting cost
+  centre — the cost sheet has its own cost-group model.)*
 - **Style payment** → the AR adapter (posts a platform `ReceivePayment`).
 - **Order tracking board** + process-status auto-mail.
 - Angular: the buyer-order grid and the cost-sheet grid.
@@ -400,12 +432,15 @@ Slots after the platform's Phase 2 (self-service onboarding).
 
 ### G4 — Production floor + quality *(3–5 months)*
 
-- Value order: cutting (lay / roll / bundle / tag / grading / cut-bank / reject)
-  → sewing (input / output, SMV) → finishing (iron / poly) → knitting → dyeing →
-  embroidery / print → subcontract.
-- `garments-quality` — certificate, spec-sheet check, AQL / reject at each process.
+- Value order: cutting (lay / roll / part / bundle cutting, tag, grading,
+  cut-bank, cut-fabric reject, cutting sequence) **+ the cutting job card**
+  (`SpCuttingJobCard`) → sewing (input / output, SMV, key process) → finishing
+  (iron / poly) → knitting → dyeing → embroidery / print → subcontract.
+- Hourly production capture (`Hour`); own & subcontractor factory masters.
+- `garments-quality` — `Inventory_QualityCertificate` (QC at GRN), spec-sheet
+  check, reject / grading at each process.
 - WIP-by-process movements into `inventory`; batch / roll / lot tracking.
-- Machine interruption / non-productive time → `maintenance`.
+- Machine action / log / interruption / non-productive time → `maintenance`.
 - The HR integration seam (§05); SignalR production board + mobile-report API.
 - **Done when:** an order is tracked cut-to-ship with quality gates.
 
@@ -428,13 +463,13 @@ Slots after the platform's Phase 2 (self-service onboarding).
 | G2 | commercial / LC / trade + AP/AR adapters | 2–3 months |
 | G3 | planning / TNA + skill matrix | 1–2 months |
 | G4 | production floor + quality | 3–5 months |
-| G5 | add-ons + ~477 reports + retire | 2–4 months |
+| G5 | add-ons + ~307 reports + retire | 2–4 months |
 
 - **Merchandiser-to-cost-sheet MVP** (G0–G2): **~4–6 months** with the source in
   hand *(faster than the full-SCERP estimate because accounting is out and the
   `CompId`→`TenantId` map is clean)*.
 - **Full in-scope feature parity minus HRM & Accounts:** **~16–26
-  engineer-months.** The report rebuild (~477 defs) and the two hard Angular grids
+  engineer-months.** The report rebuild (~307 defs) and the two hard Angular grids
   are the schedule risks.
 
 The platform's own Phases 3–5 run in parallel; garments depends heavily on the
@@ -447,9 +482,9 @@ shared tenant-shell work (menu-from-`/api/me`, the Angular upgrade) since it add
 
 | Risk | Guardrail |
 |---|---|
-| **Scale** — ~291 in-scope controllers, ~1,050 entities, ~2,900 views, ~477 reports; four net-new domains | Phase it; ship G0–G2 as an MVP; Path B to de-risk. Not a big-bang. |
+| **Scale** — ~291 in-scope controllers, ~1,050 entities, ~2,900 views, ~307 reports; four net-new domains | Phase it; ship G0–G2 as an MVP; Path B to de-risk. Not a big-bang. |
 | **EDMX → EF Core** — 1,050 EF6 entities, `string` FKs, `long` PKs, no navs | Do not machine-translate the EDMX. Re-model per garments sub-domain with `Guid` PKs and real navs; keep a `LegacyId` column per entity during migration to remap the `string`/`long` references. |
-| **~477 report definitions** (RDLC + Crystal) — each a manual rebuild | Cost each; rebuild only reports customers use; the "custom SQL query" screen covers the long tail; treat the report pack as its own G5 workstream. |
+| **~307 report definitions (~298 RDLC + ~9 Crystal)** — each a manual rebuild | Cost each; rebuild only reports customers use; the "custom SQL query" screen covers the long tail; treat the report pack as its own G5 workstream. |
 | **Costing & consumption engine** — the real IP; wrong here = wrong quotes | Port with the original SCERP developer / a merchandising domain expert; golden-file test the new engine against SCERP output on real orders. |
 | **The approval workflows repeat** (sample / lab-dip / embellishment / trims) | One generic "approval submission" engine, four configured flows — not four controller sets. |
 | **Accounting adapters drift** from the operational data | The adapter is the *only* write path from garments to the ledger; each posts idempotently keyed on the source document id; reconcile the order-vs-ledger position nightly. |
@@ -486,28 +521,31 @@ shared tenant-shell work (menu-from-`/api/me`, the Angular upgrade) since it add
 | Planning — TNA / process / line layout / target / capacity / programs | ✅ | `garments-planning` | G3 |
 | Skill matrix / efficiency / working-day calendar *(from HRM model)* | ✅ | `garments-planning` | G3 |
 | Production — knit / dye / cut / sew (SMV) / finish / embroidery / print / subcontract / batch-roll-lot / reject | ✅ | `garments-production` | G4 |
-| Quality — certificate / spec-sheet check / AQL / reject | ✅ | `garments-quality` | G4 |
-| Inventory — stores / requisition → issue → receive / GRN / returnable challan / booking / housekeeping | ✅ | `inventory` (extended) | G0 |
+| **Cutting job card** (`SpCuttingJobCard` — ≠ HRM `EmployeeJobCard`) + hourly capture + factory masters | ✅ | `garments-production` | G4 |
+| Quality — `Inventory_QualityCertificate` (QC at GRN) + `SpecificationSheet` (merch) + reject/grading (prod). *SCERP has no Quality area — assembled.* | ✅ | `garments-quality` | G4 |
+| Inventory — stores / requisition → issue → receive / GRN / booking; `HouseKeeping` (from Tracking); returnable challan (from Maintenance area) | ✅ | `inventory` (extended) | G0 |
 | Purchase — store purchase / GRN against PO | ✅ | `purchase` | G0 |
-| Common — org tree *(from HRM)* / geography / lookups / currency / UOM | ✅ | `configuration` | G0 |
-| Thin worker / operator master *(subset of Employee)* | ✅ | `configuration` | G0 |
-| `SCERP.Mail` + `SCERP.Message.Service` — templated email/SMS + process-status mail | ✅ | `notifications` | G0 |
-| Document management — attachments on order / style / sample / lab-dip / trims | ✅ | attachment service | G0 |
-| MIS — dashboards / report packs / ad-hoc SQL builder / mobile-apps report API | ✅ | `report` (extended) | G5 |
-| Maintenance — machine action / log / interruption / down-time / vehicle | ✅ | `maintenance` | G5 |
-| CRM / Marketing — inquiry / institute / sales contact / feedback | ✅ | `crm` | G5 |
-| Task Management — task board / assignee / follow-up / notification board | ✅ | `tasks` | G5 |
-| Gate — gate pass / vehicle / visitor gate | ✅ | `gate` | G5 |
-| **Accounting** — CoA / vouchers / cost centre / bank rec / depreciation / multi-currency / financial period | ❌ **Replaced** | the platform's **Feed-ERP `accounts` module**, unchanged; garments posts via 4 adapter seams | done |
-| User Management — users / roles / permissions / menu | ❌ **Replaced** | platform JWT + `RoleClaim` + `[RequiresModule]` + `/api/me` | done |
-| **HRM + Payroll** — attendance / leave / salary / bonus / penalty / OT / PF / gratuity / loan / roster / holiday admin / employee sub-records / appraisal | ❌ **Excluded** | your external HR + integration seam in `garments-production` | — |
+| Common — geography (`City`/`State`) / lookups (UOM, colour, size, payment terms, party) / `CurrencyCommon` | ✅ | `configuration` | G0 |
+| Org tree — company / branch / unit / dept / section / line / organogram *(sits in the HRM model)* | ✅ | `configuration` | G0 |
+| Thin worker / operator master *(subset of `Employee`)* + HR lookups (gender / religion / …) | ✅ | `configuration` | G0 |
+| `Acc_CompanySector` / `Acc_ActiveCompanySector` *(letterhead identity, in the AccountingModel)* | ✅ | `configuration` (→ `Company` / `Tenant`) | G0 |
+| `SCERP.Mail` + `SCERP.Message.Service` — templated email/SMS + process-status mail + `EmailTemplate*` | ✅ | `notifications` | G0 |
+| Document management — `Document` / `CommFileUpload` / `ProjectDocumentInfo` / `Sticker` / order-sample-labdip-trims docs | ✅ | attachment service | G0 |
+| MIS — `MisDashboard` / `MisReport` / `MisCommercialReport` / ad-hoc `CustomSqlQuary` / `MobileAppsReport` API | ✅ | `report` (extended) | G5 |
+| Maintenance — `MaintenanceReport` + machine action / log / interruption / non-productive-time *(machine controllers are in the Tracking area)* | ✅ | `maintenance` | G5 |
+| CRM — `Feedback` / `ProjectDocumentInfo`; Marketing — `MarketingInquiry` / `MarketingInstitute` / `MarketingReports`; `SalesContact` *(in Commercial)* | ✅ | `crm` | G5 |
+| Task Management — `Task` / status / type / assignee / subject; `NotificationBoard` *(in Merchandising)* | ✅ | `tasks` | G5 |
+| Gate — `GatePass` *(Common)* / `VehicleGateEntry` / `VisitorGateEntry` *(Tracking)* | ✅ | `gate` | G5 |
+| **Accounting** — CoA / vouchers / cost centre / bank rec / depreciation / multi-currency / financial period / `StylePayment` / `SalaryMapping` | ❌ **Replaced** | the platform's **Feed-ERP `accounts` module**, unchanged; garments posts via 4 adapter seams (§02) | done |
+| User Management — users / roles / permissions / menu / module-feature (+ root `AccountController` = login) | ❌ **Replaced** | platform JWT + `RoleClaim` + `[RequiresModule]` + `/api/me` | done |
+| **HRM + Payroll** — attendance / leave / salary / bonus / penalty / OT / PF / gratuity / roster / holiday admin / employee sub-records / appraisal / `EmployeeJobCard` | ❌ **Excluded** | your external HR + integration seam in `garments-production` | — |
 
 Only two exclusions (HRM/Payroll, Accounting) and one replacement (User
 Management) — everything else is in scope.
 
 ---
 
-*Garments vertical plan · v1.0 · 2026-09-10 · from a full read of the SCERP source
+*Garments vertical plan · v1.1 · 2026-09-10 · from a full read of the SCERP source
 (`D:\MyDocuments\MyDocuments\Development\Development`). SCERP is .NET Framework
 4.5.1 / MVC5 / EF6 database-first / Crystal + RDLC; the target is .NET 9 + Angular
 + EF Core — this is a rewrite, not a migration. Effort figures are indicative

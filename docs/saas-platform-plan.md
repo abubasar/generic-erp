@@ -685,10 +685,10 @@ needs.
 > dominates for a manufacturing vertical. **Garments / RMG** — merchandising,
 > costing, trade finance (LC/BB-LC), TNA planning and shop-floor production are
 > four domains this platform does not have. Bringing in the existing `SCERP`
-> garments ERP (~437 controllers, ~1,050 EF6 entities, ~2,900 views, ~477 reports;
-> minus HRM/Payroll and Accounting — Accounting reuses this same Feed-ERP module)
-> is a **~16–26 engineer-month** re-platform, not a template tweak — see
-> **`docs/garments-vertical-plan.md`** (v1.0, from a full source read).
+> garments ERP (~437 controllers, ~1,050 EF6 entities, ~2,900 views, ~307 report
+> definitions; minus HRM/Payroll and Accounting — Accounting reuses this same
+> Feed-ERP module) is a **~16–26 engineer-month** re-platform, not a template
+> tweak — see **`docs/garments-vertical-plan.md`** (v1.1, from a full source read).
 
 ---
 
