@@ -13,10 +13,8 @@ namespace Application.Core.Constants
         {
             public const string PurchaseModuleReports = "Permissions.AccessReportModules.PurchaseModuleReports";
             public const string ProductionModuleReports = "Permissions.AccessReportModules.ProductionModuleReports";
-            public const string SalesModuleReports = "Permissions.AccessReportModules.SalesModuleReports";
             public const string PrimarySalesModuleReports = "Permissions.AccessReportModules.PrimarySalesModuleReports";
             public const string AccountsModuleReports = "Permissions.AccessReportModules.AccountsModuleReports";
-            public const string InventoryModuleReports = "Permissions.AccessReportModules.InventoryModuleReports";
             public const string PrimaryInventoryModuleReports = "Permissions.AccessReportModules.PrimaryInventoryModuleReports";
         }
 
