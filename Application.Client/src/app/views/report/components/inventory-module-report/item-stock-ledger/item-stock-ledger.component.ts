@@ -2,7 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Inventory_Type_Id_Finished_Goods } from "app/shared/consts/const";
-import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { InventoryType } from "app/views/configuration/models/inventory-type/inventory-type.model";
 import { ProductRequest } from "app/views/configuration/models/product/product-request.model";
 import { ProductView } from "app/views/configuration/models/product/product-view.model";
@@ -21,7 +21,6 @@ import { environment } from "environments/environment";
 })
 export class ItemStockLedgerComponent implements OnInit {
   Inventory_Type_Id_Finished_Goods_ID: string;
-  businessType: string;
   searchForm: FormGroup;
   isLoading1: boolean = false;
   isLoading2: boolean = false;
@@ -37,14 +36,12 @@ export class ItemStockLedgerComponent implements OnInit {
     private storeService: StoreService,
     private productService: ProductService,
     private inventoryTypeService: InventoryTypeService,
-    private jwtAuth: JwtAuthService
+    public industryProfile: IndustryProfileService
   ) {}
 
   ngOnInit(): void {
     this.Inventory_Type_Id_Finished_Goods_ID = Inventory_Type_Id_Finished_Goods;
-    this.jwtAuth.userProfile.subscribe((res) => {
-      this.businessType = res.businesstype;
-    });
+
     this.getAllStores();
     this.getAllProducts("");
     this.getAllInventoryTypes();
@@ -126,7 +123,7 @@ export class ItemStockLedgerComponent implements OnInit {
       return "";
     }
 
-    return this.businessType === "2"
+    return this.industryProfile.isFeed
       ? ` (${product?.bagWeight} ${product?.measurementUnit?.name})`
       : ` (${product?.packSize?.name})`;
   }

@@ -5,8 +5,7 @@ import {
   Department_Id_SALES_AND_MARKETING,
   Inventory_Type_Id_Finished_Goods,
 } from "app/shared/consts/const";
-import { UserProfile } from "app/shared/models/user-profile-model";
-import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { AreaRequest } from "app/views/configuration/models/area/area-request.model";
 import { Area } from "app/views/configuration/models/area/area.model";
 import { EmployeeRequest } from "app/views/configuration/models/employee/employee-request.model";
@@ -30,7 +29,6 @@ import { environment } from "environments/environment";
     standalone: false
 })
 export class SaleTotalProductWiseReportComponent implements OnInit {
-  businessType: string;
   constructor(
     private http: HttpClient,
     private fb: FormBuilder,
@@ -39,7 +37,7 @@ export class SaleTotalProductWiseReportComponent implements OnInit {
     private areaService: AreaService,
     private employeeService: EmployeeService,
     private productService: ProductService,
-    private jwtAuth: JwtAuthService
+    public industryProfile: IndustryProfileService
   ) {}
   searchForm: FormGroup;
   isLoading1: boolean = false;
@@ -54,9 +52,6 @@ export class SaleTotalProductWiseReportComponent implements OnInit {
   marketingOfficers: Employee[];
 
   ngOnInit(): void {
-    this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
-      this.businessType = res.businesstype;
-    });
     this.initializeForm();
     this.getAllProducts();
     this.getAllStores();
@@ -114,7 +109,7 @@ export class SaleTotalProductWiseReportComponent implements OnInit {
     if (!product) return "";
     return (
       product?.name +
-      (this.businessType === "2"
+      (this.industryProfile.isFeed
         ? ` (${product.bagWeight} ${product?.measurementUnit?.name})`
         : ` (${product?.packSize?.name})`)
     );

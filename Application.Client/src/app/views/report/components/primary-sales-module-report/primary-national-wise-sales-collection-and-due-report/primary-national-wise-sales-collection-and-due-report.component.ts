@@ -2,8 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Department_Id_SALES_AND_MARKETING } from "app/shared/consts/const";
-import { UserProfile } from "app/shared/models/user-profile-model";
-import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { Area } from "app/views/configuration/models/area/area.model";
 import { EmployeeRequest } from "app/views/configuration/models/employee/employee-request.model";
 import { Employee } from "app/views/configuration/models/employee/employee.model";
@@ -29,7 +28,6 @@ import { environment } from "environments/environment";
 export class PrimaryNationalWiseSalesCollectionAndDueReportComponent
   implements OnInit
 {
-  businessType: string;
   constructor(
     private http: HttpClient,
     private fb: FormBuilder,
@@ -40,7 +38,7 @@ export class PrimaryNationalWiseSalesCollectionAndDueReportComponent
     private territoryService: TerritoryService,
     private employeeService: EmployeeService,
     // private productService: ProductService,
-    private jwtAuth: JwtAuthService
+    public industryProfile: IndustryProfileService
   ) {}
   searchForm: FormGroup;
   isLoading1: boolean = false;
@@ -63,9 +61,6 @@ export class PrimaryNationalWiseSalesCollectionAndDueReportComponent
   filterMarketingOfficers: Employee[];
 
   ngOnInit(): void {
-    this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
-      this.businessType = res.businesstype;
-    });
     this.initializeForm();
     // this.getAllProducts();
     // this.getAllStores();

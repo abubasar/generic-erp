@@ -1,8 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { UserProfile } from "app/shared/models/user-profile-model";
-import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { ProductRequest } from "app/views/configuration/models/product/product-request.model";
 import { ProductView } from "app/views/configuration/models/product/product-view.model";
 import { ProductService } from "app/views/configuration/services/product.service";
@@ -20,12 +19,11 @@ import { environment } from "environments/environment";
 export class PrimaryCustomerWiseProductWiseSalesQuantityReportComponent
   implements OnInit
 {
-  businessType: string;
   constructor(
     private http: HttpClient,
     private fb: FormBuilder,
     private productService: ProductService,
-    private jwtAuth: JwtAuthService
+    public industryProfile: IndustryProfileService
   ) {}
   searchForm: FormGroup;
   isLoading1: boolean = false;
@@ -34,9 +32,6 @@ export class PrimaryCustomerWiseProductWiseSalesQuantityReportComponent
   filterProducts: ProductView[];
 
   ngOnInit(): void {
-    this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
-      this.businessType = res.businesstype;
-    });
     this.initializeForm();
     this.getAllProducts();
   }
@@ -87,7 +82,7 @@ export class PrimaryCustomerWiseProductWiseSalesQuantityReportComponent
     if (!product) return "";
     return (
       product?.name +
-      (this.businessType === "2"
+      (this.industryProfile.isFeed
         ? ` (${product.bagWeight} ${product?.measurementUnit?.name})`
         : ` (${product?.packSize?.name})`)
     );

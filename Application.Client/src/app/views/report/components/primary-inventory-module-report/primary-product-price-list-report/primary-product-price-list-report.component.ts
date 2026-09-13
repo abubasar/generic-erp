@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { Category } from "app/views/configuration/models/category/category.model";
 import { InventoryType } from "app/views/configuration/models/inventory-type/inventory-type.model";
 import { CategoryService } from "app/views/configuration/services/category.service";
@@ -16,7 +16,6 @@ import { environment } from "environments/environment";
     standalone: false
 })
 export class PrimaryProductPriceListReportComponent implements OnInit {
-  businessType: string;
   panelOpenState: boolean;
   isLoading1: boolean = false;
   isLoading2: boolean = false;
@@ -28,16 +27,15 @@ export class PrimaryProductPriceListReportComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
-    private jwtAuth: JwtAuthService,
+    public industryProfile: IndustryProfileService,
     private inventoryService: InventoryTypeService,
     private categoryService: CategoryService
   ) {}
 
   ngOnInit(): void {
-    this.businessType = this.jwtAuth.userProfile.value?.businesstype;
     this.initializeForm();
     this.getAllInventoryTypes();
-    if (this.businessType === "1") {
+    if (this.industryProfile.isPharma) {
       this.getAllCategories();
     }
   }

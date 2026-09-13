@@ -2,8 +2,6 @@ import { HttpClient } from "@angular/common/http";
 import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Department_Id_SALES_AND_MARKETING } from "app/shared/consts/const";
-import { UserProfile } from "app/shared/models/user-profile-model";
-import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
 import { EmployeeRequest } from "app/views/configuration/models/employee/employee-request.model";
 import { Employee } from "app/views/configuration/models/employee/employee.model";
 import { FinancialYear } from "app/views/configuration/models/financial-year/financial-year.model";
@@ -23,13 +21,11 @@ import { environment } from "environments/environment";
 export class PrimaryMonthWiseSalesCollectionAndDueReportComponent
   implements OnInit
 {
-  businessType: string;
   constructor(
     private http: HttpClient,
     private fb: FormBuilder,
     private employeeService: EmployeeService,
-    private financialYearService: FinancialYearService,
-    private jwtAuth: JwtAuthService
+    private financialYearService: FinancialYearService
   ) {}
   searchForm: FormGroup;
   isLoading1: boolean = false;
@@ -40,9 +36,6 @@ export class PrimaryMonthWiseSalesCollectionAndDueReportComponent
   filterMarketingOfficers: Employee[];
 
   ngOnInit(): void {
-    this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
-      this.businessType = res.businesstype;
-    });
     this.initializeForm();
     this.getAllFinancialYears();
     this.getAllMarketingOfficers();

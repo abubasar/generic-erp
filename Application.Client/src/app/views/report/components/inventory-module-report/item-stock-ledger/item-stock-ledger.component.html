@@ -102,9 +102,7 @@
                         <span
                           >
                           ({{
-                          businessType === "2"
-                          ? product?.bagWeight + " " + product?.measurementUnit?.name
-                          : product?.packSize?.name
+                          industryProfile.productDisplaySuffix(product)
                           }})
                         </span>
                       }

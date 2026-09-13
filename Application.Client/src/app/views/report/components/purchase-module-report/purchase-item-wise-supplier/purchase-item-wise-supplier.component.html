@@ -104,7 +104,7 @@
                       >
                       {{ product.name }}
                       {{
-                      businessType === "2" ? "" : "(" + product?.packSize?.name + ")"
+                      industryProfile.isFeed ? "" : "(" + product?.packSize?.name + ")"
                       }}
                     </mat-option>
                   }

@@ -86,7 +86,7 @@
 
           @if (showFilterByCustomer) {
             <!-- customerZoneId -->
-            @if (businessType === '2') {
+            @if (industryProfile.isFeed) {
               <div class="col">
                 <mat-form-field class="full-width">
                   <mat-label>Select Zone</mat-label>
@@ -131,7 +131,7 @@
                 </div>
               }
               <!-- customerZoneId -->
-              @if (businessType === '1') {
+              @if (industryProfile.isPharma) {
                 <div class="col">
                   <mat-form-field class="full-width">
                     <mat-label>Select Zone</mat-label>

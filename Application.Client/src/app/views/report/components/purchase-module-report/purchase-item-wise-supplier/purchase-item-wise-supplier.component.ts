@@ -2,8 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Inventory_Type_Id_Raw_Materials } from "app/shared/consts/const";
-import { UserProfile } from "app/shared/models/user-profile-model";
-import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { ProductRequest } from "app/views/configuration/models/product/product-request.model";
 import { ProductView } from "app/views/configuration/models/product/product-view.model";
 import { StoreRequest } from "app/views/configuration/models/store/store-request.model";
@@ -25,7 +24,6 @@ export class PurchaseItemWiseSupplierComponent implements OnInit {
   isLoading2: boolean = false;
   // suppliers: Supplier[];
   // filterSuppliers: Supplier[];
-  businessType: string;
   products: ProductView[];
   filterProducts: ProductView[];
   stores: Store[];
@@ -35,16 +33,14 @@ export class PurchaseItemWiseSupplierComponent implements OnInit {
     // private supplierService: SupplierService,
     private productService: ProductService,
     private storeService: StoreService,
-    private jwtAuth: JwtAuthService
+    public industryProfile: IndustryProfileService
   ) {}
 
   // Initialize form control with null
 
   ngOnInit(): void {
     this.initializeForm();
-    this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
-      this.businessType = res.businesstype;
-    });
+
     // this.getAllSuppliers();
     this.getAllStores();
     this.getAllProducts();
@@ -94,7 +90,7 @@ export class PurchaseItemWiseSupplierComponent implements OnInit {
     if (!product) return "";
     return (
       product?.name +
-      (this.businessType === "2" ? "" : ` (${product?.packSize?.name})`)
+      (this.industryProfile.isFeed ? "" : ` (${product?.packSize?.name})`)
     );
   }
 

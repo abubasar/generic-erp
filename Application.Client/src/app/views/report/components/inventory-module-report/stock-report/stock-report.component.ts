@@ -6,7 +6,7 @@ import {
   Inventory_Type_Id_Finished_Goods,
   Page_Size_Options,
 } from "app/shared/consts/const";
-import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { InventoryType } from "app/views/configuration/models/inventory-type/inventory-type.model";
 import { ProductType } from "app/views/configuration/models/product-type/product-type.model";
 import { ProductRequest } from "app/views/configuration/models/product/product-request.model";
@@ -30,7 +30,6 @@ import { StockService } from "../../../services/stock.service";
 export class StockReportComponent implements OnInit {
   Inventory_Type_Id_Finished_Goods_ID: string =
     Inventory_Type_Id_Finished_Goods;
-  businessType: string;
   panelOpenState: boolean;
   searchForm: FormGroup;
   isLoading1: boolean = false;
@@ -61,13 +60,10 @@ export class StockReportComponent implements OnInit {
     private productService: ProductService,
     private inventoryTypeService: InventoryTypeService,
     private productTypeService: ProductTypeService,
-    private jwtAuth: JwtAuthService
+    public industryProfile: IndustryProfileService
   ) {}
 
   ngOnInit(): void {
-    this.jwtAuth.userProfile.subscribe((res) => {
-      this.businessType = res.businesstype;
-    });
     this.getStockData(this.stockRequest);
     this.getAllInventoryTypes();
     this.getAllProductTypes();
@@ -162,7 +158,7 @@ export class StockReportComponent implements OnInit {
       return "";
     }
 
-    return this.businessType === "2"
+    return this.industryProfile.isFeed
       ? ` (${product?.bagWeight} ${product?.measurementUnit?.name})`
       : ` (${product?.packSize?.name})`;
   }

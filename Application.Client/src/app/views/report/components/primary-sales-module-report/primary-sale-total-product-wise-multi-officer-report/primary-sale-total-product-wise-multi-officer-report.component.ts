@@ -1,8 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { UserProfile } from "app/shared/models/user-profile-model";
-import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
 import { environment } from "environments/environment";
 
 @Component({
@@ -17,20 +15,15 @@ import { environment } from "environments/environment";
 export class PrimarySaleTotalProductWiseMultiOfficerReportComponent
   implements OnInit
 {
-  businessType: string;
   constructor(
     private http: HttpClient,
-    private fb: FormBuilder,
-    private jwtAuth: JwtAuthService
+    private fb: FormBuilder
   ) {}
   searchForm: FormGroup;
   isLoading1: boolean = false;
   isLoading2: boolean = false;
 
   ngOnInit(): void {
-    this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
-      this.businessType = res.businesstype;
-    });
     this.initializeForm();
   }
   initializeForm() {

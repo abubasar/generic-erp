@@ -3,8 +3,7 @@ import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Department_Id_SALES_AND_MARKETING } from "app/shared/consts/const";
 import { CollectionReportFilterType } from "app/shared/enums/collectionReportFilterType";
-import { UserProfile } from "app/shared/models/user-profile-model";
-import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { CostCenter } from "app/views/configuration/models/cost-center/cost-center.model";
 import { Customer } from "app/views/configuration/models/customer/customer.model";
 import { EmployeeRequest } from "app/views/configuration/models/employee/employee-request.model";
@@ -44,7 +43,7 @@ export class PaymentCollectionReportComponent implements OnInit {
     private employeeService: EmployeeService,
     private costCenterService: CostCenterService,
     private paymentModeService: PaymentModeService,
-    private jwtAuth: JwtAuthService
+    public industryProfile: IndustryProfileService
   ) {}
   searchForm: FormGroup;
   isLoading1: boolean = false;
@@ -62,17 +61,12 @@ export class PaymentCollectionReportComponent implements OnInit {
   marketingOfficers: Employee[];
   filterMarketingOfficers: Employee[];
   showFilterByCustomer: boolean = false;
-  businessType: string;
-
   ngOnInit(): void {
-    this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
-      this.businessType = res.businesstype;
-      if (this.businessType === "2") {
-        this.getAllZones();
-      } else {
-        this.getAllRegions();
-      }
-    });
+    if (this.industryProfile.isFeed) {
+      this.getAllZones();
+    } else {
+      this.getAllRegions();
+    }
     this.initializeForm();
     this.getAllCustomers();
     this.getAllCostCenters();
@@ -133,7 +127,7 @@ export class PaymentCollectionReportComponent implements OnInit {
 
   resetFilters(exceptions: string[] = []): void {
     if (!exceptions.includes("zones")) {
-      this.businessType === "2"
+      this.industryProfile.isFeed
         ? (this.filterZones = this.lastFilterZones = this.zones)
         : (this.filterRegions = this.lastFilterRegions = this.regions);
     }
@@ -146,7 +140,7 @@ export class PaymentCollectionReportComponent implements OnInit {
     switch (type) {
       case "zone":
         if (id) {
-          this.businessType === "2"
+          this.industryProfile.isFeed
             ? (this.filterCustomers = this.customers?.filter(
                 (x) => x.customerZoneId === id
               ))
@@ -185,7 +179,7 @@ export class PaymentCollectionReportComponent implements OnInit {
 
   handleZoneSearch(): void {
     const term = this.searchForm?.get("customerZoneId")?.value?.toLowerCase();
-    if (this.businessType === "2") {
+    if (this.industryProfile.isFeed) {
       this.filterZones = this.lastFilterZones?.filter((option) =>
         option.name.toLowerCase().includes(term)
       );
@@ -258,7 +252,7 @@ export class PaymentCollectionReportComponent implements OnInit {
     if (!customerZoneId) {
       return;
     }
-    if (this.businessType === "2") {
+    if (this.industryProfile.isFeed) {
       const zoneData = this.zones?.find((zone) => zone?.id === customerZoneId);
       return zoneData?.name;
     } else {
