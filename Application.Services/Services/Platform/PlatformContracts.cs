@@ -52,4 +52,16 @@ namespace Application.Services.Services.Platform
 
     public sealed record ModuleAdoption(string ModuleKey, string ModuleName, int TenantCount);
     public sealed record AuditEntryDto(Guid Id, string AdminEmail, string Action, Guid? TenantId, string? Detail, DateTime CreatedOn);
+
+    // ---- Public self-service signup (docs/saas-platform-plan.md §06) ----
+
+    /// <summary>
+    /// What an anonymous visitor submits to create their own tenant. Deliberately
+    /// narrower than <see cref="CreateTenantRequest"/> — no Code (server-generated),
+    /// no DbConnectionKey, and the template/plan must both be publicly listed.
+    /// </summary>
+    public sealed record PublicSignupRequest(
+        string BusinessName, string BusinessTemplateKey, string? PlanKey, string? Currency, string? Subdomain,
+        int Users, int Branches, int PosTerminals,
+        string OwnerEmail, string OwnerUsername, string OwnerPassword);
 }

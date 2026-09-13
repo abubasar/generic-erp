@@ -11,9 +11,11 @@ namespace Application.Services.Services.Platform
         Task<ModuleDto> UpsertModuleAsync(ModuleDto dto);
 
         Task<IReadOnlyList<BusinessTemplateDto>> ListTemplatesAsync();
+        Task<IReadOnlyList<BusinessTemplateDto>> ListPublicTemplatesAsync();
         Task<BusinessTemplateDto> UpsertTemplateAsync(BusinessTemplateDto dto);
 
         Task<IReadOnlyList<PlanDto>> ListPlansAsync();
+        Task<IReadOnlyList<PlanDto>> ListPublicPlansAsync();
         Task<PlanDto> UpsertPlanAsync(PlanDto dto);
 
         Task<IReadOnlyList<PriceBookDto>> ListPriceBooksAsync();
@@ -66,6 +68,12 @@ namespace Application.Services.Services.Platform
                 .Select(b => new BusinessTemplateDto(b.Key, b.Name, b.Description, b.DefaultModuleKeys, b.IndustryProfileKey, b.IsPublic, b.SortOrder))
                 .ToListAsync();
 
+        /// <summary>For the anonymous signup surface — only templates marked IsPublic.</summary>
+        public async Task<IReadOnlyList<BusinessTemplateDto>> ListPublicTemplatesAsync() =>
+            await _db.BusinessTemplates.Where(b => b.IsPublic).OrderBy(b => b.SortOrder).ThenBy(b => b.Key)
+                .Select(b => new BusinessTemplateDto(b.Key, b.Name, b.Description, b.DefaultModuleKeys, b.IndustryProfileKey, b.IsPublic, b.SortOrder))
+                .ToListAsync();
+
         public async Task<BusinessTemplateDto> UpsertTemplateAsync(BusinessTemplateDto dto)
         {
             var key = dto.Key.Trim().ToLowerInvariant();
@@ -89,6 +97,12 @@ namespace Application.Services.Services.Platform
 
         public async Task<IReadOnlyList<PlanDto>> ListPlansAsync() =>
             await _db.Plans.OrderBy(p => p.SortOrder).ThenBy(p => p.Key)
+                .Select(p => new PlanDto(p.Key, p.Name, p.Description, p.ModuleKeys, p.Quotas, p.IsPublic, p.IsActive, p.SortOrder))
+                .ToListAsync();
+
+        /// <summary>For the anonymous signup surface — only plans marked IsPublic and IsActive.</summary>
+        public async Task<IReadOnlyList<PlanDto>> ListPublicPlansAsync() =>
+            await _db.Plans.Where(p => p.IsPublic && p.IsActive).OrderBy(p => p.SortOrder).ThenBy(p => p.Key)
                 .Select(p => new PlanDto(p.Key, p.Name, p.Description, p.ModuleKeys, p.Quotas, p.IsPublic, p.IsActive, p.SortOrder))
                 .ToListAsync();
 

@@ -13,6 +13,7 @@ namespace Application.Services.Services.Platform
         Task<IReadOnlyList<TenantListItem>> ListAsync(string? search, string? status);
         Task<TenantDetail?> GetAsync(Guid tenantId);
         Task<CreateTenantResult> CreateAsync(CreateTenantRequest request);
+        Task<CreateTenantResult> SignUpAsync(PublicSignupRequest request);
         Task<TenantDetail> SetStatusAsync(Guid tenantId, string status);
         Task<TenantDetail> SetSubscriptionAsync(Guid tenantId, SetSubscriptionRequest request);
         Task<TenantDetail> ToggleModuleAsync(Guid tenantId, ToggleModuleRequest request);
@@ -156,6 +157,82 @@ namespace Application.Services.Services.Platform
                 new ProvisionRequest(request.OwnerUsername, request.Email, request.OwnerPassword));
 
             return new CreateTenantResult((await GetAsync(tenant.Id))!, provisioning);
+        }
+
+        /// <summary>
+        /// The anonymous self-service path (docs/saas-platform-plan.md §06): unlike
+        /// <see cref="CreateAsync"/>, the caller supplies no Code and only public
+        /// templates/plans are acceptable. Generates a unique Code from the business
+        /// name and delegates to CreateAsync for the actual tenant + provisioning work.
+        /// </summary>
+        public async Task<CreateTenantResult> SignUpAsync(PublicSignupRequest request)
+        {
+            var businessName = request.BusinessName?.Trim();
+            if (string.IsNullOrWhiteSpace(businessName))
+                throw new BadRequestException("Business name is required.");
+
+            var template = await _db.BusinessTemplates.FirstOrDefaultAsync(b => b.Key == request.BusinessTemplateKey)
+                ?? throw new BadRequestException($"Unknown business template '{request.BusinessTemplateKey}'.");
+            if (!template.IsPublic)
+                throw new BadRequestException($"Business template '{request.BusinessTemplateKey}' is not available for signup.");
+
+            if (!string.IsNullOrWhiteSpace(request.PlanKey))
+            {
+                var plan = await _db.Plans.FirstOrDefaultAsync(p => p.Key == request.PlanKey)
+                    ?? throw new BadRequestException($"Unknown plan '{request.PlanKey}'.");
+                if (!plan.IsPublic || !plan.IsActive)
+                    throw new BadRequestException($"Plan '{request.PlanKey}' is not available for signup.");
+            }
+
+            var code = await GenerateUniqueCodeAsync(businessName);
+
+            var created = await CreateAsync(new CreateTenantRequest(
+                Code: code,
+                Name: businessName,
+                BusinessTemplateKey: template.Key,
+                Subdomain: string.IsNullOrWhiteSpace(request.Subdomain) ? null : request.Subdomain.Trim().ToLowerInvariant(),
+                PlanKey: string.IsNullOrWhiteSpace(request.PlanKey) ? null : request.PlanKey,
+                Currency: request.Currency,
+                Email: request.OwnerEmail,
+                ContactNo: null,
+                Address: null,
+                OwnerUsername: request.OwnerUsername,
+                OwnerPassword: request.OwnerPassword));
+
+            foreach (var (key, limit) in new (string, int)[]
+                {
+                    ("max_users", request.Users),
+                    ("max_branches", request.Branches),
+                    ("max_pos_terminals", request.PosTerminals),
+                }.Where(x => x.Item2 > 0))
+            {
+                await SetQuotaAsync(created.Tenant.Id, new SetQuotaRequest(key, limit));
+            }
+
+            return new CreateTenantResult((await GetAsync(created.Tenant.Id))!, created.Provisioning);
+        }
+
+        // Tenant.Code is HasMaxLength(10) — a pre-multi-tenancy column never widened
+        // for the platform layer. Keep the base short enough that a numeric
+        // collision suffix (up to 3 digits) still fits.
+        private const int MaxCodeLength = 10;
+
+        private async Task<string> GenerateUniqueCodeAsync(string businessName)
+        {
+            var baseSlug = Slug(businessName, MaxCodeLength - 3);
+            var code = baseSlug;
+            var n = 1;
+            while (await _db.Set<Tenant>().IgnoreQueryFilters().AnyAsync(t => t.Code == code && !t.Deleted))
+                code = $"{baseSlug}{++n}";
+            return code;
+        }
+
+        private static string Slug(string s, int maxLength = 40)
+        {
+            var chars = s.Trim().ToLowerInvariant()
+                .Where(char.IsLetterOrDigit).ToArray();
+            var slug = new string(chars);
+            return string.IsNullOrEmpty(slug) ? "tenant" : slug[..Math.Min(slug.Length, maxLength)];
         }
 
         public async Task<TenantDetail> SetStatusAsync(Guid tenantId, string status)
