@@ -1,14 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PlatformApi } from '../core/api.service';
 import { AuthService } from '../core/auth.service';
-import { TenantDetail, ModuleDto, PlanDto, ProvisioningStepStatus } from '../core/models';
+import { TenantDetail, ModuleDto, PlanDto, ProvisioningStepStatus, PlatformInvoiceDto } from '../core/models';
 
 @Component({
   standalone: true,
-  imports: [DatePipe, FormsModule, RouterLink],
+  imports: [DatePipe, DecimalPipe, FormsModule, RouterLink],
   styles: [`
     .head { display: flex; align-items: baseline; gap: 12px; }
     .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
@@ -96,6 +96,62 @@ import { TenantDetail, ModuleDto, PlanDto, ProvisioningStepStatus } from '../cor
         }
       </div>
 
+      <h2>Invoices</h2>
+      <div class="card">
+        @if (invoices().length) {
+          <table>
+            <thead><tr><th>Number</th><th>Period</th><th>Amount</th><th>Status</th><th>Due</th><th>Paid</th><th></th></tr></thead>
+            <tbody>
+              @for (inv of invoices(); track inv.id) {
+                <tr>
+                  <td>{{ inv.number }}</td>
+                  <td>{{ inv.periodStart | date:'mediumDate' }} – {{ inv.periodEnd | date:'mediumDate' }}</td>
+                  <td>{{ inv.currency }} {{ inv.amount | number:'1.0-0' }}</td>
+                  <td><span class="pill" [class.ok]="inv.status==='Paid'" [class.warn]="inv.status==='Unpaid'" [class.mute]="inv.status==='Void'">{{ inv.status }}</span></td>
+                  <td>{{ inv.dueOn ? (inv.dueOn | date:'mediumDate') : '—' }}</td>
+                  <td>{{ inv.paidOn ? (inv.paidOn | date:'mediumDate') : '—' }}</td>
+                  <td>
+                    @if (auth.hasRole('Admin') && inv.status === 'Unpaid') {
+                      <button (click)="markInvoicePaid(inv.id)">Mark paid</button>
+                      <button class="ghost" (click)="voidInvoice(inv.id)">Void</button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p class="muted">No invoices yet.</p>
+        }
+
+        @if (auth.hasRole('Admin')) {
+          <label>New invoice</label>
+          <div class="row" style="align-items:flex-end">
+            <div>
+              <label style="margin:0 0 3px">Period start</label>
+              <input type="date" [(ngModel)]="invPeriodStart" style="width:150px" />
+            </div>
+            <div>
+              <label style="margin:0 0 3px">Period end</label>
+              <input type="date" [(ngModel)]="invPeriodEnd" style="width:150px" />
+            </div>
+            <div>
+              <label style="margin:0 0 3px">Amount</label>
+              <input type="number" [(ngModel)]="invAmount" style="width:110px" />
+            </div>
+            <div>
+              <label style="margin:0 0 3px">Due date</label>
+              <input type="date" [(ngModel)]="invDueOn" style="width:150px" />
+            </div>
+            <div style="flex:1">
+              <label style="margin:0 0 3px">Note</label>
+              <input [(ngModel)]="invNote" placeholder="optional" />
+            </div>
+            <button (click)="createInvoice()">Create</button>
+          </div>
+        }
+      </div>
+
       @if (auth.hasRole('Support')) {
         <h2>Support</h2>
         <div class="card">
@@ -124,11 +180,18 @@ export class TenantDetailComponent {
   impToken = signal('');
   impActor = signal('');
   provSteps = signal<ProvisioningStepStatus[]>([]);
+  invoices = signal<PlatformInvoiceDto[]>([]);
+  invPeriodStart = '';
+  invPeriodEnd = '';
+  invAmount: number | null = null;
+  invDueOn = '';
+  invNote = '';
 
   constructor() {
     this.reload();
     this.loadCatalog();
     this.loadProvisioning();
+    this.loadInvoices();
   }
 
   private loadCatalog(): void {
@@ -176,5 +239,38 @@ export class TenantDetailComponent {
       this.impToken.set(r.accessToken);
       this.impActor.set(r.actingAs);
     } catch (e: any) { this.error.set(e.message); }
+  }
+
+  private loadInvoices(): void {
+    this.api.invoices(this.id).then((i) => this.invoices.set(i)).catch((e) => this.error.set(e.message));
+  }
+
+  async createInvoice(): Promise<void> {
+    this.error.set('');
+    if (!this.invPeriodStart || !this.invPeriodEnd || !this.invAmount) {
+      this.error.set('Period start, period end and amount are required.');
+      return;
+    }
+    try {
+      await this.api.createInvoice(this.id, {
+        periodStart: this.invPeriodStart,
+        periodEnd: this.invPeriodEnd,
+        amount: Number(this.invAmount),
+        dueOn: this.invDueOn || null,
+        note: this.invNote || null,
+      });
+      this.invPeriodStart = ''; this.invPeriodEnd = ''; this.invAmount = null; this.invDueOn = ''; this.invNote = '';
+      this.loadInvoices();
+    } catch (e: any) { this.error.set(e.message); }
+  }
+
+  markInvoicePaid(invoiceId: string): void {
+    this.error.set('');
+    this.api.markInvoicePaid(this.id, invoiceId).then(() => this.loadInvoices()).catch((e) => this.error.set(e.message));
+  }
+
+  voidInvoice(invoiceId: string): void {
+    this.error.set('');
+    this.api.voidInvoice(this.id, invoiceId).then(() => this.loadInvoices()).catch((e) => this.error.set(e.message));
   }
 }

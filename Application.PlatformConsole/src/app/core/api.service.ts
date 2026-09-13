@@ -5,6 +5,7 @@ import {
   ApiResult, TenantListItem, TenantDetail, ModuleDto, BusinessTemplateDto, PlanDto,
   PriceBookDto, PlatformUsageSummary, AuditEntryDto, ImpersonateResult,
   CreateTenantResult, ProvisioningResult, ProvisioningStepStatus, PricingQuote,
+  PlatformInvoiceDto,
 } from './models';
 
 @Injectable({ providedIn: 'root' })
@@ -43,6 +44,12 @@ export class PlatformApi {
   toggleModule(id: string, moduleKey: string, enabled: boolean) { return this.post<TenantDetail>(`/api/platform/tenants/${id}/modules`, { moduleKey, enabled }); }
   setQuota(id: string, key: string, limit: number) { return this.post<TenantDetail>(`/api/platform/tenants/${id}/quotas`, { key, limit }); }
   impersonate(id: string) { return this.post<ImpersonateResult>(`/api/platform/tenants/${id}/impersonate`); }
+
+  // Invoices
+  invoices(id: string) { return this.get<PlatformInvoiceDto[]>(`/api/platform/tenants/${id}/invoices`); }
+  createInvoice(id: string, body: unknown) { return this.post<PlatformInvoiceDto>(`/api/platform/tenants/${id}/invoices`, body); }
+  markInvoicePaid(id: string, invoiceId: string) { return this.post<PlatformInvoiceDto>(`/api/platform/tenants/${id}/invoices/${invoiceId}/paid`); }
+  voidInvoice(id: string, invoiceId: string) { return this.post<PlatformInvoiceDto>(`/api/platform/tenants/${id}/invoices/${invoiceId}/void`); }
 
   // Catalog
   modules() { return this.get<ModuleDto[]>('/api/platform/modules'); }

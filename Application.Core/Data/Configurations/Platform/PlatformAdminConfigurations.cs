@@ -121,3 +121,20 @@ public class PlatformAuditLogConfiguration : IEntityTypeConfiguration<PlatformAu
         e.HasIndex(x => x.TenantId);
     }
 }
+
+public class PlatformInvoiceConfiguration : IEntityTypeConfiguration<PlatformInvoice>
+{
+    public void Configure(EntityTypeBuilder<PlatformInvoice> e)
+    {
+        e.ToTable("PlatformInvoice");
+        e.HasKey(x => x.Id);
+        e.Property(x => x.Number).IsRequired().HasMaxLength(30);
+        e.Property(x => x.Amount).HasColumnType("decimal(18,2)");
+        e.Property(x => x.Currency).IsRequired().HasMaxLength(3);
+        e.Property(x => x.Status).IsRequired().HasMaxLength(20);
+        e.Property(x => x.Note).HasMaxLength(500);
+        e.HasIndex(x => x.Number).IsUnique();
+        e.HasIndex(x => new { x.TenantId, x.IssuedOn });
+        e.HasOne(x => x.Tenant).WithMany().HasForeignKey(x => x.TenantId).OnDelete(DeleteBehavior.Cascade);
+    }
+}

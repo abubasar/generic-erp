@@ -14,11 +14,13 @@ namespace Application.Api.Controllers.Platform
     {
         private readonly IPlatformTenantService _tenants;
         private readonly IProvisioningService _provisioning;
+        private readonly IPlatformInvoiceService _invoices;
 
-        public PlatformTenantsController(IPlatformTenantService tenants, IProvisioningService provisioning)
+        public PlatformTenantsController(IPlatformTenantService tenants, IProvisioningService provisioning, IPlatformInvoiceService invoices)
         {
             _tenants = tenants;
             _provisioning = provisioning;
+            _invoices = invoices;
         }
 
         [HttpGet]
@@ -70,6 +72,27 @@ namespace Application.Api.Controllers.Platform
         [PlatformAuthorize(PlatformRoles.Support)]
         public async Task<Result> Impersonate(Guid id) =>
             await Result<ImpersonateResult>.SuccessAsync(await _tenants.ImpersonateAsync(id), "Impersonation token issued");
+
+        // ---- Manual invoicing (docs/saas-platform-plan.md §08 Phase 2) ----
+
+        [HttpGet("{id:guid}/invoices")]
+        public async Task<Result> Invoices(Guid id) =>
+            await Result<IReadOnlyList<PlatformInvoiceDto>>.SuccessAsync(await _invoices.ListAsync(id), "OK");
+
+        [HttpPost("{id:guid}/invoices")]
+        [PlatformAuthorize(PlatformRoles.Admin)]
+        public async Task<Result> CreateInvoice(Guid id, CreateInvoiceRequest request) =>
+            await Result<PlatformInvoiceDto>.SuccessAsync(await _invoices.CreateAsync(id, request), "Invoice created");
+
+        [HttpPost("{id:guid}/invoices/{invoiceId:guid}/paid")]
+        [PlatformAuthorize(PlatformRoles.Admin)]
+        public async Task<Result> MarkInvoicePaid(Guid id, Guid invoiceId) =>
+            await Result<PlatformInvoiceDto>.SuccessAsync(await _invoices.MarkPaidAsync(invoiceId), "Invoice marked paid");
+
+        [HttpPost("{id:guid}/invoices/{invoiceId:guid}/void")]
+        [PlatformAuthorize(PlatformRoles.Admin)]
+        public async Task<Result> VoidInvoice(Guid id, Guid invoiceId) =>
+            await Result<PlatformInvoiceDto>.SuccessAsync(await _invoices.VoidAsync(invoiceId), "Invoice voided");
 
         public sealed record StatusBody(string Status);
     }

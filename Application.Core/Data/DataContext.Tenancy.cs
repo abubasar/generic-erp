@@ -51,6 +51,7 @@ namespace Application.Core.Data
         public virtual DbSet<PriceBookEntry> PriceBookEntries => Set<PriceBookEntry>();
         public virtual DbSet<PlatformAuditLog> PlatformAuditLogs => Set<PlatformAuditLog>();
         public virtual DbSet<ProvisioningStep> ProvisioningSteps => Set<ProvisioningStep>();
+        public virtual DbSet<PlatformInvoice> PlatformInvoices => Set<PlatformInvoice>();
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder)
         {
@@ -66,6 +67,7 @@ namespace Application.Core.Data
             modelBuilder.ApplyConfiguration(new PriceBookEntryConfiguration());
             modelBuilder.ApplyConfiguration(new PlatformAuditLogConfiguration());
             modelBuilder.ApplyConfiguration(new ProvisioningStepConfiguration());
+            modelBuilder.ApplyConfiguration(new PlatformInvoiceConfiguration());
 
             // SP result type — keyless, and not a real table.
             modelBuilder.Entity<SPSupplierLedgerResult>().HasNoKey().ToView(null);

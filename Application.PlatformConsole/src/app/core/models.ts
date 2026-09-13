@@ -46,3 +46,9 @@ export interface CreateTenantResult { tenant: TenantDetail; provisioning: Provis
 
 export interface PricingLine { label: string; detail: string; amount: number; }
 export interface PricingQuote { currency: string; priceBookVersion?: number; lines: PricingLine[]; monthlyTotal: number; pricingConfigured: boolean; }
+
+export interface PlatformInvoiceDto {
+  id: string; tenantId: string; number: string; periodStart: string; periodEnd: string;
+  amount: number; currency: string; status: string;
+  issuedOn: string; dueOn?: string; paidOn?: string; note?: string;
+}

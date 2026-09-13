@@ -64,4 +64,15 @@ namespace Application.Services.Services.Platform
         string BusinessName, string BusinessTemplateKey, string? PlanKey, string? Currency, string? Subdomain,
         int Users, int Branches, int PosTerminals,
         string OwnerEmail, string OwnerUsername, string OwnerPassword);
+
+    // ---- Manual invoicing (docs/saas-platform-plan.md §08 Phase 2 — "issues invoices;
+    //      mark paid". Not the itemised, automated TenantInvoice of Phase 4.) ----
+
+    public sealed record PlatformInvoiceDto(
+        Guid Id, Guid TenantId, string Number, DateTime PeriodStart, DateTime PeriodEnd,
+        decimal Amount, string Currency, string Status,
+        DateTime IssuedOn, DateTime? DueOn, DateTime? PaidOn, string? Note);
+
+    public sealed record CreateInvoiceRequest(
+        DateTime PeriodStart, DateTime PeriodEnd, decimal Amount, string? Currency, DateTime? DueOn, string? Note);
 }
