@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialog } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA, MatDialog as MatDialog } from "@angular/material/dialog";
 import { Department_Id_SALES_AND_MARKETING } from "app/shared/consts/const";
 import { UserProfile } from "app/shared/models/user-profile-model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";

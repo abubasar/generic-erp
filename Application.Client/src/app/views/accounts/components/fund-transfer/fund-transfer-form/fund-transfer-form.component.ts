@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MatDialog } from "@angular/material/dialog";
+import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { MatStepper } from "@angular/material/stepper";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ReverseId } from "app/shared/consts/const";
@@ -17,7 +17,7 @@ import { AddUpdateResponseDTO } from "app/views/purchase/models/add-update-respo
 import { ToastrService } from "ngx-toastr";
 
 import { HttpClient } from "@angular/common/http";
-import { MatButton } from "@angular/material/button";
+import { MatButton as MatButton } from "@angular/material/button";
 import { Control_Accounts_Parent_Id } from "app/shared/consts/const";
 import { FundTransferStatus } from "app/shared/enums/fundTransferStatus";
 import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";

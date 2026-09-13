@@ -40,7 +40,7 @@ import { NoDataFoundComponent } from "./no-data-found/no-data-found.component";
 import { NotificationsComponent } from "./notifications/notifications.component";
 import { SidenavComponent } from "./sidenav/sidenav.component";
 import { TransactionalJournalDetailsComponent } from "./transactional-journal-details/transactional-journal-details.component";
-import { MatTableModule } from "@angular/material/table";
+import { MatTableModule as MatTableModule } from "@angular/material/table";
 
 const components = [
   HeaderTopComponent,

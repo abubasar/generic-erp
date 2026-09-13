@@ -1,8 +1,8 @@
 import { HttpClient } from "@angular/common/http";
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
-import { MatDialog } from "@angular/material/dialog";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatDialog as MatDialog } from "@angular/material/dialog";
+import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { Page_Size_Options } from "app/shared/consts/const";
 import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";
 import { ConfirmDialogService } from "app/shared/services/confirm-dialog.service";

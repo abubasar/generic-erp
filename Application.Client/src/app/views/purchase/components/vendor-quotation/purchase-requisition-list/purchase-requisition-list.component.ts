@@ -7,8 +7,8 @@ import {
 } from "@angular/animations";
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
-import { MAT_DIALOG_DATA } from "@angular/material/dialog";
-import { MatTableDataSource } from "@angular/material/table";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { Priority } from "app/shared/enums/priority";
 import { RequisitionStatus } from "app/shared/enums/requisitionStatus";
 import { ENUM } from "app/shared/models/enum-value/enum.model";

@@ -1,9 +1,9 @@
 import { HttpClient } from "@angular/common/http";
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
-import { MatDialog } from "@angular/material/dialog";
-import { MatMenuTrigger } from "@angular/material/menu";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatDialog as MatDialog } from "@angular/material/dialog";
+import { MatMenuTrigger as MatMenuTrigger } from "@angular/material/menu";
+import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { FundTransferStatus } from "app/shared/enums/fundTransferStatus";
 import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";

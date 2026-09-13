@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { InventoryTypeRequest } from "app/views/configuration/models/inventory-type/inventory-type-request.model";
 import { InventoryType } from "app/views/configuration/models/inventory-type/inventory-type.model";
 import { ProductType } from "app/views/configuration/models/product-type/product-type.model";

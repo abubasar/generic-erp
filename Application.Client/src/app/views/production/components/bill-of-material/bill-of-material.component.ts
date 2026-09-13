@@ -8,9 +8,9 @@ import {
 import { HttpClient } from "@angular/common/http";
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
-import { MatDialog } from "@angular/material/dialog";
-import { MatMenuTrigger } from "@angular/material/menu";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatDialog as MatDialog } from "@angular/material/dialog";
+import { MatMenuTrigger as MatMenuTrigger } from "@angular/material/menu";
+import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { Page_Size_Options } from "app/shared/consts/const";
 import { BOMStatus } from "app/shared/enums/bomStatus";

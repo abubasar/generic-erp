@@ -19,7 +19,6 @@ import { ProductionFormComponent } from "./components/production/production-form
 import { ProductionComponent } from "./components/production/production.component";
 import { ProductionRoutingModule } from "./production-routing.module";
 import {NgxMatTimepickerModule} from "ngx-mat-timepicker";
-import { NgxMatDatetimePickerModule, NgxMatNativeDateModule } from "@angular-material-components/datetime-picker";
 
 @NgModule({
   declarations: [
@@ -45,8 +44,6 @@ import { NgxMatDatetimePickerModule, NgxMatNativeDateModule } from "@angular-mat
     FlexLayoutModule,
     SharedDirectivesModule,
     NgxMatTimepickerModule.setLocale("en-GB"),
-    NgxMatDatetimePickerModule,
-    NgxMatNativeDateModule,
   ],
 })
 export class ProductionModule {}

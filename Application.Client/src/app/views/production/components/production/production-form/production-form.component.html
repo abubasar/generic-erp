@@ -394,61 +394,83 @@
             </div>
 
             <div class="col">
-              <mat-form-field class="full-width">
-                <mat-label>Start Date Time</mat-label>
-                <input
-                  matInput
-                  [ngxMatDatetimePicker]="startDateTimePicker"
-                  placeholder="Choose a date"
-                  name="startDateTime"
-                  formControlName="startDateTime"
-                  [max]="productionForm?.get('endDateTime')?.value"
-                  (click)="startDateTimePicker.open()"
-                  disabled
-                />
-                <mat-datepicker-toggle
-                  matSuffix
-                  [for]="startDateTimePicker"
-                  [disabled]="false"
-                >
-                  <mat-icon matDatepickerToggleIcon> calendar_month </mat-icon>
-                </mat-datepicker-toggle>
-                <ngx-mat-datetime-picker
-                  #startDateTimePicker
-                  [disabled]="false"
-                  [showSeconds]="false"
-                  [enableMeridian]="true"
-                ></ngx-mat-datetime-picker>
-              </mat-form-field>
+              <mat-label>Start Date Time</mat-label>
+              <div class="row">
+                <div class="col">
+                  <mat-form-field class="full-width">
+                    <input
+                      matInput
+                      [matDatepicker]="startDatePicker"
+                      placeholder="Choose a date"
+                      name="startDatePart"
+                      formControlName="startDatePart"
+                      [max]="productionForm?.get('endDatePart')?.value"
+                      (click)="startDatePicker.open()"
+                      readonly
+                    />
+                    <mat-datepicker-toggle matSuffix [for]="startDatePicker">
+                      <mat-icon matDatepickerToggleIcon> calendar_month </mat-icon>
+                    </mat-datepicker-toggle>
+                    <mat-datepicker #startDatePicker></mat-datepicker>
+                  </mat-form-field>
+                </div>
+                <div class="col">
+                  <mat-form-field class="full-width">
+                    <input
+                      matInput
+                      name="startTimePart"
+                      formControlName="startTimePart"
+                      [ngxMatTimepicker]="startTimePicker"
+                      [format]="12"
+                      placeholder="Choose a time"
+                      (click)="startTimePicker.open()"
+                      readonly
+                    />
+                    <mat-icon matSuffix (click)="startTimePicker.open()"> watch_later </mat-icon>
+                    <ngx-mat-timepicker #startTimePicker [format]="12"></ngx-mat-timepicker>
+                  </mat-form-field>
+                </div>
+              </div>
             </div>
 
             <div class="col">
-              <mat-form-field class="full-width">
-                <mat-label>End Date Time</mat-label>
-                <input
-                  matInput
-                  [ngxMatDatetimePicker]="endDateTimePicker"
-                  placeholder="Choose a date"
-                  name="endDateTime"
-                  formControlName="endDateTime"
-                  [min]="productionForm?.get('startDateTime')?.value"
-                  (click)="endDateTimePicker.open()"
-                  disabled
-                />
-                <mat-datepicker-toggle
-                  matSuffix
-                  [for]="endDateTimePicker"
-                  [disabled]="false"
-                >
-                  <mat-icon matDatepickerToggleIcon> calendar_month </mat-icon>
-                </mat-datepicker-toggle>
-                <ngx-mat-datetime-picker
-                  #endDateTimePicker
-                  [disabled]="false"
-                  [showSeconds]="false"
-                  [enableMeridian]="true"
-                ></ngx-mat-datetime-picker>
-              </mat-form-field>
+              <mat-label>End Date Time</mat-label>
+              <div class="row">
+                <div class="col">
+                  <mat-form-field class="full-width">
+                    <input
+                      matInput
+                      [matDatepicker]="endDatePicker"
+                      placeholder="Choose a date"
+                      name="endDatePart"
+                      formControlName="endDatePart"
+                      [min]="productionForm?.get('startDatePart')?.value"
+                      (click)="endDatePicker.open()"
+                      readonly
+                    />
+                    <mat-datepicker-toggle matSuffix [for]="endDatePicker">
+                      <mat-icon matDatepickerToggleIcon> calendar_month </mat-icon>
+                    </mat-datepicker-toggle>
+                    <mat-datepicker #endDatePicker></mat-datepicker>
+                  </mat-form-field>
+                </div>
+                <div class="col">
+                  <mat-form-field class="full-width">
+                    <input
+                      matInput
+                      name="endTimePart"
+                      formControlName="endTimePart"
+                      [ngxMatTimepicker]="endTimePicker"
+                      [format]="12"
+                      placeholder="Choose a time"
+                      (click)="endTimePicker.open()"
+                      readonly
+                    />
+                    <mat-icon matSuffix (click)="endTimePicker.open()"> watch_later </mat-icon>
+                    <ngx-mat-timepicker #endTimePicker [format]="12"></ngx-mat-timepicker>
+                  </mat-form-field>
+                </div>
+              </div>
             </div>
 
             <!-- breakTime -->

@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { MeasurementUnit } from "app/views/configuration/models/measurement-unit/measurement-unit.model";
 import { MeasurementUnitService } from "app/views/configuration/services/measurement-unit.service";
 import { ToastrService } from "ngx-toastr";

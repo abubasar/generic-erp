@@ -8,10 +8,10 @@ import {
 import { HttpClient } from "@angular/common/http";
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
-import { MatDialog } from "@angular/material/dialog";
-import { MatMenuTrigger } from "@angular/material/menu";
+import { MatDialog as MatDialog } from "@angular/material/dialog";
+import { MatMenuTrigger as MatMenuTrigger } from "@angular/material/menu";
 import { Sort } from "@angular/material/sort";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { ReceivePaymentStatus } from "app/shared/enums/receivePaymentStatus";
 import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";

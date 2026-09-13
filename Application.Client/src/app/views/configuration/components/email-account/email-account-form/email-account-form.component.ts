@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { EmailAccountRequest } from "app/views/configuration/models/email-account/email-account-request.model";
 import { EmailAccount } from "app/views/configuration/models/email-account/email-account.model";
 import { EmailAccountService } from "app/views/configuration/services/email-account.service";

@@ -30,7 +30,6 @@ import { ValidationErrorInterceptor } from "./shared/interceptors/validation-err
 import {NgxMatTimepickerModule} from "ngx-mat-timepicker";
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
-import { NgxMatDatetimePickerModule, NgxMatNativeDateModule } from "@angular-material-components/datetime-picker";
 import { TooManyRequestInterceptor } from "./shared/interceptors/too-many-request.interceptor";
 import { Status412PreconditionFailed } from "./shared/interceptors/status-412-precondition-failed";
 //.....
@@ -58,8 +57,6 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         SharedModule,
         PerfectScrollbarModule,
         NgxMatTimepickerModule.setLocale("en-GB"),
-        NgxMatDatetimePickerModule,
-        NgxMatNativeDateModule,
         TranslateModule.forRoot({
             loader: {
                 provide: TranslateLoader,

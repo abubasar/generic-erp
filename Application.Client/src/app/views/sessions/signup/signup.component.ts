@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatButton } from '@angular/material/button';
-import { MatProgressBar } from '@angular/material/progress-bar';
+import { MatButton as MatButton } from '@angular/material/button';
+import { MatProgressBar as MatProgressBar } from '@angular/material/progress-bar';
 import { Validators, UntypedFormGroup, UntypedFormControl } from '@angular/forms';
 
 @Component({

@@ -6,8 +6,8 @@ import {
   AfterViewInit,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { MatButton } from "@angular/material/button";
-import { MatProgressBar } from "@angular/material/progress-bar";
+import { MatButton as MatButton } from "@angular/material/button";
+import { MatProgressBar as MatProgressBar } from "@angular/material/progress-bar";
 import {
   Validators,
   UntypedFormGroup,

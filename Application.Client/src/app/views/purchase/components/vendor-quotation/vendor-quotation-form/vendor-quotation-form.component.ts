@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MatDialog } from "@angular/material/dialog";
+import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { MatStepper } from "@angular/material/stepper";
 import { ActivatedRoute, Router } from "@angular/router";
 import {

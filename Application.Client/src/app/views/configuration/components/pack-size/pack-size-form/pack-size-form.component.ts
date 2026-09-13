@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { PackSize } from "app/views/configuration/models/pack-size/pack-size.model";
 import { PackSizeService } from "app/views/configuration/services/pack-size.service";
 import { ToastrService } from "ngx-toastr";

@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { FinancialYear } from "app/views/configuration/models/financial-year/financial-year.model";
 import { FinancialYearService } from "app/views/configuration/services/financial-year.service";
 import { ToastrService } from "ngx-toastr";

@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MatButton } from "@angular/material/button";
+import { MatButton as MatButton } from "@angular/material/button";
 import { MatStepper } from "@angular/material/stepper";
 import { ActivatedRoute, Router } from "@angular/router";
 import { JournalEntryStatus } from "app/shared/enums/journalEntryStatus";

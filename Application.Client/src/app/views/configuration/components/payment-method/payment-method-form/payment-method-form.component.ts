@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { PaymentMethod } from "app/views/configuration/models/payment-method/payment-method.model";
 import { PaymentMethodService } from "app/views/configuration/services/payment-method.service";
 import { ToastrService } from "ngx-toastr";

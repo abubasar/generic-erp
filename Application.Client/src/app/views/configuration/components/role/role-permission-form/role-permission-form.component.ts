@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from "@angular/core";
-import { MAT_DIALOG_DATA, MatDialog } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA, MatDialog as MatDialog } from "@angular/material/dialog";
 import { RoleClaim } from "app/views/configuration/models/role/permission.model";
 import { Role } from "app/views/configuration/models/role/role.model";
 import { RoleService } from "app/views/configuration/services/role.service";

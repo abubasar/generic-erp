@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Generic } from 'app/views/configuration/models/generic/generic.model';
 import { ProductTypeRequest } from 'app/views/configuration/models/product-type/product-type-request.model';
 import { ProductType } from 'app/views/configuration/models/product-type/product-type.model';

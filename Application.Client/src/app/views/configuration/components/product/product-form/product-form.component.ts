@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialog } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA, MatDialog as MatDialog } from "@angular/material/dialog";
 import { Inventory_Type_Id_Finished_Goods } from "app/shared/consts/const";
 import settingConstants from "app/shared/consts/setting-constant";
 import { UserProfile } from "app/shared/models/user-profile-model";

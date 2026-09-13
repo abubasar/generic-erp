@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from "@angular/core";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA, MatDialogRef as MatDialogRef } from "@angular/material/dialog";
 import { ConfirmReadyForGrnDialogModel } from "app/shared/models/confirm-ready-for-grn-dialog.model";
 import { LCCostEntryByPoIdResponseDTO } from "app/views/purchase/models/lc-cost-entry/lc-cost-entry-by-po-id-response-dto.model";
 import { LcCostEntryService } from "app/views/purchase/services/lc-cost-entry.service";

@@ -13,7 +13,7 @@ import { ProductService } from "app/views/configuration/services/product.service
 import { ToastrService } from "ngx-toastr";
 
 import { HttpClient } from "@angular/common/http";
-import { MatButton } from "@angular/material/button";
+import { MatButton as MatButton } from "@angular/material/button";
 import { MatStepper } from "@angular/material/stepper";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Inventory_Type_Id_Finished_Goods } from "app/shared/consts/const";

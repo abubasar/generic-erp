@@ -27,8 +27,8 @@ import { DeliveryNoteService } from "app/views/sales/services/delivery-note.serv
 import { ToastrService } from "ngx-toastr";
 
 import { HttpClient } from "@angular/common/http";
-import { MatButton } from "@angular/material/button";
-import { MatDialog } from "@angular/material/dialog";
+import { MatButton as MatButton } from "@angular/material/button";
+import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { Inventory_Type_Id_Finished_Goods } from "app/shared/consts/const";
 import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";
 import { UserProfile } from "app/shared/models/user-profile-model";

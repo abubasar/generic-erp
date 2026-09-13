@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialog } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA, MatDialog as MatDialog } from "@angular/material/dialog";
 import { AccountTypeRequest } from "app/views/configuration/models/account-type/account-type-request.model";
 import { AccountType } from "app/views/configuration/models/account-type/account-type.model";
 import { AccountRequest } from "app/views/configuration/models/account/account-request.model";

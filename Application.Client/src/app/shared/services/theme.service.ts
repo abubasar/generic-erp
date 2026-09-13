@@ -1,10 +1,11 @@
-import { DOCUMENT } from "@angular/common";
+
 import {
   EventEmitter,
   Inject,
   Injectable,
   Renderer2,
   RendererFactory2,
+  DOCUMENT
 } from "@angular/core";
 import { getQueryParam } from "../helpers/url.helper";
 

@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { EmployeeType } from "app/shared/enums/employeeTypes";
 import { ENUM } from "app/shared/models/enum-value/enum.model";
 import { EnumValueService } from "app/shared/services/enum-value/enum-value.service";

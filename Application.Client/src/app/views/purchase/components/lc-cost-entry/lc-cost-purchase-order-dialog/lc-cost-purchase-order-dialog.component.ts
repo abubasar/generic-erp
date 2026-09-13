@@ -7,7 +7,7 @@ import {
 } from "@angular/animations";
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { PaymentMode } from "app/shared/enums/paymentMode";
 import { PurchaseOrderStatus } from "app/shared/enums/purchaseOrderStatus";
 import { ENUM } from "app/shared/models/enum-value/enum.model";

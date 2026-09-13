@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { MatDialog, MatDialogRef } from "@angular/material/dialog";
+import { MatDialog as MatDialog, MatDialogRef as MatDialogRef } from "@angular/material/dialog";
 import { ConfirmReadyForGrnDialogComponent } from "../components/confirm-ready-for-grn-dialog/confirm-ready-for-grn-dialog.component";
 import { ConfirmReadyForGrnDialogModel } from "../models/confirm-ready-for-grn-dialog.model";
 

@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { AreaRequest } from "app/views/configuration/models/area/area-request.model";
 import { Area } from "app/views/configuration/models/area/area.model";
 import { Territory } from "app/views/configuration/models/Territory/territory.model";

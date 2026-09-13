@@ -24,8 +24,8 @@ import { SaleOrderService } from "app/views/sales/services/sale-order.service";
 import { ToastrService } from "ngx-toastr";
 
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { MatButton } from "@angular/material/button";
-import { MatDialog } from "@angular/material/dialog";
+import { MatButton as MatButton } from "@angular/material/button";
+import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { Inventory_Type_Id_Finished_Goods } from "app/shared/consts/const";
 import { PaymentTerm } from "app/shared/enums/paymentTerm";
 import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";

@@ -7,7 +7,7 @@ import {
 } from "@angular/animations";
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { DateTimeFormatService } from "app/shared/services/date-time-format.service";
 import { PurchaseRequisitionResponseDTO } from "app/views/purchase/models/purchase-requisition/purchase-requisition-response-dto.model";
 import { PurchaseRequisitionSearchRequestDTO } from "app/views/purchase/models/purchase-requisition/purchase-requisition-search-request-dto.model";

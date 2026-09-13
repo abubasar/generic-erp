@@ -116,8 +116,8 @@
         <div class="col">
           <mat-form-field appearance="outline">
             <mat-label>Supplier Products</mat-label>
-            <mat-chip-list #chipList aria-label="Product selection">
-              <mat-chip
+            <mat-chip-grid #chipList aria-label="Product selection">
+              <mat-chip-row
                 class="align-middle py-4 px-8"
                 *ngFor="let product of products"
                 (removed)="remove(product.id)"
@@ -126,7 +126,7 @@
                 <button matChipRemove>
                   <mat-icon>cancel</mat-icon>
                 </button>
-              </mat-chip>
+              </mat-chip-row>
               <input
                 placeholder="New product..."
                 #productInput
@@ -138,7 +138,7 @@
                 (matChipInputTokenEnd)="add($event)"
                 (input)="handleProductSearch($event)"
               />
-            </mat-chip-list>
+            </mat-chip-grid>
             <mat-autocomplete
               #auto="matAutocomplete"
               (optionSelected)="handleProductSelection($event)"

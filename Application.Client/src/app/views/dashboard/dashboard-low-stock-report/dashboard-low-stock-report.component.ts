@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { StockResponseDTO } from "app/views/report/models/stock-response-dto";
 import { StockSearchRequestDTO } from "app/views/report/models/stock-search-request-dto";
 import { StockService } from "app/views/report/services/stock.service";

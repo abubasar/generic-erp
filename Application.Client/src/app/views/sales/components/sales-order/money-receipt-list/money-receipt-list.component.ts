@@ -8,9 +8,9 @@ import {
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, Inject, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { MatMenuTrigger } from "@angular/material/menu";
-import { MatTableDataSource } from "@angular/material/table";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA, MatDialogRef as MatDialogRef } from "@angular/material/dialog";
+import { MatMenuTrigger as MatMenuTrigger } from "@angular/material/menu";
+import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { ReceivePaymentStatus } from "app/shared/enums/receivePaymentStatus";
 import { ENUM } from "app/shared/models/enum-value/enum.model";

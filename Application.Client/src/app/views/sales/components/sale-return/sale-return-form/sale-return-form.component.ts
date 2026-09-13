@@ -6,7 +6,7 @@ import {
   ValidationErrors,
   Validators,
 } from "@angular/forms";
-import { MatDialog } from "@angular/material/dialog";
+import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { MatStepper } from "@angular/material/stepper";
 import { ActivatedRoute, Router } from "@angular/router";
 import { SaleReturnStatus } from "app/shared/enums/saleReturnStatus";
@@ -31,7 +31,7 @@ import { SaleReturnService } from "app/views/sales/services/sale-return.service"
 import { ToastrService } from "ngx-toastr";
 
 import { HttpClient } from "@angular/common/http";
-import { MatButton } from "@angular/material/button";
+import { MatButton as MatButton } from "@angular/material/button";
 import { Inventory_Type_Id_Finished_Goods } from "app/shared/consts/const";
 import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";
 import { UserProfile } from "app/shared/models/user-profile-model";

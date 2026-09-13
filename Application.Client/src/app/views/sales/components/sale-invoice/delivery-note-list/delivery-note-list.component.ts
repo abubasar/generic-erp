@@ -8,7 +8,7 @@ import {
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { DeliveryNoteStatus } from "app/shared/enums/deliveryNoteStatus";
 import { ENUM } from "app/shared/models/enum-value/enum.model";
 import { DateTimeFormatService } from "app/shared/services/date-time-format.service";

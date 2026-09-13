@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { AccountType } from "app/views/configuration/models/account-type/account-type.model";
 import { AccountTypeService } from "app/views/configuration/services/account-type.service";
 import { ToastrService } from "ngx-toastr";

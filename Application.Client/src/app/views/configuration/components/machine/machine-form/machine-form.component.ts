@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Machine } from "app/views/configuration/models/machine/machine.model";
 import { MachineService } from "app/views/configuration/services/machine.service";
 import { ToastrService } from "ngx-toastr";

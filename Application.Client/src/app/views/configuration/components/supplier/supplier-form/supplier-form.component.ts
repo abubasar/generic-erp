@@ -13,9 +13,9 @@ import {
   FormGroup,
   Validators,
 } from "@angular/forms";
-import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
-import { MatChipInputEvent } from "@angular/material/chips";
-import { MAT_DIALOG_DATA, MatDialog } from "@angular/material/dialog";
+import { MatAutocompleteSelectedEvent as MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
+import { MatChipInputEvent as MatChipInputEvent } from "@angular/material/chips";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA, MatDialog as MatDialog } from "@angular/material/dialog";
 import { Inventory_Type_Id_Raw_Materials } from "app/shared/consts/const";
 import { ProductRequest } from "app/views/configuration/models/product/product-request.model";
 import { ProductView } from "app/views/configuration/models/product/product-view.model";

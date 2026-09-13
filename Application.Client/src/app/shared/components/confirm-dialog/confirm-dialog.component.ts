@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, Inject, OnInit, ViewChild } from "@angular/core";
-import { MatButton } from "@angular/material/button";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { MatButton as MatButton } from "@angular/material/button";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA, MatDialogRef as MatDialogRef } from "@angular/material/dialog";
 import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";
 
 @Component({

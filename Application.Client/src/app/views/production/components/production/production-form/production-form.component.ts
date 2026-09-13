@@ -1,14 +1,8 @@
-import {
-  NGX_MAT_DATE_FORMATS,
-  NgxMatDateAdapter,
-  NgxMatDateFormats,
-} from "@angular-material-components/datetime-picker";
 import { HttpClient } from "@angular/common/http";
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MatButton } from "@angular/material/button";
-import { MAT_DATE_LOCALE } from "@angular/material/core";
-import { MatDialog } from "@angular/material/dialog";
+import { MatButton as MatButton } from "@angular/material/button";
+import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { MatStepper } from "@angular/material/stepper";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
@@ -34,10 +28,6 @@ import { MachineService } from "app/views/configuration/services/machine.service
 import { ProductService } from "app/views/configuration/services/product.service";
 import { ShiftService } from "app/views/configuration/services/shift.service";
 import { StoreService } from "app/views/configuration/services/store.service";
-import {
-  CustomNgxDatetimeAdapter,
-  MAT_MOMENT_DATE_ADAPTER_OPTIONS,
-} from "app/views/production/helpers/CustomNgxDatetimeAdapter";
 import { ManufacturingOrderResponseDetail } from "app/views/production/models/manufacturing-order/manufacturing-order-response-dto.model";
 import {
   ProductionRequestDTO,
@@ -52,29 +42,17 @@ import { environment } from "environments/environment";
 import { ToastrService } from "ngx-toastr";
 import { finalize } from "rxjs";
 import { ManufacturingOrderListComponent } from "../manufacturing-order-list/manufacturing-order-list.component";
-const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
-  parse: {
-    dateInput: "l, LTS",
-  },
-  display: {
-    dateInput: "DD/MM/yyyy hh:mm A",
-    monthYearLabel: "MMM YYYY",
-    dateA11yLabel: "LL",
-    monthYearA11yLabel: "MMMM YYYY",
-  },
-};
+import * as moment from "moment";
+
+// ngx-mat-timepicker reads/writes plain strings; accept either 12h or 24h
+// shape since the widget is configured for 12h ([format]="12") but this
+// keeps parsing tolerant of whatever format is actually on screen.
+const TIME_PART_FORMATS = ["hh:mm A", "h:mm A", "HH:mm"];
+
 @Component({
     selector: "app-production-form",
     templateUrl: "./production-form.component.html",
     styleUrls: ["./production-form.component.scss"],
-    providers: [
-        {
-            provide: NgxMatDateAdapter,
-            useClass: CustomNgxDatetimeAdapter,
-            deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS],
-        },
-        { provide: NGX_MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS },
-    ],
     standalone: false
 })
 export class ProductionFormComponent implements OnInit {
@@ -216,12 +194,64 @@ export class ProductionFormComponent implements OnInit {
       machineId: [this.data?.machineId, Validators.required],
       startDateTime: [this.data?.startDateTime, Validators.required],
       endDateTime: [this.data?.endDateTime, Validators.required],
+      // UI-only: mat-datepicker (date) + ngx-mat-timepicker (time) combine
+      // into startDateTime/endDateTime above, which is what's actually
+      // submitted. Split rather than a single combined-picker control
+      // because @angular-material-components/datetime-picker is abandoned
+      // (no release works past Angular Material 16).
+      startDatePart: [
+        this.data?.startDateTime ? new Date(this.data.startDateTime) : null,
+      ],
+      startTimePart: [
+        this.data?.startDateTime
+          ? moment(this.data.startDateTime).format("hh:mm A")
+          : null,
+      ],
+      endDatePart: [
+        this.data?.endDateTime ? new Date(this.data.endDateTime) : null,
+      ],
+      endTimePart: [
+        this.data?.endDateTime
+          ? moment(this.data.endDateTime).format("hh:mm A")
+          : null,
+      ],
       breakTime: [this.data?.breakTime, Validators.required],
       remark: [this.data?.remark || ""],
       deletedProductionDetailIds: [""],
       productionDetails: this.fb.array([]),
     });
     this.setMinMaxDates();
+    this.wireDateTimePartCombining();
+  }
+
+  // Recomputes startDateTime/endDateTime whenever either half of the split
+  // date+time inputs changes, keeping the actual submitted control in sync.
+  private wireDateTimePartCombining(): void {
+    const combine = (datePartKey: string, timePartKey: string, targetKey: string) => {
+      const datePart = this.productionForm.get(datePartKey)?.value;
+      const timePart = this.productionForm.get(timePartKey)?.value as string;
+      if (!datePart || !timePart) return;
+      const parsedTime = moment(timePart, TIME_PART_FORMATS, true);
+      if (!parsedTime.isValid()) return;
+      const combined = moment(datePart)
+        .hour(parsedTime.hour())
+        .minute(parsedTime.minute())
+        .second(0)
+        .millisecond(0);
+      this.productionForm.get(targetKey)?.setValue(combined.toDate());
+    };
+    this.productionForm.get("startDatePart")?.valueChanges.subscribe(() =>
+      combine("startDatePart", "startTimePart", "startDateTime")
+    );
+    this.productionForm.get("startTimePart")?.valueChanges.subscribe(() =>
+      combine("startDatePart", "startTimePart", "startDateTime")
+    );
+    this.productionForm.get("endDatePart")?.valueChanges.subscribe(() =>
+      combine("endDatePart", "endTimePart", "endDateTime")
+    );
+    this.productionForm.get("endTimePart")?.valueChanges.subscribe(() =>
+      combine("endDatePart", "endTimePart", "endDateTime")
+    );
   }
 
   setMinMaxDates() {

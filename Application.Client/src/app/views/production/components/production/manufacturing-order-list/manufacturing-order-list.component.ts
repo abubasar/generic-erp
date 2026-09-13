@@ -7,8 +7,8 @@ import {
 } from "@angular/animations";
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
-import { MatPaginator } from "@angular/material/paginator";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatPaginator as MatPaginator } from "@angular/material/paginator";
+import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { ManufacturingOrderStatus } from "app/shared/enums/manufacturingOrderStatus";
 import { DateTimeFormatService } from "app/shared/services/date-time-format.service";
 import { StatusColorService } from "app/shared/services/status-color/status-color.service";

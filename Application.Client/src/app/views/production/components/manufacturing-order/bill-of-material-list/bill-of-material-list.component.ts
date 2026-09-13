@@ -7,8 +7,8 @@ import {
 } from "@angular/animations";
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
-import { MatPaginator } from "@angular/material/paginator";
-import { MatTableDataSource } from "@angular/material/table";
+import { MatPaginator as MatPaginator } from "@angular/material/paginator";
+import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { BOMStatus } from "app/shared/enums/bomStatus";
 import { StatusColorService } from "app/shared/services/status-color/status-color.service";
 import { BillOfMaterialResponseDTO } from "app/views/production/models/bill-of-material/bill-of-material-response-dto.model";

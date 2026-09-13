@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from "@angular/core";
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { MatTableDataSource } from "@angular/material/table";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA, MatDialogRef as MatDialogRef } from "@angular/material/dialog";
+import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { PurchaseOrderResponseDTO } from "app/views/purchase/models/purchase-order/purchase-order-response-dto.model";
 import { SupplierTransactionsAgainstPOResponseDTO } from "app/views/purchase/models/purchase-order/supplier-transactions-against-po-response-dto.model";
 import { PurchaseOrderService } from "app/views/purchase/services/purchase-order.service";

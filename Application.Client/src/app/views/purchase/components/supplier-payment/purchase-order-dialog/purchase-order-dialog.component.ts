@@ -7,8 +7,8 @@ import {
 } from "@angular/animations";
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
-import { MAT_DIALOG_DATA, MatDialog } from "@angular/material/dialog";
-import { MatTableDataSource } from "@angular/material/table";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA, MatDialog as MatDialog } from "@angular/material/dialog";
+import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { PaymentMode } from "app/shared/enums/paymentMode";
 import { PurchaseOrderStatus } from "app/shared/enums/purchaseOrderStatus";
 import { ENUM } from "app/shared/models/enum-value/enum.model";

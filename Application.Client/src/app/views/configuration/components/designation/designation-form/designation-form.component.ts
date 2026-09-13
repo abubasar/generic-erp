@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { DepartmentRequest } from "app/views/configuration/models/department/department-request.model";
 import { Department } from "app/views/configuration/models/department/department.model";
 import { Designation } from "app/views/configuration/models/designation/designation.model";
