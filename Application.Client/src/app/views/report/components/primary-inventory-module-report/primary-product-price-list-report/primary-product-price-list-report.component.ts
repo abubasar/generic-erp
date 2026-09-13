@@ -9,9 +9,10 @@ import { InventoryTypeService } from "app/views/configuration/services/inventory
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-primary-product-price-list-report",
-  templateUrl: "./primary-product-price-list-report.component.html",
-  styleUrls: ["./primary-product-price-list-report.component.scss"],
+    selector: "app-primary-product-price-list-report",
+    templateUrl: "./primary-product-price-list-report.component.html",
+    styleUrls: ["./primary-product-price-list-report.component.scss"],
+    standalone: false
 })
 export class PrimaryProductPriceListReportComponent implements OnInit {
   businessType: string;

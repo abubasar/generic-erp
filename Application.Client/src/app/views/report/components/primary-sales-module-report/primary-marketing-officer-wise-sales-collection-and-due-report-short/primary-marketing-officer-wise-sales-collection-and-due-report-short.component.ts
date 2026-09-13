@@ -17,13 +17,12 @@ import { TerritoryService } from "app/views/configuration/services/territory.ser
 import { ZoneService } from "app/views/configuration/services/zone.service";
 import { environment } from "environments/environment";
 @Component({
-  selector:
-    "app-primary-marketing-officer-wise-sales-collection-and-due-report-short",
-  templateUrl:
-    "./primary-marketing-officer-wise-sales-collection-and-due-report-short.component.html",
-  styleUrls: [
-    "./primary-marketing-officer-wise-sales-collection-and-due-report-short.component.scss",
-  ],
+    selector: "app-primary-marketing-officer-wise-sales-collection-and-due-report-short",
+    templateUrl: "./primary-marketing-officer-wise-sales-collection-and-due-report-short.component.html",
+    styleUrls: [
+        "./primary-marketing-officer-wise-sales-collection-and-due-report-short.component.scss",
+    ],
+    standalone: false
 })
 export class PrimaryMarketingOfficerWiseSalesCollectionAndDueReportShortComponent
   implements OnInit

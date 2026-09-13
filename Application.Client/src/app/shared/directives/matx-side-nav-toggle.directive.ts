@@ -5,7 +5,8 @@ import { MatSidenav } from '@angular/material/sidenav';
 
 
 @Directive({
-  selector: '[MatxSideNavToggle]'
+    selector: '[MatxSideNavToggle]',
+    standalone: false
 })
 export class MatxSideNavToggleDirective implements OnInit, OnDestroy {
   isMobile;

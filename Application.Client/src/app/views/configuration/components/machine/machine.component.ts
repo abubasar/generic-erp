@@ -14,9 +14,10 @@ import { MachineService } from "../../services/machine.service";
 import { MachineFormComponent } from "./machine-form/machine-form.component";
 
 @Component({
-  selector: "app-machine",
-  templateUrl: "./machine.component.html",
-  styleUrls: ["./machine.component.scss"],
+    selector: "app-machine",
+    templateUrl: "./machine.component.html",
+    styleUrls: ["./machine.component.scss"],
+    standalone: false
 })
 export class MachineComponent implements OnInit {
   loading: boolean = true;

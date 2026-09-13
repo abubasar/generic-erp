@@ -17,9 +17,10 @@ import { takeUntil } from "rxjs/operators";
 import { MatxSidebarHelperService } from "./matx-sidebar-helper.service";
 
 @Component({
-  selector: "matx-sidebar",
-  templateUrl: "./matx-sidebar.component.html",
-  styleUrls: ["./matx-sidebar.component.scss"]
+    selector: "matx-sidebar",
+    templateUrl: "./matx-sidebar.component.html",
+    styleUrls: ["./matx-sidebar.component.scss"],
+    standalone: false
 })
 export class MatxSidebarComponent implements OnInit, OnDestroy {
   // Name
@@ -137,7 +138,8 @@ export class MatxSidebarComponent implements OnInit, OnDestroy {
 }
 
 @Directive({
-  selector: "[matxSidebarToggler]"
+    selector: "[matxSidebarToggler]",
+    standalone: false
 })
 export class MatxSidebarTogglerDirective {
   @Input("matxSidebarToggler")

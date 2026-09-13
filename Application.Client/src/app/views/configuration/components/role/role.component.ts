@@ -15,9 +15,10 @@ import { RoleFormComponent } from "./role-form/role-form.component";
 import { RolePermissionFormComponent } from "./role-permission-form/role-permission-form.component";
 
 @Component({
-  selector: "app-role",
-  templateUrl: "./role.component.html",
-  styleUrls: ["./role.component.scss"],
+    selector: "app-role",
+    templateUrl: "./role.component.html",
+    styleUrls: ["./role.component.scss"],
+    standalone: false
 })
 export class RoleComponent implements OnInit {
   loading: boolean = true;

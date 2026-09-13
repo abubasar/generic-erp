@@ -25,19 +25,17 @@ import { ToastrService } from "ngx-toastr";
 import { Observable, merge, of } from "rxjs";
 
 @Component({
-  selector: "app-sales-order-list",
-  templateUrl: "./sales-order-list.component.html",
-  styleUrls: ["./sales-order-list.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-sales-order-list",
+    templateUrl: "./sales-order-list.component.html",
+    styleUrls: ["./sales-order-list.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class SalesOrderListComponent implements OnInit {
   loading: boolean = true;

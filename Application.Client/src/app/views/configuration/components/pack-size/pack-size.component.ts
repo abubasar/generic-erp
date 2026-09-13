@@ -14,9 +14,10 @@ import { PackSizeService } from "../../services/pack-size.service";
 import { PackSizeFormComponent } from "./pack-size-form/pack-size-form.component";
 
 @Component({
-  selector: "app-pack-size",
-  templateUrl: "./pack-size.component.html",
-  styleUrls: ["./pack-size.component.scss"],
+    selector: "app-pack-size",
+    templateUrl: "./pack-size.component.html",
+    styleUrls: ["./pack-size.component.scss"],
+    standalone: false
 })
 export class PackSizeComponent implements OnInit {
   loading: boolean = true;

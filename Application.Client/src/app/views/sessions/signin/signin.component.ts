@@ -22,9 +22,10 @@ import { TokenModel } from "app/shared/models/token.model";
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-signin",
-  templateUrl: "./signin.component.html",
-  styleUrls: ["./signin.component.css"],
+    selector: "app-signin",
+    templateUrl: "./signin.component.html",
+    styleUrls: ["./signin.component.css"],
+    standalone: false
 })
 export class SigninComponent implements OnInit, OnDestroy {
   @ViewChild(MatProgressBar) progressBar: MatProgressBar;

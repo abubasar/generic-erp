@@ -14,9 +14,10 @@ import { DeliveryPlaceService } from "../../services/delivery-place.service";
 import { DeliveryPlaceFormComponent } from "./delivery-place-form/delivery-place-form.component";
 
 @Component({
-  selector: "app-delivery-place",
-  templateUrl: "./delivery-place.component.html",
-  styleUrls: ["./delivery-place.component.scss"],
+    selector: "app-delivery-place",
+    templateUrl: "./delivery-place.component.html",
+    styleUrls: ["./delivery-place.component.scss"],
+    standalone: false
 })
 export class DeliveryPlaceComponent implements OnInit {
   loading: boolean = true;

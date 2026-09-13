@@ -2,9 +2,10 @@ import { Component, Input, OnInit } from "@angular/core";
 import { PostType } from "app/shared/enums/postType";
 
 @Component({
-  selector: "app-journal-entry-detail",
-  templateUrl: "./journal-entry-detail.component.html",
-  styleUrls: ["./journal-entry-detail.component.scss"],
+    selector: "app-journal-entry-detail",
+    templateUrl: "./journal-entry-detail.component.html",
+    styleUrls: ["./journal-entry-detail.component.scss"],
+    standalone: false
 })
 export class JournalEntryDetailComponent implements OnInit {
   @Input() data: any[] = [];

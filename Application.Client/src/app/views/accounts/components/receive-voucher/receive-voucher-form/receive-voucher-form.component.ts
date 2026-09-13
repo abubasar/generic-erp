@@ -45,9 +45,10 @@ import { environment } from "environments/environment";
 import { ToastrService } from "ngx-toastr";
 import { finalize } from "rxjs";
 @Component({
-  selector: "app-receive-voucher-form",
-  templateUrl: "./receive-voucher-form.component.html",
-  styleUrls: ["./receive-voucher-form.component.scss"],
+    selector: "app-receive-voucher-form",
+    templateUrl: "./receive-voucher-form.component.html",
+    styleUrls: ["./receive-voucher-form.component.scss"],
+    standalone: false
 })
 export class ReceiveVoucherFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

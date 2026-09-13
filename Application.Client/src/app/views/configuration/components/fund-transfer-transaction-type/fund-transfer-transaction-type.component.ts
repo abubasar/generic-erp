@@ -13,9 +13,10 @@ import { FundTransferTransactionTypeService } from "../../services/fund-transfer
 import { FundTransferTransactionTypeFormComponent } from "./fund-transfer-transaction-type-form/fund-transfer-transaction-type-form.component";
 
 @Component({
-  selector: "app-fund-transfer-transaction-type",
-  templateUrl: "./fund-transfer-transaction-type.component.html",
-  styleUrls: ["./fund-transfer-transaction-type.component.scss"],
+    selector: "app-fund-transfer-transaction-type",
+    templateUrl: "./fund-transfer-transaction-type.component.html",
+    styleUrls: ["./fund-transfer-transaction-type.component.scss"],
+    standalone: false
 })
 export class FundTransferTransactionTypeComponent implements OnInit {
   loading: boolean = true;

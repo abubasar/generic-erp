@@ -6,9 +6,10 @@ import { DeliveryPlaceService } from "app/views/configuration/services/delivery-
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-delivery-place-form",
-  templateUrl: "./delivery-place-form.component.html",
-  styleUrls: ["./delivery-place-form.component.scss"],
+    selector: "app-delivery-place-form",
+    templateUrl: "./delivery-place-form.component.html",
+    styleUrls: ["./delivery-place-form.component.scss"],
+    standalone: false
 })
 export class DeliveryPlaceFormComponent implements OnInit {
   formTitle: string;

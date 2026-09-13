@@ -8,9 +8,10 @@ import { CustomerService } from "app/views/configuration/services/customer.servi
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-customer-ledger-product-wise-report",
-  templateUrl: "./customer-ledger-product-wise-report.component.html",
-  styleUrls: ["./customer-ledger-product-wise-report.component.scss"],
+    selector: "app-customer-ledger-product-wise-report",
+    templateUrl: "./customer-ledger-product-wise-report.component.html",
+    styleUrls: ["./customer-ledger-product-wise-report.component.scss"],
+    standalone: false
 })
 export class CustomerLedgerProductWiseReportComponent implements OnInit {
   searchForm: FormGroup;

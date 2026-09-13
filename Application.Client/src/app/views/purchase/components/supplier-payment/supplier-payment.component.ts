@@ -41,19 +41,17 @@ import { SupplierPaymentSearchRequestDTO } from "../../models/supplier-payment/s
 import { SupplierPaymentService } from "../../services/supplier-payment.service";
 
 @Component({
-  selector: "app-supplier-payment",
-  templateUrl: "./supplier-payment.component.html",
-  styleUrls: ["./supplier-payment.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-supplier-payment",
+    templateUrl: "./supplier-payment.component.html",
+    styleUrls: ["./supplier-payment.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class SupplierPaymentComponent implements OnInit {
   loading: boolean = true;

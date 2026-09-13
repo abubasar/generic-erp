@@ -6,9 +6,10 @@ import { CustomerService } from "app/views/configuration/services/customer.servi
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-customer-ledger-feed-wise-report",
-  templateUrl: "./customer-ledger-feed-wise-report.component.html",
-  styleUrls: ["./customer-ledger-feed-wise-report.component.scss"],
+    selector: "app-customer-ledger-feed-wise-report",
+    templateUrl: "./customer-ledger-feed-wise-report.component.html",
+    styleUrls: ["./customer-ledger-feed-wise-report.component.scss"],
+    standalone: false
 })
 export class CustomerLedgerFeedWiseReportComponent implements OnInit {
   searchForm: FormGroup;

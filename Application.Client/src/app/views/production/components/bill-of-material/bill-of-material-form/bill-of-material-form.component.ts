@@ -42,9 +42,10 @@ import { finalize } from "rxjs";
 import { BillOfMaterialListComponent } from "../../manufacturing-order/bill-of-material-list/bill-of-material-list.component";
 
 @Component({
-  selector: "app-bill-of-material-form",
-  templateUrl: "./bill-of-material-form.component.html",
-  styleUrls: ["./bill-of-material-form.component.scss"],
+    selector: "app-bill-of-material-form",
+    templateUrl: "./bill-of-material-form.component.html",
+    styleUrls: ["./bill-of-material-form.component.scss"],
+    standalone: false
 })
 export class BillOfMaterialFormComponent implements OnInit, AfterViewInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

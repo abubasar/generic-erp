@@ -9,9 +9,10 @@ import { ProductService } from "app/views/configuration/services/product.service
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-discount-product-wise-add-form",
-  templateUrl: "./discount-product-wise-add-form.component.html",
-  styleUrls: ["./discount-product-wise-add-form.component.scss"],
+    selector: "app-discount-product-wise-add-form",
+    templateUrl: "./discount-product-wise-add-form.component.html",
+    styleUrls: ["./discount-product-wise-add-form.component.scss"],
+    standalone: false
 })
 export class DiscountProductWiseAddFormComponent implements OnInit {
   formTitle: string;

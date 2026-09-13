@@ -18,9 +18,10 @@ import { StockSearchRequestDTO } from "../../../models/stock-search-request-dto"
 import { StockService } from "../../../services/stock.service";
 
 @Component({
-  selector: "app-low-stock-report",
-  templateUrl: "./low-stock-report.component.html",
-  styleUrls: ["./low-stock-report.component.scss"],
+    selector: "app-low-stock-report",
+    templateUrl: "./low-stock-report.component.html",
+    styleUrls: ["./low-stock-report.component.scss"],
+    standalone: false
 })
 export class LowStockReportComponent implements OnInit {
   Inventory_Type_Id_Finished_Goods_ID: string = Inventory_Type_Id_Finished_Goods;

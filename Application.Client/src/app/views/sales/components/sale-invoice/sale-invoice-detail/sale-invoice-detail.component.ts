@@ -4,9 +4,10 @@ import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
 import { DateTimeFormatService } from "app/shared/services/date-time-format.service";
 
 @Component({
-  selector: "app-sale-invoice-detail",
-  templateUrl: "./sale-invoice-detail.component.html",
-  styleUrls: ["./sale-invoice-detail.component.scss"],
+    selector: "app-sale-invoice-detail",
+    templateUrl: "./sale-invoice-detail.component.html",
+    styleUrls: ["./sale-invoice-detail.component.scss"],
+    standalone: false
 })
 export class SaleInvoiceDetailComponent implements OnInit {
   @Input() data: any[] = [];

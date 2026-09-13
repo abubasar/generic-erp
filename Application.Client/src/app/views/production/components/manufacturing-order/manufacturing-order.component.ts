@@ -32,19 +32,17 @@ import { ManufacturingOrderSearchRequestDTO } from "../../models/manufacturing-o
 import { ManufacturingOrderService } from "../../services/manufacturing-order.service";
 
 @Component({
-  selector: "app-manufacturing-order",
-  templateUrl: "./manufacturing-order.component.html",
-  styleUrls: ["./manufacturing-order.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-manufacturing-order",
+    templateUrl: "./manufacturing-order.component.html",
+    styleUrls: ["./manufacturing-order.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class ManufacturingOrderComponent implements OnInit {
   loading: boolean = true;

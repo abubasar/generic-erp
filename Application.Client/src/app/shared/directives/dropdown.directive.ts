@@ -5,7 +5,8 @@ import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
 @Directive({
-  selector: '[appDropdown]'
+    selector: '[appDropdown]',
+    standalone: false
 })
 export class AppDropdownDirective {
   protected navlinks: Array<DropdownLinkDirective> = [];

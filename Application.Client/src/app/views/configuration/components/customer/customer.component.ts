@@ -39,19 +39,17 @@ import { ZoneService } from "../../services/zone.service";
 import { CustomerFormComponent } from "./customer-form/customer-form.component";
 
 @Component({
-  selector: "app-customer",
-  templateUrl: "./customer.component.html",
-  styleUrls: ["./customer.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-customer",
+    templateUrl: "./customer.component.html",
+    styleUrls: ["./customer.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class CustomerComponent implements OnInit {
   businessType: string;

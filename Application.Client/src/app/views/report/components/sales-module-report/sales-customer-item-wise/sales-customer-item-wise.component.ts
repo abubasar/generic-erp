@@ -21,9 +21,10 @@ import { ZoneService } from "app/views/configuration/services/zone.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-sales-customer-item-wise",
-  templateUrl: "./sales-customer-item-wise.component.html",
-  styleUrls: ["./sales-customer-item-wise.component.scss"],
+    selector: "app-sales-customer-item-wise",
+    templateUrl: "./sales-customer-item-wise.component.html",
+    styleUrls: ["./sales-customer-item-wise.component.scss"],
+    standalone: false
 })
 export class SalesCustomerItemWiseComponent implements OnInit {
   constructor(

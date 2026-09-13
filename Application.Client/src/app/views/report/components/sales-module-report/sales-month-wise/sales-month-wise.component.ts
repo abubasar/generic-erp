@@ -4,9 +4,10 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-sales-month-wise",
-  templateUrl: "./sales-month-wise.component.html",
-  styleUrls: ["./sales-month-wise.component.scss"],
+    selector: "app-sales-month-wise",
+    templateUrl: "./sales-month-wise.component.html",
+    styleUrls: ["./sales-month-wise.component.scss"],
+    standalone: false
 })
 export class SalesMonthWiseComponent implements OnInit {
   constructor(private http: HttpClient, private fb: FormBuilder) {}

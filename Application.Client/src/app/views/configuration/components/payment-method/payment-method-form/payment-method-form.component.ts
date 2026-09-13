@@ -6,9 +6,10 @@ import { PaymentMethodService } from "app/views/configuration/services/payment-m
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-payment-method-form",
-  templateUrl: "./payment-method-form.component.html",
-  styleUrls: ["./payment-method-form.component.scss"],
+    selector: "app-payment-method-form",
+    templateUrl: "./payment-method-form.component.html",
+    styleUrls: ["./payment-method-form.component.scss"],
+    standalone: false
 })
 export class PaymentMethodFormComponent implements OnInit {
   formTitle: string;

@@ -47,9 +47,10 @@ import { environment } from "environments/environment";
 import { ToastrService } from "ngx-toastr";
 import { finalize } from "rxjs";
 @Component({
-  selector: "app-purchase-requisition-form",
-  templateUrl: "./purchase-requisition-form.component.html",
-  styleUrls: ["./purchase-requisition-form.component.scss"],
+    selector: "app-purchase-requisition-form",
+    templateUrl: "./purchase-requisition-form.component.html",
+    styleUrls: ["./purchase-requisition-form.component.scss"],
+    standalone: false
 })
 export class PurchaseRequisitionFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

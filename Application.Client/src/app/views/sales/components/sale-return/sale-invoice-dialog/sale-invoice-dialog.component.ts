@@ -20,19 +20,17 @@ import { SaleInvoiceSearchRequestDTO } from "app/views/sales/models/sale-invoice
 import { SaleInvoiceService } from "app/views/sales/services/sale-invoice.service";
 
 @Component({
-  selector: "app-sale-invoice-dialog",
-  templateUrl: "./sale-invoice-dialog.component.html",
-  styleUrls: ["./sale-invoice-dialog.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-sale-invoice-dialog",
+    templateUrl: "./sale-invoice-dialog.component.html",
+    styleUrls: ["./sale-invoice-dialog.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class SaleInvoiceDialogComponent implements OnInit {
   dialogTitle = "Select Sale Invoice";

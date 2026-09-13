@@ -13,9 +13,10 @@ import { StoreService } from "app/views/configuration/services/store.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-purchase-item-wise-supplier",
-  templateUrl: "./purchase-item-wise-supplier.component.html",
-  styleUrls: ["./purchase-item-wise-supplier.component.scss"],
+    selector: "app-purchase-item-wise-supplier",
+    templateUrl: "./purchase-item-wise-supplier.component.html",
+    styleUrls: ["./purchase-item-wise-supplier.component.scss"],
+    standalone: false
 })
 export class PurchaseItemWiseSupplierComponent implements OnInit {
   searchForm: FormGroup;

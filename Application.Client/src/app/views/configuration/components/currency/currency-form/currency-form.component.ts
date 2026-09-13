@@ -6,9 +6,10 @@ import { CurrencyService } from "app/views/configuration/services/currency.servi
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-currency-form",
-  templateUrl: "./currency-form.component.html",
-  styleUrls: ["./currency-form.component.scss"],
+    selector: "app-currency-form",
+    templateUrl: "./currency-form.component.html",
+    styleUrls: ["./currency-form.component.scss"],
+    standalone: false
 })
 export class CurrencyFormComponent implements OnInit {
   formTitle: string;

@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from "@angular/core";
 
 @Component({
-  selector: "app-lc-cost-entry-detail",
-  templateUrl: "./lc-cost-entry-detail.component.html",
-  styleUrls: ["./lc-cost-entry-detail.component.scss"],
+    selector: "app-lc-cost-entry-detail",
+    templateUrl: "./lc-cost-entry-detail.component.html",
+    styleUrls: ["./lc-cost-entry-detail.component.scss"],
+    standalone: false
 })
 export class LcCostEntryDetailComponent implements OnInit {
   @Input() data: any[] = [];

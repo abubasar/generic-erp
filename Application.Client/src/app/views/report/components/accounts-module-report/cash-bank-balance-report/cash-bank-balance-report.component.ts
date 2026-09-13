@@ -4,9 +4,10 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-cash-bank-balance-report",
-  templateUrl: "./cash-bank-balance-report.component.html",
-  styleUrls: ["./cash-bank-balance-report.component.scss"],
+    selector: "app-cash-bank-balance-report",
+    templateUrl: "./cash-bank-balance-report.component.html",
+    styleUrls: ["./cash-bank-balance-report.component.scss"],
+    standalone: false
 })
 export class CashBankBalanceReportComponent implements OnInit {
   searchForm: FormGroup;

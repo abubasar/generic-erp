@@ -28,9 +28,10 @@ import { environment } from "environments/environment";
 import { finalize } from "rxjs";
 
 @Component({
-  selector: "app-customer-wise-product-discount-edit-form",
-  templateUrl: "./customer-wise-product-discount-edit-form.component.html",
-  styleUrls: ["./customer-wise-product-discount-edit-form.component.scss"],
+    selector: "app-customer-wise-product-discount-edit-form",
+    templateUrl: "./customer-wise-product-discount-edit-form.component.html",
+    styleUrls: ["./customer-wise-product-discount-edit-form.component.scss"],
+    standalone: false
 })
 export class CustomerWiseProductDiscountEditFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

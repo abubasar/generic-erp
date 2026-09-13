@@ -9,9 +9,10 @@ import { FinancialYearService } from "app/views/configuration/services/financial
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-cogs-calculation",
-  templateUrl: "./cogs-calculation.component.html",
-  styleUrls: ["./cogs-calculation.component.scss"],
+    selector: "app-cogs-calculation",
+    templateUrl: "./cogs-calculation.component.html",
+    styleUrls: ["./cogs-calculation.component.scss"],
+    standalone: false
 })
 export class CogsCalculationComponent implements OnInit {
   searchForm: FormGroup;

@@ -7,9 +7,10 @@ import { AccountService } from "app/views/configuration/services/account.service
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-cash-book-report",
-  templateUrl: "./cash-book-report.component.html",
-  styleUrls: ["./cash-book-report.component.scss"],
+    selector: "app-cash-book-report",
+    templateUrl: "./cash-book-report.component.html",
+    styleUrls: ["./cash-book-report.component.scss"],
+    standalone: false
 })
 export class CashBookReportComponent implements OnInit {
   constructor(

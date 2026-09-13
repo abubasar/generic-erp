@@ -36,9 +36,10 @@ import { ZoneService } from "../../services/zone.service";
 import { EmployeeFormComponent } from "./employee-form/employee-form.component";
 
 @Component({
-  selector: "app-employee",
-  templateUrl: "./employee.component.html",
-  styleUrls: ["./employee.component.scss"],
+    selector: "app-employee",
+    templateUrl: "./employee.component.html",
+    styleUrls: ["./employee.component.scss"],
+    standalone: false
 })
 export class EmployeeComponent implements OnInit {
   loading: boolean = true;

@@ -6,9 +6,10 @@ import { TenantService } from "app/views/configuration/services/tenant.service";
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-tenant-form",
-  templateUrl: "./tenant-form.component.html",
-  styleUrls: ["./tenant-form.component.scss"],
+    selector: "app-tenant-form",
+    templateUrl: "./tenant-form.component.html",
+    styleUrls: ["./tenant-form.component.scss"],
+    standalone: false
 })
 export class TenantFormComponent implements OnInit {
   formTitle: string;

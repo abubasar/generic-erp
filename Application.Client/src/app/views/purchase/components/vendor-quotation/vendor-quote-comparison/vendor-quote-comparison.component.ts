@@ -14,9 +14,10 @@ import { VendorQuotationService } from "app/views/purchase/services/vendor-quota
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-vendor-quote-comparison",
-  templateUrl: "./vendor-quote-comparison.component.html",
-  styleUrls: ["./vendor-quote-comparison.component.scss"],
+    selector: "app-vendor-quote-comparison",
+    templateUrl: "./vendor-quote-comparison.component.html",
+    styleUrls: ["./vendor-quote-comparison.component.scss"],
+    standalone: false
 })
 export class VendorQuoteComparisonComponent implements OnInit {
   statusCode: number;

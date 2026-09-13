@@ -14,9 +14,10 @@ import { UserService } from "../../services/user.service";
 import { UserFormComponent } from "./user-form/user-form.component";
 
 @Component({
-  selector: "app-user",
-  templateUrl: "./user.component.html",
-  styleUrls: ["./user.component.scss"],
+    selector: "app-user",
+    templateUrl: "./user.component.html",
+    styleUrls: ["./user.component.scss"],
+    standalone: false
 })
 export class UserComponent implements OnInit {
   loading: boolean = true;

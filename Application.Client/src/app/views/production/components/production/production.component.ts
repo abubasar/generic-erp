@@ -38,19 +38,17 @@ import { ProductionSearchRequestDTO } from "../../models/production/production-s
 import { ProductionService } from "../../services/production.service";
 
 @Component({
-  selector: "app-production",
-  templateUrl: "./production.component.html",
-  styleUrls: ["./production.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)"),
-      ),
-    ]),
-  ],
+    selector: "app-production",
+    templateUrl: "./production.component.html",
+    styleUrls: ["./production.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class ProductionComponent implements OnInit {
   loading: boolean = true;

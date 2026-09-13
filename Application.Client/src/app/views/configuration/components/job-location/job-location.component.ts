@@ -14,9 +14,10 @@ import { JobLocationService } from "../../services/job-location.service";
 import { JobLocationFormComponent } from "./job-location-form/job-location-form.component";
 
 @Component({
-  selector: "app-job-location",
-  templateUrl: "./job-location.component.html",
-  styleUrls: ["./job-location.component.scss"],
+    selector: "app-job-location",
+    templateUrl: "./job-location.component.html",
+    styleUrls: ["./job-location.component.scss"],
+    standalone: false
 })
 export class JobLocationComponent implements OnInit {
   loading: boolean = true;

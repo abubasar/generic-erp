@@ -6,9 +6,10 @@ import { ManufacturerService } from "app/views/configuration/services/manufactur
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-manufacturer-form",
-  templateUrl: "./manufacturer-form.component.html",
-  styleUrls: ["./manufacturer-form.component.scss"],
+    selector: "app-manufacturer-form",
+    templateUrl: "./manufacturer-form.component.html",
+    styleUrls: ["./manufacturer-form.component.scss"],
+    standalone: false
 })
 export class ManufacturerFormComponent implements OnInit {
   formTitle: string;

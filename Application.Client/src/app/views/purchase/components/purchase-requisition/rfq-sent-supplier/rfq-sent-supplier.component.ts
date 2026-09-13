@@ -6,9 +6,10 @@ import { RFQSentSupplierResponseDTO } from "app/views/purchase/models/purchase-r
 import { PurchaseRequisitionService } from "app/views/purchase/services/purchase-requisition.service";
 
 @Component({
-  selector: "app-rfq-sent-supplier",
-  templateUrl: "./rfq-sent-supplier.component.html",
-  styleUrls: ["./rfq-sent-supplier.component.scss"],
+    selector: "app-rfq-sent-supplier",
+    templateUrl: "./rfq-sent-supplier.component.html",
+    styleUrls: ["./rfq-sent-supplier.component.scss"],
+    standalone: false
 })
 export class RfqSentSupplierComponent implements OnInit {
   loading:boolean=true;

@@ -20,12 +20,12 @@ import { ZoneService } from "app/views/configuration/services/zone.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-primary-customer-wise-sales-and-collection-report",
-  templateUrl:
-    "./primary-customer-wise-sales-and-collection-report.component.html",
-  styleUrls: [
-    "./primary-customer-wise-sales-and-collection-report.component.scss",
-  ],
+    selector: "app-primary-customer-wise-sales-and-collection-report",
+    templateUrl: "./primary-customer-wise-sales-and-collection-report.component.html",
+    styleUrls: [
+        "./primary-customer-wise-sales-and-collection-report.component.scss",
+    ],
+    standalone: false
 })
 export class PrimaryCustomerWiseSalesAndCollectionReportComponent
   implements OnInit

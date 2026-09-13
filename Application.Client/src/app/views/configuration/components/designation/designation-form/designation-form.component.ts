@@ -9,9 +9,10 @@ import { DesignationService } from "app/views/configuration/services/designation
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-designation-form",
-  templateUrl: "./designation-form.component.html",
-  styleUrls: ["./designation-form.component.scss"],
+    selector: "app-designation-form",
+    templateUrl: "./designation-form.component.html",
+    styleUrls: ["./designation-form.component.scss"],
+    standalone: false
 })
 export class DesignationFormComponent implements OnInit {
   formTitle: string;

@@ -17,19 +17,17 @@ import { ManufacturingOrderSearchRequestDTO } from "app/views/production/models/
 import { ManufacturingOrderService } from "app/views/production/services/manufacturing-order.service";
 
 @Component({
-  selector: "app-manufacturing-order-list",
-  templateUrl: "./manufacturing-order-list.component.html",
-  styleUrls: ["./manufacturing-order-list.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-manufacturing-order-list",
+    templateUrl: "./manufacturing-order-list.component.html",
+    styleUrls: ["./manufacturing-order-list.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class ManufacturingOrderListComponent implements OnInit {
   loading: boolean = true;

@@ -62,9 +62,10 @@ import { PurchaseRequisitionListComponent } from "../../vendor-quotation/purchas
 import { VendorQuotationListComponent } from "../vendor-quotation-list/vendor-quotation-list.component";
 
 @Component({
-  selector: "app-purchase-order-form",
-  templateUrl: "./purchase-order-form.component.html",
-  styleUrls: ["./purchase-order-form.component.scss"],
+    selector: "app-purchase-order-form",
+    templateUrl: "./purchase-order-form.component.html",
+    styleUrls: ["./purchase-order-form.component.scss"],
+    standalone: false
 })
 export class PurchaseOrderFormComponent implements OnInit, AfterViewInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

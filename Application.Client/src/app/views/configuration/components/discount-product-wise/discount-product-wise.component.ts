@@ -25,19 +25,17 @@ import { DiscountProductWiseAddFormComponent } from "./discount-product-wise-add
 import { DiscountProductWiseEditFormComponent } from "./discount-product-wise-edit-form/discount-product-wise-edit-form.component";
 
 @Component({
-  selector: "app-discount-product-wise",
-  templateUrl: "./discount-product-wise.component.html",
-  styleUrls: ["./discount-product-wise.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-discount-product-wise",
+    templateUrl: "./discount-product-wise.component.html",
+    styleUrls: ["./discount-product-wise.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class DiscountProductWiseComponent implements OnInit {
   loading: boolean = true;

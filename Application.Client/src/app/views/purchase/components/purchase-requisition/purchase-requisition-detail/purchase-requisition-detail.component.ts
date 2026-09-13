@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from "@angular/core";
 
 @Component({
-  selector: "app-purchase-requisition-detail",
-  templateUrl: "./purchase-requisition-detail.component.html",
-  styleUrls: ["./purchase-requisition-detail.component.scss"],
+    selector: "app-purchase-requisition-detail",
+    templateUrl: "./purchase-requisition-detail.component.html",
+    styleUrls: ["./purchase-requisition-detail.component.scss"],
+    standalone: false
 })
 export class PurchaseRequisitionDetailComponent implements OnInit {
   @Input() data: any[] = [];

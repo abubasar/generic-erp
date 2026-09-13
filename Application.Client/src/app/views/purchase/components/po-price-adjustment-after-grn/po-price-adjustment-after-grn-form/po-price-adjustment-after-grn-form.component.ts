@@ -40,9 +40,10 @@ import { finalize } from "rxjs";
 import { GrnDialogComponent } from "../grn-dialog/grn-dialog.component";
 
 @Component({
-  selector: "app-po-price-adjustment-after-grn-form",
-  templateUrl: "./po-price-adjustment-after-grn-form.component.html",
-  styleUrls: ["./po-price-adjustment-after-grn-form.component.scss"],
+    selector: "app-po-price-adjustment-after-grn-form",
+    templateUrl: "./po-price-adjustment-after-grn-form.component.html",
+    styleUrls: ["./po-price-adjustment-after-grn-form.component.scss"],
+    standalone: false
 })
 export class PoPriceAdjustmentAfterGrnFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

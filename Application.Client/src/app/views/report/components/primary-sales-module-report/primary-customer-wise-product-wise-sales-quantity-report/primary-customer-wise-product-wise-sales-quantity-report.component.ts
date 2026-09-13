@@ -9,12 +9,12 @@ import { ProductService } from "app/views/configuration/services/product.service
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-primary-customer-wise-product-wise-sales-quantity-report",
-  templateUrl:
-    "./primary-customer-wise-product-wise-sales-quantity-report.component.html",
-  styleUrls: [
-    "./primary-customer-wise-product-wise-sales-quantity-report.component.scss",
-  ],
+    selector: "app-primary-customer-wise-product-wise-sales-quantity-report",
+    templateUrl: "./primary-customer-wise-product-wise-sales-quantity-report.component.html",
+    styleUrls: [
+        "./primary-customer-wise-product-wise-sales-quantity-report.component.scss",
+    ],
+    standalone: false
 })
 export class PrimaryCustomerWiseProductWiseSalesQuantityReportComponent
   implements OnInit

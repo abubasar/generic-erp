@@ -32,19 +32,17 @@ import { SaleQuotationSearchRequestDTO } from "../../models/sale-quotation/sale-
 import { SaleQuotationService } from "../../services/sale-quotation.service";
 
 @Component({
-  selector: "app-sales-quotation",
-  templateUrl: "./sales-quotation.component.html",
-  styleUrls: ["./sales-quotation.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-sales-quotation",
+    templateUrl: "./sales-quotation.component.html",
+    styleUrls: ["./sales-quotation.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class SalesQuotationComponent implements OnInit {
   loading: boolean = true;

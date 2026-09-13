@@ -33,9 +33,10 @@ import { environment } from "environments/environment";
 import { finalize } from "rxjs";
 
 @Component({
-  selector: "app-fund-transfer-form",
-  templateUrl: "./fund-transfer-form.component.html",
-  styleUrls: ["./fund-transfer-form.component.scss"],
+    selector: "app-fund-transfer-form",
+    templateUrl: "./fund-transfer-form.component.html",
+    styleUrls: ["./fund-transfer-form.component.scss"],
+    standalone: false
 })
 export class FundTransferFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

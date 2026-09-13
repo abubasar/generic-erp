@@ -10,9 +10,10 @@ import { SupplierService } from "app/views/configuration/services/supplier.servi
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-supplier-wise-purchase-item",
-  templateUrl: "./supplier-wise-purchase-item.component.html",
-  styleUrls: ["./supplier-wise-purchase-item.component.scss"],
+    selector: "app-supplier-wise-purchase-item",
+    templateUrl: "./supplier-wise-purchase-item.component.html",
+    styleUrls: ["./supplier-wise-purchase-item.component.scss"],
+    standalone: false
 })
 export class SupplierWisePurchaseItemComponent implements OnInit {
   constructor(

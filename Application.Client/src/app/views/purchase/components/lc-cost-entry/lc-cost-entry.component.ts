@@ -33,19 +33,17 @@ import { PendingCheckedCount } from "../../models/pending-checked-count";
 import { LcCostEntryService } from "../../services/lc-cost-entry.service";
 
 @Component({
-  selector: "app-lc-cost-entry",
-  templateUrl: "./lc-cost-entry.component.html",
-  styleUrls: ["./lc-cost-entry.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-lc-cost-entry",
+    templateUrl: "./lc-cost-entry.component.html",
+    styleUrls: ["./lc-cost-entry.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class LcCostEntryComponent implements OnInit {
   loading: boolean = true;

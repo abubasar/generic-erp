@@ -9,8 +9,9 @@ import { UserProfile } from "app/shared/models/user-profile-model";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-header-side",
-  templateUrl: "./header-side.template.html",
+    selector: "app-header-side",
+    templateUrl: "./header-side.template.html",
+    standalone: false
 })
 export class HeaderSideComponent implements OnInit {
   @Input() notificPanel;

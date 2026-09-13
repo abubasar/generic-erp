@@ -5,9 +5,10 @@ import { CountryService } from "../country.service";
 import { NavigationService } from "app/shared/services/navigation.service";
 
 @Component({
-  selector: "app-result-page",
-  templateUrl: "./result-page.component.html",
-  styleUrls: ["./result-page.component.scss"],
+    selector: "app-result-page",
+    templateUrl: "./result-page.component.html",
+    styleUrls: ["./result-page.component.scss"],
+    standalone: false
 })
 export class ResultPageComponent implements OnInit, OnDestroy {
   public menuItems: any[];

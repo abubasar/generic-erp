@@ -20,19 +20,17 @@ import { PurchaseOrderSearchRequestDTO } from "app/views/purchase/models/purchas
 import { PurchaseOrderService } from "app/views/purchase/services/purchase-order.service";
 
 @Component({
-  selector: "app-lc-cost-purchase-order-dialog",
-  templateUrl: "./lc-cost-purchase-order-dialog.component.html",
-  styleUrls: ["./lc-cost-purchase-order-dialog.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-lc-cost-purchase-order-dialog",
+    templateUrl: "./lc-cost-purchase-order-dialog.component.html",
+    styleUrls: ["./lc-cost-purchase-order-dialog.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class LcCostPurchaseOrderDialogComponent implements OnInit {
   loading: boolean = true;

@@ -10,9 +10,10 @@ import { ZoneService } from "app/views/configuration/services/zone.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-customer-transaction-report",
-  templateUrl: "./customer-transaction-report.component.html",
-  styleUrls: ["./customer-transaction-report.component.scss"],
+    selector: "app-customer-transaction-report",
+    templateUrl: "./customer-transaction-report.component.html",
+    styleUrls: ["./customer-transaction-report.component.scss"],
+    standalone: false
 })
 export class CustomerTransactionReportComponent implements OnInit {
   constructor(

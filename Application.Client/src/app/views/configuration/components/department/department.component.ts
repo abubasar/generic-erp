@@ -14,9 +14,10 @@ import { DepartmentService } from "../../services/department.service";
 import { DepartmentFormComponent } from "./department-form/department-form.component";
 
 @Component({
-  selector: "app-department",
-  templateUrl: "./department.component.html",
-  styleUrls: ["./department.component.scss"],
+    selector: "app-department",
+    templateUrl: "./department.component.html",
+    styleUrls: ["./department.component.scss"],
+    standalone: false
 })
 export class DepartmentComponent implements OnInit {
   loading: boolean = true;

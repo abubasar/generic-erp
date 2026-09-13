@@ -6,9 +6,10 @@ import { CompanyService } from "app/views/configuration/services/company.service
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-company-form",
-  templateUrl: "./company-form.component.html",
-  styleUrls: ["./company-form.component.scss"],
+    selector: "app-company-form",
+    templateUrl: "./company-form.component.html",
+    styleUrls: ["./company-form.component.scss"],
+    standalone: false
 })
 export class CompanyFormComponent implements OnInit {
   formTitle: string;

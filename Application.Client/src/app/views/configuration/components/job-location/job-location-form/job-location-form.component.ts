@@ -6,9 +6,10 @@ import { JobLocationService } from "app/views/configuration/services/job-locatio
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-job-location-form",
-  templateUrl: "./job-location-form.component.html",
-  styleUrls: ["./job-location-form.component.scss"],
+    selector: "app-job-location-form",
+    templateUrl: "./job-location-form.component.html",
+    styleUrls: ["./job-location-form.component.scss"],
+    standalone: false
 })
 export class JobLocationFormComponent implements OnInit {
   formTitle: string;

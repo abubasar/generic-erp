@@ -30,9 +30,10 @@ import { environment } from "environments/environment";
 import { FundTransferAggregatorModel } from "../../models/fund-transfer/fund-transfer-aggregator.model";
 
 @Component({
-  selector: "app-fund-transfer",
-  templateUrl: "./fund-transfer.component.html",
-  styleUrls: ["./fund-transfer.component.scss"],
+    selector: "app-fund-transfer",
+    templateUrl: "./fund-transfer.component.html",
+    styleUrls: ["./fund-transfer.component.scss"],
+    standalone: false
 })
 export class FundTransferComponent implements OnInit {
   loading: boolean = true;

@@ -12,12 +12,12 @@ import { FinancialYearService } from "app/views/configuration/services/financial
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-primary-month-wise-sales-collection-and-due-report",
-  templateUrl:
-    "./primary-month-wise-sales-collection-and-due-report.component.html",
-  styleUrls: [
-    "./primary-month-wise-sales-collection-and-due-report.component.scss",
-  ],
+    selector: "app-primary-month-wise-sales-collection-and-due-report",
+    templateUrl: "./primary-month-wise-sales-collection-and-due-report.component.html",
+    styleUrls: [
+        "./primary-month-wise-sales-collection-and-due-report.component.scss",
+    ],
+    standalone: false
 })
 export class PrimaryMonthWiseSalesCollectionAndDueReportComponent
   implements OnInit

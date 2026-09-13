@@ -6,9 +6,10 @@ import { FinancialYearService } from "app/views/configuration/services/financial
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-financial-year-form",
-  templateUrl: "./financial-year-form.component.html",
-  styleUrls: ["./financial-year-form.component.scss"],
+    selector: "app-financial-year-form",
+    templateUrl: "./financial-year-form.component.html",
+    styleUrls: ["./financial-year-form.component.scss"],
+    standalone: false
 })
 export class FinancialYearFormComponent implements OnInit {
   formTitle: string;

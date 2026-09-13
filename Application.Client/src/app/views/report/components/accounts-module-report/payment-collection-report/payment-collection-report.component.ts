@@ -21,9 +21,10 @@ import { ZoneService } from "app/views/configuration/services/zone.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-payment-collection-report",
-  templateUrl: "./payment-collection-report.component.html",
-  styleUrls: ["./payment-collection-report.component.scss"],
+    selector: "app-payment-collection-report",
+    templateUrl: "./payment-collection-report.component.html",
+    styleUrls: ["./payment-collection-report.component.scss"],
+    standalone: false
 })
 export class PaymentCollectionReportComponent implements OnInit {
   collectionReportFilterTypes = Object.keys(CollectionReportFilterType).map(

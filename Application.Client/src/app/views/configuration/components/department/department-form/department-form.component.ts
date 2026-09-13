@@ -6,9 +6,10 @@ import { DepartmentService } from "app/views/configuration/services/department.s
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-department-form",
-  templateUrl: "./department-form.component.html",
-  styleUrls: ["./department-form.component.scss"],
+    selector: "app-department-form",
+    templateUrl: "./department-form.component.html",
+    styleUrls: ["./department-form.component.scss"],
+    standalone: false
 })
 export class DepartmentFormComponent implements OnInit {
   formTitle: string;

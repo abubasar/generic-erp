@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-receive-payment-detail',
-  templateUrl: './receive-payment-detail.component.html',
-  styleUrls: ['./receive-payment-detail.component.scss']
+    selector: 'app-receive-payment-detail',
+    templateUrl: './receive-payment-detail.component.html',
+    styleUrls: ['./receive-payment-detail.component.scss'],
+    standalone: false
 })
 export class ReceivePaymentDetailComponent implements OnInit {
   @Input() data: any[] = [];

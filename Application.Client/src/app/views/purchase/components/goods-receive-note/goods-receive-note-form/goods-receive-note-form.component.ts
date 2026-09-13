@@ -46,9 +46,10 @@ import { finalize } from "rxjs";
 import { PurchaseOrderListComponent } from "../purchase-order-list/purchase-order-list.component";
 
 @Component({
-  selector: "app-goods-receive-note-form",
-  templateUrl: "./goods-receive-note-form.component.html",
-  styleUrls: ["./goods-receive-note-form.component.scss"],
+    selector: "app-goods-receive-note-form",
+    templateUrl: "./goods-receive-note-form.component.html",
+    styleUrls: ["./goods-receive-note-form.component.scss"],
+    standalone: false
 })
 export class GoodsReceiveNoteFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

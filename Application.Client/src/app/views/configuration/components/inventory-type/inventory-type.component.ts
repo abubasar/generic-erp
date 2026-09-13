@@ -14,9 +14,10 @@ import { InventoryTypeService } from "../../services/inventory-type.service";
 import { InventoryTypeFormComponent } from "./inventory-type-form/inventory-type-form.component";
 
 @Component({
-  selector: "app-inventory-type",
-  templateUrl: "./inventory-type.component.html",
-  styleUrls: ["./inventory-type.component.scss"],
+    selector: "app-inventory-type",
+    templateUrl: "./inventory-type.component.html",
+    styleUrls: ["./inventory-type.component.scss"],
+    standalone: false
 })
 export class InventoryTypeComponent implements OnInit {
   loading: boolean = true;

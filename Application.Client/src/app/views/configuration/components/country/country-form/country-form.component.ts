@@ -7,9 +7,10 @@ import { CountryService } from "app/views/configuration/services/country.service
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-country-form",
-  templateUrl: "./country-form.component.html",
-  styleUrls: ["./country-form.component.scss"],
+    selector: "app-country-form",
+    templateUrl: "./country-form.component.html",
+    styleUrls: ["./country-form.component.scss"],
+    standalone: false
 })
 export class CountryFormComponent implements OnInit {
   formTitle: string;

@@ -2,9 +2,10 @@ import { Component, Input, OnInit } from "@angular/core";
 import { PostType } from "app/shared/enums/postType";
 
 @Component({
-  selector: "app-lc-adjustment-detail",
-  templateUrl: "./lc-adjustment-detail.component.html",
-  styleUrls: ["./lc-adjustment-detail.component.scss"],
+    selector: "app-lc-adjustment-detail",
+    templateUrl: "./lc-adjustment-detail.component.html",
+    styleUrls: ["./lc-adjustment-detail.component.scss"],
+    standalone: false
 })
 export class LcAdjustmentDetailComponent implements OnInit {
   @Input() data: any[] = [];

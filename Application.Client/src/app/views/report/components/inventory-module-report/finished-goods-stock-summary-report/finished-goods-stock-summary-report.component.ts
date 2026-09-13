@@ -4,9 +4,10 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-finished-goods-stock-summary-report",
-  templateUrl: "./finished-goods-stock-summary-report.component.html",
-  styleUrls: ["./finished-goods-stock-summary-report.component.scss"],
+    selector: "app-finished-goods-stock-summary-report",
+    templateUrl: "./finished-goods-stock-summary-report.component.html",
+    styleUrls: ["./finished-goods-stock-summary-report.component.scss"],
+    standalone: false
 })
 export class FinishedGoodsStockSummaryReportComponent implements OnInit {
   constructor(private http: HttpClient, private fb: FormBuilder) {}

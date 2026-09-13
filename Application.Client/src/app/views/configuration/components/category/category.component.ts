@@ -14,9 +14,10 @@ import { CategoryService } from "../../services/category.service";
 import { CategoryFormComponent } from "./category-form/category-form.component";
 
 @Component({
-  selector: "app-category",
-  templateUrl: "./category.component.html",
-  styleUrls: ["./category.component.scss"],
+    selector: "app-category",
+    templateUrl: "./category.component.html",
+    styleUrls: ["./category.component.scss"],
+    standalone: false
 })
 export class CategoryComponent implements OnInit {
   loading: boolean = true;

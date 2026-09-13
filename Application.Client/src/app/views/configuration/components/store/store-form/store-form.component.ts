@@ -9,9 +9,10 @@ import { StoreService } from "app/views/configuration/services/store.service";
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-store-form",
-  templateUrl: "./store-form.component.html",
-  styleUrls: ["./store-form.component.scss"],
+    selector: "app-store-form",
+    templateUrl: "./store-form.component.html",
+    styleUrls: ["./store-form.component.scss"],
+    standalone: false
 })
 export class StoreFormComponent implements OnInit {
   formTitle: string;

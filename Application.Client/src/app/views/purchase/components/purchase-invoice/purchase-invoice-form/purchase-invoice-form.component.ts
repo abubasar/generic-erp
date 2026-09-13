@@ -49,9 +49,10 @@ import { GRNListComponent } from "../grn-list/grn-list.component";
 import { SupplierPaymentDialogComponent } from "../supplier-payment-dialog/supplier-payment-dialog.component";
 
 @Component({
-  selector: "app-purchase-invoice-form",
-  templateUrl: "./purchase-invoice-form.component.html",
-  styleUrls: ["./purchase-invoice-form.component.scss"],
+    selector: "app-purchase-invoice-form",
+    templateUrl: "./purchase-invoice-form.component.html",
+    styleUrls: ["./purchase-invoice-form.component.scss"],
+    standalone: false
 })
 export class PurchaseInvoiceFormComponent implements OnInit, AfterViewInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

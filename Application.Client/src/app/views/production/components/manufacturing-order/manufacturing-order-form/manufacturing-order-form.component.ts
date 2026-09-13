@@ -45,9 +45,10 @@ import { finalize, forkJoin } from "rxjs";
 import { BillOfMaterialListComponent } from "../bill-of-material-list/bill-of-material-list.component";
 
 @Component({
-  selector: "app-manufacturing-order-form",
-  templateUrl: "./manufacturing-order-form.component.html",
-  styleUrls: ["./manufacturing-order-form.component.scss"],
+    selector: "app-manufacturing-order-form",
+    templateUrl: "./manufacturing-order-form.component.html",
+    styleUrls: ["./manufacturing-order-form.component.scss"],
+    standalone: false
 })
 export class ManufacturingOrderFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

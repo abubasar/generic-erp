@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from "@angular/core";
 
 @Component({
-  selector: "app-customer-bank-account",
-  templateUrl: "./customer-bank-account.component.html",
-  styleUrls: ["./customer-bank-account.component.scss"],
+    selector: "app-customer-bank-account",
+    templateUrl: "./customer-bank-account.component.html",
+    styleUrls: ["./customer-bank-account.component.scss"],
+    standalone: false
 })
 export class CustomerBankAccountComponent implements OnInit {
   @Input() data: any[] = [];

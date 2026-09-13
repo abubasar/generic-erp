@@ -38,9 +38,10 @@ import { finalize } from "rxjs";
 import { LcAdjustmentPurchaseInvoiceDialogComponent } from "../lc-adjustment-purchase-invoice-dialog/lc-adjustment-purchase-invoice-dialog.component";
 
 @Component({
-  selector: "app-lc-adjustment-form",
-  templateUrl: "./lc-adjustment-form.component.html",
-  styleUrls: ["./lc-adjustment-form.component.scss"],
+    selector: "app-lc-adjustment-form",
+    templateUrl: "./lc-adjustment-form.component.html",
+    styleUrls: ["./lc-adjustment-form.component.scss"],
+    standalone: false
 })
 export class LcAdjustmentFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

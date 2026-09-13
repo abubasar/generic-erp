@@ -38,19 +38,17 @@ import { ReceiveVoucherSearchRequestDTO } from "../../models/receive-voucher/rec
 import { ReceiveVoucherService } from "../../services/receive-voucher.service";
 
 @Component({
-  selector: "app-receive-voucher",
-  templateUrl: "./receive-voucher.component.html",
-  styleUrls: ["./receive-voucher.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-receive-voucher",
+    templateUrl: "./receive-voucher.component.html",
+    styleUrls: ["./receive-voucher.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class ReceiveVoucherComponent implements OnInit {
   loading: boolean = true;

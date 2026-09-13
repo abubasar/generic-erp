@@ -15,9 +15,10 @@ import { DateTimeFormatService } from "app/shared/services/date-time-format.serv
 import { CustomerWiseProductDiscountRequest } from "app/views/configuration/models/customer-wise-product-discount/customer-wise-product-discount-request.model";
 
 @Component({
-  selector: "app-customer-wise-product-discount-add-form",
-  templateUrl: "./customer-wise-product-discount-add-form.component.html",
-  styleUrls: ["./customer-wise-product-discount-add-form.component.scss"],
+    selector: "app-customer-wise-product-discount-add-form",
+    templateUrl: "./customer-wise-product-discount-add-form.component.html",
+    styleUrls: ["./customer-wise-product-discount-add-form.component.scss"],
+    standalone: false
 })
 export class CustomerWiseProductDiscountAddFormComponent implements OnInit {
   isLoading: boolean = false;

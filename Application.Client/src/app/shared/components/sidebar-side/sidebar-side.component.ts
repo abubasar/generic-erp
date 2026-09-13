@@ -8,8 +8,9 @@ import { NavigationService } from "../../../shared/services/navigation.service";
 import { ThemeService } from "../../services/theme.service";
 
 @Component({
-  selector: "app-sidebar-side",
-  templateUrl: "./sidebar-side.component.html",
+    selector: "app-sidebar-side",
+    templateUrl: "./sidebar-side.component.html",
+    standalone: false
 })
 export class SidebarSideComponent implements OnInit, OnDestroy, AfterViewInit {
   public menuItems: any[];

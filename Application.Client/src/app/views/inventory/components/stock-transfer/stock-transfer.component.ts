@@ -34,19 +34,17 @@ import { StockTransferSearchRequestDTO } from "../../../inventory/models/stock-t
 import { StockTransferService } from "../../../inventory/services/stock-transfer.service";
 
 @Component({
-  selector: "app-stock-transfer",
-  templateUrl: "./stock-transfer.component.html",
-  styleUrls: ["./stock-transfer.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-stock-transfer",
+    templateUrl: "./stock-transfer.component.html",
+    styleUrls: ["./stock-transfer.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class StockTransferComponent implements OnInit {
   loading: boolean = true;

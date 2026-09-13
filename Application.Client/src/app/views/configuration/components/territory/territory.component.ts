@@ -16,9 +16,10 @@ import { TerritoryService } from "../../services/territory.service";
 import { TerritoryFormComponent } from "./territory-form/territory-form.component";
 
 @Component({
-  selector: "app-territory",
-  templateUrl: "./territory.component.html",
-  styleUrls: ["./territory.component.scss"],
+    selector: "app-territory",
+    templateUrl: "./territory.component.html",
+    styleUrls: ["./territory.component.scss"],
+    standalone: false
 })
 export class TerritoryComponent implements OnInit {
   loading: boolean = true;

@@ -23,9 +23,10 @@ import { StoreService } from "app/views/configuration/services/store.service";
 import { ZoneService } from "app/views/configuration/services/zone.service";
 import { environment } from "environments/environment";
 @Component({
-  selector: "app-sale-total-product-wise-report",
-  templateUrl: "./sale-total-product-wise-report.component.html",
-  styleUrls: ["./sale-total-product-wise-report.component.scss"],
+    selector: "app-sale-total-product-wise-report",
+    templateUrl: "./sale-total-product-wise-report.component.html",
+    styleUrls: ["./sale-total-product-wise-report.component.scss"],
+    standalone: false
 })
 export class SaleTotalProductWiseReportComponent implements OnInit {
   businessType: string;

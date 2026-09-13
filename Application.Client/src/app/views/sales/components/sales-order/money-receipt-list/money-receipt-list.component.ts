@@ -33,19 +33,17 @@ import { ToastrService } from "ngx-toastr";
 import { Observable, merge, of } from "rxjs";
 
 @Component({
-  selector: "app-money-receipt-list",
-  templateUrl: "./money-receipt-list.component.html",
-  styleUrls: ["./money-receipt-list.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-money-receipt-list",
+    templateUrl: "./money-receipt-list.component.html",
+    styleUrls: ["./money-receipt-list.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class MoneyReceiptListComponent implements OnInit {
   loading: boolean = true;

@@ -14,9 +14,10 @@ import { CostCenterService } from "../../services/cost-center.service";
 import { CostCenterFormComponent } from "./cost-center-form/cost-center-form.component";
 
 @Component({
-  selector: "app-cost-center",
-  templateUrl: "./cost-center.component.html",
-  styleUrls: ["./cost-center.component.scss"],
+    selector: "app-cost-center",
+    templateUrl: "./cost-center.component.html",
+    styleUrls: ["./cost-center.component.scss"],
+    standalone: false
 })
 export class CostCenterComponent implements OnInit {
   loading: boolean = true;

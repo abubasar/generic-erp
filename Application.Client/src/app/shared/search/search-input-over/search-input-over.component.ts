@@ -15,9 +15,10 @@ import { debounceTime } from "rxjs/operators";
 import { SearchService } from "../search.service";
 
 @Component({
-  selector: "matx-search-input-over",
-  templateUrl: "./search-input-over.component.html",
-  styleUrls: ["./search-input-over.component.scss"],
+    selector: "matx-search-input-over",
+    templateUrl: "./search-input-over.component.html",
+    styleUrls: ["./search-input-over.component.scss"],
+    standalone: false
 })
 export class SearchInputOverComponent implements OnInit, OnDestroy {
   isOpen: boolean;

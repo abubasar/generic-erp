@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
-  selector: "app-po-price-adjustment-after-grn-detail",
-  templateUrl: "./po-price-adjustment-after-grn-detail.component.html",
-  styleUrls: ["./po-price-adjustment-after-grn-detail.component.scss"],
+    selector: "app-po-price-adjustment-after-grn-detail",
+    templateUrl: "./po-price-adjustment-after-grn-detail.component.html",
+    styleUrls: ["./po-price-adjustment-after-grn-detail.component.scss"],
+    standalone: false
 })
 export class PoPriceAdjustmentAfterGrnDetailComponent implements OnInit {
   @Input() data: any[] = [];

@@ -8,9 +8,10 @@ import { SupplierService } from "app/views/configuration/services/supplier.servi
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-supplier-ledger-product-wise-report",
-  templateUrl: "./supplier-ledger-product-wise-report.component.html",
-  styleUrls: ["./supplier-ledger-product-wise-report.component.scss"],
+    selector: "app-supplier-ledger-product-wise-report",
+    templateUrl: "./supplier-ledger-product-wise-report.component.html",
+    styleUrls: ["./supplier-ledger-product-wise-report.component.scss"],
+    standalone: false
 })
 export class SupplierLedgerProductWiseReportComponent implements OnInit {
   searchForm: FormGroup;

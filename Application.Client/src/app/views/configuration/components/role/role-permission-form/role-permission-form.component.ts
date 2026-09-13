@@ -6,9 +6,10 @@ import { RoleService } from "app/views/configuration/services/role.service";
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-role-permission-form",
-  templateUrl: "./role-permission-form.component.html",
-  styleUrls: ["./role-permission-form.component.scss"],
+    selector: "app-role-permission-form",
+    templateUrl: "./role-permission-form.component.html",
+    styleUrls: ["./role-permission-form.component.scss"],
+    standalone: false
 })
 export class RolePermissionFormComponent implements OnInit {
   rolePermissionColumns: String[] = [

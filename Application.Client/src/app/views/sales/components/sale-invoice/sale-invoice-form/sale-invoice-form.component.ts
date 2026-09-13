@@ -41,9 +41,10 @@ import { SalesOrderListComponent } from "../../delivery-note/sales-order-list/sa
 import { DeliveryNoteListComponent } from "../delivery-note-list/delivery-note-list.component";
 
 @Component({
-  selector: "app-sale-invoice-form",
-  templateUrl: "./sale-invoice-form.component.html",
-  styleUrls: ["./sale-invoice-form.component.scss"],
+    selector: "app-sale-invoice-form",
+    templateUrl: "./sale-invoice-form.component.html",
+    styleUrls: ["./sale-invoice-form.component.scss"],
+    standalone: false
 })
 export class SaleInvoiceFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

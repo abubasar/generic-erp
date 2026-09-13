@@ -18,12 +18,12 @@ import { ZoneService } from "app/views/configuration/services/zone.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-primary-national-wise-sales-collection-and-due-report",
-  templateUrl:
-    "./primary-national-wise-sales-collection-and-due-report.component.html",
-  styleUrls: [
-    "./primary-national-wise-sales-collection-and-due-report.component.scss",
-  ],
+    selector: "app-primary-national-wise-sales-collection-and-due-report",
+    templateUrl: "./primary-national-wise-sales-collection-and-due-report.component.html",
+    styleUrls: [
+        "./primary-national-wise-sales-collection-and-due-report.component.scss",
+    ],
+    standalone: false
 })
 export class PrimaryNationalWiseSalesCollectionAndDueReportComponent
   implements OnInit

@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from "@angular/core";
 
 @Component({
-  selector: "app-transactional-journal-details",
-  templateUrl: "./transactional-journal-details.component.html",
-  styleUrls: ["./transactional-journal-details.component.scss"],
+    selector: "app-transactional-journal-details",
+    templateUrl: "./transactional-journal-details.component.html",
+    styleUrls: ["./transactional-journal-details.component.scss"],
+    standalone: false
 })
 export class TransactionalJournalDetailsComponent implements OnInit {
   displayedColumns: string[] = ["account", "debit", "credit"];

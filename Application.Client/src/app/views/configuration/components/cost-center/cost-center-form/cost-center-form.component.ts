@@ -6,9 +6,10 @@ import { CostCenterService } from "app/views/configuration/services/cost-center.
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-cost-center-form",
-  templateUrl: "./cost-center-form.component.html",
-  styleUrls: ["./cost-center-form.component.scss"],
+    selector: "app-cost-center-form",
+    templateUrl: "./cost-center-form.component.html",
+    styleUrls: ["./cost-center-form.component.scss"],
+    standalone: false
 })
 export class CostCenterFormComponent implements OnInit {
   formTitle: string;

@@ -14,9 +14,10 @@ import { DesignationService } from "../../services/designation.service";
 import { DesignationFormComponent } from "./designation-form/designation-form.component";
 
 @Component({
-  selector: "app-designation",
-  templateUrl: "./designation.component.html",
-  styleUrls: ["./designation.component.scss"],
+    selector: "app-designation",
+    templateUrl: "./designation.component.html",
+    styleUrls: ["./designation.component.scss"],
+    standalone: false
 })
 export class DesignationComponent implements OnInit {
   loading: boolean = true;

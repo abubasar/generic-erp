@@ -2,9 +2,10 @@ import { Component, Input, OnInit } from "@angular/core";
 import { DateTimeFormatService } from "app/shared/services/date-time-format.service";
 
 @Component({
-  selector: "app-purchase-invoice-list-detail",
-  templateUrl: "./purchase-invoice-list-detail.component.html",
-  styleUrls: ["./purchase-invoice-list-detail.component.scss"],
+    selector: "app-purchase-invoice-list-detail",
+    templateUrl: "./purchase-invoice-list-detail.component.html",
+    styleUrls: ["./purchase-invoice-list-detail.component.scss"],
+    standalone: false
 })
 export class PurchaseInvoiceListDetailComponent implements OnInit {
   /**

@@ -14,9 +14,10 @@ import { MeasurementUnitService } from "../../services/measurement-unit.service"
 import { MeasurementUnitFormComponent } from "./measurement-unit-form/measurement-unit-form.component";
 
 @Component({
-  selector: "app-measurement-unit",
-  templateUrl: "./measurement-unit.component.html",
-  styleUrls: ["./measurement-unit.component.scss"],
+    selector: "app-measurement-unit",
+    templateUrl: "./measurement-unit.component.html",
+    styleUrls: ["./measurement-unit.component.scss"],
+    standalone: false
 })
 export class MeasurementUnitComponent implements OnInit {
   loading: boolean = true;

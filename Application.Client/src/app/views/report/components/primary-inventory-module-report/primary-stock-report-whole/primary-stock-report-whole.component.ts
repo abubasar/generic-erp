@@ -4,9 +4,10 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-primary-stock-report-whole",
-  templateUrl: "./primary-stock-report-whole.component.html",
-  styleUrls: ["./primary-stock-report-whole.component.scss"],
+    selector: "app-primary-stock-report-whole",
+    templateUrl: "./primary-stock-report-whole.component.html",
+    styleUrls: ["./primary-stock-report-whole.component.scss"],
+    standalone: false
 })
 export class PrimaryStockReportWholeComponent implements OnInit {
   constructor(private http: HttpClient, private fb: FormBuilder) {}

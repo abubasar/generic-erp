@@ -38,19 +38,17 @@ import { PaymentVoucherSearchRequestDTO } from "../../models/payment-voucher/pay
 import { PaymentVoucherService } from "../../services/payment-voucher.service";
 
 @Component({
-  selector: "app-payment-voucher",
-  templateUrl: "./payment-voucher.component.html",
-  styleUrls: ["./payment-voucher.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-payment-voucher",
+    templateUrl: "./payment-voucher.component.html",
+    styleUrls: ["./payment-voucher.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class PaymentVoucherComponent implements OnInit {
   loading: boolean = true;

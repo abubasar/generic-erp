@@ -14,7 +14,8 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { MediaObserver } from "@angular/flex-layout";
 
 @Directive({
-  selector: "[matxSidenavHelper]"
+    selector: "[matxSidenavHelper]",
+    standalone: false
 })
 export class MatxSidenavHelperDirective implements OnInit, OnDestroy {
   @HostBinding("class.is-open")
@@ -75,7 +76,8 @@ export class MatxSidenavHelperDirective implements OnInit, OnDestroy {
 }
 
 @Directive({
-  selector: "[matxSidenavToggler]"
+    selector: "[matxSidenavToggler]",
+    standalone: false
 })
 export class MatxSidenavTogglerDirective {
   @Input("matxSidenavToggler")

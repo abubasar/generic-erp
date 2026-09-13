@@ -27,9 +27,10 @@ import { ZoneService } from "app/views/configuration/services/zone.service";
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-employee-form",
-  templateUrl: "./employee-form.component.html",
-  styleUrls: ["./employee-form.component.scss"],
+    selector: "app-employee-form",
+    templateUrl: "./employee-form.component.html",
+    styleUrls: ["./employee-form.component.scss"],
+    standalone: false
 })
 export class EmployeeFormComponent implements OnInit {
   formTitle: string;

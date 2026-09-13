@@ -41,19 +41,17 @@ import { ZoneService } from "../../services/zone.service";
 import { CustomerWiseProductDiscountAddFormComponent } from "./customer-wise-product-discount-add-form/customer-wise-product-discount-add-form.component";
 
 @Component({
-  selector: "app-customer-wise-product-discount",
-  templateUrl: "./customer-wise-product-discount.component.html",
-  styleUrls: ["./customer-wise-product-discount.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-customer-wise-product-discount",
+    templateUrl: "./customer-wise-product-discount.component.html",
+    styleUrls: ["./customer-wise-product-discount.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class CustomerWiseProductDiscountComponent implements OnInit {
   loading: boolean = true;

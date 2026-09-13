@@ -3,9 +3,10 @@ import { UserProfile } from "app/shared/models/user-profile-model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
 
 @Component({
-  selector: "app-sales-order-detail",
-  templateUrl: "./sales-order-detail.component.html",
-  styleUrls: ["./sales-order-detail.component.scss"],
+    selector: "app-sales-order-detail",
+    templateUrl: "./sales-order-detail.component.html",
+    styleUrls: ["./sales-order-detail.component.scss"],
+    standalone: false
 })
 export class SalesOrderDetailComponent implements OnInit {
   @Input() data: any[] = [];

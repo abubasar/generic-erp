@@ -41,19 +41,17 @@ import { PurchaseOrderService } from "../../services/purchase-order.service";
 import { SupplierTransactionsAgainstPOComponent } from "./supplier-transactions-against-po/supplier-transactions-against-po.component";
 
 @Component({
-  selector: "app-purchase-order",
-  templateUrl: "./purchase-order.component.html",
-  styleUrls: ["./purchase-order.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-purchase-order",
+    templateUrl: "./purchase-order.component.html",
+    styleUrls: ["./purchase-order.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class PurchaseOrderComponent implements OnInit {
   loading: boolean = true;

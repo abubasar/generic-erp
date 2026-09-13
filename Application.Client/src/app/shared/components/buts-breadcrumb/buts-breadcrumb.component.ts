@@ -4,9 +4,10 @@ import { RoutePartsService } from "app/shared/services/route-parts.service";
 import { Subscription, filter } from "rxjs";
 
 @Component({
-  selector: "app-buts-breadcrumb",
-  templateUrl: "./buts-breadcrumb.component.html",
-  styleUrls: ["./buts-breadcrumb.component.scss"],
+    selector: "app-buts-breadcrumb",
+    templateUrl: "./buts-breadcrumb.component.html",
+    styleUrls: ["./buts-breadcrumb.component.scss"],
+    standalone: false
 })
 export class ButsBreadcrumbComponent implements OnInit {
   routerEventSub: Subscription;

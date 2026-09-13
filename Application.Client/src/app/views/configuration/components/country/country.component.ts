@@ -14,9 +14,10 @@ import { CountryService } from "../../services/country.service";
 import { CountryFormComponent } from "./country-form/country-form.component";
 
 @Component({
-  selector: "app-country",
-  templateUrl: "./country.component.html",
-  styleUrls: ["./country.component.scss"],
+    selector: "app-country",
+    templateUrl: "./country.component.html",
+    styleUrls: ["./country.component.scss"],
+    standalone: false
 })
 export class CountryComponent implements OnInit {
   loading: boolean = true;

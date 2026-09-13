@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from "@angular/core";
 
 @Component({
-  selector: "app-stock-adjustment-detail",
-  templateUrl: "./stock-adjustment-detail.component.html",
-  styleUrls: ["./stock-adjustment-detail.component.scss"],
+    selector: "app-stock-adjustment-detail",
+    templateUrl: "./stock-adjustment-detail.component.html",
+    styleUrls: ["./stock-adjustment-detail.component.scss"],
+    standalone: false
 })
 export class StockAdjustmentDetailComponent implements OnInit {
   @Input() data: any[] = [];

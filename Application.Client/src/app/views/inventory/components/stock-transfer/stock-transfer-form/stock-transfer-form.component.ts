@@ -34,9 +34,10 @@ import { ToastrService } from "ngx-toastr";
 import { finalize } from "rxjs";
 
 @Component({
-  selector: "app-stock-transfer-form",
-  templateUrl: "./stock-transfer-form.component.html",
-  styleUrls: ["./stock-transfer-form.component.scss"],
+    selector: "app-stock-transfer-form",
+    templateUrl: "./stock-transfer-form.component.html",
+    styleUrls: ["./stock-transfer-form.component.scss"],
+    standalone: false
 })
 export class StockTransferFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

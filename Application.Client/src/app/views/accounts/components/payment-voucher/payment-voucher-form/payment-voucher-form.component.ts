@@ -46,9 +46,10 @@ import { ToastrService } from "ngx-toastr";
 import { finalize } from "rxjs";
 
 @Component({
-  selector: "app-payment-voucher-form",
-  templateUrl: "./payment-voucher-form.component.html",
-  styleUrls: ["./payment-voucher-form.component.scss"],
+    selector: "app-payment-voucher-form",
+    templateUrl: "./payment-voucher-form.component.html",
+    styleUrls: ["./payment-voucher-form.component.scss"],
+    standalone: false
 })
 export class PaymentVoucherFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

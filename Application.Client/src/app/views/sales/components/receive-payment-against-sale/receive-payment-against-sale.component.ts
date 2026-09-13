@@ -34,9 +34,10 @@ import { ReceivePaymentAgainstSaleResponseDTO } from "../../models/receive-payme
 import { ReceivePaymentAgainstSaleSearchRequestDTO } from "../../models/receive-payment-against-sale/receive-payment-against-sale-search-request-dto.model";
 import { ReceivePaymentAgainstSaleService } from "../../services/receive-payment-against-sale.service";
 @Component({
-  selector: "app-receive-payment-against-sale",
-  templateUrl: "./receive-payment-against-sale.component.html",
-  styleUrls: ["./receive-payment-against-sale.component.scss"],
+    selector: "app-receive-payment-against-sale",
+    templateUrl: "./receive-payment-against-sale.component.html",
+    styleUrls: ["./receive-payment-against-sale.component.scss"],
+    standalone: false
 })
 export class ReceivePaymentAgainstSaleComponent implements OnInit {
   loading: boolean = true;

@@ -42,9 +42,10 @@ import { finalize } from "rxjs";
 import { PurchaseRequisitionListComponent } from "../purchase-requisition-list/purchase-requisition-list.component";
 
 @Component({
-  selector: "app-vendor-quotation-form",
-  templateUrl: "./vendor-quotation-form.component.html",
-  styleUrls: ["./vendor-quotation-form.component.scss"],
+    selector: "app-vendor-quotation-form",
+    templateUrl: "./vendor-quotation-form.component.html",
+    styleUrls: ["./vendor-quotation-form.component.scss"],
+    standalone: false
 })
 export class VendorQuotationFormComponent implements OnInit {
   @ViewChild("stepper") private stepper: MatStepper;

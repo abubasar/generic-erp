@@ -8,9 +8,10 @@ import { StoreService } from "app/views/configuration/services/store.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-sales-warehouse-wise",
-  templateUrl: "./sales-warehouse-wise.component.html",
-  styleUrls: ["./sales-warehouse-wise.component.scss"],
+    selector: "app-sales-warehouse-wise",
+    templateUrl: "./sales-warehouse-wise.component.html",
+    styleUrls: ["./sales-warehouse-wise.component.scss"],
+    standalone: false
 })
 export class SalesWarehouseWiseComponent implements OnInit {
   constructor(

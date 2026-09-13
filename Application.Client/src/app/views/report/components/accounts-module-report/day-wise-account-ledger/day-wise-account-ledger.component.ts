@@ -8,9 +8,10 @@ import { CostCenterService } from "app/views/configuration/services/cost-center.
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-day-wise-account-ledger",
-  templateUrl: "./day-wise-account-ledger.component.html",
-  styleUrls: ["./day-wise-account-ledger.component.scss"],
+    selector: "app-day-wise-account-ledger",
+    templateUrl: "./day-wise-account-ledger.component.html",
+    styleUrls: ["./day-wise-account-ledger.component.scss"],
+    standalone: false
 })
 export class DayWiseAccountLedgerComponent implements OnInit {
   searchForm: FormGroup;

@@ -6,9 +6,10 @@ import { CategoryService } from "app/views/configuration/services/category.servi
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-category-form",
-  templateUrl: "./category-form.component.html",
-  styleUrls: ["./category-form.component.scss"],
+    selector: "app-category-form",
+    templateUrl: "./category-form.component.html",
+    styleUrls: ["./category-form.component.scss"],
+    standalone: false
 })
 export class CategoryFormComponent implements OnInit {
   formTitle: string;

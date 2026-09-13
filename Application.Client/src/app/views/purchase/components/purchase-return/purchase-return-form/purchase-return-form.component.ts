@@ -41,9 +41,10 @@ import { finalize } from "rxjs";
 import { GRNDialogComponent } from "../grn-dialog/grn-dialog.component";
 
 @Component({
-  selector: "app-purchase-return-form",
-  templateUrl: "./purchase-return-form.component.html",
-  styleUrls: ["./purchase-return-form.component.scss"],
+    selector: "app-purchase-return-form",
+    templateUrl: "./purchase-return-form.component.html",
+    styleUrls: ["./purchase-return-form.component.scss"],
+    standalone: false
 })
 export class PurchaseReturnFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

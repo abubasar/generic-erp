@@ -6,9 +6,10 @@ import { FundTransferTransactionTypeService } from "app/views/configuration/serv
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-fund-transfer-transaction-type-form",
-  templateUrl: "./fund-transfer-transaction-type-form.component.html",
-  styleUrls: ["./fund-transfer-transaction-type-form.component.scss"],
+    selector: "app-fund-transfer-transaction-type-form",
+    templateUrl: "./fund-transfer-transaction-type-form.component.html",
+    styleUrls: ["./fund-transfer-transaction-type-form.component.scss"],
+    standalone: false
 })
 export class FundTransferTransactionTypeFormComponent implements OnInit {
   formTitle: string;

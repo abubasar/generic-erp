@@ -7,9 +7,10 @@ import { EmailAccountService } from "app/views/configuration/services/email-acco
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-email-account-form",
-  templateUrl: "./email-account-form.component.html",
-  styleUrls: ["./email-account-form.component.scss"],
+    selector: "app-email-account-form",
+    templateUrl: "./email-account-form.component.html",
+    styleUrls: ["./email-account-form.component.scss"],
+    standalone: false
 })
 export class EmailAccountFormComponent implements OnInit {
   formTitle: string;

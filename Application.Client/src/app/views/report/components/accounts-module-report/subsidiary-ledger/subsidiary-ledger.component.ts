@@ -6,9 +6,10 @@ import { AccountService } from "app/views/configuration/services/account.service
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-subsidiary-ledger",
-  templateUrl: "./subsidiary-ledger.component.html",
-  styleUrls: ["./subsidiary-ledger.component.scss"],
+    selector: "app-subsidiary-ledger",
+    templateUrl: "./subsidiary-ledger.component.html",
+    styleUrls: ["./subsidiary-ledger.component.scss"],
+    standalone: false
 })
 export class SubsidiaryLedgerComponent implements OnInit {
   searchForm: FormGroup;

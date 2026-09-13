@@ -6,12 +6,12 @@ import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-primary-sale-total-product-wise-multi-territory-report",
-  templateUrl:
-    "./primary-sale-total-product-wise-multi-territory-report.component.html",
-  styleUrls: [
-    "./primary-sale-total-product-wise-multi-territory-report.component.scss",
-  ],
+    selector: "app-primary-sale-total-product-wise-multi-territory-report",
+    templateUrl: "./primary-sale-total-product-wise-multi-territory-report.component.html",
+    styleUrls: [
+        "./primary-sale-total-product-wise-multi-territory-report.component.scss",
+    ],
+    standalone: false
 })
 export class PrimarySaleTotalProductWiseMultiTerritoryReportComponent
   implements OnInit

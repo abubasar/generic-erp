@@ -38,19 +38,17 @@ import { PendingCheckedCount } from "../../models/pending-checked-count";
 import { GoodsReceiveNoteService } from "../../services/goods-receive-note.service";
 
 @Component({
-  selector: "app-goods-receive-note",
-  templateUrl: "./goods-receive-note.component.html",
-  styleUrls: ["./goods-receive-note.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-goods-receive-note",
+    templateUrl: "./goods-receive-note.component.html",
+    styleUrls: ["./goods-receive-note.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class GoodsReceiveNoteComponent implements OnInit {
   loading: boolean = true;

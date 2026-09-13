@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from "@angular/core";
 
 @Component({
-  selector: "app-vendor-quotation-detail",
-  templateUrl: "./vendor-quotation-detail.component.html",
-  styleUrls: ["./vendor-quotation-detail.component.scss"],
+    selector: "app-vendor-quotation-detail",
+    templateUrl: "./vendor-quotation-detail.component.html",
+    styleUrls: ["./vendor-quotation-detail.component.scss"],
+    standalone: false
 })
 export class VendorQuotationDetailComponent implements OnInit {
   @Input() data: any[] = [];

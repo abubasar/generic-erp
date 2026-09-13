@@ -12,9 +12,10 @@ import { TenantService } from "../../services/tenant.service";
 import { TenantFormComponent } from "./tenant-form/tenant-form.component";
 
 @Component({
-  selector: "app-tenant",
-  templateUrl: "./tenant.component.html",
-  styleUrls: ["./tenant.component.scss"],
+    selector: "app-tenant",
+    templateUrl: "./tenant.component.html",
+    styleUrls: ["./tenant.component.scss"],
+    standalone: false
 })
 export class TenantComponent implements OnInit {
   loading: boolean = true;

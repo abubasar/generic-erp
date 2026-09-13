@@ -2,7 +2,8 @@ import { Directive, Input, OnInit, TemplateRef, ViewContainerRef } from '@angula
 import { JwtAuthService } from '../services/auth/jwt-auth.service';
 
 @Directive({
-  selector: '[appHasRole]'
+    selector: '[appHasRole]',
+    standalone: false
 })
 export class HasRoleDirective implements OnInit{
   @Input() appHasRole: string[];

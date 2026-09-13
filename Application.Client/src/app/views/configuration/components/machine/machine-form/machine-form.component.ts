@@ -6,9 +6,10 @@ import { MachineService } from "app/views/configuration/services/machine.service
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-machine-form",
-  templateUrl: "./machine-form.component.html",
-  styleUrls: ["./machine-form.component.scss"],
+    selector: "app-machine-form",
+    templateUrl: "./machine-form.component.html",
+    styleUrls: ["./machine-form.component.scss"],
+    standalone: false
 })
 export class MachineFormComponent implements OnInit {
   formTitle: string;

@@ -14,9 +14,10 @@ import { StoreService } from "app/views/configuration/services/store.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-stock-depot-product-wise-details-report",
-  templateUrl: "./stock-depot-product-wise-details-report.component.html",
-  styleUrls: ["./stock-depot-product-wise-details-report.component.scss"],
+    selector: "app-stock-depot-product-wise-details-report",
+    templateUrl: "./stock-depot-product-wise-details-report.component.html",
+    styleUrls: ["./stock-depot-product-wise-details-report.component.scss"],
+    standalone: false
 })
 export class StockDepotProductWiseDetailsReportComponent implements OnInit {
   Inventory_Type_Id_Finished_Goods_ID: string =

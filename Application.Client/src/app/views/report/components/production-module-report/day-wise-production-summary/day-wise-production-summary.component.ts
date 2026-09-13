@@ -7,9 +7,10 @@ import { Store } from "app/views/configuration/models/store/store.model";
 import { StoreService } from "app/views/configuration/services/store.service";
 import { environment } from "environments/environment";
 @Component({
-  selector: "app-day-wise-production-summary",
-  templateUrl: "./day-wise-production-summary.component.html",
-  styleUrls: ["./day-wise-production-summary.component.scss"],
+    selector: "app-day-wise-production-summary",
+    templateUrl: "./day-wise-production-summary.component.html",
+    styleUrls: ["./day-wise-production-summary.component.scss"],
+    standalone: false
 })
 export class DayWiseProductionSummaryComponent implements OnInit {
   constructor(

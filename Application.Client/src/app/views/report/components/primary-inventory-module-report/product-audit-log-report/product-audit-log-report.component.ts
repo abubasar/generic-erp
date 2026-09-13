@@ -6,9 +6,10 @@ import { ProductService } from "app/views/configuration/services/product.service
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-product-audit-log-report",
-  templateUrl: "./product-audit-log-report.component.html",
-  styleUrls: ["./product-audit-log-report.component.scss"],
+    selector: "app-product-audit-log-report",
+    templateUrl: "./product-audit-log-report.component.html",
+    styleUrls: ["./product-audit-log-report.component.scss"],
+    standalone: false
 })
 export class ProductAuditLogReportComponent implements OnInit {
   constructor(

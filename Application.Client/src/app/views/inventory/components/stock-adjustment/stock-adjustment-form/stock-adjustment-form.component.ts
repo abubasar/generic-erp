@@ -34,9 +34,10 @@ import { ToastrService } from "ngx-toastr";
 import { finalize } from "rxjs";
 
 @Component({
-  selector: "app-stock-adjustment-form",
-  templateUrl: "./stock-adjustment-form.component.html",
-  styleUrls: ["./stock-adjustment-form.component.scss"],
+    selector: "app-stock-adjustment-form",
+    templateUrl: "./stock-adjustment-form.component.html",
+    styleUrls: ["./stock-adjustment-form.component.scss"],
+    standalone: false
 })
 export class StockAdjustmentFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

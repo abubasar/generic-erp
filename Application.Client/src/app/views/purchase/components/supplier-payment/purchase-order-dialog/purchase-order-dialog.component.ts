@@ -21,19 +21,17 @@ import { PurchaseOrderService } from "app/views/purchase/services/purchase-order
 import { SupplierTransactionsAgainstPOComponent } from "../../purchase-order/supplier-transactions-against-po/supplier-transactions-against-po.component";
 
 @Component({
-  selector: "app-purchase-order-dialog",
-  templateUrl: "./purchase-order-dialog.component.html",
-  styleUrls: ["./purchase-order-dialog.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-purchase-order-dialog",
+    templateUrl: "./purchase-order-dialog.component.html",
+    styleUrls: ["./purchase-order-dialog.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class PurchaseOrderDialogComponent implements OnInit {
   loading: boolean = true;

@@ -53,9 +53,10 @@ import { MoneyReceiptListComponent } from "../money-receipt-list/money-receipt-l
 import { SalesQuotationListComponent } from "../sales-quotation-list/sales-quotation-list.component";
 
 @Component({
-  selector: "app-sales-order-form",
-  templateUrl: "./sales-order-form.component.html",
-  styleUrls: ["./sales-order-form.component.scss"],
+    selector: "app-sales-order-form",
+    templateUrl: "./sales-order-form.component.html",
+    styleUrls: ["./sales-order-form.component.scss"],
+    standalone: false
 })
 export class SalesOrderFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

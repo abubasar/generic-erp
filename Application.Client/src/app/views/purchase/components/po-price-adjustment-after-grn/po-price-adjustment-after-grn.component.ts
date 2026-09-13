@@ -34,19 +34,17 @@ import { PoPriceAdjustmentAfterGrnSearchRequestDTO } from "../../models/po-price
 import { PoPriceAdjustmentAfterGrnService } from "../../services/po-price-adjustment-after-grn.service";
 
 @Component({
-  selector: "app-po-price-adjustment-after-grn",
-  templateUrl: "./po-price-adjustment-after-grn.component.html",
-  styleUrls: ["./po-price-adjustment-after-grn.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-po-price-adjustment-after-grn",
+    templateUrl: "./po-price-adjustment-after-grn.component.html",
+    styleUrls: ["./po-price-adjustment-after-grn.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class PoPriceAdjustmentAfterGrnComponent implements OnInit {
   loading: boolean = true;

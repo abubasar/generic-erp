@@ -4,9 +4,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { environment } from 'environments/environment';
 
 @Component({
-  selector: 'app-daily-transaction-detail-report',
-  templateUrl: './daily-transaction-detail-report.component.html',
-  styleUrls: ['./daily-transaction-detail-report.component.scss']
+    selector: 'app-daily-transaction-detail-report',
+    templateUrl: './daily-transaction-detail-report.component.html',
+    styleUrls: ['./daily-transaction-detail-report.component.scss'],
+    standalone: false
 })
 export class DailyTransactionDetailReportComponent implements OnInit {
   constructor(private http: HttpClient, private fb: FormBuilder) {}

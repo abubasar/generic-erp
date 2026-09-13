@@ -16,19 +16,17 @@ import { BillOfMaterialSearchRequestDTO } from "app/views/production/models/bill
 import { BillOfMaterialService } from "app/views/production/services/bill-of-material.service";
 
 @Component({
-  selector: "app-bill-of-material-list",
-  templateUrl: "./bill-of-material-list.component.html",
-  styleUrls: ["./bill-of-material-list.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-bill-of-material-list",
+    templateUrl: "./bill-of-material-list.component.html",
+    styleUrls: ["./bill-of-material-list.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class BillOfMaterialListComponent implements OnInit {
   loading: boolean = true;

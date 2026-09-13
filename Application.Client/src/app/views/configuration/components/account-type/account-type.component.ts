@@ -14,9 +14,10 @@ import { AccountTypeService } from "../../services/account-type.service";
 import { AccountTypeFormComponent } from "./account-type-form/account-type-form.component";
 
 @Component({
-  selector: "app-account-type",
-  templateUrl: "./account-type.component.html",
-  styleUrls: ["./account-type.component.scss"],
+    selector: "app-account-type",
+    templateUrl: "./account-type.component.html",
+    styleUrls: ["./account-type.component.scss"],
+    standalone: false
 })
 export class AccountTypeComponent implements OnInit {
   loading: boolean = true;

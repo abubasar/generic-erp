@@ -14,9 +14,10 @@ import { CurrencyService } from "../../services/currency.service";
 import { CurrencyFormComponent } from "./currency-form/currency-form.component";
 
 @Component({
-  selector: "app-currency",
-  templateUrl: "./currency.component.html",
-  styleUrls: ["./currency.component.scss"],
+    selector: "app-currency",
+    templateUrl: "./currency.component.html",
+    styleUrls: ["./currency.component.scss"],
+    standalone: false
 })
 export class CurrencyComponent implements OnInit {
   loading: boolean = true;

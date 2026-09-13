@@ -13,9 +13,10 @@ import { StoreService } from "app/views/configuration/services/store.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-item-stock-ledger",
-  templateUrl: "./item-stock-ledger.component.html",
-  styleUrls: ["./item-stock-ledger.component.scss"],
+    selector: "app-item-stock-ledger",
+    templateUrl: "./item-stock-ledger.component.html",
+    styleUrls: ["./item-stock-ledger.component.scss"],
+    standalone: false
 })
 export class ItemStockLedgerComponent implements OnInit {
   Inventory_Type_Id_Finished_Goods_ID: string;

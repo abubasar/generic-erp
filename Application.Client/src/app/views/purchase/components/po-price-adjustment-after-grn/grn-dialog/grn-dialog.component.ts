@@ -20,19 +20,17 @@ import { GoodsReceiveNoteSearchRequestDTO } from "app/views/purchase/models/good
 import { GoodsReceiveNoteService } from "app/views/purchase/services/goods-receive-note.service";
 
 @Component({
-  selector: "app-grn-dialog",
-  templateUrl: "./grn-dialog.component.html",
-  styleUrls: ["./grn-dialog.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-grn-dialog",
+    templateUrl: "./grn-dialog.component.html",
+    styleUrls: ["./grn-dialog.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class GrnDialogComponent implements OnInit {
   dialogTitle: string = "Select Goods Receive Note";

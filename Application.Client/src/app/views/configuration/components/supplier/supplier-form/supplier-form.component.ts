@@ -28,9 +28,10 @@ import { SupplierService } from "app/views/configuration/services/supplier.servi
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-supplier-form",
-  templateUrl: "./supplier-form.component.html",
-  styleUrls: ["./supplier-form.component.scss"],
+    selector: "app-supplier-form",
+    templateUrl: "./supplier-form.component.html",
+    styleUrls: ["./supplier-form.component.scss"],
+    standalone: false
 })
 export class SupplierFormComponent implements OnInit {
   formTitle: string;

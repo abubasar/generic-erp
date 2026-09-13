@@ -8,9 +8,10 @@ import { StoreService } from "app/views/configuration/services/store.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-primary-finished-goods-stock-report",
-  templateUrl: "./primary-finished-goods-stock-report.component.html",
-  styleUrls: ["./primary-finished-goods-stock-report.component.scss"],
+    selector: "app-primary-finished-goods-stock-report",
+    templateUrl: "./primary-finished-goods-stock-report.component.html",
+    styleUrls: ["./primary-finished-goods-stock-report.component.scss"],
+    standalone: false
 })
 export class PrimaryFinishedGoodsStockReportComponent implements OnInit {
   constructor(

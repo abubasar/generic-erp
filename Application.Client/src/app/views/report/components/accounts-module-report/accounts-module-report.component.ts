@@ -1,9 +1,10 @@
 import { Component, OnInit } from "@angular/core";
 
 @Component({
-  selector: "app-accounts-module-report",
-  templateUrl: "./accounts-module-report.component.html",
-  styleUrls: ["./accounts-module-report.component.scss"],
+    selector: "app-accounts-module-report",
+    templateUrl: "./accounts-module-report.component.html",
+    styleUrls: ["./accounts-module-report.component.scss"],
+    standalone: false
 })
 export class AccountsModuleReportComponent implements OnInit {
   selectedForm: string = "";

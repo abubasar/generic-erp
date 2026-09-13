@@ -15,9 +15,10 @@ import { FinancialYearService } from "../../services/financial-year.service";
 import { FinancialYearFormComponent } from "./financial-year-form/financial-year-form.component";
 
 @Component({
-  selector: "app-financial-year",
-  templateUrl: "./financial-year.component.html",
-  styleUrls: ["./financial-year.component.scss"],
+    selector: "app-financial-year",
+    templateUrl: "./financial-year.component.html",
+    styleUrls: ["./financial-year.component.scss"],
+    standalone: false
 })
 export class FinancialYearComponent implements OnInit {
   loading: boolean = true;

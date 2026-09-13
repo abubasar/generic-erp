@@ -30,9 +30,10 @@ import { ProductService } from "app/views/configuration/services/product.service
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-product-form",
-  templateUrl: "./product-form.component.html",
-  styleUrls: ["./product-form.component.scss"],
+    selector: "app-product-form",
+    templateUrl: "./product-form.component.html",
+    styleUrls: ["./product-form.component.scss"],
+    standalone: false
 })
 export class ProductFormComponent implements OnInit {
   Inventory_Type_Id_Finished_Goods = Inventory_Type_Id_Finished_Goods;

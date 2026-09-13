@@ -13,9 +13,10 @@ import { PurchaseOrderService } from "app/views/purchase/services/purchase-order
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-grn-supplier-item-wise-report",
-  templateUrl: "./grn-supplier-item-wise-report.component.html",
-  styleUrls: ["./grn-supplier-item-wise-report.component.scss"],
+    selector: "app-grn-supplier-item-wise-report",
+    templateUrl: "./grn-supplier-item-wise-report.component.html",
+    styleUrls: ["./grn-supplier-item-wise-report.component.scss"],
+    standalone: false
 })
 export class GrnSupplierItemWiseReportComponent implements OnInit {
   constructor(

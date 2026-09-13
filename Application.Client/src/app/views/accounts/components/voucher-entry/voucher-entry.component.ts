@@ -38,19 +38,17 @@ import { PaymentModeService } from "app/views/configuration/services/payment-mod
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-voucher-entry",
-  templateUrl: "./voucher-entry.component.html",
-  styleUrls: ["./voucher-entry.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-voucher-entry",
+    templateUrl: "./voucher-entry.component.html",
+    styleUrls: ["./voucher-entry.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class VoucherEntryComponent implements OnInit {
   loading: boolean = true;

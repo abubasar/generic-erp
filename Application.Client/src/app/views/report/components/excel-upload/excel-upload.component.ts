@@ -4,9 +4,10 @@ import { environment } from 'environments/environment';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
-  selector: "app-excel-upload",
-  templateUrl: "./excel-upload.component.html",
-  styleUrls: ["./excel-upload.component.scss"],
+    selector: "app-excel-upload",
+    templateUrl: "./excel-upload.component.html",
+    styleUrls: ["./excel-upload.component.scss"],
+    standalone: false
 })
 export class ExcelUploadComponent implements OnInit {
   constructor(private http: HttpClient, private toastr: ToastrService) {}

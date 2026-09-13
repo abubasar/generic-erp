@@ -54,9 +54,10 @@ import { DeliveryNoteDialogComponent } from "../delivery-note-dialog/delivery-no
 import { SaleInvoiceDialogComponent } from "../sale-invoice-dialog/sale-invoice-dialog.component";
 
 @Component({
-  selector: "app-sale-return-form",
-  templateUrl: "./sale-return-form.component.html",
-  styleUrls: ["./sale-return-form.component.scss"],
+    selector: "app-sale-return-form",
+    templateUrl: "./sale-return-form.component.html",
+    styleUrls: ["./sale-return-form.component.scss"],
+    standalone: false
 })
 export class SaleReturnFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

@@ -23,19 +23,17 @@ import { ToastrService } from "ngx-toastr";
 import { Observable, merge, of } from "rxjs";
 
 @Component({
-  selector: "app-supplier-payment-dialog",
-  templateUrl: "./supplier-payment-dialog.component.html",
-  styleUrls: ["./supplier-payment-dialog.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-supplier-payment-dialog",
+    templateUrl: "./supplier-payment-dialog.component.html",
+    styleUrls: ["./supplier-payment-dialog.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class SupplierPaymentDialogComponent implements OnInit {
   loading: boolean = true;

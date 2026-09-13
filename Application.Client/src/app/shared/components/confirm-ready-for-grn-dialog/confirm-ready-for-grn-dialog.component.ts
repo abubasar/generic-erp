@@ -5,9 +5,10 @@ import { LCCostEntryByPoIdResponseDTO } from "app/views/purchase/models/lc-cost-
 import { LcCostEntryService } from "app/views/purchase/services/lc-cost-entry.service";
 
 @Component({
-  selector: "app-confirm-ready-for-grn-dialog",
-  templateUrl: "./confirm-ready-for-grn-dialog.component.html",
-  styleUrls: ["./confirm-ready-for-grn-dialog.component.scss"],
+    selector: "app-confirm-ready-for-grn-dialog",
+    templateUrl: "./confirm-ready-for-grn-dialog.component.html",
+    styleUrls: ["./confirm-ready-for-grn-dialog.component.scss"],
+    standalone: false
 })
 export class ConfirmReadyForGrnDialogComponent implements OnInit {
   id: string;

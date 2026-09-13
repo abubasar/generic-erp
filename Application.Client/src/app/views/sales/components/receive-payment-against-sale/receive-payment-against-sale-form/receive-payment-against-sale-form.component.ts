@@ -32,9 +32,10 @@ import { finalize } from "rxjs";
 import { SaleInvoiceListComponent } from "../sale-invoice-list/sale-invoice-list.component";
 
 @Component({
-  selector: "app-receive-payment-against-sale-form",
-  templateUrl: "./receive-payment-against-sale-form.component.html",
-  styleUrls: ["./receive-payment-against-sale-form.component.scss"],
+    selector: "app-receive-payment-against-sale-form",
+    templateUrl: "./receive-payment-against-sale-form.component.html",
+    styleUrls: ["./receive-payment-against-sale-form.component.scss"],
+    standalone: false
 })
 export class ReceivePaymentAgainstSaleFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

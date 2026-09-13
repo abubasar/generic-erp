@@ -16,9 +16,10 @@ import { ZoneService } from "../../services/zone.service";
 import { ZoneFormComponent } from "./zone-form/zone-form.component";
 
 @Component({
-  selector: "app-zone",
-  templateUrl: "./zone.component.html",
-  styleUrls: ["./zone.component.scss"],
+    selector: "app-zone",
+    templateUrl: "./zone.component.html",
+    styleUrls: ["./zone.component.scss"],
+    standalone: false
 })
 export class ZoneComponent implements OnInit {
   loading: boolean = true;

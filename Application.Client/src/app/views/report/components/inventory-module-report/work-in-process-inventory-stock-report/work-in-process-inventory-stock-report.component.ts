@@ -6,9 +6,10 @@ import { StockResponseDTO } from "../../../models/stock-response-dto";
 import { StockService } from "../../../services/stock.service";
 
 @Component({
-  selector: "app-work-in-process-inventory-stock-report",
-  templateUrl: "./work-in-process-inventory-stock-report.component.html",
-  styleUrls: ["./work-in-process-inventory-stock-report.component.scss"],
+    selector: "app-work-in-process-inventory-stock-report",
+    templateUrl: "./work-in-process-inventory-stock-report.component.html",
+    styleUrls: ["./work-in-process-inventory-stock-report.component.scss"],
+    standalone: false
 })
 export class WorkInProcessInventoryStockReportComponent implements OnInit {
   isLoading1: boolean = false;

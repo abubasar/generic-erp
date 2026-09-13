@@ -64,17 +64,18 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
   },
 };
 @Component({
-  selector: "app-production-form",
-  templateUrl: "./production-form.component.html",
-  styleUrls: ["./production-form.component.scss"],
-  providers: [
-    {
-      provide: NgxMatDateAdapter,
-      useClass: CustomNgxDatetimeAdapter,
-      deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS],
-    },
-    { provide: NGX_MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS },
-  ],
+    selector: "app-production-form",
+    templateUrl: "./production-form.component.html",
+    styleUrls: ["./production-form.component.scss"],
+    providers: [
+        {
+            provide: NgxMatDateAdapter,
+            useClass: CustomNgxDatetimeAdapter,
+            deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS],
+        },
+        { provide: NGX_MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS },
+    ],
+    standalone: false
 })
 export class ProductionFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

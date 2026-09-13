@@ -17,19 +17,17 @@ import { PurchaseRequisitionService } from "app/views/purchase/services/purchase
 import { VendorQuotationService } from "app/views/purchase/services/vendor-quotation.service";
 
 @Component({
-  selector: "app-vendor-quotation-list",
-  templateUrl: "./vendor-quotation-list.component.html",
-  styleUrls: ["./vendor-quotation-list.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-vendor-quotation-list",
+    templateUrl: "./vendor-quotation-list.component.html",
+    styleUrls: ["./vendor-quotation-list.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class VendorQuotationListComponent implements OnInit {
   loading: boolean = true;

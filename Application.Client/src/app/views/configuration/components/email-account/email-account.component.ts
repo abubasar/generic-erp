@@ -14,9 +14,10 @@ import { EmailAccountService } from "../../services/email-account.service";
 import { EmailAccountFormComponent } from "./email-account-form/email-account-form.component";
 
 @Component({
-  selector: "app-email-account",
-  templateUrl: "./email-account.component.html",
-  styleUrls: ["./email-account.component.scss"],
+    selector: "app-email-account",
+    templateUrl: "./email-account.component.html",
+    styleUrls: ["./email-account.component.scss"],
+    standalone: false
 })
 export class EmailAccountComponent implements OnInit {
   loading: boolean = true;

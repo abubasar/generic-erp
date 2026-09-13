@@ -13,10 +13,11 @@ import { DashboardThisMonthSaleViewModel } from "../models/dashboard-this-month-
 import { DashboardDataService } from "../services/dashboard-data.service";
 
 @Component({
-  selector: "app-analytics",
-  templateUrl: "./analytics.component.html",
-  styleUrls: ["./analytics.component.scss"],
-  animations: matxAnimations,
+    selector: "app-analytics",
+    templateUrl: "./analytics.component.html",
+    styleUrls: ["./analytics.component.scss"],
+    animations: matxAnimations,
+    standalone: false
 })
 export class AnalyticsComponent implements OnInit {
   filterTypes = Object.keys(DashboardFilterType).map((key) => ({

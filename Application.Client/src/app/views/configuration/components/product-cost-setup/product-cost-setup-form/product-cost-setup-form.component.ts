@@ -10,9 +10,10 @@ import { ProductService } from "app/views/configuration/services/product.service
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-product-cost-setup-form",
-  templateUrl: "./product-cost-setup-form.component.html",
-  styleUrls: ["./product-cost-setup-form.component.scss"],
+    selector: "app-product-cost-setup-form",
+    templateUrl: "./product-cost-setup-form.component.html",
+    styleUrls: ["./product-cost-setup-form.component.scss"],
+    standalone: false
 })
 export class ProductCostSetupFormComponent implements OnInit {
   formTitle: string;

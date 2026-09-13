@@ -11,9 +11,10 @@ import { StoreService } from "app/views/configuration/services/store.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-production-details-report",
-  templateUrl: "./production-details-report.component.html",
-  styleUrls: ["./production-details-report.component.scss"],
+    selector: "app-production-details-report",
+    templateUrl: "./production-details-report.component.html",
+    styleUrls: ["./production-details-report.component.scss"],
+    standalone: false
 })
 export class ProductionDetailsReportComponent implements OnInit {
   searchForm: FormGroup;

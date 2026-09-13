@@ -33,19 +33,17 @@ import { PendingCheckedCount } from "../../models/pending-checked-count";
 import { LcAdjustmentService } from "../../services/lc-adjustment.service";
 
 @Component({
-  selector: "app-lc-adjustment",
-  templateUrl: "./lc-adjustment.component.html",
-  styleUrls: ["./lc-adjustment.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-lc-adjustment",
+    templateUrl: "./lc-adjustment.component.html",
+    styleUrls: ["./lc-adjustment.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class LcAdjustmentComponent implements OnInit {
   loading: boolean = true;

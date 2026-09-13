@@ -29,9 +29,10 @@ import { ZoneService } from "app/views/configuration/services/zone.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-primary-sale-total-product-wise-report",
-  templateUrl: "./primary-sale-total-product-wise-report.component.html",
-  styleUrls: ["./primary-sale-total-product-wise-report.component.scss"],
+    selector: "app-primary-sale-total-product-wise-report",
+    templateUrl: "./primary-sale-total-product-wise-report.component.html",
+    styleUrls: ["./primary-sale-total-product-wise-report.component.scss"],
+    standalone: false
 })
 export class PrimarySaleTotalProductWiseReportComponent implements OnInit {
   businessType: string;

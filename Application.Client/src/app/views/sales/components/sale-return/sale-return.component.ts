@@ -40,19 +40,17 @@ import { SaleReturnSearchRequestDTO } from "../../models/sale-return/sale-return
 import { SaleReturnService } from "../../services/sale-return.service";
 
 @Component({
-  selector: "app-sale-return",
-  templateUrl: "./sale-return.component.html",
-  styleUrls: ["./sale-return.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-sale-return",
+    templateUrl: "./sale-return.component.html",
+    styleUrls: ["./sale-return.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class SaleReturnComponent implements OnInit {
   loading: boolean = true;

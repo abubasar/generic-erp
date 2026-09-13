@@ -6,9 +6,10 @@ import { RegionService } from "app/views/configuration/services/region.service";
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-region-form",
-  templateUrl: "./region-form.component.html",
-  styleUrls: ["./region-form.component.scss"],
+    selector: "app-region-form",
+    templateUrl: "./region-form.component.html",
+    styleUrls: ["./region-form.component.scss"],
+    standalone: false
 })
 export class RegionFormComponent implements OnInit {
   formTitle: string;

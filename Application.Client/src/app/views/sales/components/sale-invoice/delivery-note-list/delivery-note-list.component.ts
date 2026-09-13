@@ -20,19 +20,17 @@ import { DeliveryNoteSearchRequestDTO } from "app/views/sales/models/delivery-no
 import { DeliveryNoteService } from "app/views/sales/services/delivery-note.service";
 
 @Component({
-  selector: "app-delivery-note-list",
-  templateUrl: "./delivery-note-list.component.html",
-  styleUrls: ["./delivery-note-list.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-delivery-note-list",
+    templateUrl: "./delivery-note-list.component.html",
+    styleUrls: ["./delivery-note-list.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class DeliveryNoteListComponent implements OnInit {
   loading: boolean = true;

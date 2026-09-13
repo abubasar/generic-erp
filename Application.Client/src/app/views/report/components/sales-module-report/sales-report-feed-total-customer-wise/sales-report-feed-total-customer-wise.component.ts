@@ -4,9 +4,10 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-sales-report-feed-total-customer-wise",
-  templateUrl: "./sales-report-feed-total-customer-wise.component.html",
-  styleUrls: ["./sales-report-feed-total-customer-wise.component.scss"],
+    selector: "app-sales-report-feed-total-customer-wise",
+    templateUrl: "./sales-report-feed-total-customer-wise.component.html",
+    styleUrls: ["./sales-report-feed-total-customer-wise.component.scss"],
+    standalone: false
 })
 export class SalesReportFeedTotalCustomerWiseComponent implements OnInit {
   constructor(private http: HttpClient, private fb: FormBuilder) {}

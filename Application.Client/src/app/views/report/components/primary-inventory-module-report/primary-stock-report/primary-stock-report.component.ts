@@ -15,9 +15,10 @@ import { StoreService } from "app/views/configuration/services/store.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-primary-stock-report",
-  templateUrl: "./primary-stock-report.component.html",
-  styleUrls: ["./primary-stock-report.component.scss"],
+    selector: "app-primary-stock-report",
+    templateUrl: "./primary-stock-report.component.html",
+    styleUrls: ["./primary-stock-report.component.scss"],
+    standalone: false
 })
 export class PrimaryStockReportComponent implements OnInit {
   Inventory_Type_Id_Finished_Goods_ID: string =

@@ -6,9 +6,10 @@ import { RoleService } from "app/views/configuration/services/role.service";
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-role-form",
-  templateUrl: "./role-form.component.html",
-  styleUrls: ["./role-form.component.scss"],
+    selector: "app-role-form",
+    templateUrl: "./role-form.component.html",
+    styleUrls: ["./role-form.component.scss"],
+    standalone: false
 })
 export class RoleFormComponent implements OnInit {
   formTitle: string;

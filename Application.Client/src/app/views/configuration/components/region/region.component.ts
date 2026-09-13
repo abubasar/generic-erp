@@ -14,9 +14,10 @@ import { RegionService } from "../../services/region.service";
 import { RegionFormComponent } from "./region-form/region-form.component";
 
 @Component({
-  selector: "app-region",
-  templateUrl: "./region.component.html",
-  styleUrls: ["./region.component.scss"],
+    selector: "app-region",
+    templateUrl: "./region.component.html",
+    styleUrls: ["./region.component.scss"],
+    standalone: false
 })
 export class RegionComponent implements OnInit {
   loading: boolean = true;

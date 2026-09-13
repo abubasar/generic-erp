@@ -22,19 +22,17 @@ import { ToastrService } from "ngx-toastr";
 import { Observable, merge, of } from "rxjs";
 
 @Component({
-  selector: "app-purchase-invoice-dialog",
-  templateUrl: "./purchase-invoice-dialog.component.html",
-  styleUrls: ["./purchase-invoice-dialog.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-purchase-invoice-dialog",
+    templateUrl: "./purchase-invoice-dialog.component.html",
+    styleUrls: ["./purchase-invoice-dialog.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class PurchaseInvoiceDialogComponent implements OnInit {
   dialogTitle: string = "Purchase Invoice List";

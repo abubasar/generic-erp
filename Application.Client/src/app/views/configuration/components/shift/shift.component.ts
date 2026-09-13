@@ -15,9 +15,10 @@ import { ShiftService } from "../../services/shift.service";
 import { ShiftFormComponent } from "./shift-form/shift-form.component";
 
 @Component({
-  selector: "app-shift",
-  templateUrl: "./shift.component.html",
-  styleUrls: ["./shift.component.scss"],
+    selector: "app-shift",
+    templateUrl: "./shift.component.html",
+    styleUrls: ["./shift.component.scss"],
+    standalone: false
 })
 export class ShiftComponent implements OnInit {
   loading: boolean = true;

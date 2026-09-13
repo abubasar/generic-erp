@@ -7,9 +7,10 @@ import { PurchaseOrderService } from "app/views/purchase/services/purchase-order
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-lccost-entries-against-lc-number-report",
-  templateUrl: "./lccost-entries-against-lc-number-report.component.html",
-  styleUrls: ["./lccost-entries-against-lc-number-report.component.scss"],
+    selector: "app-lccost-entries-against-lc-number-report",
+    templateUrl: "./lccost-entries-against-lc-number-report.component.html",
+    styleUrls: ["./lccost-entries-against-lc-number-report.component.scss"],
+    standalone: false
 })
 export class LccostEntriesAgainstLcNumberReportComponent implements OnInit {
   constructor(

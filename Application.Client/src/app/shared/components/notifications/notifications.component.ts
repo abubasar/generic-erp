@@ -7,8 +7,9 @@ import { environment } from 'environments/environment';
 import * as moment from 'moment';
 
 @Component({
-  selector: 'app-notifications',
-  templateUrl: './notifications.component.html'
+    selector: 'app-notifications',
+    templateUrl: './notifications.component.html',
+    standalone: false
 })
 export class NotificationsComponent implements OnInit {
   @Input() notificPanel;

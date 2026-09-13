@@ -39,19 +39,17 @@ import { ReceivePaymentService } from "../../../sales/services/receive-payment.s
 import { ReceivePaymentAggregatorModel } from "../../models/receive-payment/receive-payment-aggregator.model";
 
 @Component({
-  selector: "app-receive-payment",
-  templateUrl: "./receive-payment.component.html",
-  styleUrls: ["./receive-payment.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-receive-payment",
+    templateUrl: "./receive-payment.component.html",
+    styleUrls: ["./receive-payment.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class ReceivePaymentComponent implements OnInit {
   loading: boolean = true;

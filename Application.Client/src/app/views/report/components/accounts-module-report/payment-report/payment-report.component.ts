@@ -11,9 +11,10 @@ import { SupplierService } from "app/views/configuration/services/supplier.servi
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-payment-report",
-  templateUrl: "./payment-report.component.html",
-  styleUrls: ["./payment-report.component.scss"],
+    selector: "app-payment-report",
+    templateUrl: "./payment-report.component.html",
+    styleUrls: ["./payment-report.component.scss"],
+    standalone: false
 })
 export class PaymentReportComponent implements OnInit {
   paymentReportFilterTypes = Object.keys(PaymentReportFilterType).map(

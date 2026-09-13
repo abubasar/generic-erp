@@ -15,9 +15,10 @@ interface ExampleFlatNode {
 }
 
 @Component({
-  selector: "app-accounts-chart",
-  templateUrl: "./accounts-chart.component.html",
-  styleUrls: ["./accounts-chart.component.scss"],
+    selector: "app-accounts-chart",
+    templateUrl: "./accounts-chart.component.html",
+    styleUrls: ["./accounts-chart.component.scss"],
+    standalone: false
 })
 export class AccountsChartComponent {
   TREE_DATA: ChartOfAccount[];

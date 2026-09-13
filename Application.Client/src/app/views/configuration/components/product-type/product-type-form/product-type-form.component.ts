@@ -9,9 +9,10 @@ import { ProductTypeService } from "app/views/configuration/services/product-typ
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-product-type-form",
-  templateUrl: "./product-type-form.component.html",
-  styleUrls: ["./product-type-form.component.scss"],
+    selector: "app-product-type-form",
+    templateUrl: "./product-type-form.component.html",
+    styleUrls: ["./product-type-form.component.scss"],
+    standalone: false
 })
 export class ProductTypeFormComponent implements OnInit {
   formTitle: string;

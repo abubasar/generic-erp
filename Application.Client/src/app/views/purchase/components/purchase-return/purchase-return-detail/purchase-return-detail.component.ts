@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from "@angular/core";
 
 @Component({
-  selector: "app-purchase-return-detail",
-  templateUrl: "./purchase-return-detail.component.html",
-  styleUrls: ["./purchase-return-detail.component.scss"],
+    selector: "app-purchase-return-detail",
+    templateUrl: "./purchase-return-detail.component.html",
+    styleUrls: ["./purchase-return-detail.component.scss"],
+    standalone: false
 })
 export class PurchaseReturnDetailComponent implements OnInit {
   @Input() data: any[] = [];

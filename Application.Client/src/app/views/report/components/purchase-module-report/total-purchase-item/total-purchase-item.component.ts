@@ -4,9 +4,10 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-total-purchase-item",
-  templateUrl: "./total-purchase-item.component.html",
-  styleUrls: ["./total-purchase-item.component.scss"],
+    selector: "app-total-purchase-item",
+    templateUrl: "./total-purchase-item.component.html",
+    styleUrls: ["./total-purchase-item.component.scss"],
+    standalone: false
 })
 export class TotalPurchaseItemComponent implements OnInit {
   constructor(private http: HttpClient, private fb: FormBuilder) {}

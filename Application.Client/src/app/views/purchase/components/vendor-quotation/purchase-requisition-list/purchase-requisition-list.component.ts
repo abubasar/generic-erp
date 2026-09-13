@@ -20,19 +20,17 @@ import { PurchaseRequisitionSearchRequestDTO } from "app/views/purchase/models/p
 import { PurchaseRequisitionService } from "app/views/purchase/services/purchase-requisition.service";
 
 @Component({
-  selector: "app-purchase-requisition-list",
-  templateUrl: "./purchase-requisition-list.component.html",
-  styleUrls: ["./purchase-requisition-list.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-purchase-requisition-list",
+    templateUrl: "./purchase-requisition-list.component.html",
+    styleUrls: ["./purchase-requisition-list.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class PurchaseRequisitionListComponent implements OnInit {
   loading: boolean = true;

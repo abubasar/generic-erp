@@ -6,9 +6,10 @@ import { CustomerService } from "app/views/configuration/services/customer.servi
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-customer-monthly-discount-report",
-  templateUrl: "./customer-monthly-discount-report.component.html",
-  styleUrls: ["./customer-monthly-discount-report.component.scss"],
+    selector: "app-customer-monthly-discount-report",
+    templateUrl: "./customer-monthly-discount-report.component.html",
+    styleUrls: ["./customer-monthly-discount-report.component.scss"],
+    standalone: false
 })
 export class CustomerMonthlyDiscountReportComponent implements OnInit {
   searchForm: FormGroup;

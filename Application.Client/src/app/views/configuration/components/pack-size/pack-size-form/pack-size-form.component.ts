@@ -6,9 +6,10 @@ import { PackSizeService } from "app/views/configuration/services/pack-size.serv
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-pack-size-form",
-  templateUrl: "./pack-size-form.component.html",
-  styleUrls: ["./pack-size-form.component.scss"],
+    selector: "app-pack-size-form",
+    templateUrl: "./pack-size-form.component.html",
+    styleUrls: ["./pack-size-form.component.scss"],
+    standalone: false
 })
 export class PackSizeFormComponent implements OnInit {
   formTitle: string;

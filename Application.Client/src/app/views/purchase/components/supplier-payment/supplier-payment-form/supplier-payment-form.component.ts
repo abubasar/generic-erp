@@ -54,9 +54,10 @@ import { PurchaseInvoiceDialogComponent } from "../purchase-invoice-dialog/purch
 import { PurchaseOrderDialogComponent } from "../purchase-order-dialog/purchase-order-dialog.component";
 
 @Component({
-  selector: "app-supplier-payment-form",
-  templateUrl: "./supplier-payment-form.component.html",
-  styleUrls: ["./supplier-payment-form.component.scss"],
+    selector: "app-supplier-payment-form",
+    templateUrl: "./supplier-payment-form.component.html",
+    styleUrls: ["./supplier-payment-form.component.scss"],
+    standalone: false
 })
 export class SupplierPaymentFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

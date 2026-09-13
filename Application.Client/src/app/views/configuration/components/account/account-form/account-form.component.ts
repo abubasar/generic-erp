@@ -11,9 +11,10 @@ import { AccountService } from "app/views/configuration/services/account.service
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-account-form",
-  templateUrl: "./account-form.component.html",
-  styleUrls: ["./account-form.component.scss"],
+    selector: "app-account-form",
+    templateUrl: "./account-form.component.html",
+    styleUrls: ["./account-form.component.scss"],
+    standalone: false
 })
 export class AccountFormComponent implements OnInit {
   formTitle: string;

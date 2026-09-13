@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from "@angular/core";
 
 @Component({
-  selector: "app-goods-receive-note-detail",
-  templateUrl: "./goods-receive-note-detail.component.html",
-  styleUrls: ["./goods-receive-note-detail.component.scss"],
+    selector: "app-goods-receive-note-detail",
+    templateUrl: "./goods-receive-note-detail.component.html",
+    styleUrls: ["./goods-receive-note-detail.component.scss"],
+    standalone: false
 })
 export class GoodsReceiveNoteDetailComponent implements OnInit {
   @Input() data: any[] = [];

@@ -31,19 +31,17 @@ import { StockAdjustmentSearchRequestDTO } from "../../models/stock-adjustment/s
 import { StockAdjustmentService } from "../../services/stock-adjustment.service";
 
 @Component({
-  selector: "app-stock-adjustment",
-  templateUrl: "./stock-adjustment.component.html",
-  styleUrls: ["./stock-adjustment.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-stock-adjustment",
+    templateUrl: "./stock-adjustment.component.html",
+    styleUrls: ["./stock-adjustment.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class StockAdjustmentComponent implements OnInit {
   loading: boolean = true;

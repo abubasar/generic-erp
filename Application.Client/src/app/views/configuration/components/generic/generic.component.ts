@@ -16,9 +16,10 @@ import { ProductTypeService } from "../../services/product-type.service";
 import { GenericFormComponent } from "./generic-form/generic-form.component";
 
 @Component({
-  selector: "app-generic",
-  templateUrl: "./generic.component.html",
-  styleUrls: ["./generic.component.scss"],
+    selector: "app-generic",
+    templateUrl: "./generic.component.html",
+    styleUrls: ["./generic.component.scss"],
+    standalone: false
 })
 export class GenericComponent implements OnInit {
   loading: boolean = true;

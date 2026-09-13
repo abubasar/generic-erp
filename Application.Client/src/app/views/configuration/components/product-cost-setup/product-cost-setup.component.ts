@@ -14,9 +14,10 @@ import { ProductCostSetupService } from "../../services/product-cost-setup.servi
 import { ProductCostSetupFormComponent } from "./product-cost-setup-form/product-cost-setup-form.component";
 
 @Component({
-  selector: "app-product-cost-setup",
-  templateUrl: "./product-cost-setup.component.html",
-  styleUrls: ["./product-cost-setup.component.scss"],
+    selector: "app-product-cost-setup",
+    templateUrl: "./product-cost-setup.component.html",
+    styleUrls: ["./product-cost-setup.component.scss"],
+    standalone: false
 })
 export class ProductCostSetupComponent implements OnInit {
   loading: boolean = true;

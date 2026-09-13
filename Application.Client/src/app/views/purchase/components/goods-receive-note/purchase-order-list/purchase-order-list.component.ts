@@ -20,19 +20,17 @@ import { PurchaseOrderSearchRequestDTO } from "app/views/purchase/models/purchas
 import { PurchaseOrderService } from "app/views/purchase/services/purchase-order.service";
 
 @Component({
-  selector: "app-purchase-order-list",
-  templateUrl: "./purchase-order-list.component.html",
-  styleUrls: ["./purchase-order-list.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-purchase-order-list",
+    templateUrl: "./purchase-order-list.component.html",
+    styleUrls: ["./purchase-order-list.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class PurchaseOrderListComponent implements OnInit {
   loading: boolean = true;

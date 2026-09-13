@@ -6,9 +6,10 @@ import { StockSearchRequestDTO } from "app/views/report/models/stock-search-requ
 import { StockService } from "app/views/report/services/stock.service";
 
 @Component({
-  selector: "app-dashboard-low-stock-report",
-  templateUrl: "./dashboard-low-stock-report.component.html",
-  styleUrls: ["./dashboard-low-stock-report.component.scss"],
+    selector: "app-dashboard-low-stock-report",
+    templateUrl: "./dashboard-low-stock-report.component.html",
+    styleUrls: ["./dashboard-low-stock-report.component.scss"],
+    standalone: false
 })
 export class DashboardLowStockReportComponent implements OnInit {
   panelOpenState: boolean;

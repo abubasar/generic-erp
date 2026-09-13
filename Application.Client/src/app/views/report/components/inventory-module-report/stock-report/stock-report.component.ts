@@ -21,9 +21,10 @@ import { StockResponseDTO } from "../../../models/stock-response-dto";
 import { StockSearchRequestDTO } from "../../../models/stock-search-request-dto";
 import { StockService } from "../../../services/stock.service";
 @Component({
-  selector: "app-stock-report",
-  templateUrl: "./stock-report.component.html",
-  styleUrls: ["./stock-report.component.scss"],
+    selector: "app-stock-report",
+    templateUrl: "./stock-report.component.html",
+    styleUrls: ["./stock-report.component.scss"],
+    standalone: false
 })
 export class StockReportComponent implements OnInit {
   Inventory_Type_Id_Finished_Goods_ID: string =

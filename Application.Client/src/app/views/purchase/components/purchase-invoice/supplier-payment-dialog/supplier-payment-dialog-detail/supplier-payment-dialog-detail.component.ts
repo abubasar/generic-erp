@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from "@angular/core";
 
 @Component({
-  selector: "app-supplier-payment-dialog-detail",
-  templateUrl: "./supplier-payment-dialog-detail.component.html",
-  styleUrls: ["./supplier-payment-dialog-detail.component.scss"],
+    selector: "app-supplier-payment-dialog-detail",
+    templateUrl: "./supplier-payment-dialog-detail.component.html",
+    styleUrls: ["./supplier-payment-dialog-detail.component.scss"],
+    standalone: false
 })
 export class SupplierPaymentDialogDetailComponent implements OnInit {
   @Input() data: any[] = [];

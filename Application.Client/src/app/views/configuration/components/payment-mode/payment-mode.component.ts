@@ -14,9 +14,10 @@ import { PaymentModeService } from "../../services/payment-mode.service";
 import { PaymentModeFormComponent } from "./payment-mode-form/payment-mode-form.component";
 
 @Component({
-  selector: "app-payment-mode",
-  templateUrl: "./payment-mode.component.html",
-  styleUrls: ["./payment-mode.component.scss"],
+    selector: "app-payment-mode",
+    templateUrl: "./payment-mode.component.html",
+    styleUrls: ["./payment-mode.component.scss"],
+    standalone: false
 })
 export class PaymentModeComponent implements OnInit {
   loading: boolean = true;

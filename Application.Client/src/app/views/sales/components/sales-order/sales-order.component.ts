@@ -41,19 +41,17 @@ import { SaleOrderSearchRequestDTO } from "../../models/sale-order/sale-order-se
 import { SaleOrderService } from "../../services/sale-order.service";
 
 @Component({
-  selector: "app-sales-order",
-  templateUrl: "./sales-order.component.html",
-  styleUrls: ["./sales-order.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-sales-order",
+    templateUrl: "./sales-order.component.html",
+    styleUrls: ["./sales-order.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class SalesOrderComponent implements OnInit {
   loading: boolean = true;

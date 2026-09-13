@@ -9,9 +9,10 @@ import { TerritoryService } from "app/views/configuration/services/territory.ser
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-territory-form",
-  templateUrl: "./territory-form.component.html",
-  styleUrls: ["./territory-form.component.scss"],
+    selector: "app-territory-form",
+    templateUrl: "./territory-form.component.html",
+    styleUrls: ["./territory-form.component.scss"],
+    standalone: false
 })
 export class TerritoryFormComponent implements OnInit {
   formTitle: string;

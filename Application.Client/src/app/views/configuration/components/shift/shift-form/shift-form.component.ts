@@ -6,9 +6,10 @@ import { ShiftService } from "app/views/configuration/services/shift.service";
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-shift-form",
-  templateUrl: "./shift-form.component.html",
-  styleUrls: ["./shift-form.component.scss"],
+    selector: "app-shift-form",
+    templateUrl: "./shift-form.component.html",
+    styleUrls: ["./shift-form.component.scss"],
+    standalone: false
 })
 export class ShiftFormComponent implements OnInit {
   formTitle: string;

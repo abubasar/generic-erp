@@ -11,9 +11,10 @@ import { ProductService } from "app/views/configuration/services/product.service
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-current-stock-purchase-rate-and-quantity",
-  templateUrl: "./current-stock-purchase-rate-and-quantity.component.html",
-  styleUrls: ["./current-stock-purchase-rate-and-quantity.component.scss"],
+    selector: "app-current-stock-purchase-rate-and-quantity",
+    templateUrl: "./current-stock-purchase-rate-and-quantity.component.html",
+    styleUrls: ["./current-stock-purchase-rate-and-quantity.component.scss"],
+    standalone: false
 })
 export class CurrentStockPurchaseRateAndQuantityComponent implements OnInit {
   searchForm: FormGroup;

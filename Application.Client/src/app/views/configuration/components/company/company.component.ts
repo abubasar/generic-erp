@@ -12,9 +12,10 @@ import { CompanyService } from "../../services/company.service";
 import { CompanyFormComponent } from "./company-form/company-form.component";
 
 @Component({
-  selector: "app-company",
-  templateUrl: "./company.component.html",
-  styleUrls: ["./company.component.scss"],
+    selector: "app-company",
+    templateUrl: "./company.component.html",
+    styleUrls: ["./company.component.scss"],
+    standalone: false
 })
 export class CompanyComponent implements OnInit {
   loading: boolean = true;

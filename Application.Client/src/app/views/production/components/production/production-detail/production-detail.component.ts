@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from "@angular/core";
 
 @Component({
-  selector: "app-production-detail",
-  templateUrl: "./production-detail.component.html",
-  styleUrls: ["./production-detail.component.scss"],
+    selector: "app-production-detail",
+    templateUrl: "./production-detail.component.html",
+    styleUrls: ["./production-detail.component.scss"],
+    standalone: false
 })
 export class ProductionDetailComponent implements OnInit {
   @Input() data: any[] = [];

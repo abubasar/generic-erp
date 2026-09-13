@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from "@angular/core";
 
 @Component({
-  selector: "app-sale-invoice-list-detail",
-  templateUrl: "./sale-invoice-list-detail.component.html",
-  styleUrls: ["./sale-invoice-list-detail.component.scss"],
+    selector: "app-sale-invoice-list-detail",
+    templateUrl: "./sale-invoice-list-detail.component.html",
+    styleUrls: ["./sale-invoice-list-detail.component.scss"],
+    standalone: false
 })
 export class SaleInvoiceListDetailComponent implements OnInit {
   @Input() data: any[] = [];

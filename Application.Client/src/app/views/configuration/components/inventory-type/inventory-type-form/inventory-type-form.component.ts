@@ -6,9 +6,10 @@ import { InventoryTypeService } from "app/views/configuration/services/inventory
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-inventory-type-form",
-  templateUrl: "./inventory-type-form.component.html",
-  styleUrls: ["./inventory-type-form.component.scss"],
+    selector: "app-inventory-type-form",
+    templateUrl: "./inventory-type-form.component.html",
+    styleUrls: ["./inventory-type-form.component.scss"],
+    standalone: false
 })
 export class InventoryTypeFormComponent implements OnInit {
   formTitle: string;

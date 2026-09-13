@@ -31,9 +31,10 @@ import { ToastrService } from "ngx-toastr";
 import { finalize } from "rxjs";
 
 @Component({
-  selector: "app-journal-entry-form",
-  templateUrl: "./journal-entry-form.component.html",
-  styleUrls: ["./journal-entry-form.component.scss"],
+    selector: "app-journal-entry-form",
+    templateUrl: "./journal-entry-form.component.html",
+    styleUrls: ["./journal-entry-form.component.scss"],
+    standalone: false
 })
 export class JournalEntryFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

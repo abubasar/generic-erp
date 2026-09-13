@@ -10,9 +10,10 @@ import { UILibIconService } from "./shared/services/ui-lib-icon.service";
 import { UrlService } from "./shared/services/url.service";
 
 @Component({
-  selector: "app-root",
-  templateUrl: "./app.component.html",
-  styleUrls: ["./app.component.css"],
+    selector: "app-root",
+    templateUrl: "./app.component.html",
+    styleUrls: ["./app.component.css"],
+    standalone: false
 })
 export class AppComponent implements OnInit, AfterViewInit {
   appTitle = "BUTS ERP";

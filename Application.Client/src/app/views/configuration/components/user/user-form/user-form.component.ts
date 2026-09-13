@@ -11,9 +11,10 @@ import { UserService } from "app/views/configuration/services/user.service";
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-user-form",
-  templateUrl: "./user-form.component.html",
-  styleUrls: ["./user-form.component.scss"],
+    selector: "app-user-form",
+    templateUrl: "./user-form.component.html",
+    styleUrls: ["./user-form.component.scss"],
+    standalone: false
 })
 export class UserFormComponent implements OnInit {
   formTitle: string;

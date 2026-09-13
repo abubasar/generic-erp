@@ -9,9 +9,10 @@ import { FinancialYearService } from "app/views/configuration/services/financial
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-accounts-report",
-  templateUrl: "./accounts-report.component.html",
-  styleUrls: ["./accounts-report.component.scss"],
+    selector: "app-accounts-report",
+    templateUrl: "./accounts-report.component.html",
+    styleUrls: ["./accounts-report.component.scss"],
+    standalone: false
 })
 export class AccountsReportComponent implements OnInit {
   searchForm: FormGroup;

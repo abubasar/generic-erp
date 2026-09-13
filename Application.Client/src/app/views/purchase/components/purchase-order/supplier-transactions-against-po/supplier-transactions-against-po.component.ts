@@ -6,9 +6,10 @@ import { SupplierTransactionsAgainstPOResponseDTO } from "app/views/purchase/mod
 import { PurchaseOrderService } from "app/views/purchase/services/purchase-order.service";
 
 @Component({
-  selector: "app-supplier-transactions-against-po",
-  templateUrl: "./supplier-transactions-against-po.component.html",
-  styleUrls: ["./supplier-transactions-against-po.component.scss"],
+    selector: "app-supplier-transactions-against-po",
+    templateUrl: "./supplier-transactions-against-po.component.html",
+    styleUrls: ["./supplier-transactions-against-po.component.scss"],
+    standalone: false
 })
 export class SupplierTransactionsAgainstPOComponent implements OnInit {
   loading: boolean = true;

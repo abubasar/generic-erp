@@ -3,9 +3,10 @@ import { UserProfile } from "app/shared/models/user-profile-model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
 
 @Component({
-  selector: "app-delivery-note-detail",
-  templateUrl: "./delivery-note-detail.component.html",
-  styleUrls: ["./delivery-note-detail.component.scss"],
+    selector: "app-delivery-note-detail",
+    templateUrl: "./delivery-note-detail.component.html",
+    styleUrls: ["./delivery-note-detail.component.scss"],
+    standalone: false
 })
 export class DeliveryNoteDetailComponent implements OnInit {
   @Input() data: any[] = [];

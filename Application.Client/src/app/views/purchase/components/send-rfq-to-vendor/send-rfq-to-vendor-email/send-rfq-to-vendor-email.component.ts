@@ -22,9 +22,10 @@ import { ToastrService } from "ngx-toastr";
 import { Observable, finalize, merge, of } from "rxjs";
 
 @Component({
-  selector: "app-send-rfq-to-vendor-email",
-  templateUrl: "./send-rfq-to-vendor-email.component.html",
-  styleUrls: ["./send-rfq-to-vendor-email.component.scss"],
+    selector: "app-send-rfq-to-vendor-email",
+    templateUrl: "./send-rfq-to-vendor-email.component.html",
+    styleUrls: ["./send-rfq-to-vendor-email.component.scss"],
+    standalone: false
 })
 export class SendRFQToVendorEmailComponent implements OnInit {
   isLoading: boolean = false;

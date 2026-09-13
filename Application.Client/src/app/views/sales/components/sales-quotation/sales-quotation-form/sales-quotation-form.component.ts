@@ -36,9 +36,10 @@ import { ToastrService } from "ngx-toastr";
 import { finalize } from "rxjs";
 
 @Component({
-  selector: "app-sales-quotation-form",
-  templateUrl: "./sales-quotation-form.component.html",
-  styleUrls: ["./sales-quotation-form.component.scss"],
+    selector: "app-sales-quotation-form",
+    templateUrl: "./sales-quotation-form.component.html",
+    styleUrls: ["./sales-quotation-form.component.scss"],
+    standalone: false
 })
 export class SaleQuotationFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

@@ -33,19 +33,17 @@ import { JournalEntrySearchRequestDTO } from "../../models/journal-entry/journal
 import { JournalEntryService } from "../../services/journal-entry.service";
 
 @Component({
-  selector: "app-journal-entry",
-  templateUrl: "./journal-entry.component.html",
-  styleUrls: ["./journal-entry.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-journal-entry",
+    templateUrl: "./journal-entry.component.html",
+    styleUrls: ["./journal-entry.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class JournalEntryComponent implements OnInit {
   loading: boolean = true;

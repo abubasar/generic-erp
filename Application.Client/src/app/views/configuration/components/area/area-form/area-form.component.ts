@@ -9,9 +9,10 @@ import { ZoneService } from "app/views/configuration/services/zone.service";
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-area-form",
-  templateUrl: "./area-form.component.html",
-  styleUrls: ["./area-form.component.scss"],
+    selector: "app-area-form",
+    templateUrl: "./area-form.component.html",
+    styleUrls: ["./area-form.component.scss"],
+    standalone: false
 })
 export class AreaFormComponent implements OnInit {
   formTitle: string;

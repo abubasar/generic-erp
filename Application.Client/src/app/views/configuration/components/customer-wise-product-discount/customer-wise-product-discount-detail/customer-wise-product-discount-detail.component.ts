@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from "@angular/core";
 
 @Component({
-  selector: "app-customer-wise-product-discount-detail",
-  templateUrl: "./customer-wise-product-discount-detail.component.html",
-  styleUrls: ["./customer-wise-product-discount-detail.component.scss"],
+    selector: "app-customer-wise-product-discount-detail",
+    templateUrl: "./customer-wise-product-discount-detail.component.html",
+    styleUrls: ["./customer-wise-product-discount-detail.component.scss"],
+    standalone: false
 })
 export class CustomerWiseProductDiscountDetailComponent implements OnInit {
   @Input() data: any[] = [];

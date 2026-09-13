@@ -16,9 +16,10 @@ import { ZoneService } from "../../services/zone.service";
 import { AreaFormComponent } from "./area-form/area-form.component";
 
 @Component({
-  selector: "app-area",
-  templateUrl: "./area.component.html",
-  styleUrls: ["./area.component.scss"],
+    selector: "app-area",
+    templateUrl: "./area.component.html",
+    styleUrls: ["./area.component.scss"],
+    standalone: false
 })
 export class AreaComponent implements OnInit {
   loading: boolean = true;

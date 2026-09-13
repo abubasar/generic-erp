@@ -22,9 +22,10 @@ import { ZoneService } from "app/views/configuration/services/zone.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-transit-sales-report",
-  templateUrl: "./transit-sales-report.component.html",
-  styleUrls: ["./transit-sales-report.component.scss"],
+    selector: "app-transit-sales-report",
+    templateUrl: "./transit-sales-report.component.html",
+    styleUrls: ["./transit-sales-report.component.scss"],
+    standalone: false
 })
 export class TransitSalesReportComponent implements OnInit {
   searchForm: FormGroup;

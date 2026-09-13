@@ -44,9 +44,10 @@ import { ToastrService } from "ngx-toastr";
 import { finalize } from "rxjs";
 import { SendRFQToVendorEmailComponent } from "../send-rfq-to-vendor-email/send-rfq-to-vendor-email.component";
 @Component({
-  selector: "app-send-rfq-to-vendor-form",
-  templateUrl: "./send-rfq-to-vendor-form.component.html",
-  styleUrls: ["./send-rfq-to-vendor-form.component.scss"],
+    selector: "app-send-rfq-to-vendor-form",
+    templateUrl: "./send-rfq-to-vendor-form.component.html",
+    styleUrls: ["./send-rfq-to-vendor-form.component.scss"],
+    standalone: false
 })
 export class SendRFQToVendorFormComponent implements OnInit {
   @ViewChild("btnCheck") btnCheck: MatButton;

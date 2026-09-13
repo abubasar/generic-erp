@@ -9,9 +9,10 @@ import { UserProfile } from "app/shared/models/user-profile-model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
 
 @Component({
-  selector: "app-stock-transfer-detail",
-  templateUrl: "./stock-transfer-detail.component.html",
-  styleUrls: ["./stock-transfer-detail.component.scss"],
+    selector: "app-stock-transfer-detail",
+    templateUrl: "./stock-transfer-detail.component.html",
+    styleUrls: ["./stock-transfer-detail.component.scss"],
+    standalone: false
 })
 export class StockTransferDetailComponent implements OnInit, OnChanges {
   @Input() data: any[] = [];

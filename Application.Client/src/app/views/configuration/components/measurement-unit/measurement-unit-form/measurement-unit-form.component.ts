@@ -6,9 +6,10 @@ import { MeasurementUnitService } from "app/views/configuration/services/measure
 import { ToastrService } from "ngx-toastr";
 
 @Component({
-  selector: "app-measurement-unit-form",
-  templateUrl: "./measurement-unit-form.component.html",
-  styleUrls: ["./measurement-unit-form.component.scss"],
+    selector: "app-measurement-unit-form",
+    templateUrl: "./measurement-unit-form.component.html",
+    styleUrls: ["./measurement-unit-form.component.scss"],
+    standalone: false
 })
 export class MeasurementUnitFormComponent implements OnInit {
   formTitle: string;

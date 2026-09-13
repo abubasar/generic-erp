@@ -31,9 +31,10 @@ import { ProductService } from "../../services/product.service";
 import { ProductFormComponent } from "./product-form/product-form.component";
 
 @Component({
-  selector: "app-product",
-  templateUrl: "./product.component.html",
-  styleUrls: ["./product.component.scss"],
+    selector: "app-product",
+    templateUrl: "./product.component.html",
+    styleUrls: ["./product.component.scss"],
+    standalone: false
 })
 export class ProductComponent implements OnInit {
   loading: boolean = true;

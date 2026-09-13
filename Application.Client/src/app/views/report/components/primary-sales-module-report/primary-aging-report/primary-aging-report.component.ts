@@ -24,9 +24,10 @@ import { ZoneService } from "app/views/configuration/services/zone.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-primary-aging-report",
-  templateUrl: "./primary-aging-report.component.html",
-  styleUrls: ["./primary-aging-report.component.scss"],
+    selector: "app-primary-aging-report",
+    templateUrl: "./primary-aging-report.component.html",
+    styleUrls: ["./primary-aging-report.component.scss"],
+    standalone: false
 })
 export class PrimaryAgingReportComponent implements OnInit {
   businessType: string;

@@ -11,9 +11,10 @@ import { StoreService } from "app/views/configuration/services/store.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-raw-materials-stock-report",
-  templateUrl: "./raw-materials-stock-report.component.html",
-  styleUrls: ["./raw-materials-stock-report.component.scss"],
+    selector: "app-raw-materials-stock-report",
+    templateUrl: "./raw-materials-stock-report.component.html",
+    styleUrls: ["./raw-materials-stock-report.component.scss"],
+    standalone: false
 })
 export class RawMaterialsStockReportComponent implements OnInit {
   constructor(

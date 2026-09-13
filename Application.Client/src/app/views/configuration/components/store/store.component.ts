@@ -16,9 +16,10 @@ import { StoreService } from "../../services/store.service";
 import { StoreFormComponent } from "./store-form/store-form.component";
 
 @Component({
-  selector: "app-store",
-  templateUrl: "./store.component.html",
-  styleUrls: ["./store.component.scss"],
+    selector: "app-store",
+    templateUrl: "./store.component.html",
+    styleUrls: ["./store.component.scss"],
+    standalone: false
 })
 export class StoreComponent implements OnInit {
   loading: boolean = true;

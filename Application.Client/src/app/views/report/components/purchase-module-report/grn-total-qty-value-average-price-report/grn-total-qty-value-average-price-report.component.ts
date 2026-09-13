@@ -4,9 +4,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { environment } from 'environments/environment';
 
 @Component({
-  selector: "app-grn-total-qty-value-average-price-report",
-  templateUrl: "./grn-total-qty-value-average-price-report.component.html",
-  styleUrls: ["./grn-total-qty-value-average-price-report.component.scss"],
+    selector: "app-grn-total-qty-value-average-price-report",
+    templateUrl: "./grn-total-qty-value-average-price-report.component.html",
+    styleUrls: ["./grn-total-qty-value-average-price-report.component.scss"],
+    standalone: false
 })
 export class GrnTotalQtyValueAveragePriceReportComponent implements OnInit {
   constructor(private http: HttpClient, private fb: FormBuilder) {}

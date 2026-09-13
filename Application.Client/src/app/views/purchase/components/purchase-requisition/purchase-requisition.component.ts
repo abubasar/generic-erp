@@ -33,19 +33,17 @@ import { PurchaseRequisitionService } from "../../services/purchase-requisition.
 import { RfqSentSupplierComponent } from "./rfq-sent-supplier/rfq-sent-supplier.component";
 
 @Component({
-  selector: "app-purchase-requisition",
-  templateUrl: "./purchase-requisition.component.html",
-  styleUrls: ["./purchase-requisition.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-purchase-requisition",
+    templateUrl: "./purchase-requisition.component.html",
+    styleUrls: ["./purchase-requisition.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class PurchaseRequisitionComponent implements OnInit {
   loading: boolean = true;

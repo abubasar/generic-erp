@@ -33,19 +33,17 @@ import { PurchaseRequisitionService } from "../../services/purchase-requisition.
 import { SendRFQToVendorEmailComponent } from "./send-rfq-to-vendor-email/send-rfq-to-vendor-email.component";
 
 @Component({
-  selector: "app-send-rfq-to-vendor",
-  templateUrl: "./send-rfq-to-vendor.component.html",
-  styleUrls: ["./send-rfq-to-vendor.component.scss"],
-  animations: [
-    trigger("detailExpand", [
-      state("collapsed", style({ height: "0px", minHeight: "0" })),
-      state("expanded", style({ height: "*" })),
-      transition(
-        "expanded <=> collapsed",
-        animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")
-      ),
-    ]),
-  ],
+    selector: "app-send-rfq-to-vendor",
+    templateUrl: "./send-rfq-to-vendor.component.html",
+    styleUrls: ["./send-rfq-to-vendor.component.scss"],
+    animations: [
+        trigger("detailExpand", [
+            state("collapsed", style({ height: "0px", minHeight: "0" })),
+            state("expanded", style({ height: "*" })),
+            transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
+        ]),
+    ],
+    standalone: false
 })
 export class SendRFQToVendorComponent implements OnInit {
   loading: boolean = true;

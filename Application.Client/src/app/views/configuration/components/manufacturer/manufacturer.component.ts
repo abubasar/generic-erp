@@ -14,9 +14,10 @@ import { ManufacturerService } from "../../services/manufacturer.service";
 import { ManufacturerFormComponent } from "./manufacturer-form/manufacturer-form.component";
 
 @Component({
-  selector: "app-manufacturer",
-  templateUrl: "./manufacturer.component.html",
-  styleUrls: ["./manufacturer.component.scss"],
+    selector: "app-manufacturer",
+    templateUrl: "./manufacturer.component.html",
+    styleUrls: ["./manufacturer.component.scss"],
+    standalone: false
 })
 export class ManufacturerComponent implements OnInit {
   loading: boolean = true;

@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from "@angular/core";
 
 @Component({
-  selector: "app-receive-voucher-detail",
-  templateUrl: "./receive-voucher-detail.component.html",
-  styleUrls: ["./receive-voucher-detail.component.scss"],
+    selector: "app-receive-voucher-detail",
+    templateUrl: "./receive-voucher-detail.component.html",
+    styleUrls: ["./receive-voucher-detail.component.scss"],
+    standalone: false
 })
 export class ReceiveVoucherDetailComponent implements OnInit {
   @Input() data: any[] = [];

@@ -17,11 +17,12 @@ import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 
 @Directive({
-  host: {
-    "[class.hljs]": "true",
-    "[innerHTML]": "highlightedCode"
-  },
-  selector: "[matxHighlight]"
+    host: {
+        "[class.hljs]": "true",
+        "[innerHTML]": "highlightedCode"
+    },
+    selector: "[matxHighlight]",
+    standalone: false
 })
 export class MatxHighlightDirective implements OnInit, OnChanges, OnDestroy {
   constructor(

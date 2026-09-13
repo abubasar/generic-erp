@@ -18,13 +18,12 @@ import { ZoneService } from "app/views/configuration/services/zone.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector:
-    "app-primary-marketing-officer-wise-sales-collection-and-due-report",
-  templateUrl:
-    "./primary-marketing-officer-wise-sales-collection-and-due-report.component.html",
-  styleUrls: [
-    "./primary-marketing-officer-wise-sales-collection-and-due-report.component.scss",
-  ],
+    selector: "app-primary-marketing-officer-wise-sales-collection-and-due-report",
+    templateUrl: "./primary-marketing-officer-wise-sales-collection-and-due-report.component.html",
+    styleUrls: [
+        "./primary-marketing-officer-wise-sales-collection-and-due-report.component.scss",
+    ],
+    standalone: false
 })
 export class PrimaryMarketingOfficerWiseSalesCollectionAndDueReportComponent implements OnInit {
   businessType: string;

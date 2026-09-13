@@ -11,9 +11,10 @@ import { StoreService } from "app/views/configuration/services/store.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-day-wise-consumption-rate",
-  templateUrl: "./day-wise-consumption-rate.component.html",
-  styleUrls: ["./day-wise-consumption-rate.component.scss"],
+    selector: "app-day-wise-consumption-rate",
+    templateUrl: "./day-wise-consumption-rate.component.html",
+    styleUrls: ["./day-wise-consumption-rate.component.scss"],
+    standalone: false
 })
 export class DayWiseConsumptionRateComponent implements OnInit {
   searchForm: FormGroup;

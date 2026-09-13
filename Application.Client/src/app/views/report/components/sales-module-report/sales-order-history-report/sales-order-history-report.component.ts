@@ -22,9 +22,10 @@ import { ZoneService } from "app/views/configuration/services/zone.service";
 import { environment } from "environments/environment";
 
 @Component({
-  selector: "app-sales-order-history-report",
-  templateUrl: "./sales-order-history-report.component.html",
-  styleUrls: ["./sales-order-history-report.component.scss"],
+    selector: "app-sales-order-history-report",
+    templateUrl: "./sales-order-history-report.component.html",
+    styleUrls: ["./sales-order-history-report.component.scss"],
+    standalone: false
 })
 export class SalesOrderHistoryReportComponent implements OnInit {
   searchForm: FormGroup;
