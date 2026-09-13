@@ -76,7 +76,6 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 
     RouterModule.forRoot(rootRouterConfig, {
       useHash: true,
-      relativeLinkResolution: "legacy",
     }),
     ToastrModule.forRoot(),
     JwtModule.forRoot({
