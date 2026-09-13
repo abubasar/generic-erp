@@ -124,7 +124,7 @@
         <div>
           <div class="row row-cols-3 gx-5">
             <!-- InvoiceNo -->
-            <div class="col d-flex" *ngIf="businessType === '1'">
+            <div class="col d-flex" *ngIf="industryProfile.isPharma">
               <mat-form-field class="full-width">
                 <mat-label>Sale Invoice No.</mat-label>
                 <input
@@ -147,7 +147,7 @@
             </div>
 
             <!-- deliveryNoteNo -->
-            <div class="col d-flex" *ngIf="businessType === '2'">
+            <div class="col d-flex" *ngIf="industryProfile.isFeed">
               <mat-form-field class="full-width">
                 <mat-label>Delivery Note No.</mat-label>
                 <input
@@ -396,13 +396,7 @@
                         [value]="$safeNavigationMigration(product?.id)"
                       >
                         {{ product.name }}
-                        ({{
-                          businessType === "2"
-                            ? product?.bagWeight +
-                              " " +
-                              product?.measurementUnit?.name
-                            : product?.packSize?.name
-                        }})
+                        ({{ industryProfile.productDisplaySuffix(product) }})
                       </mat-option>
                     </mat-autocomplete>
                     <mat-error>Product is required</mat-error>
@@ -427,7 +421,7 @@
                 </div>
 
                 <!-- bagWeight -->
-                <div class="col-1" *ngIf="businessType === '2'">
+                <div class="col-1" *ngIf="industryProfile.isFeed">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Bag Weight"
@@ -448,16 +442,16 @@
                   <mat-form-field
                     class="full-width"
                     [matTooltip]="
-                      businessType === '1'
+                      industryProfile.isPharma
                         ? 'Delivered QTY'
                         : 'Delivered Bag QTY'
                     "
                     matTooltipPosition="above"
                   >
-                    <mat-label *ngIf="businessType === '1'"
+                    <mat-label *ngIf="industryProfile.isPharma"
                       >Delivered QTY</mat-label
                     >
-                    <mat-label *ngIf="businessType === '2'"
+                    <mat-label *ngIf="industryProfile.isFeed"
                       >Delivered Bag QTY</mat-label
                     >
                     <input
@@ -476,7 +470,7 @@
                 </div>
 
                 <!-- QTY -->
-                <div class="col-1" *ngIf="businessType === '2'">
+                <div class="col-1" *ngIf="industryProfile.isFeed">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Delivered QTY"
@@ -502,16 +496,16 @@
                   <mat-form-field
                     class="full-width"
                     [matTooltip]="
-                      businessType === '1'
+                      industryProfile.isPharma
                         ? 'Delivered Bonus QTY'
                         : 'Delivered Bonus Bag QTY'
                     "
                     matTooltipPosition="above"
                   >
-                    <mat-label *ngIf="businessType === '1'"
+                    <mat-label *ngIf="industryProfile.isPharma"
                       >Delivered Bonus QTY</mat-label
                     >
-                    <mat-label *ngIf="businessType === '2'"
+                    <mat-label *ngIf="industryProfile.isFeed"
                       >Delivered Bonus Bag QTY</mat-label
                     >
                     <input
@@ -530,7 +524,7 @@
                 </div>
 
                 <!--Delivered  Bonus QTY -->
-                <div class="col-1" *ngIf="businessType === '2'">
+                <div class="col-1" *ngIf="industryProfile.isFeed">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Delivered Bonus QTY"
@@ -577,16 +571,16 @@
                   <mat-form-field
                     class="full-width"
                     [matTooltip]="
-                      businessType === '1'
+                      industryProfile.isPharma
                         ? 'Return Quantity'
                         : 'Return Bag Quantity'
                     "
                     matTooltipPosition="above"
                   >
-                    <mat-label *ngIf="businessType === '1'"
+                    <mat-label *ngIf="industryProfile.isPharma"
                       >Return QTY</mat-label
                     >
-                    <mat-label *ngIf="businessType === '2'"
+                    <mat-label *ngIf="industryProfile.isFeed"
                       >Return Bag QTY</mat-label
                     >
 
@@ -614,7 +608,7 @@
                 </div>
 
                 <!-- returnQuantity -->
-                <div class="col-1" *ngIf="businessType === '2'">
+                <div class="col-1" *ngIf="industryProfile.isFeed">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Return Quantity"
@@ -641,16 +635,16 @@
                   <mat-form-field
                     class="full-width"
                     [matTooltip]="
-                      businessType === '1'
+                      industryProfile.isPharma
                         ? 'Return Bonus QTY'
                         : 'Return Bonus Bag QTY'
                     "
                     matTooltipPosition="above"
                   >
-                    <mat-label *ngIf="businessType === '1'"
+                    <mat-label *ngIf="industryProfile.isPharma"
                       >Return Bonus QTY</mat-label
                     >
-                    <mat-label *ngIf="businessType === '2'"
+                    <mat-label *ngIf="industryProfile.isFeed"
                       >Return Bonus Bag QTY</mat-label
                     >
 
@@ -683,7 +677,7 @@
                 </div>
 
                 <!-- returnBonusQuantity -->
-                <div class="col-1" *ngIf="businessType === '2'">
+                <div class="col-1" *ngIf="industryProfile.isFeed">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Return Bonus Quantity"
@@ -705,7 +699,7 @@
                   </mat-form-field>
                 </div>
                 <!-- discountPercentage -->
-                <div class="col-1" *ngIf="businessType === '1'">
+                <div class="col-1" *ngIf="industryProfile.isPharma">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Discount (%)"
@@ -727,7 +721,7 @@
                 </div>
 
                 <!-- percentageDiscountAmount -->
-                <div class="col-1" *ngIf="businessType === '1'">
+                <div class="col-1" *ngIf="industryProfile.isPharma">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Discount Amount"
@@ -807,7 +801,7 @@
               <!-- totalPercentageDiscountAmount -->
               <div
                 class="label-data justify-content-between"
-                *ngIf="businessType === '1'"
+                *ngIf="industryProfile.isPharma"
               >
                 <span>Discount Amount</span>
                 <span>
@@ -877,7 +871,7 @@
         <div *ngIf="isPassingDataToNextStep">
           <div class="row row-cols-3 gx-5">
             <!-- invoiceNo -->
-            <div class="col label-data" *ngIf="businessType === '1'">
+            <div class="col label-data" *ngIf="industryProfile.isPharma">
               <span>Sale Invoice No</span>
               <span>
                 {{ saleReturnForm.get("invoiceNo")?.value }}
@@ -885,7 +879,7 @@
             </div>
 
             <!-- deliveryNoteNo -->
-            <div class="col label-data" *ngIf="businessType === '2'">
+            <div class="col label-data" *ngIf="industryProfile.isFeed">
               <span>Delivery Note No</span>
               <span>
                 {{ saleReturnForm.get("deliveryNoteNo")?.value }}
@@ -963,7 +957,7 @@
               <!-- totalPercentageDiscountAmount -->
               <div
                 class="label-data justify-content-between"
-                *ngIf="businessType === '1'"
+                *ngIf="industryProfile.isPharma"
               >
                 <span>Discount Amount</span>
                 <span>

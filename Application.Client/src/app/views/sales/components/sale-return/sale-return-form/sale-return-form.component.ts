@@ -36,6 +36,7 @@ import { Inventory_Type_Id_Finished_Goods } from "app/shared/consts/const";
 import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";
 import { UserProfile } from "app/shared/models/user-profile-model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { ConfirmDialogService } from "app/shared/services/confirm-dialog.service";
 import { SnackBarService } from "app/shared/services/snack-bar.service";
 import { inFinancialYearValidator } from "app/shared/validators/in-financial-year-validator";
@@ -79,8 +80,6 @@ export class SaleReturnFormComponent implements OnInit {
   searchProducts: ProductView[];
   saleReturnDetailsData: any[] = [];
   data: SaleReturnResponseDTO;
-
-  businessType: string;
   // Define financial year date range here
   financialYearStartDate: Date; //Example: Jul 1, 2023
   financialYearEndDate: Date; //Example: Jun 30, 2024
@@ -101,6 +100,7 @@ export class SaleReturnFormComponent implements OnInit {
     private productService: ProductService,
     private saleReturnService: SaleReturnService,
     private jwtAuth: JwtAuthService,
+    public industryProfile: IndustryProfileService,
     private dateFormatService: DateTimeFormatService,
     private toastr: ToastrService,
     private activatedRoute: ActivatedRoute,
@@ -121,7 +121,6 @@ export class SaleReturnFormComponent implements OnInit {
       this.financialYearStartDate = new Date(res.fystartdate);
       this.financialYearEndDate = new Date(res.fyenddate);
       this.currentFinancialYearId = res.fyid;
-      this.businessType = res.businesstype;
     });
     this.getData();
     this.initializeForm();
@@ -167,11 +166,11 @@ export class SaleReturnFormComponent implements OnInit {
       id: [this.data?.id || null],
       invoiceNo: [
         this.data?.invoiceNo || "",
-        this.businessType === "1" ? Validators.required : null,
+        this.industryProfile.isPharma ? Validators.required : null,
       ],
       deliveryNoteNo: [
         this.data?.deliveryNoteNo || "",
-        this.businessType === "2" ? Validators.required : null,
+        this.industryProfile.isFeed ? Validators.required : null,
       ],
       referenceNo: [this.data?.referenceNo || ""],
       saleReturnDate: [
@@ -455,7 +454,7 @@ export class SaleReturnFormComponent implements OnInit {
     if (!product) return "";
     return (
       product?.name +
-      (this.businessType === "2"
+      (this.industryProfile.isFeed
         ? ` (${product.bagWeight} ${product?.measurementUnit?.name})`
         : ` (${product?.packSize?.name})`)
     );

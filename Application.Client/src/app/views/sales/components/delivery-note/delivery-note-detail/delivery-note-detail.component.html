@@ -8,7 +8,7 @@
     <th mat-header-cell *matHeaderCellDef>Product</th>
     <td mat-cell *matCellDef="let element">
       {{ element?.product?.name }} ({{
-      businessType === "2" ? element?.product?.bagWeight : ""
+      industryProfile.isFeed ? element?.product?.bagWeight : ""
       }}
       {{ element?.product?.measurementUnit?.name }})
     </td>
@@ -23,10 +23,10 @@
 
 <ng-container matColumnDef="orderedPrimaryQuantity">
   <th mat-header-cell *matHeaderCellDef>
-    @if (businessType === '1') {
+    @if (industryProfile.isPharma) {
       Ordered Qty
     }
-    @if (businessType === '2') {
+    @if (industryProfile.isFeed) {
       Ordered Bag Qty
     }
   </th>
@@ -44,10 +44,10 @@
 
 <ng-container matColumnDef="deliveryPrimaryQuantity">
   <th mat-header-cell *matHeaderCellDef>
-    @if (businessType === '1') {
+    @if (industryProfile.isPharma) {
       Delivery Qty
     }
-    @if (businessType === '2') {
+    @if (industryProfile.isFeed) {
       Delivery Bag Qty
     }
   </th>
@@ -65,10 +65,10 @@
 
 <ng-container matColumnDef="orderedPrimaryBonusQuantity">
   <th mat-header-cell *matHeaderCellDef>
-    @if (businessType === '1') {
+    @if (industryProfile.isPharma) {
       Bonus Qty
     }
-    @if (businessType === '2') {
+    @if (industryProfile.isFeed) {
       Bonus Bag Qty
     }
   </th>
@@ -85,10 +85,10 @@
 </ng-container>
 <ng-container matColumnDef="deliveryPrimaryBonusQuantity">
   <th mat-header-cell *matHeaderCellDef>
-    @if (businessType === '1') {
+    @if (industryProfile.isPharma) {
       Delivery Bonus Qty
     }
-    @if (businessType === '2') {
+    @if (industryProfile.isFeed) {
       Delivery Bonus Bag Qty
     }
   </th>

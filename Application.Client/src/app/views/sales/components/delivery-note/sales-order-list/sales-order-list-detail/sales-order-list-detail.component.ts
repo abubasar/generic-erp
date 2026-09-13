@@ -1,6 +1,5 @@
 import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
-import { UserProfile } from "app/shared/models/user-profile-model";
-import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 
 @Component({
     selector: "app-sales-order-list-detail",
@@ -11,7 +10,6 @@ import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
 })
 export class SalesOrderListDetailComponent implements OnInit {
   @Input() data: any[] = [];
-  businessType: string;
   displayedColumns: string[] = [
     "sl",
     "productId",
@@ -30,13 +28,10 @@ export class SalesOrderListDetailComponent implements OnInit {
   ];
   dataSource: any[] = [];
 
-  constructor(private jwtAuth: JwtAuthService) {}
+  constructor(public industryProfile: IndustryProfileService) {}
 
   ngOnInit() {
     this.dataSource = this.data;
-    this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
-      this.businessType = res.businesstype;
-    });
     this.updateDisplayedColumns();
   }
 
@@ -47,7 +42,8 @@ export class SalesOrderListDetailComponent implements OnInit {
   };
 
   updateDisplayedColumns() {
-    const columnsToHide = this.columnConfig[this.businessType] || [];
+    const key = this.industryProfile.isFeed ? "2" : "1";
+    const columnsToHide = this.columnConfig[key] || [];
     this.displayedColumns = this.displayedColumns.filter(
       (col) => !columnsToHide.includes(col)
     );

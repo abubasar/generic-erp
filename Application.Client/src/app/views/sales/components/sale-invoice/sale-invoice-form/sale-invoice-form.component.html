@@ -159,7 +159,7 @@
         <div>
           <div class="row row-cols-3 gx-5">
             <!-- deliveryNoteNo -->
-            <div class="col d-flex" *ngIf="businessType === '2'">
+            <div class="col d-flex" *ngIf="industryProfile.isFeed">
               <mat-form-field class="full-width">
                 <mat-label>Delivery Note No.</mat-label>
                 <input
@@ -192,7 +192,7 @@
                 />
               </mat-form-field>
               <button
-                [hidden]="this.data?.id || businessType === '2'"
+                [hidden]="this.data?.id || industryProfile.isFeed"
                 type="button"
                 mat-icon-button
                 color="primary"
@@ -244,7 +244,7 @@
             </div>
 
             <!-- paymentTerm -->
-            <div class="col" *ngIf="businessType === '1'">
+            <div class="col" *ngIf="industryProfile.isPharma">
               <mat-form-field class="full-width">
                 <mat-label>Select Payment Term</mat-label>
                 <mat-select formControlName="paymentTerm">
@@ -366,13 +366,7 @@
                         [value]="product.id"
                       >
                         {{ product.name }}
-                        ({{
-                          businessType === "2"
-                            ? product?.bagWeight +
-                              " " +
-                              product?.measurementUnit?.name
-                            : product?.packSize?.name
-                        }})
+                        ({{ industryProfile.productDisplaySuffix(product) }})
                       </mat-option>
                     </mat-autocomplete>
                     <mat-error>Product is required</mat-error>
@@ -381,18 +375,12 @@
                 <!-- primaryQuantity -->
                 <div class="col-1">
                   <mat-form-field
-                    [matTooltip]="
-                      businessType === '1'
-                        ? 'Qty'
-                        : businessType === '2'
-                        ? 'Bag Qty'
-                        : ''
-                    "
+                    [matTooltip]="industryProfile.isFeed ? 'Bag Qty' : 'Qty'"
                     matTooltipPosition="above"
                     class="full-width"
                   >
-                    <mat-label *ngIf="businessType === '1'">QTY</mat-label>
-                    <mat-label *ngIf="businessType === '2'">Bag QTY</mat-label>
+                    <mat-label *ngIf="industryProfile.isPharma">QTY</mat-label>
+                    <mat-label *ngIf="industryProfile.isFeed">Bag QTY</mat-label>
                     <input
                       matInput
                       type="number"
@@ -409,7 +397,7 @@
                   </mat-form-field>
                 </div>
                 <!-- quantity -->
-                <div class="col-1" *ngIf="businessType === '2'">
+                <div class="col-1" *ngIf="industryProfile.isFeed">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Quantity"
@@ -433,20 +421,14 @@
                 <!-- primaryBonusQuantity -->
                 <div class="col-1">
                   <mat-form-field
-                    [matTooltip]="
-                      businessType === '1'
-                        ? 'Bonus Qty'
-                        : businessType === '2'
-                        ? 'Bonus Bag Qty'
-                        : ''
-                    "
+                    [matTooltip]="industryProfile.isFeed ? 'Bonus Bag Qty' : 'Bonus Qty'"
                     matTooltipPosition="above"
                     class="full-width"
                   >
-                    <mat-label *ngIf="businessType === '1'"
+                    <mat-label *ngIf="industryProfile.isPharma"
                       >Bonus QTY</mat-label
                     >
-                    <mat-label *ngIf="businessType === '2'"
+                    <mat-label *ngIf="industryProfile.isFeed"
                       >Bonus Bag QTY</mat-label
                     >
                     <input
@@ -507,7 +489,7 @@
                 </div>
 
                 <!-- discountPercentage -->
-                <div class="col-1" *ngIf="businessType === '1'">
+                <div class="col-1" *ngIf="industryProfile.isPharma">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Discount (%)"
@@ -529,7 +511,7 @@
                 </div>
 
                 <!-- percentageDiscountAmount -->
-                <div class="col-1" *ngIf="businessType === '1'">
+                <div class="col-1" *ngIf="industryProfile.isPharma">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Discount Amount"
@@ -549,7 +531,7 @@
                 </div>
 
                 <!-- discountPerUnit -->
-                <div class="col-1" *ngIf="businessType === '2'">
+                <div class="col-1" *ngIf="industryProfile.isFeed">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Discount Per Unit"
@@ -567,7 +549,7 @@
                 </div>
 
                 <!-- offerDiscountPerUnit -->
-                <div class="col-1" *ngIf="businessType === '2'">
+                <div class="col-1" *ngIf="industryProfile.isFeed">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Offer Discount Per Unit"
@@ -585,7 +567,7 @@
                 </div>
 
                 <!-- discountAmount -->
-                <div class="col-1" *ngIf="businessType === '2'">
+                <div class="col-1" *ngIf="industryProfile.isFeed">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Discount Amount"
@@ -603,7 +585,7 @@
                 </div>
 
                 <!-- netRate -->
-                <div class="col-1" *ngIf="businessType === '2'">
+                <div class="col-1" *ngIf="industryProfile.isFeed">
                   <mat-form-field
                     class="full-width"
                     matTooltip="netRate"
@@ -749,7 +731,7 @@
               <!-- totalPercentageDiscountAmount -->
               <div
                 class="label-data justify-content-between"
-                *ngIf="businessType === '1'"
+                *ngIf="industryProfile.isPharma"
               >
                 <span>Discount Amount</span>
                 <span>
@@ -763,7 +745,7 @@
               <!-- discount -->
               <div
                 class="label-data justify-content-between"
-                *ngIf="businessType === '2'"
+                *ngIf="industryProfile.isFeed"
               >
                 <span>Discount</span>
                 <span>
@@ -777,7 +759,7 @@
               <!--offer discount -->
               <div
                 class="label-data justify-content-between"
-                *ngIf="businessType === '2'"
+                *ngIf="industryProfile.isFeed"
               >
                 <span>Offer Discount</span>
                 <span>
@@ -813,7 +795,7 @@
               <!-- transportationCost -->
               <div
                 class="label-data justify-content-between"
-                *ngIf="businessType === '2'"
+                *ngIf="industryProfile.isFeed"
               >
                 <span>Transportation Cost</span>
                 <span>
@@ -885,7 +867,7 @@
         <ng-container *ngIf="isPassingDataToNextStep">
           <div class="row row-cols-2 gx-5">
             <!-- Delivery Note No. -->
-            <div class="col label-data" *ngIf="businessType === '2'">
+            <div class="col label-data" *ngIf="industryProfile.isFeed">
               <span>Delivery Note No</span>
               <span>
                 {{
@@ -908,7 +890,7 @@
               </span>
             </div>
             <!-- paymentTerm -->
-            <div class="col label-data" *ngIf="businessType === '1'">
+            <div class="col label-data" *ngIf="industryProfile.isPharma">
               <span>Payment Term</span>
               <span>
                 {{
@@ -984,7 +966,7 @@
             <!-- totalPercentageDiscountAmount -->
             <div
               class="label-data justify-content-between"
-              *ngIf="businessType === '1'"
+              *ngIf="industryProfile.isPharma"
             >
               <span>Discount Amount</span>
               <span>
@@ -998,7 +980,7 @@
             <!-- discount -->
             <div
               class="label-data justify-content-between"
-              *ngIf="businessType === '2'"
+              *ngIf="industryProfile.isFeed"
             >
               <span>Discount</span>
               <span>
@@ -1012,7 +994,7 @@
             <!--offer discount -->
             <div
               class="label-data justify-content-between"
-              *ngIf="businessType === '2'"
+              *ngIf="industryProfile.isFeed"
             >
               <span>Offer Discount</span>
               <span>
@@ -1048,7 +1030,7 @@
             <!-- transportationCost -->
             <div
               class="label-data justify-content-between"
-              *ngIf="businessType === '2'"
+              *ngIf="industryProfile.isFeed"
             >
               <span>Transportation Cost</span>
               <span>

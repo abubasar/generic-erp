@@ -12,6 +12,7 @@ import { ENUM } from "app/shared/models/enum-value/enum.model";
 import { UserProfile } from "app/shared/models/user-profile-model";
 import { GeneralResponse } from "app/shared/models/wrappers/generalResponse.model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { ConfirmDialogService } from "app/shared/services/confirm-dialog.service";
 import { DateTimeFormatService } from "app/shared/services/date-time-format.service";
 import { EnumValueService } from "app/shared/services/enum-value/enum-value.service";
@@ -65,8 +66,6 @@ export class SaleInvoiceFormComponent implements OnInit {
   paymentTerms: ENUM[];
   data: SaleInvoiceResponseDTO;
   transactionalJournalAccounts: any[];
-
-  businessType: string;
   // Define financial year date range here
   financialYearStartDate: Date; //Example: Jul 1, 2023
   financialYearEndDate: Date; //Example: Jun 30, 2024
@@ -84,6 +83,7 @@ export class SaleInvoiceFormComponent implements OnInit {
     private productService: ProductService,
     private enumValueService: EnumValueService,
     private jwtAuth: JwtAuthService,
+    public industryProfile: IndustryProfileService,
     private dateFormatService: DateTimeFormatService,
     private fb: FormBuilder,
     private toastr: ToastrService,
@@ -104,7 +104,6 @@ export class SaleInvoiceFormComponent implements OnInit {
       this.financialYearStartDate = new Date(res.fystartdate);
       this.financialYearEndDate = new Date(res.fyenddate);
       this.currentFinancialYearId = res.fyid;
-      this.businessType = res.businesstype;
     });
     this.getData();
     this.initializeForm();
@@ -403,7 +402,7 @@ export class SaleInvoiceFormComponent implements OnInit {
     if (!product) return "";
     return (
       product?.name +
-      (this.businessType === "2"
+      (this.industryProfile.isFeed
         ? ` (${product.bagWeight} ${product?.measurementUnit?.name})`
         : ` (${product?.packSize?.name})`)
     );

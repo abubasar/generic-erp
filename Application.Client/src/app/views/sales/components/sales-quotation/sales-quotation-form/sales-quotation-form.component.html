@@ -324,13 +324,7 @@
                       [value]="product.id"
                     >
                       {{ product.name }}
-                      ({{
-                        businessType === "2"
-                          ? product?.bagWeight +
-                            " " +
-                            product?.measurementUnit?.name
-                          : product?.packSize?.name
-                      }})
+                      ({{ industryProfile.productDisplaySuffix(product) }})
                     </mat-option>
                   </mat-autocomplete>
                 </mat-form-field>
@@ -352,7 +346,7 @@
                 </mat-form-field>
               </div>
 
-              <div class="col-1" *ngIf="businessType === '2'">
+              <div class="col-1" *ngIf="industryProfile.isFeed">
                 <mat-form-field
                   class="full-width"
                   matTooltip="Bag Weight"
@@ -372,17 +366,11 @@
               <div class="col-1">
                 <mat-form-field
                   class="full-width"
-                  [matTooltip]="
-                    businessType === '1'
-                      ? 'Qty'
-                      : businessType === '2'
-                      ? 'Bag Qty'
-                      : ''
-                  "
+                  [matTooltip]="industryProfile.isFeed ? 'Bag Qty' : 'Qty'"
                   matTooltipPosition="above"
                 >
-                  <mat-label *ngIf="businessType === '1'">Quantity</mat-label>
-                  <mat-label *ngIf="businessType === '2'"
+                  <mat-label *ngIf="industryProfile.isPharma">Quantity</mat-label>
+                  <mat-label *ngIf="industryProfile.isFeed"
                     >Bag Quantity</mat-label
                   >
                   <input
@@ -404,7 +392,7 @@
                 </mat-form-field>
               </div>
 
-              <div class="col-1" *ngIf="businessType === '2'">
+              <div class="col-1" *ngIf="industryProfile.isFeed">
                 <mat-form-field
                   class="full-width"
                   matTooltip="Qty"

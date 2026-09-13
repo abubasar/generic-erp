@@ -257,7 +257,7 @@
             </div>
 
             <!-- transport -->
-            <div class="col" *ngIf="businessType === '2'">
+            <div class="col" *ngIf="industryProfile.isFeed">
               <mat-form-field class="full-width">
                 <mat-label>Select Transport</mat-label>
                 <mat-select formControlName="transport">
@@ -270,7 +270,7 @@
             </div>
 
             <!-- paymentTerm -->
-            <div class="col" *ngIf="businessType === '1'">
+            <div class="col" *ngIf="industryProfile.isPharma">
               <mat-form-field class="full-width">
                 <mat-label>Select Payment Term</mat-label>
                 <mat-select formControlName="paymentTerm">
@@ -435,13 +435,7 @@
                         [value]="$safeNavigationMigration(product?.id)"
                       >
                         {{ product.name }}
-                        ({{
-                          businessType === "2"
-                            ? product?.bagWeight +
-                              " " +
-                              product?.measurementUnit?.name
-                            : product?.packSize?.name
-                        }})
+                        ({{ industryProfile.productDisplaySuffix(product) }})
                       </mat-option>
                     </mat-autocomplete>
                     <mat-error>Product is required</mat-error>
@@ -455,8 +449,8 @@
                     matTooltip="Bag QTY"
                     matTooltipPosition="above"
                   >
-                    <mat-label *ngIf="businessType === '1'">QTY</mat-label>
-                    <mat-label *ngIf="businessType === '2'">Bag QTY</mat-label>
+                    <mat-label *ngIf="industryProfile.isPharma">QTY</mat-label>
+                    <mat-label *ngIf="industryProfile.isFeed">Bag QTY</mat-label>
                     <input
                       matInput
                       type="number"
@@ -477,7 +471,7 @@
                 </div>
 
                 <!-- QTY -->
-                <div class="col-1" *ngIf="businessType === '2'">
+                <div class="col-1" *ngIf="industryProfile.isFeed">
                   <mat-form-field
                     class="full-width"
                     matTooltip="QTY"
@@ -509,10 +503,10 @@
                     matTooltip="Bonus Bag Qty"
                     matTooltipPosition="above"
                   >
-                    <mat-label *ngIf="businessType === '1'"
+                    <mat-label *ngIf="industryProfile.isPharma"
                       >Bonus QTY</mat-label
                     >
-                    <mat-label *ngIf="businessType === '2'"
+                    <mat-label *ngIf="industryProfile.isFeed"
                       >Bonus Bag QTY</mat-label
                     >
                     <input
@@ -571,7 +565,7 @@
                 </div>
 
                 <!-- discountPercentage -->
-                <div class="col-1" *ngIf="businessType === '1'">
+                <div class="col-1" *ngIf="industryProfile.isPharma">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Discount (%)"
@@ -592,7 +586,7 @@
                 </div>
 
                 <!-- percentageDiscountAmount -->
-                <div class="col-1" *ngIf="businessType === '1'">
+                <div class="col-1" *ngIf="industryProfile.isPharma">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Discount Amount"
@@ -613,7 +607,7 @@
                 </div>
 
                 <!-- discountPerUnit -->
-                <div class="col-1" *ngIf="businessType === '2'">
+                <div class="col-1" *ngIf="industryProfile.isFeed">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Discount(per kg)"
@@ -631,7 +625,7 @@
                 </div>
 
                 <!-- offerDiscountPerUnit -->
-                <div class="col-1" *ngIf="businessType === '2'">
+                <div class="col-1" *ngIf="industryProfile.isFeed">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Offer Discount(per kg)"
@@ -649,7 +643,7 @@
                 </div>
 
                 <!-- Net Rate -->
-                <div class="col-1" *ngIf="businessType === '2'">
+                <div class="col-1" *ngIf="industryProfile.isFeed">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Net Rate"
@@ -738,7 +732,7 @@
               <!-- discount -->
               <div
                 class="label-data justify-content-between"
-                *ngIf="businessType === '2'"
+                *ngIf="industryProfile.isFeed"
               >
                 <span>Discount</span>
                 <span>
@@ -752,7 +746,7 @@
               <!-- totalPercentageDiscountAmount -->
               <div
                 class="label-data justify-content-between"
-                *ngIf="businessType === '1'"
+                *ngIf="industryProfile.isPharma"
               >
                 <span>Discount Amount</span>
                 <span>
@@ -766,7 +760,7 @@
               <!-- offer discount -->
               <div
                 class="label-data justify-content-between"
-                *ngIf="businessType === '2'"
+                *ngIf="industryProfile.isFeed"
               >
                 <span>Offer Discount</span>
                 <span>
@@ -806,7 +800,7 @@
                 </span>
               </div>
               <!-- transportationCost -->
-              <div *ngIf="businessType === '2'">
+              <div *ngIf="industryProfile.isFeed">
                 <mat-form-field class="full-width">
                   <mat-label>Transportation Cost</mat-label>
                   <input
@@ -826,7 +820,7 @@
                 </mat-form-field>
               </div>
               <!-- depoCharge -->
-              <div *ngIf="businessType === '2'">
+              <div *ngIf="industryProfile.isFeed">
                 <mat-form-field class="full-width">
                   <mat-label>Depo Charge</mat-label>
                   <input
@@ -962,7 +956,7 @@
             </div>
 
             <!-- Transport -->
-            <div class="col label-data" *ngIf="businessType === '2'">
+            <div class="col label-data" *ngIf="industryProfile.isFeed">
               <span>Transport</span>
               <span>
                 {{ getTransportName($safeNavigationMigration(saleOrderForm.get("transport")?.value)) }}
@@ -970,7 +964,7 @@
             </div>
 
             <!-- paymentTerm -->
-            <div class="col label-data" *ngIf="businessType === '1'">
+            <div class="col label-data" *ngIf="industryProfile.isPharma">
               <span>Payment Term</span>
               <span>
                 {{
@@ -1037,7 +1031,7 @@
               <!-- totalPercentageDiscountAmount -->
               <div
                 class="label-data justify-content-between"
-                *ngIf="businessType === '1'"
+                *ngIf="industryProfile.isPharma"
               >
                 <span>Discount Amount</span>
                 <span>
@@ -1050,7 +1044,7 @@
               <!-- discount -->
               <div
                 class="label-data justify-content-between"
-                *ngIf="businessType === '2'"
+                *ngIf="industryProfile.isFeed"
               >
                 <span>Discount</span>
                 <span>
@@ -1063,7 +1057,7 @@
               <!-- Offer discount -->
               <div
                 class="label-data justify-content-between"
-                *ngIf="businessType === '2'"
+                *ngIf="industryProfile.isFeed"
               >
                 <span>Offer Discount</span>
                 <span>
@@ -1096,7 +1090,7 @@
               <!-- transportationCost -->
               <div
                 class="label-data justify-content-between"
-                *ngIf="businessType === '2'"
+                *ngIf="industryProfile.isFeed"
               >
                 <span>Transportation Cost</span>
                 <span>
@@ -1109,7 +1103,7 @@
               <!-- depoCharge -->
               <div
                 class="label-data justify-content-between"
-                *ngIf="businessType === '2'"
+                *ngIf="industryProfile.isFeed"
               >
                 <span>Depo Charge</span>
                 <span>

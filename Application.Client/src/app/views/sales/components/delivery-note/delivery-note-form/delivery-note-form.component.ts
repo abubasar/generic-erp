@@ -33,6 +33,7 @@ import { Inventory_Type_Id_Finished_Goods } from "app/shared/consts/const";
 import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";
 import { UserProfile } from "app/shared/models/user-profile-model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { ConfirmDialogService } from "app/shared/services/confirm-dialog.service";
 import { inFinancialYearValidator } from "app/shared/validators/in-financial-year-validator";
 import { StoreRequest } from "app/views/configuration/models/store/store-request.model";
@@ -79,7 +80,6 @@ export class DeliveryNoteFormComponent implements OnInit {
   deliveryNoteRequest = new DeliveryNoteSearchRequestDTO();
   deliveryNoteData: DeliveryNoteResponseDTO[];
 
-  businessType: string;
   // Define financial year date range here
   financialYearStartDate: Date; //Example: Jul 1, 2023
   financialYearEndDate: Date; //Example: Jun 30, 2024
@@ -101,6 +101,7 @@ export class DeliveryNoteFormComponent implements OnInit {
     private productService: ProductService,
     private deliveryNoteService: DeliveryNoteService,
     private jwtAuth: JwtAuthService,
+    public industryProfile: IndustryProfileService,
     private dateFormatService: DateTimeFormatService,
     private toastr: ToastrService,
     private http: HttpClient,
@@ -117,17 +118,12 @@ export class DeliveryNoteFormComponent implements OnInit {
     this.activatedRoute.data.subscribe((response: any) => {
       this.data = response?.deliveryNote?.data;
     });
-    let isDataLoaded = false;
     this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
       this.financialYearStartDate = new Date(res.fystartdate);
       this.financialYearEndDate = new Date(res.fyenddate);
       this.currentFinancialYearId = res.fyid;
-      this.businessType = res.businesstype;
-      if (!isDataLoaded) {
-        this.getData(res.businesstype);
-        isDataLoaded = true;
-      }
     });
+    this.getData();
 
     this.initializeForm();
   }
@@ -153,8 +149,8 @@ export class DeliveryNoteFormComponent implements OnInit {
     this.initializeForm();
   }
 
-  getData(businessType: string) {
-    this.getAllStores(businessType);
+  getData() {
+    this.getAllStores();
     this.getAllDeliveryPlaces();
     this.getAllCustomers();
     this.getTransports();
@@ -356,20 +352,15 @@ export class DeliveryNoteFormComponent implements OnInit {
     });
   }
 
-  getAllStores(businessType: string): void {
+  getAllStores(): void {
     let request = new StoreRequest();
     request.page = -1;
-    if (businessType === "1") {
-      this.storeService.getStores(request).subscribe((res) => {
-        this.filterStores = this.stores = res?.data?.item1;
-      });
-    }
-    if (businessType === "2") {
+    if (this.industryProfile.isFeed) {
       request.inventoryTypeId = Inventory_Type_Id_Finished_Goods;
-      this.storeService.getStores(request).subscribe((res) => {
-        this.filterStores = this.stores = res?.data?.item1;
-      });
     }
+    this.storeService.getStores(request).subscribe((res) => {
+      this.filterStores = this.stores = res?.data?.item1;
+    });
   }
 
   getAllProducts(): void {
@@ -467,7 +458,7 @@ export class DeliveryNoteFormComponent implements OnInit {
     if (!product) return "";
     return (
       product?.name +
-      (this.businessType === "2"
+      (this.industryProfile.isFeed
         ? ` (${product.bagWeight} ${product?.measurementUnit?.name})`
         : ` (${product?.measurementUnit?.name})`)
     );

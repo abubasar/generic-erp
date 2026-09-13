@@ -25,10 +25,10 @@
 
   <ng-container matColumnDef="primaryQuantity">
     <th mat-header-cell *matHeaderCellDef>
-      @if (businessType === '1') {
+      @if (industryProfile.isPharma) {
         Quantity
       }
-      @if (businessType === '2') {
+      @if (industryProfile.isFeed) {
         Bag Quantity
       }
     </th>
@@ -45,10 +45,10 @@
   </ng-container>
   <ng-container matColumnDef="primaryBonusQuantity">
     <th mat-header-cell *matHeaderCellDef>
-      @if (businessType === '1') {
+      @if (industryProfile.isPharma) {
         Bonus Quantity
       }
-      @if (businessType === '2') {
+      @if (industryProfile.isFeed) {
         Bonus Bag Quantity
       }
     </th>
@@ -113,10 +113,10 @@
   </ng-container>
   <ng-container matColumnDef="deliveredPrimaryQuantity">
     <th mat-header-cell *matHeaderCellDef>
-      @if (businessType === '1') {
+      @if (industryProfile.isPharma) {
         Delivered Quantity
       }
-      @if (businessType === '2') {
+      @if (industryProfile.isFeed) {
         Delivered Bag Quantity
       }
     </th>
@@ -126,10 +126,10 @@
   </ng-container>
   <ng-container matColumnDef="deliveredPrimaryBonusQuantity">
     <th mat-header-cell *matHeaderCellDef>
-      @if (businessType === '1') {
+      @if (industryProfile.isPharma) {
         Delivered Bonus Quantity
       }
-      @if (businessType === '2') {
+      @if (industryProfile.isFeed) {
         Delivered Bonus Bag Quantity
       }
     </th>

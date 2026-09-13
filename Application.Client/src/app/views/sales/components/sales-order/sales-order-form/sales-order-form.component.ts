@@ -31,6 +31,7 @@ import { PaymentTerm } from "app/shared/enums/paymentTerm";
 import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";
 import { UserProfile } from "app/shared/models/user-profile-model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { ConfirmDialogService } from "app/shared/services/confirm-dialog.service";
 import { SnackBarService } from "app/shared/services/snack-bar.service";
 import { inFinancialYearValidator } from "app/shared/validators/in-financial-year-validator";
@@ -86,7 +87,6 @@ export class SalesOrderFormComponent implements OnInit {
   depoChargePerKg: number = 0;
   eTag: string;
 
-  businessType: string;
   // Define financial year date range here
   financialYearStartDate: Date; //Example: Jul 1, 2023
   financialYearEndDate: Date; //Example: Jun 30, 2024
@@ -109,6 +109,7 @@ export class SalesOrderFormComponent implements OnInit {
     private productService: ProductService,
     private saleOrderService: SaleOrderService,
     private jwtAuth: JwtAuthService,
+    public industryProfile: IndustryProfileService,
     private dateFormatService: DateTimeFormatService,
     private toastr: ToastrService,
     private activatedRoute: ActivatedRoute,
@@ -126,17 +127,12 @@ export class SalesOrderFormComponent implements OnInit {
       this.data = response?.saleOrder?.data;
       this.eTag = response?.saleOrder?.versionNumber;
     });
-    let isDataLoaded = false;
     this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
       this.financialYearStartDate = new Date(res.fystartdate);
       this.financialYearEndDate = new Date(res.fyenddate);
       this.currentFinancialYearId = res.fyid;
-      this.businessType = res.businesstype;
-      if (!isDataLoaded) {
-        this.getData(res.businesstype);
-        isDataLoaded = true;
-      }
     });
+    this.getData();
     this.initializeForm();
     this.subscribeToFormControlChanges("otherDiscount");
     this.subscribeToFormControlChanges("transportationCost");
@@ -173,8 +169,8 @@ export class SalesOrderFormComponent implements OnInit {
     this.initializeForm();
   }
 
-  getData(businessType: string) {
-    this.getAllStores(businessType);
+  getData() {
+    this.getAllStores();
     this.getAllCustomers();
     this.getTransports();
     this.getPaymentTerms();
@@ -203,11 +199,11 @@ export class SalesOrderFormComponent implements OnInit {
       ],
       transport: [
         this.data?.transport ?? 0,
-        this.businessType == "2" ? Validators.required : null,
+        this.industryProfile.isFeed ? Validators.required : null,
       ],
       paymentTerm: [
         this.data?.paymentTerm ?? 0,
-        this.businessType == "1" ? Validators.required : null,
+        this.industryProfile.isPharma ? Validators.required : null,
       ],
       customerId: [this.data?.customerId, Validators.required],
       customerTerritoryId: [this.data?.customerTerritoryId ?? null],
@@ -236,7 +232,7 @@ export class SalesOrderFormComponent implements OnInit {
       deletedSaleOrderDetailIds: [""],
       saleOrderDetails: this.fb.array([]),
     });
-    if (this.businessType === "2") {
+    if (this.industryProfile.isFeed) {
       this.getActiveOfferDiscountByDate();
     }
     this.setMinMaxDates();
@@ -265,7 +261,7 @@ export class SalesOrderFormComponent implements OnInit {
 
   populateForm(): void {
     if (this.saleOrderForm.get("id").value) {
-      if (this.businessType === "2") {
+      if (this.industryProfile.isFeed) {
         this.getActiveCustomerDiscountByCustomerId(this.data?.customerId);
       }
       this.populateSaleOrderDetails(this.data);
@@ -424,30 +420,22 @@ export class SalesOrderFormComponent implements OnInit {
     });
   }
 
-  getAllStores(businessType: string): void {
+  getAllStores(): void {
     let request = new StoreRequest();
     request.page = -1;
-    if (businessType === "1") {
-      // TODO: It should be changed to Finished Goods or Raw Material
-      request.inventoryTypeId = Inventory_Type_Id_Finished_Goods;
-      this.storeService.getStores(request).subscribe((res) => {
-        this.stores = res?.data?.item1;
-      });
-    }
-    if (businessType === "2") {
-      request.inventoryTypeId = Inventory_Type_Id_Finished_Goods;
-      this.storeService.getStores(request).subscribe((res) => {
-        this.stores = res?.data?.item1;
-        /**
-         * This code is important to get depoChargePerKg in Edit Form
-         */
-        if (this.saleOrderForm.get("id")?.value) {
-          this.depoChargePerKg = res?.data?.item1.find(
-            (x) => x.id === this.data.storeId
-          ).depoChargePerKg;
-        }
-      });
-    }
+    // TODO: It should be changed to Finished Goods or Raw Material
+    request.inventoryTypeId = Inventory_Type_Id_Finished_Goods;
+    this.storeService.getStores(request).subscribe((res) => {
+      this.stores = res?.data?.item1;
+      /**
+       * This code is important to get depoChargePerKg in Edit Form
+       */
+      if (this.industryProfile.isFeed && this.saleOrderForm.get("id")?.value) {
+        this.depoChargePerKg = res?.data?.item1.find(
+          (x) => x.id === this.data.storeId
+        ).depoChargePerKg;
+      }
+    });
   }
 
   getAllProducts(): void {
@@ -474,14 +462,14 @@ export class SalesOrderFormComponent implements OnInit {
    * Execute when Store Select From Dropdown
    */
   onSelectedStore(storeId: string) {
-    if (this.businessType === "2") {
+    if (this.industryProfile.isFeed) {
       this.resetProductInSaleOrderDetails(this.saleOrderDetails);
       this.getDepoChargePerKg(storeId);
     }
   }
 
   onSelectedCustomer(customerId: string) {
-    if (this.businessType === "2") {
+    if (this.industryProfile.isFeed) {
       this.getActiveCustomerDiscountByCustomerId(customerId);
       this.resetProductInSaleOrderDetails(this.saleOrderDetails);
     }
@@ -533,7 +521,7 @@ export class SalesOrderFormComponent implements OnInit {
   }
 
   onOrderDateChange() {
-    if (this.businessType === "2") {
+    if (this.industryProfile.isFeed) {
       this.getActiveOfferDiscountByDate();
     }
   }
@@ -583,7 +571,7 @@ export class SalesOrderFormComponent implements OnInit {
     if (!product) return "";
     return (
       product?.name +
-      (this.businessType === "2"
+      (this.industryProfile.isFeed
         ? ` (${product.bagWeight} ${product?.measurementUnit?.name})`
         : ` (${product?.packSize?.name})`)
     );

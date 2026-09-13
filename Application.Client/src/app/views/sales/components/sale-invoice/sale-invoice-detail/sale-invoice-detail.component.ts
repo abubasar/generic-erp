@@ -1,7 +1,6 @@
 import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
-import { UserProfile } from "app/shared/models/user-profile-model";
-import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
 import { DateTimeFormatService } from "app/shared/services/date-time-format.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 
 @Component({
     selector: "app-sale-invoice-detail",
@@ -12,7 +11,6 @@ import { DateTimeFormatService } from "app/shared/services/date-time-format.serv
 })
 export class SaleInvoiceDetailComponent implements OnInit {
   @Input() data: any[] = [];
-  businessType: string;
   displayedColumns: string[] = [
     "sl",
     "productId",
@@ -37,15 +35,11 @@ export class SaleInvoiceDetailComponent implements OnInit {
 
   constructor(
     public dateFormatService: DateTimeFormatService,
-    private jwtAuth: JwtAuthService
+    public industryProfile: IndustryProfileService
   ) {}
 
   ngOnInit() {
     this.dataSource = this.data;
-    this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
-      this.businessType = res.businesstype;
-    });
-    // Conditionally set columns based on businessType
     this.updateDisplayedColumns();
   }
 
@@ -63,7 +57,8 @@ export class SaleInvoiceDetailComponent implements OnInit {
   };
 
   updateDisplayedColumns() {
-    const columnsToHide = this.columnConfig[this.businessType] || [];
+    const key = this.industryProfile.isFeed ? "2" : "1";
+    const columnsToHide = this.columnConfig[key] || [];
     this.displayedColumns = this.displayedColumns.filter(
       (col) => !columnsToHide.includes(col)
     );

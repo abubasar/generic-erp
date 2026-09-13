@@ -482,7 +482,7 @@
                         [value]="$safeNavigationMigration(product?.id)"
                       >
                         {{ product?.name }} ({{
-                          businessType === "2" ? product?.bagWeight : ""
+                          industryProfile.isFeed ? product?.bagWeight : ""
                         }}
                         {{ product?.measurementUnit?.name }})
                       </mat-option>
@@ -530,10 +530,10 @@
                     matTooltip="Ordered Bag Qty"
                     matTooltipPosition="above"
                   >
-                    <mat-label *ngIf="businessType === '1'"
+                    <mat-label *ngIf="industryProfile.isPharma"
                       >Ordered QTY</mat-label
                     >
-                    <mat-label *ngIf="businessType === '2'"
+                    <mat-label *ngIf="industryProfile.isFeed"
                       >Ordered Bag QTY</mat-label
                     >
 
@@ -553,7 +553,7 @@
                 </div>
 
                 <!--orderedQuantity -->
-                <div class="col-1" *ngIf="businessType === '2'">
+                <div class="col-1" *ngIf="industryProfile.isFeed">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Ordered Qty"
@@ -582,10 +582,10 @@
                     matTooltip="Delivery Bag Qty"
                     matTooltipPosition="above"
                   >
-                    <mat-label *ngIf="businessType === '1'"
+                    <mat-label *ngIf="industryProfile.isPharma"
                       >Delivery QTY</mat-label
                     >
-                    <mat-label *ngIf="businessType === '2'">
+                    <mat-label *ngIf="industryProfile.isFeed">
                       Delivery Bag QTY</mat-label
                     >
 
@@ -609,7 +609,7 @@
                 </div>
 
                 <!-- deliveryQuantity -->
-                <div class="col-1" *ngIf="businessType === '2'">
+                <div class="col-1" *ngIf="industryProfile.isFeed">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Delivery Qty"
@@ -659,10 +659,10 @@
                     matTooltip="Bonus Bag Qty"
                     matTooltipPosition="above"
                   >
-                    <mat-label *ngIf="businessType === '1'"
+                    <mat-label *ngIf="industryProfile.isPharma"
                       >Bonus QTY</mat-label
                     >
-                    <mat-label *ngIf="businessType === '2'"
+                    <mat-label *ngIf="industryProfile.isFeed"
                       >Bonus Bag QTY</mat-label
                     >
 
@@ -681,7 +681,7 @@
                 </div>
 
                 <!--orderedBonusQuantity -->
-                <div class="col-1" *ngIf="businessType === '2'">
+                <div class="col-1" *ngIf="industryProfile.isFeed">
                   <mat-form-field
                     class="full-width"
                     matTooltip="Bonus Qty"
@@ -706,10 +706,10 @@
                     matTooltip="Delivery Bonus Bag Qty"
                     matTooltipPosition="above"
                   >
-                    <mat-label *ngIf="businessType === '1'"
+                    <mat-label *ngIf="industryProfile.isPharma"
                       >Delivery Bonus QTY</mat-label
                     >
-                    <mat-label *ngIf="businessType === '2'"
+                    <mat-label *ngIf="industryProfile.isFeed"
                       >Delivery Bonus Bag QTY</mat-label
                     >
                     <input
