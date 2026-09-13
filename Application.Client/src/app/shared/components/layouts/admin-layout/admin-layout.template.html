@@ -13,15 +13,15 @@
     <mat-sidenav-content>
     <!-- SIDEBAR -->
     <!-- ONLY REQUIRED FOR **SIDE** NAVIGATION LAYOUT -->
-    <app-sidebar-side 
-    *ngIf="layoutConf.navigationPos === 'side'" 
+    <app-sidebar-side
+    *ngIf="layoutConf.navigationPos === 'side' && meReady"
     (mouseenter)="sidebarMouseenter($event)"
     (mouseleave)="sidebarMouseleave($event)"
     ></app-sidebar-side>
-    
+
     <!-- Top navigation layout (navigation for mobile screen) -->
     <!-- ONLY REQUIRED FOR **TOP** NAVIGATION MOBILE LAYOUT -->
-    <app-sidebar-top *ngIf="layoutConf.navigationPos === 'top' && layoutConf.isMobile"></app-sidebar-top>
+    <app-sidebar-top *ngIf="layoutConf.navigationPos === 'top' && layoutConf.isMobile && meReady"></app-sidebar-top>
 
     <!-- App content -->
     <div class="main-content-wrap" id="main-content-wrap" [perfectScrollbar]="" [disabled]="layoutConf.topbarFixed || !layoutConf.perfectScrollbar">

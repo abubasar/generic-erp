@@ -13,7 +13,8 @@ export class HasPermissionDirective implements OnInit{
 
     ngOnInit(): void {
       const isAuthorized = this.authService.isPermissionAuthorized('Permission', this.appHasPermission);
-      if (!isAuthorized) {
+      const isEntitled = this.authService.isModuleAuthorized(this.appHasPermission);
+      if (!isAuthorized || !isEntitled) {
         this.viewContainerRef.clear();
       } else {
         this.viewContainerRef.createEmbeddedView(this.templateRef);

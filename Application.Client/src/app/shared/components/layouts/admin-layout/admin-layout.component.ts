@@ -27,7 +27,16 @@ export class AdminLayoutComponent implements OnInit, AfterViewInit {
   public  scrollConfig = {}
   public layoutConf: any = {};
   public adminContainerClasses: any = {};
-  
+  // Gates the sidenav (see admin-layout.template.html) so its per-item
+  // *appHasPermission module-entitlement check doesn't run against a
+  // localStorage['me'] that's either stale or not written yet — /api/me
+  // is an async call and the sidenav would otherwise render (and each
+  // directive would make its one-shot, non-reactive decision) before it
+  // resolves. Set true in both the success and error path below: a
+  // failed /api/me fetch shouldn't leave the whole menu hidden — the
+  // module check itself already fails open with no cached profile.
+  public meReady: boolean = false;
+
   constructor(
     private router: Router,
     public translate: TranslateService,
@@ -37,7 +46,16 @@ export class AdminLayoutComponent implements OnInit, AfterViewInit {
     private jwtAuth: JwtAuthService
   ) {
     // Check Auth Token is valid
-    this.jwtAuth.checkTokenIsValid().subscribe();
+    this.jwtAuth.checkTokenIsValid().subscribe({
+      next: () => {
+        this.meReady = true;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.meReady = true;
+        this.cdr.markForCheck();
+      },
+    });
 
     // Close sidenav after route change in mobile
     this.routerEventSub = router.events.pipe(filter(event => event instanceof NavigationEnd))

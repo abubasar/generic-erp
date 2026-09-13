@@ -2,6 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { JwtHelperService } from "@auth0/angular-jwt";
+import { MeResponse } from "app/shared/models/me-response.model";
 import { TokenModel } from "app/shared/models/token.model";
 import { UserProfile } from "app/shared/models/user-profile-model";
 import { GeneralResponse } from "app/shared/models/wrappers/generalResponse.model";
@@ -11,14 +12,8 @@ import { catchError, map } from "rxjs/operators";
 import { User } from "../../models/user.model";
 import { LocalStoreService } from "../local-store.service";
 
-// ================= only for demo purpose ===========
-
-const DEMO_USER: User = {
-  id: "5b700c45639d2c0c54b354ba",
-  displayName: "Demo",
-  role: "SA",
-};
-// ================= you will get those data from server =======
+const ME_STORAGE_KEY = "me";
+const ACCESS_MODULE_PERMISSION_PREFIX = "Permissions.AccessModules.";
 
 @Injectable({
   providedIn: "root",
@@ -76,37 +71,52 @@ export class JwtAuthService {
   }
   /*
     checkTokenIsValid is called inside constructor of
-    shared/components/layouts/admin-layout/admin-layout.component.ts
+    shared/components/layouts/admin-layout/admin-layout.component.ts.
+    Fetches the tenant/module/subscription profile so the sidenav's
+    per-item module-entitlement check (see isModuleAuthorized below) has
+    real data instead of always passing open.
   */
   public checkTokenIsValid() {
-    return of(DEMO_USER).pipe(
-      map((profile: User) => {
-        // this.setUserAndToken(this.getJwtToken(), profile, true);
+    return this.http.get<MeResponse>(`${environment.apiURL}/me`).pipe(
+      map((me: MeResponse) => {
+        localStorage.setItem(ME_STORAGE_KEY, JSON.stringify(me));
         this.signingIn = false;
-        return profile;
+        return me;
       }),
       catchError((error) => {
         return of(error);
       })
     );
+  }
 
-    /*
-      The following code get user data and jwt token is assigned to
-      Request header using token.interceptor
-      This checks if the existing token is valid when app is reloaded
-    */
+  public getMe(): MeResponse | null {
+    const raw = localStorage.getItem(ME_STORAGE_KEY);
+    if (!raw || raw === "undefined") return null;
+    try {
+      return JSON.parse(raw) as MeResponse;
+    } catch {
+      return null;
+    }
+  }
 
-    // return this.http.get(`${environment.apiURL}/api/users/profile`)
-    //   .pipe(
-    //     map((profile: User) => {
-    //       this.setUserAndToken(this.getJwtToken(), profile, true);
-    //       return profile;
-    //     }),
-    //     catchError((error) => {
-    //       this.signout();
-    //       return of(error);
-    //     })
-    //   );
+  /*
+    Sibling to isPermissionAuthorized: a menu item's permission of the
+    shape "Permissions.AccessModules.<X>" also names a module key (lower-
+    cased). If the tenant's /api/me hasn't reported that module enabled,
+    the item is hidden even if the user's role has the permission claim.
+    Items whose permission isn't an AccessModules one aren't module-gated
+    (they pass through) — module state gates the seven top-level sections,
+    not every leaf screen.
+  */
+  public isModuleAuthorized(permissions: string[]): boolean {
+    if (!permissions || permissions.length === 0) return true;
+    const moduleKeys = permissions
+      .filter((p) => p?.startsWith(ACCESS_MODULE_PERMISSION_PREFIX))
+      .map((p) => p.substring(ACCESS_MODULE_PERMISSION_PREFIX.length).toLowerCase());
+    if (moduleKeys.length === 0) return true;
+    const me = this.getMe();
+    if (!me) return true; // /api/me not loaded yet — permission check already gates real access server-side
+    return moduleKeys.some((k) => me.modules?.includes(k));
   }
 
   public signout() {
@@ -129,30 +139,14 @@ export class JwtAuthService {
   isLoggedIn(): Boolean {
     return !!this.getAccessToken();
   }
+  // Token expiry/refresh is handled by TokenInterceptor (checks
+  // isTokenExpired before every request and calls refreshToken()) — this
+  // method just needs the current, possibly-stale-for-a-moment token.
   getPermissions() {
     var localStorageToken = localStorage.getItem("tokens");
     if (localStorageToken == "undefined") return null;
     if (localStorageToken) {
       var token = JSON.parse(localStorageToken) as TokenModel;
-      var isTokenExpired = this.jwtService.isTokenExpired(token.accessToken);
-      //when token expired,request for new token
-      // if (isTokenExpired) {
-      //     this.refreshToken(token).pipe(
-      //     switchMap((res: GeneralResponse<TokenModel>) => {
-      //       localStorage.setItem("tokens", JSON.stringify(res?.data));
-      //       var userInfo = this.jwtService.decodeToken(
-      //         res.data.accessToken
-      //       ) as UserProfile;
-      //       this.userProfile.next(userInfo);
-      //       return res.data.permissions;
-      //     })
-      //   );
-      // }
-      //toekn refresh end
-      // if (isTokenExpired) {
-      //   this.userProfile.next(null);
-      //   return null;
-      // }
       var userInfo = this.jwtService.decodeToken(
         token.accessToken
       ) as UserProfile;
@@ -166,11 +160,6 @@ export class JwtAuthService {
     if (localStorageToken == "undefined") return null;
     if (localStorageToken) {
       var token = JSON.parse(localStorageToken) as TokenModel;
-      // var isTokenExpired = this.jwtService.isTokenExpired(token.accessToken);
-      // if (isTokenExpired) {
-      //   this.userProfile.next(null);
-      //   return null;
-      // }
       var userInfo = this.jwtService.decodeToken(
         token.accessToken
       ) as UserProfile;
