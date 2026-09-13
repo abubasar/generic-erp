@@ -21,7 +21,13 @@ namespace Application.Services.Services.Platform
     public sealed record CreateTenantRequest(
         string Code, string Name, string BusinessTemplateKey, string? Subdomain,
         string? PlanKey, string? Currency, string? Email, string? ContactNo, string? Address,
-        string? OwnerUsername, string? OwnerPassword);
+        string? OwnerUsername, string? OwnerPassword,
+        // Platform-admin-created tenants (the console) default to Active — an admin
+        // onboarding an existing/paying customer wants them live immediately.
+        // Self-service signups pass true: docs/saas-platform-plan.md §06 promises a
+        // 14-day free trial, and PlatformUsageSummary.tenantsTrial expects some
+        // tenants to actually be in that state.
+        bool StartOnTrial = false);
 
     /// <summary>Result of creating a tenant — the detail plus what provisioning produced.</summary>
     public sealed record CreateTenantResult(TenantDetail Tenant, ProvisioningResult Provisioning);

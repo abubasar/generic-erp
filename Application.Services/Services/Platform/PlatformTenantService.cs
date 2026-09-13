@@ -119,7 +119,11 @@ namespace Application.Services.Services.Platform
                 Subdomain = subdomain,
                 BusinessTemplateKey = template.Key,
                 BusinessType = template.Key switch { "pharmacy" => 1, "feed" => 2, _ => 0 },
-                Status = "Active",
+                // Tenant.Status isn't itself checked for request-level gating
+                // (TenantResolutionMiddleware reads Subscription.Status for that) — it's
+                // display-only, for the platform console's tenant list/dashboard counts —
+                // but it should still agree with the Subscription row set just below.
+                Status = request.StartOnTrial ? "Trial" : "Active",
                 Currency = string.IsNullOrWhiteSpace(request.Currency) ? "BDT" : request.Currency.Trim().ToUpperInvariant(),
                 TimeZoneId = "Asia/Dhaka",
                 CreatedOn = now,
@@ -147,7 +151,9 @@ namespace Application.Services.Services.Platform
             _db.Subscriptions.Add(new Subscription
             {
                 Id = Guid.NewGuid(), TenantId = tenant.Id, PlanKey = plan?.Key,
-                Status = "Active", PeriodStart = now, PeriodEnd = now.AddYears(1),
+                Status = request.StartOnTrial ? "Trial" : "Active",
+                PeriodStart = now, PeriodEnd = now.AddYears(1),
+                TrialEndsOn = request.StartOnTrial ? now.AddDays(14) : null,
             });
 
             _audit.Add("tenant.create", tenant.Id, $"code={code}; template={template.Key}; plan={plan?.Key ?? "-"}; modules={string.Join('|', moduleKeys)}");
@@ -197,7 +203,8 @@ namespace Application.Services.Services.Platform
                 ContactNo: null,
                 Address: null,
                 OwnerUsername: request.OwnerUsername,
-                OwnerPassword: request.OwnerPassword));
+                OwnerPassword: request.OwnerPassword,
+                StartOnTrial: true));
 
             foreach (var (key, limit) in new (string, int)[]
                 {

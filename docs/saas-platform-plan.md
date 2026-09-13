@@ -858,8 +858,9 @@ something usable.
 - ✅ Isolation test suite (`Application.Tests`, xUnit + EF InMemory) — reads
   scoped, writes blocked, `FindAsync` isolated, DI picks the tenant-aware ctor.
 - ✅ Deleted the orphan net6 `Application.Infrastructure/` project.
-- ◻️ Leading `TenantId` index on every scoped table —
-  `docs/sql/2026-09-07_tenant-id-indexes.sql` ready; run per environment.
+- ✅ Leading `TenantId` index on every scoped table —
+  `docs/sql/2026-09-07_tenant-id-indexes.sql` applied to `generic-erp-db`
+  (verified 2026-09-13: all 110 indexes present).
 - ◻️ Host / sub-domain tenant resolution — deferred to Phase 1 (needs
   `Tenant.Subdomain`). JWT-claim path is live.
 - ◻️ End-to-end (`WebApplicationFactory`, real HTTP, every endpoint) isolation
