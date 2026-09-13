@@ -298,7 +298,7 @@ export class GoodsReceiveNoteFormComponent implements OnInit {
       const value = control.value;
       //this.goodsReceiveNoteForm?.get("transport")?.value can be two types. one is 1 means Party & two is 2 means Own_Transport. It's an enum value.
       if (this.goodsReceiveNoteForm?.get("transport")?.value == 2) {
-        if (value < 1) {
+        if (value === null || value === undefined || value === "") {
           return { customRequired: true };
         }
       }

@@ -7,10 +7,14 @@ import * as moment from "moment";
 export class DateTimeFormatService {
   constructor() {}
   getDateFormat(date): string {
-    return moment(date).format("L");
+    if (!date) return "";
+    const momentDate = moment(date);
+    return momentDate.isValid() ? momentDate.format("L") : "";
   }
   getDateAndTime(date) {
+    if (!date) return "";
     const momentDate = moment(date);
+    if (!momentDate.isValid()) return "";
     const formattedDate = momentDate.format("L");
     const formattedTime = momentDate.format("LT");
     return `${formattedDate} ${formattedTime}`;
