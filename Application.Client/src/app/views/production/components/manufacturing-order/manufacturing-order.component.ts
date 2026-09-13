@@ -18,6 +18,7 @@ import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";
 import { ENUM } from "app/shared/models/enum-value/enum.model";
 import { UserProfile } from "app/shared/models/user-profile-model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { ConfirmDialogService } from "app/shared/services/confirm-dialog.service";
 import { DateTimeFormatService } from "app/shared/services/date-time-format.service";
 import { EnumValueService } from "app/shared/services/enum-value/enum-value.service";
@@ -60,7 +61,6 @@ export class ManufacturingOrderComponent implements OnInit {
   displayedColumns$: Observable<string[]>;
   pageSizeOptions: [] = Page_Size_Options;
   currentFinancialYearId: string;
-  businessType: string;
   private path = {
     addNew: "production/manufacturing-order/add-new",
     edit: "production/manufacturing-order",
@@ -104,6 +104,7 @@ export class ManufacturingOrderComponent implements OnInit {
   constructor(
     private dateFormatService: DateTimeFormatService,
     private jwtAuth: JwtAuthService,
+    public industryProfile: IndustryProfileService,
     public statusColorService: StatusColorService,
     private manufacturingOrderService: ManufacturingOrderService,
     private enumValueService: EnumValueService,
@@ -187,7 +188,6 @@ export class ManufacturingOrderComponent implements OnInit {
   private getCurrentFinancialYearId() {
     this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
       this.currentFinancialYearId = res.fyid;
-      this.businessType = res.businesstype;
     });
   }
 

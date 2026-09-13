@@ -23,6 +23,7 @@ import { UserProfile } from "app/shared/models/user-profile-model";
 import { GeneralResponse } from "app/shared/models/wrappers/generalResponse.model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
 import { ConfirmDialogService } from "app/shared/services/confirm-dialog.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { SnackBarService } from "app/shared/services/snack-bar.service";
 import { StatusColorService } from "app/shared/services/status-color/status-color.service";
 import { ProductRequest } from "app/views/configuration/models/product/product-request.model";
@@ -65,7 +66,6 @@ export class BillOfMaterialFormComponent implements OnInit, AfterViewInit {
   billOfMaterialDetailsData: any[] = [];
   data: BillOfMaterialResponseDTO;
   currentFinancialYearId: string;
-  businessType: string;
 
   private path = {
     list: "production/bill-of-material",
@@ -75,6 +75,7 @@ export class BillOfMaterialFormComponent implements OnInit, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private jwtAuth: JwtAuthService,
+    public industryProfile: IndustryProfileService,
     private productService: ProductService,
     private billOfMaterialService: BillOfMaterialService,
     private toastr: ToastrService,
@@ -195,7 +196,6 @@ export class BillOfMaterialFormComponent implements OnInit, AfterViewInit {
   private getCurrentFinancialYearId() {
     this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
       this.currentFinancialYearId = res.fyid;
-      this.businessType = res.businesstype;
     });
   }
 
@@ -221,7 +221,7 @@ export class BillOfMaterialFormComponent implements OnInit, AfterViewInit {
     const product = this.finishedProducts?.find((x) => x.id === productId);
     if (!product) return "";
     return `${product.name}${
-      this.businessType === "1" ? ` (${product.packSize?.name})` : ""
+      this.industryProfile.isPharma ? ` (${product.packSize?.name})` : ""
     }`;
   }
 

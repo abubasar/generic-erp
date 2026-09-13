@@ -14,6 +14,7 @@ import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";
 import { UserProfile } from "app/shared/models/user-profile-model";
 import { GeneralResponse } from "app/shared/models/wrappers/generalResponse.model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { ConfirmDialogService } from "app/shared/services/confirm-dialog.service";
 import { DateTimeFormatService } from "app/shared/services/date-time-format.service";
 import { StatusColorService } from "app/shared/services/status-color/status-color.service";
@@ -77,7 +78,6 @@ export class ProductionFormComponent implements OnInit {
   financialYearStartDate: Date; // Jul 1, 2023
   financialYearEndDate: Date; // Jun 30, 2024
   currentFinancialYearId: string;
-  businessType: string;
   applyMinMax: boolean = false;
 
   private path = {
@@ -89,6 +89,7 @@ export class ProductionFormComponent implements OnInit {
     private fb: FormBuilder,
     private dateFormatService: DateTimeFormatService,
     private jwtAuth: JwtAuthService,
+    public industryProfile: IndustryProfileService,
     private productService: ProductService,
     private storeService: StoreService,
     private ProductionService: ProductionService,
@@ -113,7 +114,6 @@ export class ProductionFormComponent implements OnInit {
       this.financialYearStartDate = new Date(res.fystartdate);
       this.financialYearEndDate = new Date(res.fyenddate);
       this.currentFinancialYearId = res.fyid;
-      this.businessType = res.businesstype;
     });
     this.initializeForm();
   }
@@ -384,7 +384,7 @@ export class ProductionFormComponent implements OnInit {
     );
     if (!product) return "";
     return `${product.name}${
-      this.businessType === "1" ? ` (${product?.packSize?.name})` : ""
+      this.industryProfile.isPharma ? ` (${product?.packSize?.name})` : ""
     }`;
   }
 

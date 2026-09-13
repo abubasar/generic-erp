@@ -186,7 +186,7 @@
                   <td mat-cell *matCellDef="let bom">
                     {{ bom?.finishedProduct?.name }}&nbsp;
                     {{
-                    businessType === "1"
+                    industryProfile.isPharma
                     ? "(" + bom?.finishedProduct?.packSize?.name + ")"
                     : ""
                     }}

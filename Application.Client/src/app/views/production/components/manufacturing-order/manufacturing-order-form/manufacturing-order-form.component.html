@@ -252,7 +252,7 @@
                   <mat-option *ngFor="let d of finishedProducts" [value]="d.id">
                     {{ d.name }}
                     &nbsp;{{
-                      businessType === "1" ? "(" + d?.packSize?.name + ")" : ""
+                      industryProfile.isPharma ? "(" + d?.packSize?.name + ")" : ""
                     }}
                   </mat-option>
                 </mat-select>
