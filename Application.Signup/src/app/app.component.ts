@@ -421,7 +421,7 @@ export class AppComponent implements OnInit {
       'measurement-units': 'Set up units of measurement',
       company: 'Created your company profile',
       'default-store': 'Created your first store',
-      'owner-role': 'Set up your owner permissions',
+      'owner-role': 'Set up what you can do as the owner',
       'owner-user': 'Created your sign-in',
     };
     return names[stepKey] ?? stepKey;
