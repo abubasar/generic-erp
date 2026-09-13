@@ -85,7 +85,8 @@ namespace Application.Infrastructure
             var entity = await _context.Set<T>().FindAsync(new object?[] { id }, cancellationToken);
             if (entity is null) throw new NotFoundResultException("Entity not found!");
             if (entity is ITenantScoped scoped
-                && scoped.TenantId != Application.Core.Common.TenantScope.CurrentTenantId)
+                && scoped.TenantId != Application.Core.Common.TenantScope.CurrentTenantId
+                && !(entity is ITenantSharable && scoped.TenantId == Application.Core.Common.TenancyConstants.SystemTenantId))
             {
                 _context.Entry(entity).State = EntityState.Detached;
                 throw new NotFoundResultException("Entity not found!");
