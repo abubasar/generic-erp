@@ -256,13 +256,7 @@
                       [value]="product.id"
                     >
                       {{ product.name }}
-                      ({{
-                        businessType === "2"
-                          ? product?.bagWeight +
-                            " " +
-                            product?.measurementUnit?.name
-                          : product?.packSize?.name
-                      }})
+                      ({{ industryProfile.productDisplaySuffix(product) }})
                     </mat-option>
                   </mat-autocomplete>
                   <mat-error>Item is required</mat-error>

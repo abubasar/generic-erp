@@ -11,6 +11,7 @@ import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";
 import { UserProfile } from "app/shared/models/user-profile-model";
 import { GeneralResponse } from "app/shared/models/wrappers/generalResponse.model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { ConfirmDialogService } from "app/shared/services/confirm-dialog.service";
 import { DateTimeFormatService } from "app/shared/services/date-time-format.service";
 import { SnackBarService } from "app/shared/services/snack-bar.service";
@@ -55,7 +56,6 @@ export class StockTransferFormComponent implements OnInit {
   stores: Store[];
   stockTransferDetailsData: any[] = [];
   data: StockTransferResponseDTO;
-  businessType: string;
   // Define financial year date range here
   financialYearStartDate: Date; // Jul 1, 2023
   financialYearEndDate: Date; // Jun 30, 2024
@@ -75,6 +75,7 @@ export class StockTransferFormComponent implements OnInit {
     private stockService: StockService,
     private dateFormatService: DateTimeFormatService,
     private jwtAuth: JwtAuthService,
+    public industryProfile: IndustryProfileService,
     private toastr: ToastrService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -96,7 +97,6 @@ export class StockTransferFormComponent implements OnInit {
       this.financialYearStartDate = new Date(res.fystartdate);
       this.financialYearEndDate = new Date(res.fyenddate);
       this.currentFinancialYearId = res.fyid;
-      this.businessType = res.businesstype;
     });
     this.initializeForm();
   }
@@ -281,12 +281,7 @@ export class StockTransferFormComponent implements OnInit {
       this.data?.stockTransferDetails?.find((x) => x?.productId == productId)
         ?.product;
     if (!product) return "";
-    return (
-      product?.name +
-      (this.businessType === "2"
-        ? ` (${product.bagWeight} ${product?.measurementUnit?.name})`
-        : ` (${product?.packSize?.name})`)
-    );
+    return `${product?.name} (${this.industryProfile.productDisplaySuffix(product)})`;
   }
 
   findProductById(id: string) {

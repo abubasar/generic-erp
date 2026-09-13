@@ -6,8 +6,7 @@ import {
   SimpleChanges,
   ChangeDetectionStrategy
 } from "@angular/core";
-import { UserProfile } from "app/shared/models/user-profile-model";
-import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 
 @Component({
     selector: "app-stock-transfer-detail",
@@ -20,7 +19,6 @@ export class StockTransferDetailComponent implements OnInit, OnChanges {
   @Input() data: any[] = [];
   @Input() isFinishedGoodsInventoryType: boolean = false;
   isFinishedGoods: boolean = false;
-  businessType: string = "";
   displayedColumns: string[] = [
     "sl",
     "productId",
@@ -31,15 +29,11 @@ export class StockTransferDetailComponent implements OnInit, OnChanges {
     "currentStockQuantity",
   ];
   dataSource: any[] = [];
-  constructor(private jwtAuth: JwtAuthService) {}
+  constructor(private industryProfile: IndustryProfileService) {}
   ngOnInit() {
     this.isFinishedGoods = this.isFinishedGoodsInventoryType;
     this.dataSource = this.data;
-    this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
-      this.businessType = res.businesstype;
-      // Conditionally set columns based on businessType
-      this.updateDisplayedColumns();
-    });
+    this.updateDisplayedColumns();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -50,11 +44,11 @@ export class StockTransferDetailComponent implements OnInit, OnChanges {
   }
 
   updateDisplayedColumns() {
-    const columnConfig = {
-      "1": ["bagWeight", "transferBagQuantity"], // Columns to hide for Pharmacy
-      "2": this.isFinishedGoods ? [] : ["bagWeight", "transferBagQuantity"], // Show all columns for Feed
-    };
-    const columnsToHide = columnConfig[this.businessType] || [];
+    // Pharma never shows bag columns; Feed shows them only for finished goods.
+    const columnsToHide =
+      this.industryProfile.isFeed && this.isFinishedGoods
+        ? []
+        : ["bagWeight", "transferBagQuantity"];
     this.displayedColumns = [
       "sl",
       "productId",
