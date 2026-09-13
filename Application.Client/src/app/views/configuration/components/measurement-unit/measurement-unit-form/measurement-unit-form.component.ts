@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { MeasurementUnit } from "app/views/configuration/models/measurement-unit/measurement-unit.model";
@@ -9,6 +9,7 @@ import { ToastrService } from "ngx-toastr";
     selector: "app-measurement-unit-form",
     templateUrl: "./measurement-unit-form.component.html",
     styleUrls: ["./measurement-unit-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class MeasurementUnitFormComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { MAT_DIALOG_DATA as MAT_DIALOG_DATA, MatDialog as MatDialog } from "@angular/material/dialog";
 import { RoleClaim } from "app/views/configuration/models/role/permission.model";
 import { Role } from "app/views/configuration/models/role/role.model";
@@ -9,6 +9,7 @@ import { ToastrService } from "ngx-toastr";
     selector: "app-role-permission-form",
     templateUrl: "./role-permission-form.component.html",
     styleUrls: ["./role-permission-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class RolePermissionFormComponent implements OnInit {

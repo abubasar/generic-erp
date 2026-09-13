@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { InventoryTypeRequest } from "app/views/configuration/models/inventory-type/inventory-type-request.model";
@@ -12,6 +12,7 @@ import { ToastrService } from "ngx-toastr";
     selector: "app-product-type-form",
     templateUrl: "./product-type-form.component.html",
     styleUrls: ["./product-type-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ProductTypeFormComponent implements OnInit {

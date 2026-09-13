@@ -24,7 +24,7 @@
               <mat-option [value]="null">-- None --</mat-option>
               @for (d of manufacturingOrderStatuses; track d) {
                 <mat-option
-                  [value]="d?.value"
+                  [value]="$safeNavigationMigration(d?.value)"
                   >
                   {{ d?.name }}
                 </mat-option>
@@ -140,7 +140,7 @@
                     <mat-list-item
                       role="listitem"
                       >
-                      <mat-checkbox [formControlName]="cd?.def">
+                      <mat-checkbox [formControlName]="$safeNavigationMigration(cd?.def)">
                         {{ cd?.label }}
                       </mat-checkbox>
                     </mat-list-item>
@@ -224,7 +224,7 @@
                     <td mat-cell *matCellDef="let manufacturingOrder">
                       {{
                       dateFormatService.getDateFormat(
-                      manufacturingOrder?.scheduledDate
+                      $safeNavigationMigration(manufacturingOrder?.scheduledDate)
                       )
                       }}
                     </td>
@@ -273,11 +273,11 @@
                       Production Quantity
                     </th>
                     <td mat-cell *matCellDef="let manufacturingOrder">
-                      {{ manufacturingOrder?.productionQuantity | number : "1.2-2" }}
+                      {{ $safeNavigationMigration(manufacturingOrder?.productionQuantity) | number : "1.2-2" }}
                     </td>
                     <td mat-footer-cell *matFooterCellDef>
                       {{
-                      reportAggregator?.aggregatorProductionQuantity
+                      $safeNavigationMigration(reportAggregator?.aggregatorProductionQuantity)
                       | number : "1.2-2"
                       }}
                     </td>
@@ -288,21 +288,21 @@
                       Total Rm Used
                     </th>
                     <td mat-cell *matCellDef="let manufacturingOrder">
-                      {{ manufacturingOrder?.totalRmused | number : "1.2-2" }}
+                      {{ $safeNavigationMigration(manufacturingOrder?.totalRmused) | number : "1.2-2" }}
                     </td>
                     <td mat-footer-cell *matFooterCellDef>
-                      {{ reportAggregator?.aggregatorTotalRmused | number : "1.2-2" }}
+                      {{ $safeNavigationMigration(reportAggregator?.aggregatorTotalRmused) | number : "1.2-2" }}
                     </td>
                   </ng-container>
                   <!-- rmCost Column -->
                   <ng-container matColumnDef="rmCost">
                     <th mat-header-cell class="header" *matHeaderCellDef>RM Cost</th>
                     <td mat-cell *matCellDef="let manufacturingOrder">
-                      {{ manufacturingOrder?.rmCost | currency : "BDT" : "" : "1.2-2" }}
+                      {{ $safeNavigationMigration(manufacturingOrder?.rmCost) | currency : "BDT" : "" : "1.2-2" }}
                     </td>
                     <td mat-footer-cell *matFooterCellDef>
                       {{
-                      reportAggregator?.aggregatorRmCost
+                      $safeNavigationMigration(reportAggregator?.aggregatorRmCost)
                       | currency : "BDT" : "" : "1.2-2"
                       }}
                     </td>
@@ -314,13 +314,13 @@
                     </th>
                     <td mat-cell *matCellDef="let manufacturingOrder">
                       {{
-                      manufacturingOrder?.standardDirectExpenseAmount
+                      $safeNavigationMigration(manufacturingOrder?.standardDirectExpenseAmount)
                       | currency : "BDT" : "" : "1.2-2"
                       }}
                     </td>
                     <td mat-footer-cell *matFooterCellDef>
                       {{
-                      reportAggregator?.aggregatorStandardDirectExpenseAmount
+                      $safeNavigationMigration(reportAggregator?.aggregatorStandardDirectExpenseAmount)
                       | currency : "BDT" : "" : "1.2-2"
                       }}
                     </td>
@@ -332,13 +332,13 @@
                     </th>
                     <td mat-cell *matCellDef="let manufacturingOrder">
                       {{
-                      manufacturingOrder?.standardFactoryOverheadAmount
+                      $safeNavigationMigration(manufacturingOrder?.standardFactoryOverheadAmount)
                       | currency : "BDT" : "" : "1.2-2"
                       }}
                     </td>
                     <td mat-footer-cell *matFooterCellDef>
                       {{
-                      reportAggregator?.aggregatorStandardFactoryOverheadAmount
+                      $safeNavigationMigration(reportAggregator?.aggregatorStandardFactoryOverheadAmount)
                       | currency : "BDT" : "" : "1.2-2"
                       }}
                     </td>
@@ -348,12 +348,12 @@
                     <th mat-header-cell class="header" *matHeaderCellDef>Total Cost</th>
                     <td mat-cell *matCellDef="let manufacturingOrder">
                       {{
-                      manufacturingOrder?.totalCost | currency : "BDT" : "" : "1.2-2"
+                      $safeNavigationMigration(manufacturingOrder?.totalCost) | currency : "BDT" : "" : "1.2-2"
                       }}
                     </td>
                     <td mat-footer-cell *matFooterCellDef>
                       {{
-                      reportAggregator?.aggregatorTotalCost
+                      $safeNavigationMigration(reportAggregator?.aggregatorTotalCost)
                       | currency : "BDT" : "" : "1.2-2"
                       }}
                     </td>
@@ -365,13 +365,13 @@
                       <mat-chip
                         class="align-middle py-4 px-8"
                 [color]="
-                  getManufacturingOrderStatus(manufacturingOrder?.status)?.color
+                  $safeNavigationMigration(getManufacturingOrderStatus($safeNavigationMigration(manufacturingOrder?.status))?.color)
                 "
                         selected
                         >
                         {{
                         getManufacturingOrderStatusName(
-                        manufacturingOrder?.status
+                        $safeNavigationMigration(manufacturingOrder?.status)
                         )?.replaceAll("_", " ")
                         }}
                       </mat-chip>
@@ -408,7 +408,7 @@
                   <ng-container matColumnDef="createdOn">
                     <th mat-header-cell class="header" *matHeaderCellDef>Created On</th>
                     <td mat-cell *matCellDef="let element">
-                      {{ dateFormatService?.getDateAndTime(element?.createdOn) }}
+                      {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.createdOn)) }}
                     </td>
                     <td mat-footer-cell *matFooterCellDef></td>
                   </ng-container>
@@ -416,7 +416,7 @@
                   <ng-container matColumnDef="updatedOn">
                     <th mat-header-cell class="header" *matHeaderCellDef>Updated On</th>
                     <td mat-cell *matCellDef="let element">
-                      {{ dateFormatService?.getDateAndTime(element?.updatedOn) }}
+                      {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.updatedOn)) }}
                     </td>
                     <td mat-footer-cell *matFooterCellDef></td>
                   </ng-container>
@@ -470,8 +470,8 @@
                         matTooltipPosition="above"
                 (click)="
                   confirmDelete(
-                    manufacturingOrder?.id,
-                    manufacturingOrder?.manufacturingOrderNo
+                    $safeNavigationMigration(manufacturingOrder?.id),
+                    $safeNavigationMigration(manufacturingOrder?.manufacturingOrderNo)
                   )
                 "
                         >
@@ -490,7 +490,7 @@
                 (click)="
                   printManufacturingOrderSummaryPdf(
                     $event,
-                    manufacturingOrder?.id
+                    $safeNavigationMigration(manufacturingOrder?.id)
                   )
                 "
                         >
@@ -509,7 +509,7 @@
                 (click)="
                   printManufacturingOrderSummaryPdf(
                     $event,
-                    manufacturingOrder?.id
+                    $safeNavigationMigration(manufacturingOrder?.id)
                   )
                 "
                         >
@@ -528,7 +528,7 @@
                 (click)="
                   printManufacturingOrderDetailsPdf(
                     $event,
-                    manufacturingOrder?.id
+                    $safeNavigationMigration(manufacturingOrder?.id)
                   )
                 "
                         >
@@ -547,7 +547,7 @@
                 (click)="
                   printManufacturingOrderDetailsPdf(
                     $event,
-                    manufacturingOrder?.id
+                    $safeNavigationMigration(manufacturingOrder?.id)
                   )
                 "
                         >
@@ -570,7 +570,7 @@
                 "
                         >
                         <app-manufacturing-order-detail
-                          [data]="element?.manufacturingOrderDetails"
+                          [data]="$safeNavigationMigration(element?.manufacturingOrderDetails)"
                         ></app-manufacturing-order-detail>
                       </div>
                     </td>

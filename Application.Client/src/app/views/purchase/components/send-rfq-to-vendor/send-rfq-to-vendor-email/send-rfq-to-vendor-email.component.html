@@ -76,7 +76,7 @@
         <mat-list role="list" class="margin-0 padding-0">
           @for (cd of columnDefinitions; track cd) {
             <mat-list-item role="listitem">
-              <mat-checkbox [formControlName]="cd?.def">
+              <mat-checkbox [formControlName]="$safeNavigationMigration(cd?.def)">
                 {{ cd?.label }}
               </mat-checkbox>
             </mat-list-item>

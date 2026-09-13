@@ -7,10 +7,10 @@
       <h3 class="m-0">Sale Quotation No: {{ data?.quotationNo }}</h3>
       <mat-chip
         class="align-middle py-4 px-8"
-        [color]="getSaleQuotationStatus(data?.status).color"
+        [color]="getSaleQuotationStatus($safeNavigationMigration(data?.status)).color"
         selected
       >
-        {{ getSaleQuotationStatusName(data?.status)?.replaceAll("_", " ") }}
+        {{ getSaleQuotationStatusName($safeNavigationMigration(data?.status))?.replaceAll("_", " ") }}
       </mat-chip>
       <button
         mat-icon-button
@@ -18,7 +18,7 @@
         matTooltip="print pdf"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printPdf(data?.id)"
+        (click)="printPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>print</mat-icon>
       </button>
@@ -49,7 +49,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck(data?.id, data?.quotationNo)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.quotationNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -72,7 +72,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove(data?.id, data?.quotationNo)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.quotationNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -100,7 +100,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.quotationNo, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.quotationNo), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -300,7 +300,7 @@
                     <button
                       (click)="clearInputFromDetails($event, i)"
                       *ngIf="
-                        saleQuotationDetails?.at(i).get('productId')?.value !==
+                        $safeNavigationMigration(saleQuotationDetails?.at(i).get('productId')?.value) !==
                           null &&
                         saleQuotationDetails?.at(i).get('productId')?.value !==
                           ''
@@ -500,7 +500,7 @@
                   mat-mini-fab
                   type="button"
                   color="warn"
-                  (click)="onDeleteItem(p?.get('id')?.value, i)"
+                  (click)="onDeleteItem($safeNavigationMigration(p?.get('id')?.value), i)"
                 >
                   <mat-icon>delete_forever</mat-icon>
                 </button>
@@ -621,7 +621,7 @@
               <span>Customer</span>
               <span>
                 {{
-                  getCustomerName(saleQuotationForm?.get("customerId")?.value)
+                  getCustomerName($safeNavigationMigration(saleQuotationForm?.get("customerId")?.value))
                 }}
               </span>
             </div>

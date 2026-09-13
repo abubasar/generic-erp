@@ -7,10 +7,10 @@
       <h3 class="m-0">Delivery Note No: {{ data?.deliveryNoteNo }}</h3>
       <mat-chip
         class="align-middle py-4 px-8"
-        [color]="getDeliveryNoteStatus(data?.status)?.color"
+        [color]="$safeNavigationMigration(getDeliveryNoteStatus($safeNavigationMigration(data?.status))?.color)"
         selected
       >
-        {{ getDeliveryNoteStatusName(data?.status)?.replaceAll("_", " ") }}
+        {{ getDeliveryNoteStatusName($safeNavigationMigration(data?.status))?.replaceAll("_", " ") }}
       </mat-chip>
       <button
         mat-icon-button
@@ -18,7 +18,7 @@
         matTooltip="print pdf"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printPdf(data?.id)"
+        (click)="printPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>print</mat-icon>
       </button>
@@ -28,7 +28,7 @@
         matTooltip="Gate Pass PDF"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printGatePassPdf(data?.id)"
+        (click)="printGatePassPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>print</mat-icon>
       </button>
@@ -38,7 +38,7 @@
         matTooltip="Print VAT Chalan"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printVatPdf(data?.id)"
+        (click)="printVatPdf($safeNavigationMigration(data?.id))"
       >
         VAT Chalan
       </button>
@@ -68,7 +68,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck(data?.id, data?.deliveryNoteNo)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.deliveryNoteNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -91,7 +91,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove(data?.id, data?.deliveryNoteNo)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.deliveryNoteNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -119,7 +119,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.deliveryNoteNo, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.deliveryNoteNo), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -198,7 +198,7 @@
                     hidden
                     (click)="clearInput($event, 'storeId')"
                     *ngIf="
-                      deliveryNoteForm?.get('storeId')?.value !== null &&
+                      $safeNavigationMigration(deliveryNoteForm?.get('storeId')?.value) !== null &&
                       deliveryNoteForm?.get('storeId')?.value !== ''
                     "
                     aria-label="Clear"
@@ -242,7 +242,7 @@
                     hidden
                     (click)="clearInput($event, 'customerId')"
                     *ngIf="
-                      deliveryNoteForm?.get('customerId')?.value !== null &&
+                      $safeNavigationMigration(deliveryNoteForm?.get('customerId')?.value) !== null &&
                       deliveryNoteForm?.get('customerId')?.value !== ''
                     "
                     aria-label="Clear"
@@ -322,7 +322,7 @@
               <mat-form-field class="full-width">
                 <mat-label>Select Transport</mat-label>
                 <mat-select formControlName="transport">
-                  <mat-option *ngFor="let d of transports" [value]="d?.value">
+                  <mat-option *ngFor="let d of transports" [value]="$safeNavigationMigration(d?.value)">
                     {{ d?.name }}
                   </mat-option>
                 </mat-select>
@@ -479,7 +479,7 @@
                     >
                       <mat-option
                         *ngFor="let product of searchProducts"
-                        [value]="product?.id"
+                        [value]="$safeNavigationMigration(product?.id)"
                       >
                         {{ product?.name }} ({{
                           businessType === "2" ? product?.bagWeight : ""
@@ -1036,7 +1036,7 @@
             <div class="col label-data">
               <span>Store</span>
               <span>
-                {{ getStoreName(deliveryNoteForm?.get("storeId")?.value) }}
+                {{ getStoreName($safeNavigationMigration(deliveryNoteForm?.get("storeId")?.value)) }}
               </span>
             </div>
 
@@ -1045,7 +1045,7 @@
               <span>Customer</span>
               <span>
                 {{
-                  getCustomerName(deliveryNoteForm?.get("customerId")?.value)
+                  getCustomerName($safeNavigationMigration(deliveryNoteForm?.get("customerId")?.value))
                 }}
               </span>
             </div>
@@ -1070,7 +1070,7 @@
             <div class="col label-data">
               <span>Transport</span>
               <span>
-                {{ getTransportName(deliveryNoteForm.get("transport")?.value) }}
+                {{ getTransportName($safeNavigationMigration(deliveryNoteForm.get("transport")?.value)) }}
               </span>
             </div>
 
@@ -1080,7 +1080,7 @@
               <span>
                 {{
                   dateFormatService.getDateFormat(
-                    deliveryNoteForm.get("deliveryDate")?.value
+                    $safeNavigationMigration(deliveryNoteForm.get("deliveryDate")?.value)
                   )
                 }}
               </span>

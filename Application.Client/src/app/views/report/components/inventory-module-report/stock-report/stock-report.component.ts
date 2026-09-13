@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import {
@@ -24,6 +24,7 @@ import { StockService } from "../../../services/stock.service";
     selector: "app-stock-report",
     templateUrl: "./stock-report.component.html",
     styleUrls: ["./stock-report.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class StockReportComponent implements OnInit {

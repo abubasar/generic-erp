@@ -7,10 +7,10 @@
       <h3 class="m-0">BOM No: {{ data?.bomNo }}</h3>
       <mat-chip
         class="align-middle py-4 px-8"
-        [color]="getBOMStatus(data?.status).color"
+        [color]="getBOMStatus($safeNavigationMigration(data?.status)).color"
         selected
       >
-        {{ getBOMStatusName(data?.status)?.replaceAll("_", " ") }}
+        {{ getBOMStatusName($safeNavigationMigration(data?.status))?.replaceAll("_", " ") }}
       </mat-chip>
       <button
         mat-icon-button
@@ -19,7 +19,7 @@
         matTooltip="Bill Of Material PDF"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printBillOfMaterialPdf($event, data?.id)"
+        (click)="printBillOfMaterialPdf($event, $safeNavigationMigration(data?.id))"
       >
         <mat-icon>picture_as_pdf</mat-icon>
       </button>
@@ -30,7 +30,7 @@
         matTooltip="Bill Of Material Excel"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printBillOfMaterialPdf($event, data?.id)"
+        (click)="printBillOfMaterialPdf($event, $safeNavigationMigration(data?.id))"
       >
         <mat-icon>table_view</mat-icon>
       </button>
@@ -61,7 +61,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck($event, data?.id, data?.bomNo)"
+        (click)="confirmCheck($event, $safeNavigationMigration(data?.id), $safeNavigationMigration(data?.bomNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -84,7 +84,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove($event, data?.id, data?.bomNo)"
+        (click)="confirmApprove($event, $safeNavigationMigration(data?.id), $safeNavigationMigration(data?.bomNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -112,7 +112,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.bomNo, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.bomNo), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -166,7 +166,7 @@
                 />
               </mat-form-field>
               <button
-                [hidden]="this.data?.id"
+                [hidden]="$safeNavigationMigration(this.data?.id)"
                 type="button"
                 mat-icon-button
                 color="primary"
@@ -325,7 +325,7 @@
                 <!-- | currency : "BDT" : "" : "1.2-2" -->
                 <p>
                   {{
-                    billOfMaterialDetails?.at(i).get("percentage")?.value
+                    $safeNavigationMigration(billOfMaterialDetails?.at(i).get("percentage")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </p>
@@ -336,7 +336,7 @@
                   mat-mini-fab
                   type="button"
                   color="warn"
-                  (click)="onDeleteItem(p?.get('id')?.value, i)"
+                  (click)="onDeleteItem($safeNavigationMigration(p?.get('id')?.value), i)"
                 >
                   <mat-icon>delete_forever</mat-icon>
                 </button>
@@ -353,7 +353,7 @@
               <span>Quantity Total</span>
               <span>
                 {{
-                  billOfMaterialForm?.get("totalQuantity")?.value
+                  $safeNavigationMigration(billOfMaterialForm?.get("totalQuantity")?.value)
                     | currency : "BDT" : "" : "1.2-2"
                 }}
               </span>
@@ -420,7 +420,7 @@
               <span>
                 {{
                   getFinishedProductName(
-                    billOfMaterialForm?.get("finishedProductId")?.value
+                    $safeNavigationMigration(billOfMaterialForm?.get("finishedProductId")?.value)
                   )
                 }}
               </span>
@@ -469,7 +469,7 @@
             <span>Quantity Total</span>
             <span>
               {{
-                billOfMaterialForm?.get("totalQuantity")?.value
+                $safeNavigationMigration(billOfMaterialForm?.get("totalQuantity")?.value)
                   | currency : "BDT" : "" : "1.2-2"
               }}
             </span>

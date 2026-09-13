@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatButton as MatButton } from "@angular/material/button";
 import { MatStepper } from "@angular/material/stepper";
@@ -49,6 +49,7 @@ import { finalize } from "rxjs";
     selector: "app-payment-voucher-form",
     templateUrl: "./payment-voucher-form.component.html",
     styleUrls: ["./payment-voucher-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class PaymentVoucherFormComponent implements OnInit {

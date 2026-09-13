@@ -23,7 +23,7 @@ export class PurchaseOrderService {
     return this.api
       .getAlls()
       .pipe(
-        map((response: SearchResponse<PurchaseOrderResponseDTO>) => response)
+        map((response: any) => response as SearchResponse<PurchaseOrderResponseDTO>)
       );
   }
 
@@ -60,7 +60,7 @@ export class PurchaseOrderService {
     return this.api
       .getAll(purchaseOrderRequest)
       .pipe(
-        map((response: SearchResponse<PurchaseOrderResponseDTO>) => response)
+        map((response: any) => response as SearchResponse<PurchaseOrderResponseDTO>)
       );
   }
 

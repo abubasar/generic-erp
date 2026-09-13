@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatStepper } from "@angular/material/stepper";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -56,6 +56,7 @@ import { SalesQuotationListComponent } from "../sales-quotation-list/sales-quota
     selector: "app-sales-order-form",
     templateUrl: "./sales-order-form.component.html",
     styleUrls: ["./sales-order-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SalesOrderFormComponent implements OnInit {

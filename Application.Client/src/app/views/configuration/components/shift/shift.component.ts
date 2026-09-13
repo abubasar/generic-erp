@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { MatMenuTrigger as MatMenuTrigger } from "@angular/material/menu";
@@ -18,6 +18,7 @@ import { ShiftFormComponent } from "./shift-form/shift-form.component";
     selector: "app-shift",
     templateUrl: "./shift.component.html",
     styleUrls: ["./shift.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ShiftComponent implements OnInit {

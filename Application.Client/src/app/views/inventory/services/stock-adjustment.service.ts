@@ -20,7 +20,7 @@ export class StockAdjustmentService {
     return this.api
       .getAll(stockAdjustmentRequest)
       .pipe(
-        map((response: SearchResponse<StockAdjustmentResponseDTO>) => response)
+        map((response: any) => response as SearchResponse<StockAdjustmentResponseDTO>)
       );
   }
 

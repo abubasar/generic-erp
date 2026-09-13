@@ -8,7 +8,8 @@ import {
   Directive,
   Renderer2,
   ElementRef,
-  ChangeDetectorRef
+  ChangeDetectorRef,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import { MatchMediaService } from "app/shared/services/match-media.service";
 import { MediaObserver } from "@angular/flex-layout";
@@ -20,6 +21,7 @@ import { MatxSidebarHelperService } from "./matx-sidebar-helper.service";
     selector: "matx-sidebar",
     templateUrl: "./matx-sidebar.component.html",
     styleUrls: ["./matx-sidebar.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class MatxSidebarComponent implements OnInit, OnDestroy {

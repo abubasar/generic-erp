@@ -23,8 +23,8 @@ export class ReceivePaymentAgainstSaleService {
       .getAll(receivePaymentAgainstSaleRequest)
       .pipe(
         map(
-          (response: SearchResponse<ReceivePaymentAgainstSaleResponseDTO>) =>
-            response
+          (response: any) =>
+            response as SearchResponse<ReceivePaymentAgainstSaleResponseDTO>
         )
       );
   }

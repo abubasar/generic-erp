@@ -45,7 +45,7 @@
               <mat-select formControlName="costCenterId">
                 <mat-option>-- All --</mat-option>
                 @for (d of costCenters; track d) {
-                  <mat-option [value]="d?.id">
+                  <mat-option [value]="$safeNavigationMigration(d?.id)">
                     {{ d?.name }}
                   </mat-option>
                 }
@@ -58,7 +58,7 @@
               <mat-select formControlName="paymentModeId">
                 <mat-option>-- All --</mat-option>
                 @for (d of paymentModes; track d) {
-                  <mat-option [value]="d?.id">
+                  <mat-option [value]="$safeNavigationMigration(d?.id)">
                     {{ d?.name }}
                   </mat-option>
                 }
@@ -75,7 +75,7 @@
                 <mat-option>-- All --</mat-option>
                 @for (d of collectionReportFilterTypes; track d) {
                   <mat-option
-                    [value]="d?.value"
+                    [value]="$safeNavigationMigration(d?.value)"
                     >
                     {{ d?.name?.replaceAll("_", " ") }}
                   </mat-option>
@@ -102,7 +102,7 @@
                     />
                     <div matSuffix>
                       @if (
-                        searchForm?.get('customerZoneId')?.value !== null &&
+                        $safeNavigationMigration(searchForm?.get('customerZoneId')?.value) !== null &&
                         searchForm?.get('customerZoneId')?.value !== ''
                         ) {
                         <button
@@ -147,7 +147,7 @@
                       />
                       <div matSuffix>
                         @if (
-                          searchForm?.get('customerZoneId')?.value !== null &&
+                          $safeNavigationMigration(searchForm?.get('customerZoneId')?.value) !== null &&
                           searchForm?.get('customerZoneId')?.value !== ''
                           ) {
                           <button
@@ -191,7 +191,7 @@
                       />
                       <div matSuffix>
                         @if (
-                          searchForm?.get('customerId')?.value !== null &&
+                          $safeNavigationMigration(searchForm?.get('customerId')?.value) !== null &&
                           searchForm?.get('customerId')?.value !== ''
                           ) {
                           <button
@@ -237,7 +237,7 @@
                         />
                         <div matSuffix>
                           @if (
-                            searchForm?.get('customerMarketingOfficerId')?.value !==
+                            $safeNavigationMigration(searchForm?.get('customerMarketingOfficerId')?.value) !==
                             null &&
                             searchForm?.get('customerMarketingOfficerId')?.value !== ''
                             ) {

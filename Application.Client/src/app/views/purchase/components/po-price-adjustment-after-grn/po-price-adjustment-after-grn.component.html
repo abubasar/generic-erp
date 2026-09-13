@@ -37,7 +37,7 @@
               />
               <div matSuffix>
                 @if (
-                  searchForm?.get('supplierId')?.value !== null &&
+                  $safeNavigationMigration(searchForm?.get('supplierId')?.value) !== null &&
                   searchForm?.get('supplierId')?.value !== ''
                   ) {
                   <button
@@ -72,7 +72,7 @@
                 <mat-option [value]="null">-- None --</mat-option>
                 @for (d of poPriceAdjustmentAfterGrnStatuses; track d) {
                   <mat-option
-                    [value]="d?.value"
+                    [value]="$safeNavigationMigration(d?.value)"
                     >
                     {{ d?.name }}
                   </mat-option>
@@ -208,7 +208,7 @@
                     <mat-list-item
                       role="listitem"
                       >
-                      <mat-checkbox [formControlName]="cd?.def">
+                      <mat-checkbox [formControlName]="$safeNavigationMigration(cd?.def)">
                         {{ cd?.label }}
                       </mat-checkbox>
                     </mat-list-item>
@@ -308,7 +308,7 @@
                     <td mat-cell *matCellDef="let poPriceAdjustmentAfterGrn">
                       {{
                       dateFormatService?.getDateFormat(
-                      poPriceAdjustmentAfterGrn?.adjustmentDate
+                      $safeNavigationMigration(poPriceAdjustmentAfterGrn?.adjustmentDate)
                       )
                       }}
                     </td>
@@ -335,13 +335,13 @@
                     <th mat-header-cell class="header" *matHeaderCellDef>Total</th>
                     <td mat-cell *matCellDef="let poPriceAdjustmentAfterGrn">
                       {{
-                      poPriceAdjustmentAfterGrn?.totalAmount
+                      $safeNavigationMigration(poPriceAdjustmentAfterGrn?.totalAmount)
                       | currency : "BDT" : "" : "1.2-2"
                       }}
                     </td>
                     <td mat-footer-cell *matFooterCellDef>
                       {{
-                      reportAggregator?.aggregatorTotalAmount
+                      $safeNavigationMigration(reportAggregator?.aggregatorTotalAmount)
                       | currency : "BDT" : "" : "1.2-2"
                       }}
                     </td>
@@ -353,15 +353,15 @@
                       <mat-chip
                         class="align-middle py-4 px-8"
                 [color]="
-                  getPoPriceAdjustmentAfterGrnStatus(
-                    poPriceAdjustmentAfterGrn?.status
-                  )?.color
+                  $safeNavigationMigration(getPoPriceAdjustmentAfterGrnStatus(
+                    $safeNavigationMigration(poPriceAdjustmentAfterGrn?.status)
+                  )?.color)
                 "
                         selected
                         >
                         {{
                         getPoPriceAdjustmentAfterGrnStatusName(
-                        poPriceAdjustmentAfterGrn?.status
+                        $safeNavigationMigration(poPriceAdjustmentAfterGrn?.status)
                         )?.replaceAll("_", " ")
                         }}
                       </mat-chip>
@@ -398,7 +398,7 @@
                   <ng-container matColumnDef="createdOn">
                     <th mat-header-cell class="header" *matHeaderCellDef>Created On</th>
                     <td mat-cell *matCellDef="let element">
-                      {{ dateFormatService?.getDateAndTime(element?.createdOn) }}
+                      {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.createdOn)) }}
                     </td>
                     <td mat-footer-cell *matFooterCellDef></td>
                   </ng-container>
@@ -406,7 +406,7 @@
                   <ng-container matColumnDef="updatedOn">
                     <th mat-header-cell class="header" *matHeaderCellDef>Updated On</th>
                     <td mat-cell *matCellDef="let element">
-                      {{ dateFormatService?.getDateAndTime(element?.updatedOn) }}
+                      {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.updatedOn)) }}
                     </td>
                     <td mat-footer-cell *matFooterCellDef></td>
                   </ng-container>
@@ -467,8 +467,8 @@
                         matTooltipPosition="above"
                 (click)="
                   confirmDelete(
-                    poPriceAdjustmentAfterGrn?.id,
-                    poPriceAdjustmentAfterGrn?.code
+                    $safeNavigationMigration(poPriceAdjustmentAfterGrn?.id),
+                    $safeNavigationMigration(poPriceAdjustmentAfterGrn?.code)
                   )
                 "
                         >
@@ -480,7 +480,7 @@
                         matTooltip="print pdf"
                         matTooltipShowDelay="300"
                         matTooltipPosition="above"
-                        (click)="printPdf(poPriceAdjustmentAfterGrn?.id)"
+                        (click)="printPdf($safeNavigationMigration(poPriceAdjustmentAfterGrn?.id))"
                         >
                         <mat-icon>picture_as_pdf</mat-icon>
                       </button>
@@ -501,7 +501,7 @@
                 "
                         >
                         <app-po-price-adjustment-after-grn-detail
-                          [data]="element?.poPriceAdjustmentAfterGrnDetails"
+                          [data]="$safeNavigationMigration(element?.poPriceAdjustmentAfterGrnDetails)"
                         ></app-po-price-adjustment-after-grn-detail>
                       </div>
                     </td>

@@ -23,7 +23,7 @@ export class PurchaseRequisitionService {
       .getAll(purchaseRequisitionRequest)
       .pipe(
         map(
-          (response: SearchResponse<PurchaseRequisitionResponseDTO>) => response
+          (response: any) => response as SearchResponse<PurchaseRequisitionResponseDTO>
         )
       );
   }

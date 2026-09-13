@@ -1,9 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
     selector: 'app-receive-payment-detail',
     templateUrl: './receive-payment-detail.component.html',
     styleUrls: ['./receive-payment-detail.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ReceivePaymentDetailComponent implements OnInit {

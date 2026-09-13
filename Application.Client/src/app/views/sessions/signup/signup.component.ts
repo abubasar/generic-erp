@@ -1,12 +1,13 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { MatButton as MatButton } from '@angular/material/button';
 import { MatProgressBar as MatProgressBar } from '@angular/material/progress-bar';
-import { Validators, UntypedFormGroup, UntypedFormControl } from '@angular/forms';
+import { AbstractControl, Validators, UntypedFormGroup, UntypedFormControl } from '@angular/forms';
 
 @Component({
     selector: 'app-signup',
     templateUrl: './signup.component.html',
     styleUrls: ['./signup.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SignupComponent implements OnInit {
@@ -22,7 +23,7 @@ export class SignupComponent implements OnInit {
     this.signupForm = new UntypedFormGroup({
       email: new UntypedFormControl('', [Validators.required, Validators.email]),
       password: password,
-      agreed: new UntypedFormControl('', (control: UntypedFormControl) => {
+      agreed: new UntypedFormControl('', (control: AbstractControl) => {
         const agreed = control.value;
         if(!agreed) {
           return { agreed: true }

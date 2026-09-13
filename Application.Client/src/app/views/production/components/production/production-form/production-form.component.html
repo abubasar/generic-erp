@@ -7,10 +7,10 @@
       <h3 class="m-0">Production No: {{ data?.productionNo }}</h3>
       <mat-chip
         class="align-middle py-4 px-8"
-        [color]="getProductionStatus(data?.status).color"
+        [color]="getProductionStatus($safeNavigationMigration(data?.status)).color"
         selected
       >
-        {{ getProductionStatusName(data?.status)?.replaceAll("_", " ") }}
+        {{ getProductionStatusName($safeNavigationMigration(data?.status))?.replaceAll("_", " ") }}
       </mat-chip>
       <button
         *appHasPermission="[
@@ -21,7 +21,7 @@
         matTooltip="Production Summary PDF"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printProductionSummaryPdf(data?.id)"
+        (click)="printProductionSummaryPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>picture_as_pdf</mat-icon>
       </button>
@@ -35,7 +35,7 @@
         matTooltip="Production Details PDF"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printPdf(data?.id)"
+        (click)="printPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>picture_as_pdf</mat-icon>
       </button>
@@ -66,7 +66,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck(data?.id, data?.productionNo)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.productionNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -89,7 +89,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove(data?.id, data?.productionNo)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.productionNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -117,7 +117,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.productionNo, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.productionNo), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -155,7 +155,7 @@
                 />
               </mat-form-field>
               <button
-                [hidden]="this.data?.id"
+                [hidden]="$safeNavigationMigration(this.data?.id)"
                 type="button"
                 mat-icon-button
                 color="primary"
@@ -404,7 +404,7 @@
                       placeholder="Choose a date"
                       name="startDatePart"
                       formControlName="startDatePart"
-                      [max]="productionForm?.get('endDatePart')?.value"
+                      [max]="$safeNavigationMigration(productionForm?.get('endDatePart')?.value)"
                       (click)="startDatePicker.open()"
                       readonly
                     />
@@ -444,7 +444,7 @@
                       placeholder="Choose a date"
                       name="endDatePart"
                       formControlName="endDatePart"
-                      [min]="productionForm?.get('startDatePart')?.value"
+                      [min]="$safeNavigationMigration(productionForm?.get('startDatePart')?.value)"
                       (click)="endDatePicker.open()"
                       readonly
                     />
@@ -615,7 +615,7 @@
               <span>Total RM Used</span>
               <span>
                 {{
-                  productionForm?.get("totalRmused")?.value
+                  $safeNavigationMigration(productionForm?.get("totalRmused")?.value)
                     | currency : "BDT" : "" : "1.2-2"
                 }}
               </span>
@@ -630,7 +630,7 @@
               <span>Total Adjusted Quantity</span>
               <span>
                 {{
-                  productionForm?.get("totalAdjustmentQuantity")?.value
+                  $safeNavigationMigration(productionForm?.get("totalAdjustmentQuantity")?.value)
                     | currency : "BDT" : "" : "1.2-2"
                 }}
               </span>
@@ -692,7 +692,7 @@
               <span
                 >Short/Excess Qty ({{
                   getMeasurementUnitName(
-                    productionForm?.get("finishedProductId")?.value
+                    $safeNavigationMigration(productionForm?.get("finishedProductId")?.value)
                   )
                 }})</span
               >
@@ -706,7 +706,7 @@
               <span
                 >Dust/Loose In Quantity ({{
                   getMeasurementUnitName(
-                    productionForm?.get("finishedProductId")?.value
+                    $safeNavigationMigration(productionForm?.get("finishedProductId")?.value)
                   )
                 }})</span
               >
@@ -720,7 +720,7 @@
               <span
                 >Dust/Loose Out Quantity ({{
                   getMeasurementUnitName(
-                    productionForm?.get("finishedProductId")?.value
+                    $safeNavigationMigration(productionForm?.get("finishedProductId")?.value)
                   )
                 }})</span
               >
@@ -733,7 +733,7 @@
             <div class="col label-data">
               <span>Finished Goods Store</span>
               <span>
-                {{ getStoreName(productionForm?.get("fgstoreId")?.value) }}
+                {{ getStoreName($safeNavigationMigration(productionForm?.get("fgstoreId")?.value)) }}
               </span>
             </div>
 
@@ -771,7 +771,7 @@
               <span>
                 {{
                   getFinishedProductName(
-                    productionForm?.get("finishedProductId")?.value
+                    $safeNavigationMigration(productionForm?.get("finishedProductId")?.value)
                   )
                 }}
               </span>
@@ -797,7 +797,7 @@
             <div class="col label-data">
               <span>Shift</span>
               <span>
-                {{ getShiftName(productionForm?.get("shiftId")?.value) }}
+                {{ getShiftName($safeNavigationMigration(productionForm?.get("shiftId")?.value)) }}
               </span>
             </div>
 
@@ -805,7 +805,7 @@
             <div class="col label-data">
               <span>Machine</span>
               <span>
-                {{ getMachineName(productionForm?.get("machineId")?.value) }}
+                {{ getMachineName($safeNavigationMigration(productionForm?.get("machineId")?.value)) }}
               </span>
             </div>
 
@@ -814,7 +814,7 @@
               <span>Start Date Time</span>
               <span>
                 {{
-                  productionForm?.get("startDateTime")?.value
+                  $safeNavigationMigration(productionForm?.get("startDateTime")?.value)
                     | date : "d/MM/yyyy, hh:mm a"
                 }}
               </span>
@@ -825,7 +825,7 @@
               <span>End Date Time</span>
               <span>
                 {{
-                  productionForm?.get("endDateTime")?.value
+                  $safeNavigationMigration(productionForm?.get("endDateTime")?.value)
                     | date : "d/MM/yyyy, hh:mm a"
                 }}
               </span>
@@ -857,7 +857,7 @@
               <span
                 >Productivity ({{
                   getMeasurementUnitName(
-                    productionForm?.get("finishedProductId")?.value
+                    $safeNavigationMigration(productionForm?.get("finishedProductId")?.value)
                   )
                 }}/Hour)</span
               >
@@ -891,7 +891,7 @@
             <span>Total RM Used</span>
             <span>
               {{
-                productionForm?.get("totalRmused")?.value
+                $safeNavigationMigration(productionForm?.get("totalRmused")?.value)
                   | currency : "BDT" : "" : "1.2-2"
               }}
             </span>
@@ -905,7 +905,7 @@
               <span>Total Adjusted Quantity</span>
               <span>
                 {{
-                  productionForm?.get("totalAdjustmentQuantity")?.value
+                  $safeNavigationMigration(productionForm?.get("totalAdjustmentQuantity")?.value)
                     | currency : "BDT" : "" : "1.2-2"
                 }}
               </span>

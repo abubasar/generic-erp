@@ -19,7 +19,7 @@ export class VendorQuotationService {
     return this.api
       .getAll(vendorQuotationRequest)
       .pipe(
-        map((response: SearchResponse<VendorQuotationResponseDTO>) => response)
+        map((response: any) => response as SearchResponse<VendorQuotationResponseDTO>)
       );
   }
 

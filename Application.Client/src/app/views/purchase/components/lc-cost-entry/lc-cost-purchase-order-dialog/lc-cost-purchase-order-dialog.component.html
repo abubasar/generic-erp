@@ -40,7 +40,7 @@
               />
               <div matSuffix>
                 @if (
-                  searchForm?.get('supplierId')?.value !== null &&
+                  $safeNavigationMigration(searchForm?.get('supplierId')?.value) !== null &&
                   searchForm?.get('supplierId')?.value !== ''
                   ) {
                   <button

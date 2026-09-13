@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatStepper } from "@angular/material/stepper";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -51,6 +51,7 @@ import { SalesOrderListComponent } from "../sales-order-list/sales-order-list.co
     selector: "app-delivery-note-form",
     templateUrl: "./delivery-note-form.component.html",
     styleUrls: ["./delivery-note-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DeliveryNoteFormComponent implements OnInit {

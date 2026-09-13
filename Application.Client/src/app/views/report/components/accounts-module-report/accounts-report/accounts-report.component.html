@@ -38,7 +38,7 @@
             (selectionChange)="handleFinancialYearChange($event.value)"
             >
             @for (d of financialYears; track d) {
-              <mat-option [value]="d?.id">
+              <mat-option [value]="$safeNavigationMigration(d?.id)">
                 {{ d?.name }}
               </mat-option>
             }

@@ -40,7 +40,7 @@
               />
               <div matSuffix>
                 @if (
-                  searchForm?.get('finishedProductId')?.value !== null &&
+                  $safeNavigationMigration(searchForm?.get('finishedProductId')?.value) !== null &&
                   searchForm?.get('finishedProductId')?.value !== ''
                   ) {
                   <button
@@ -87,7 +87,7 @@
                 />
                 <div matSuffix>
                   @if (
-                    searchForm?.get('bomNo')?.value !== null &&
+                    $safeNavigationMigration(searchForm?.get('bomNo')?.value) !== null &&
                     searchForm?.get('bomNo')?.value !== ''
                     ) {
                     <button
@@ -131,7 +131,7 @@
                   />
                   <div matSuffix>
                     @if (
-                      searchForm?.get('formulationNo')?.value !== null &&
+                      $safeNavigationMigration(searchForm?.get('formulationNo')?.value) !== null &&
                       searchForm?.get('formulationNo')?.value !== ''
                       ) {
                       <button
@@ -175,7 +175,7 @@
                     />
                     <div matSuffix>
                       @if (
-                        searchForm?.get('manufacturingOrderNo')?.value !== null &&
+                        $safeNavigationMigration(searchForm?.get('manufacturingOrderNo')?.value) !== null &&
                         searchForm?.get('manufacturingOrderNo')?.value !== ''
                         ) {
                         <button
@@ -283,7 +283,7 @@
                 <ng-container matColumnDef="scheduledDate">
                   <th mat-header-cell *matHeaderCellDef>Scheduled Date</th>
                   <td mat-cell *matCellDef="let manufacturingOrder">
-                    {{ dateFormatService.getDateFormat(manufacturingOrder?.scheduledDate) }}
+                    {{ dateFormatService.getDateFormat($safeNavigationMigration(manufacturingOrder?.scheduledDate)) }}
                   </td>
                 </ng-container>
                 <!-- costCenter Column -->

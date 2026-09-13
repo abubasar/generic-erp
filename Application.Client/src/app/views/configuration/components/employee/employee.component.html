@@ -272,7 +272,7 @@
               matTooltip="Delete"
               matTooltipShowDelay="300"
               matTooltipPosition="above"
-              (click)="confirmDelete(employee?.id, employee?.employeeIdNo)"
+              (click)="confirmDelete($safeNavigationMigration(employee?.id), $safeNavigationMigration(employee?.employeeIdNo))"
               >
               <mat-icon>delete</mat-icon>
             </button>

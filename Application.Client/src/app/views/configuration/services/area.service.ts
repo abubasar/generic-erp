@@ -13,12 +13,12 @@ export class AreaService {
   getAllAreas(): Observable<SearchResponse<Area>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<Area>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Area>));
   }
   getAreas(areaRequest: AreaRequest): Observable<SearchResponse<Area>> {
     return this.api
       .getAll(areaRequest)
-      .pipe(map((response: SearchResponse<Area>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Area>));
   }
   createArea(area: Area): Observable<GeneralResponse<string>> {
     return this.api

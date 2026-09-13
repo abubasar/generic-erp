@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA as MAT_DIALOG_DATA, MatDialog as MatDialog } from "@angular/material/dialog";
 import { Department_Id_SALES_AND_MARKETING } from "app/shared/consts/const";
@@ -29,6 +29,7 @@ import { ToastrService } from "ngx-toastr";
     selector: "app-customer-form",
     templateUrl: "./customer-form.component.html",
     styleUrls: ["./customer-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CustomerFormComponent implements OnInit {

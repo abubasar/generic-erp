@@ -24,7 +24,7 @@ export class SaleInvoiceService {
     return this.api
       .getAll(saleInvoiceRequest)
       .pipe(
-        map((response: SearchResponse<SaleInvoiceResponseDTO>) => response)
+        map((response: any) => response as SearchResponse<SaleInvoiceResponseDTO>)
       );
   }
 
@@ -105,6 +105,6 @@ export class SaleInvoiceService {
   ): Observable<CustomerDiscountReportResponseDTO[]> {
     return this.api
       .getCustomerMonthlyDiscountReport(request)
-      .pipe(map((response: CustomerDiscountReportResponseDTO[]) => response));
+      .pipe(map((response: any) => response as CustomerDiscountReportResponseDTO[]));
   }
 }

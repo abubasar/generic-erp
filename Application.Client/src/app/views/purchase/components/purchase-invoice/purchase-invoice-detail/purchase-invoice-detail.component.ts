@@ -1,10 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { DateTimeFormatService } from 'app/shared/services/date-time-format.service';
 
 @Component({
     selector: "app-purchase-invoice-detail",
     templateUrl: "./purchase-invoice-detail.component.html",
     styleUrls: ["./purchase-invoice-detail.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class PurchaseInvoiceDetailComponent implements OnInit {

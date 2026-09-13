@@ -1,9 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
     selector: "app-money-receipt-detail",
     templateUrl: "./money-receipt-detail.component.html",
     styleUrls: ["./money-receipt-detail.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class MoneyReceiptDetailComponent implements OnInit {

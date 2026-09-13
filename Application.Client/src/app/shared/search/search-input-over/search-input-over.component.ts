@@ -6,6 +6,7 @@ import {
   OnInit,
   Output,
   ViewChildren,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import { UntypedFormControl } from "@angular/forms";
 import { Router } from "@angular/router";
@@ -18,6 +19,7 @@ import { SearchService } from "../search.service";
     selector: "matx-search-input-over",
     templateUrl: "./search-input-over.component.html",
     styleUrls: ["./search-input-over.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SearchInputOverComponent implements OnInit, OnDestroy {

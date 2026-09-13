@@ -23,7 +23,7 @@ export class CustomerWiseProductDiscountService {
     return this.api
       .getAlls()
       .pipe(
-        map((response: SearchResponse<CustomerWiseProductDiscount>) => response)
+        map((response: any) => response as SearchResponse<CustomerWiseProductDiscount>)
       );
   }
 
@@ -45,7 +45,7 @@ export class CustomerWiseProductDiscountService {
     return this.api
       .getAll(customerWiseProductDiscountRequest)
       .pipe(
-        map((response: SearchResponse<CustomerWiseProductDiscount>) => response)
+        map((response: any) => response as SearchResponse<CustomerWiseProductDiscount>)
       );
   }
 

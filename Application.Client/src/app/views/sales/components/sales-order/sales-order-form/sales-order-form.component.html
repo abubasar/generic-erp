@@ -7,10 +7,10 @@
       <h3 class="m-0">Sale Order No: {{ data?.saleOrderNo }}</h3>
       <mat-chip
         class="align-middle py-4 px-8"
-        [color]="getSaleOrderStatus(data?.status)?.color"
+        [color]="$safeNavigationMigration(getSaleOrderStatus($safeNavigationMigration(data?.status))?.color)"
         selected
       >
-        {{ getSaleOrderStatusName(data?.status)?.replaceAll("_", " ") }}
+        {{ getSaleOrderStatusName($safeNavigationMigration(data?.status))?.replaceAll("_", " ") }}
       </mat-chip>
       <button
         mat-icon-button
@@ -18,7 +18,7 @@
         matTooltip="print pdf"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printPdf(data?.id)"
+        (click)="printPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>print</mat-icon>
       </button>
@@ -48,7 +48,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading || isCreditBalanceInsufficient"
-        (click)="confirmCheck(data?.id, data?.saleOrderNo)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.saleOrderNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -71,7 +71,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading || isCreditBalanceInsufficient"
-        (click)="confirmApprove(data?.id, data?.saleOrderNo)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.saleOrderNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -99,7 +99,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.saleOrderNo, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.saleOrderNo), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -135,7 +135,7 @@
                 />
               </mat-form-field>
               <button
-                [hidden]="this.data?.id"
+                [hidden]="$safeNavigationMigration(this.data?.id)"
                 type="button"
                 mat-icon-button
                 color="primary"
@@ -168,7 +168,7 @@
                   (selectionChange)="onSelectedStore($event.value)"
                 >
                   <mat-option>-- None --</mat-option>
-                  <mat-option *ngFor="let d of stores" [value]="d?.id">
+                  <mat-option *ngFor="let d of stores" [value]="$safeNavigationMigration(d?.id)">
                     {{ d?.name }}
                   </mat-option>
                 </mat-select>
@@ -261,7 +261,7 @@
               <mat-form-field class="full-width">
                 <mat-label>Select Transport</mat-label>
                 <mat-select formControlName="transport">
-                  <mat-option *ngFor="let d of transports" [value]="d?.value">
+                  <mat-option *ngFor="let d of transports" [value]="$safeNavigationMigration(d?.value)">
                     {{ d?.name }}
                   </mat-option>
                 </mat-select>
@@ -274,7 +274,7 @@
               <mat-form-field class="full-width">
                 <mat-label>Select Payment Term</mat-label>
                 <mat-select formControlName="paymentTerm">
-                  <mat-option *ngFor="let d of paymentTerms" [value]="d?.value">
+                  <mat-option *ngFor="let d of paymentTerms" [value]="$safeNavigationMigration(d?.value)">
                     {{ d?.name }}
                   </mat-option>
                 </mat-select>
@@ -411,7 +411,7 @@
                       <button
                         (click)="clearInputFromDetails($event, i)"
                         *ngIf="
-                          saleOrderDetails?.at(i).get('productId')?.value !==
+                          $safeNavigationMigration(saleOrderDetails?.at(i).get('productId')?.value) !==
                             null &&
                           saleOrderDetails?.at(i).get('productId')?.value !== ''
                         "
@@ -432,7 +432,7 @@
                     >
                       <mat-option
                         *ngFor="let product of searchProducts"
-                        [value]="product?.id"
+                        [value]="$safeNavigationMigration(product?.id)"
                       >
                         {{ product.name }}
                         ({{
@@ -702,7 +702,7 @@
                     mat-mini-fab
                     type="button"
                     color="warn"
-                    (click)="onDeleteItem(p?.get('id')?.value, i)"
+                    (click)="onDeleteItem($safeNavigationMigration(p?.get('id')?.value), i)"
                   >
                     <mat-icon>delete_forever</mat-icon>
                   </button>
@@ -729,7 +729,7 @@
                 <span>Subtotal</span>
                 <span>
                   {{
-                    saleOrderForm?.get("subtotal")?.value
+                    $safeNavigationMigration(saleOrderForm?.get("subtotal")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -743,7 +743,7 @@
                 <span>Discount</span>
                 <span>
                   {{
-                    saleOrderForm?.get("discount")?.value
+                    $safeNavigationMigration(saleOrderForm?.get("discount")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -757,7 +757,7 @@
                 <span>Discount Amount</span>
                 <span>
                   {{
-                    saleOrderForm?.get("totalPercentageDiscountAmount")?.value
+                    $safeNavigationMigration(saleOrderForm?.get("totalPercentageDiscountAmount")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -771,7 +771,7 @@
                 <span>Offer Discount</span>
                 <span>
                   {{
-                    saleOrderForm?.get("offerDiscount")?.value
+                    $safeNavigationMigration(saleOrderForm?.get("offerDiscount")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -800,7 +800,7 @@
                 <span>Net Sale</span>
                 <span>
                   {{
-                    saleOrderForm?.get("total")?.value
+                    $safeNavigationMigration(saleOrderForm?.get("total")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -847,7 +847,7 @@
                 <span>Total Payable</span>
                 <span>
                   {{
-                    saleOrderForm?.get("netTotal")?.value
+                    $safeNavigationMigration(saleOrderForm?.get("netTotal")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -923,7 +923,7 @@
             <div class="col label-data">
               <span>Store</span>
               <span>
-                {{ getStoreName(saleOrderForm?.get("storeId")?.value) }}
+                {{ getStoreName($safeNavigationMigration(saleOrderForm?.get("storeId")?.value)) }}
               </span>
             </div>
 
@@ -931,7 +931,7 @@
             <div class="col label-data">
               <span>Customer</span>
               <span>
-                {{ getCustomerName(saleOrderForm?.get("customerId")?.value) }}
+                {{ getCustomerName($safeNavigationMigration(saleOrderForm?.get("customerId")?.value)) }}
               </span>
             </div>
 
@@ -965,7 +965,7 @@
             <div class="col label-data" *ngIf="businessType === '2'">
               <span>Transport</span>
               <span>
-                {{ getTransportName(saleOrderForm.get("transport")?.value) }}
+                {{ getTransportName($safeNavigationMigration(saleOrderForm.get("transport")?.value)) }}
               </span>
             </div>
 
@@ -974,7 +974,7 @@
               <span>Payment Term</span>
               <span>
                 {{
-                  getPaymentTermName(saleOrderForm.get("paymentTerm")?.value)
+                  getPaymentTermName($safeNavigationMigration(saleOrderForm.get("paymentTerm")?.value))
                 }}
               </span>
             </div>
@@ -985,7 +985,7 @@
               <span>
                 {{
                   dateFormatService.getDateFormat(
-                    saleOrderForm.get("orderDate")?.value
+                    $safeNavigationMigration(saleOrderForm.get("orderDate")?.value)
                   )
                 }}
               </span>
@@ -997,7 +997,7 @@
               <span>
                 {{
                   dateFormatService.getDateFormat(
-                    saleOrderForm.get("deliveryDate")?.value
+                    $safeNavigationMigration(saleOrderForm.get("deliveryDate")?.value)
                   )
                 }}
               </span>
@@ -1029,7 +1029,7 @@
                 <span>Subtotal</span>
                 <span>
                   {{
-                    saleOrderForm?.get("subtotal")?.value
+                    $safeNavigationMigration(saleOrderForm?.get("subtotal")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -1042,7 +1042,7 @@
                 <span>Discount Amount</span>
                 <span>
                   {{
-                    saleOrderForm?.get("totalPercentageDiscountAmount")?.value
+                    $safeNavigationMigration(saleOrderForm?.get("totalPercentageDiscountAmount")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -1055,7 +1055,7 @@
                 <span>Discount</span>
                 <span>
                   {{
-                    saleOrderForm?.get("discount")?.value
+                    $safeNavigationMigration(saleOrderForm?.get("discount")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -1068,7 +1068,7 @@
                 <span>Offer Discount</span>
                 <span>
                   {{
-                    saleOrderForm?.get("offerDiscount")?.value
+                    $safeNavigationMigration(saleOrderForm?.get("offerDiscount")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -1078,7 +1078,7 @@
                 <span>Other Discount</span>
                 <span>
                   {{
-                    saleOrderForm?.get("otherDiscount")?.value
+                    $safeNavigationMigration(saleOrderForm?.get("otherDiscount")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -1088,7 +1088,7 @@
                 <span>Net Sale</span>
                 <span>
                   {{
-                    saleOrderForm?.get("total")?.value
+                    $safeNavigationMigration(saleOrderForm?.get("total")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -1101,7 +1101,7 @@
                 <span>Transportation Cost</span>
                 <span>
                   {{
-                    saleOrderForm?.get("transportationCost")?.value
+                    $safeNavigationMigration(saleOrderForm?.get("transportationCost")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -1114,7 +1114,7 @@
                 <span>Depo Charge</span>
                 <span>
                   {{
-                    saleOrderForm?.get("depoCharge")?.value
+                    $safeNavigationMigration(saleOrderForm?.get("depoCharge")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -1124,7 +1124,7 @@
                 <span>Total Payable</span>
                 <span>
                   {{
-                    saleOrderForm?.get("netTotal")?.value
+                    $safeNavigationMigration(saleOrderForm?.get("netTotal")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>

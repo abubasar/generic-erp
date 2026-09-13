@@ -38,7 +38,7 @@
               >
               @for (d of filteredCashBankAccounts; track d) {
                 <mat-option
-                  [value]="d?.id"
+                  [value]="$safeNavigationMigration(d?.id)"
                   >
                   {{ d.name }}
                 </mat-option>

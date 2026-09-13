@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ControlAccount } from "app/views/configuration/models/account/control-account.model";
 import { CostCenter } from "app/views/configuration/models/cost-center/cost-center.model";
@@ -11,6 +11,7 @@ import { environment } from "environments/environment";
     selector: "app-day-wise-account-ledger",
     templateUrl: "./day-wise-account-ledger.component.html",
     styleUrls: ["./day-wise-account-ledger.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DayWiseAccountLedgerComponent implements OnInit {

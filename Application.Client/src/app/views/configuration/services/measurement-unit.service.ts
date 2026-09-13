@@ -17,7 +17,7 @@ export class MeasurementUnitService {
   ): Observable<SearchResponse<MeasurementUnit>> {
     return this.api
       .getAll(departmentRequest)
-      .pipe(map((response: SearchResponse<MeasurementUnit>) => response));
+      .pipe(map((response: any) => response as SearchResponse<MeasurementUnit>));
   }
 
   createMeasurementUnit(

@@ -20,7 +20,7 @@ export class LcAdjustmentService {
     return this.api
       .getAll(lcAdjustmentRequest)
       .pipe(
-        map((response: SearchResponse<LcAdjustmentResponseDTO>) => response)
+        map((response: any) => response as SearchResponse<LcAdjustmentResponseDTO>)
       );
   }
 

@@ -7,11 +7,11 @@
       <h3 class="m-0">Receive Payment Code: {{ data?.code }}</h3>
       <mat-chip
         class="align-middle py-4 px-8"
-        [color]="getReceivePaymentAgainstSaleStatus(data?.status).color"
+        [color]="getReceivePaymentAgainstSaleStatus($safeNavigationMigration(data?.status)).color"
         selected
       >
         {{
-          getReceivePaymentAgainstSaleStatusName(data?.status)?.replaceAll(
+          getReceivePaymentAgainstSaleStatusName($safeNavigationMigration(data?.status))?.replaceAll(
             "_",
             " "
           )
@@ -24,7 +24,7 @@
         matTooltip="print pdf"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printPdf(data?.id)"
+        (click)="printPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>print</mat-icon>
       </button>
@@ -55,7 +55,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck(data?.id, data?.code)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.code))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -77,7 +77,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove(data?.id, data?.code)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.code))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -106,7 +106,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.code, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.code), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -419,7 +419,7 @@
               <span>
                 {{
                   getCustomerName(
-                    receivePaymentAgainstSaleForm?.get("customerId")?.value
+                    $safeNavigationMigration(receivePaymentAgainstSaleForm?.get("customerId")?.value)
                   )
                 }}
               </span>
@@ -456,7 +456,7 @@
               <span>
                 {{
                   getCostCenterName(
-                    receivePaymentAgainstSaleForm?.get("costCenterId")?.value
+                    $safeNavigationMigration(receivePaymentAgainstSaleForm?.get("costCenterId")?.value)
                   )
                 }}
               </span>
@@ -468,7 +468,7 @@
               <span>
                 {{
                   getToAccountName(
-                    receivePaymentAgainstSaleForm?.get("toAccountId")?.value
+                    $safeNavigationMigration(receivePaymentAgainstSaleForm?.get("toAccountId")?.value)
                   )
                 }}
               </span>

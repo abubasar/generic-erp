@@ -1,9 +1,10 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
 
 @Component({
     selector: "app-sale-invoice-list-detail",
     templateUrl: "./sale-invoice-list-detail.component.html",
     styleUrls: ["./sale-invoice-list-detail.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SaleInvoiceListDetailComponent implements OnInit {

@@ -37,7 +37,7 @@
               />
               <div matSuffix>
                 @if (
-                  searchForm?.get('supplierId')?.value !== null &&
+                  $safeNavigationMigration(searchForm?.get('supplierId')?.value) !== null &&
                   searchForm?.get('supplierId')?.value !== ''
                   ) {
                   <button
@@ -406,7 +406,7 @@
                     <ng-container matColumnDef="currencyId">
                       <th mat-header-cell *matHeaderCellDef>Currency</th>
                       <td mat-cell *matCellDef="let purchaseInvoice">
-                        {{ getCurrencyName(purchaseInvoice?.currencyId) }}
+                        {{ getCurrencyName($safeNavigationMigration(purchaseInvoice?.currencyId)) }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef></td>
                     </ng-container>
@@ -415,7 +415,7 @@
                       <th mat-header-cell *matHeaderCellDef>Exchange Rate</th>
                       <td mat-cell *matCellDef="let purchaseInvoice">
                         {{
-                        purchaseInvoice?.exchangeRate | currency : "BDT" : "" : "1.2-2"
+                        $safeNavigationMigration(purchaseInvoice?.exchangeRate) | currency : "BDT" : "" : "1.2-2"
                         }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef></td>
@@ -426,7 +426,7 @@
                       <td mat-cell *matCellDef="let purchaseInvoice">
                         {{
                         getImportPurchaseIncoTermName(
-                        purchaseInvoice?.importPurchaseIncoTerm
+                        $safeNavigationMigration(purchaseInvoice?.importPurchaseIncoTerm)
                         )
                         }}
                       </td>
@@ -440,7 +440,7 @@
                       <td mat-cell *matCellDef="let purchaseInvoice">
                         {{
                         getImportPurchasePaymentTermName(
-                        purchaseInvoice?.importPurchasePaymentTerm
+                        $safeNavigationMigration(purchaseInvoice?.importPurchasePaymentTerm)
                         )
                         }}
                       </td>
@@ -505,7 +505,7 @@
                         </td>
                         <td mat-footer-cell *matFooterCellDef>
                           {{
-                          reportAggregator?.aggregatorSubtotal
+                          $safeNavigationMigration(reportAggregator?.aggregatorSubtotal)
                           | currency : "BDT" : "" : "1.2-2"
                           }}
                         </td>
@@ -518,7 +518,7 @@
                         </td>
                         <td mat-footer-cell *matFooterCellDef>
                           {{
-                          reportAggregator?.aggregatorDiscount
+                          $safeNavigationMigration(reportAggregator?.aggregatorDiscount)
                           | currency : "BDT" : "" : "1.2-2"
                           }}
                         </td>
@@ -539,7 +539,7 @@
                         </td>
                         <td mat-footer-cell *matFooterCellDef>
                           {{
-                          reportAggregator?.aggregatorTotal
+                          $safeNavigationMigration(reportAggregator?.aggregatorTotal)
                           | currency : "BDT" : "" : "1.2-2"
                           }}
                         </td>
@@ -549,7 +549,7 @@
                         <th mat-header-cell *matHeaderCellDef>Advance Payment Amount</th>
                         <td mat-cell *matCellDef="let purchaseInvoice">
                           {{
-                          purchaseInvoice?.advancePaymentAmount
+                          $safeNavigationMigration(purchaseInvoice?.advancePaymentAmount)
                           | currency : "BDT" : "" : "1.2-2"
                           }}
                         </td>
@@ -562,7 +562,7 @@
                         </th>
                         <td mat-cell *matCellDef="let purchaseInvoice">
                           {{
-                          purchaseInvoice?.totalGrnAdjustmentAmount
+                          $safeNavigationMigration(purchaseInvoice?.totalGrnAdjustmentAmount)
                           | currency : "BDT" : "" : "1.2-2"
                           }}
                         </td>
@@ -573,7 +573,7 @@
                         <th mat-header-cell *matHeaderCellDef>Net Payable</th>
                         <td mat-cell *matCellDef="let purchaseInvoice">
                           {{
-                          purchaseInvoice?.netPayable | currency : "BDT" : "" : "1.2-2"
+                          $safeNavigationMigration(purchaseInvoice?.netPayable) | currency : "BDT" : "" : "1.2-2"
                           }}
                         </td>
                         <td mat-footer-cell *matFooterCellDef></td>
@@ -608,7 +608,7 @@
                       <ng-container matColumnDef="createdOn">
                         <th mat-header-cell class="header" *matHeaderCellDef>Created On</th>
                         <td mat-cell *matCellDef="let element">
-                          {{ dateFormatService?.getDateAndTime(element?.createdOn) }}
+                          {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.createdOn)) }}
                         </td>
                         <td mat-footer-cell *matFooterCellDef></td>
                       </ng-container>
@@ -616,7 +616,7 @@
                       <ng-container matColumnDef="updatedOn">
                         <th mat-header-cell class="header" *matHeaderCellDef>Updated On</th>
                         <td mat-cell *matCellDef="let element">
-                          {{ dateFormatService?.getDateAndTime(element?.updatedOn) }}
+                          {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.updatedOn)) }}
                         </td>
                         <td mat-footer-cell *matFooterCellDef></td>
                       </ng-container>
@@ -665,8 +665,8 @@
                             matTooltipPosition="above"
                 (click)="
                   confirmDelete(
-                    purchaseInvoice?.id,
-                    purchaseInvoice?.purchaseInvoiceNo
+                    $safeNavigationMigration(purchaseInvoice?.id),
+                    $safeNavigationMigration(purchaseInvoice?.purchaseInvoiceNo)
                   )
                 "
                             >
@@ -678,7 +678,7 @@
                             matTooltip="print pdf"
                             matTooltipShowDelay="300"
                             matTooltipPosition="above"
-                            (click)="printPdf(purchaseInvoice?.id)"
+                            (click)="printPdf($safeNavigationMigration(purchaseInvoice?.id))"
                             >
                             <mat-icon>print</mat-icon>
                           </button>

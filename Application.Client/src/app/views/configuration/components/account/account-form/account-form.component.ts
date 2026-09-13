@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA as MAT_DIALOG_DATA, MatDialog as MatDialog } from "@angular/material/dialog";
 import { AccountTypeRequest } from "app/views/configuration/models/account-type/account-type-request.model";
@@ -14,6 +14,7 @@ import { ToastrService } from "ngx-toastr";
     selector: "app-account-form",
     templateUrl: "./account-form.component.html",
     styleUrls: ["./account-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class AccountFormComponent implements OnInit {

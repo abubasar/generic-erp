@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { FinancialYear } from "app/views/configuration/models/financial-year/financial-year.model";
@@ -9,6 +9,7 @@ import { ToastrService } from "ngx-toastr";
     selector: "app-financial-year-form",
     templateUrl: "./financial-year-form.component.html",
     styleUrls: ["./financial-year-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class FinancialYearFormComponent implements OnInit {

@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { environment } from "environments/environment";
 
@@ -7,6 +7,7 @@ import { environment } from "environments/environment";
     selector: "app-cash-bank-balance-report",
     templateUrl: "./cash-bank-balance-report.component.html",
     styleUrls: ["./cash-bank-balance-report.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CashBankBalanceReportComponent implements OnInit {

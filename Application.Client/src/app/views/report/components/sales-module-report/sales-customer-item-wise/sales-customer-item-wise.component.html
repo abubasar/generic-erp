@@ -86,7 +86,7 @@
                 <mat-select formControlName="storeId">
                   <mat-option>-- All --</mat-option>
                   @for (d of stores; track d) {
-                    <mat-option [value]="d?.id">
+                    <mat-option [value]="$safeNavigationMigration(d?.id)">
                       {{ d?.name }}
                     </mat-option>
                   }
@@ -103,7 +103,7 @@
                   >
                   <mat-option>-- All --</mat-option>
                   @for (d of zones; track d) {
-                    <mat-option [value]="d?.id">
+                    <mat-option [value]="$safeNavigationMigration(d?.id)">
                       {{ d?.name }}
                     </mat-option>
                   }
@@ -122,7 +122,7 @@
                     >
                     <mat-option>-- None --</mat-option>
                     @for (d of areas; track d) {
-                      <mat-option [value]="d?.id">
+                      <mat-option [value]="$safeNavigationMigration(d?.id)">
                         {{ d?.name }}
                       </mat-option>
                     }

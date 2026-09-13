@@ -4,6 +4,7 @@ import {
   ViewChild,
   OnDestroy,
   AfterViewInit,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatButton as MatButton } from "@angular/material/button";
@@ -25,6 +26,7 @@ import { ToastrService } from "ngx-toastr";
     selector: "app-signin",
     templateUrl: "./signin.component.html",
     styleUrls: ["./signin.component.css"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SigninComponent implements OnInit, OnDestroy {
@@ -66,11 +68,13 @@ export class SigninComponent implements OnInit, OnDestroy {
     this.progressBar.mode = "indeterminate";
 
     this.jwtAuth.signin(signinData.username, signinData.password).subscribe(
-      (response: GeneralResponse<TokenModel>) => {
-        if (response?.succeeded) {
+      (response: GeneralResponse<TokenModel> | boolean) => {
+        const result =
+          typeof response === "object" && response ? response : null;
+        if (result?.succeeded) {
           this.router.navigateByUrl(this.jwtAuth.return);
         } else {
-          this.toastr.error(response.message);
+          this.toastr.error(result ? result.message : "Sign in failed");
           this.submitButton.disabled = false;
           this.progressBar.mode = "determinate";
         }

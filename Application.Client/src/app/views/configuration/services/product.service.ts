@@ -17,14 +17,14 @@ export class ProductService {
   getAllProducts(): Observable<SearchResponse<ProductView>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<ProductView>) => response));
+      .pipe(map((response: any) => response as SearchResponse<ProductView>));
   }
   getProducts(
     productRequest: ProductRequest
   ): Observable<SearchResponse<ProductView>> {
     return this.api
       .getAll(productRequest)
-      .pipe(map((response: SearchResponse<ProductView>) => response));
+      .pipe(map((response: any) => response as SearchResponse<ProductView>));
   }
 
   createProduct(product: ProductDTO): Observable<GeneralResponse<string>> {

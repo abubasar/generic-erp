@@ -38,8 +38,8 @@
                   />
                   <div matSuffix>
                     @if (
-                      customerWiseProductDiscountForm?.get('customerId')
-                      ?.value !== null &&
+                      $safeNavigationMigration(customerWiseProductDiscountForm?.get('customerId')
+                      ?.value) !== null &&
                       customerWiseProductDiscountForm?.get('customerId')
                       ?.value !== ''
                       ) {
@@ -286,7 +286,7 @@
                                     <span>
                                       {{
                                       getCustomerName(
-                                      customerWiseProductDiscountForm?.get("customerId")?.value
+                                      $safeNavigationMigration(customerWiseProductDiscountForm?.get("customerId")?.value)
                                       )
                                       }}
                                     </span>
@@ -297,7 +297,7 @@
                                     <span>
                                       {{
                                       dateFormatService.getDateFormat(
-                                      customerWiseProductDiscountForm.get("applicableDate")?.value
+                                      $safeNavigationMigration(customerWiseProductDiscountForm.get("applicableDate")?.value)
                                       )
                                       }}
                                     </span>

@@ -15,13 +15,13 @@ export class ShiftService {
   getAllShifts(): Observable<SearchResponse<Shift>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<Shift>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Shift>));
   }
 
   getShifts(shiftRequest: ShiftRequest): Observable<SearchResponse<Shift>> {
     return this.api
       .getAll(shiftRequest)
-      .pipe(map((response: SearchResponse<Shift>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Shift>));
   }
 
   createShift(shift: Shift): Observable<GeneralResponse<string>> {

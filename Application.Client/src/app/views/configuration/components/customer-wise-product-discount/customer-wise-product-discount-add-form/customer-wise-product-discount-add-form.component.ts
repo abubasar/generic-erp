@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { CustomerWiseProductDiscount } from "app/views/configuration/models/customer-wise-product-discount/customer-wise-product-discount.model";
 import { Customer } from "app/views/configuration/models/customer/customer.model";
@@ -18,6 +18,7 @@ import { CustomerWiseProductDiscountRequest } from "app/views/configuration/mode
     selector: "app-customer-wise-product-discount-add-form",
     templateUrl: "./customer-wise-product-discount-add-form.component.html",
     styleUrls: ["./customer-wise-product-discount-add-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CustomerWiseProductDiscountAddFormComponent implements OnInit {

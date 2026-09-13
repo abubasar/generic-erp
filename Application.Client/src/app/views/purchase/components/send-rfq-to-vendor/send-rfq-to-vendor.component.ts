@@ -5,7 +5,7 @@ import {
   transition,
   trigger,
 } from "@angular/animations";
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { MatMenuTrigger as MatMenuTrigger } from "@angular/material/menu";
@@ -43,6 +43,7 @@ import { SendRFQToVendorEmailComponent } from "./send-rfq-to-vendor-email/send-r
             transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
         ]),
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SendRFQToVendorComponent implements OnInit {

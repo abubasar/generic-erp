@@ -24,7 +24,7 @@
             <mat-select formControlName="genericId">
               <mat-option>-- None --</mat-option>
               @for (d of generics; track d) {
-                <mat-option [value]="d?.id">
+                <mat-option [value]="$safeNavigationMigration(d?.id)">
                   {{ d?.name }}
                 </mat-option>
               }
@@ -41,7 +41,7 @@
               >
               <mat-option>-- None --</mat-option>
               @for (d of inventoryTypes; track d) {
-                <mat-option [value]="d?.id">
+                <mat-option [value]="$safeNavigationMigration(d?.id)">
                   {{ d?.name }}
                 </mat-option>
               }
@@ -55,7 +55,7 @@
               <mat-select formControlName="categoryId">
                 <mat-option>-- None --</mat-option>
                 @for (d of categories; track d) {
-                  <mat-option [value]="d?.id">
+                  <mat-option [value]="$safeNavigationMigration(d?.id)">
                     {{ d?.name }}
                   </mat-option>
                 }
@@ -68,7 +68,7 @@
               <mat-select formControlName="packSizeId">
                 <mat-option>-- None --</mat-option>
                 @for (d of packSizes; track d) {
-                  <mat-option [value]="d?.id">
+                  <mat-option [value]="$safeNavigationMigration(d?.id)">
                     {{ d?.name }}
                   </mat-option>
                 }
@@ -83,7 +83,7 @@
             <mat-select formControlName="productTypeId">
               <mat-option>-- None --</mat-option>
               @for (d of mapProductTypes; track d) {
-                <mat-option [value]="d?.id">
+                <mat-option [value]="$safeNavigationMigration(d?.id)">
                   {{ d?.name }}
                 </mat-option>
               }
@@ -97,7 +97,7 @@
             <mat-select formControlName="countryId">
               <mat-option>-- None --</mat-option>
               @for (d of countries; track d) {
-                <mat-option [value]="d?.id">
+                <mat-option [value]="$safeNavigationMigration(d?.id)">
                   {{ d?.name }}
                 </mat-option>
               }
@@ -393,7 +393,7 @@
                 matTooltip="Delete"
                 matTooltipShowDelay="300"
                 matTooltipPosition="above"
-                (click)="confirmDelete(product?.id, product?.code)"
+                (click)="confirmDelete($safeNavigationMigration(product?.id), $safeNavigationMigration(product?.code))"
                 >
                 <mat-icon>delete</mat-icon>
               </button>

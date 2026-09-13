@@ -40,7 +40,7 @@
               />
               <div matSuffix>
                 @if (
-                  searchForm?.get('finishedProductId')?.value !== null &&
+                  $safeNavigationMigration(searchForm?.get('finishedProductId')?.value) !== null &&
                   searchForm?.get('finishedProductId')?.value !== ''
                   ) {
                   <button
@@ -86,7 +86,7 @@
                 />
                 <div matSuffix>
                   @if (
-                    searchForm?.get('bomNo')?.value !== null &&
+                    $safeNavigationMigration(searchForm?.get('bomNo')?.value) !== null &&
                     searchForm?.get('bomNo')?.value !== ''
                     ) {
                     <button
@@ -126,7 +126,7 @@
                   />
                   <div matSuffix>
                     @if (
-                      searchForm?.get('formulationNo')?.value !== null &&
+                      $safeNavigationMigration(searchForm?.get('formulationNo')?.value) !== null &&
                       searchForm?.get('formulationNo')?.value !== ''
                       ) {
                       <button
@@ -250,10 +250,10 @@
                 <td mat-cell *matCellDef="let billOfMaterial">
                   <mat-chip
                     class="align-middle py-4 px-8"
-                    [color]="getBOMStatus(billOfMaterial?.status)?.color"
+                    [color]="$safeNavigationMigration(getBOMStatus($safeNavigationMigration(billOfMaterial?.status))?.color)"
                     selected
                     >{{
-                    getBOMStatusName(billOfMaterial?.status)?.replaceAll("_", " ")
+                    getBOMStatusName($safeNavigationMigration(billOfMaterial?.status))?.replaceAll("_", " ")
                     }}</mat-chip
                     >
                   </td>

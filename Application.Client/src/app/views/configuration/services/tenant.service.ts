@@ -15,7 +15,7 @@ export class TenantService {
   getTenants(tenantRequest: TenantRequest): Observable<SearchResponse<Tenant>> {
     return this.api
       .getAll(tenantRequest)
-      .pipe(map((response: SearchResponse<Tenant>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Tenant>));
   }
 
   getTenantById(id: string): Observable<GeneralResponse<Tenant>> {

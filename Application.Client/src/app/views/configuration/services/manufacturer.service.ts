@@ -15,7 +15,7 @@ export class ManufacturerService {
   getAllManufacturers(): Observable<SearchResponse<Manufacturer>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<Manufacturer>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Manufacturer>));
   }
 
   getManufacturers(
@@ -23,7 +23,7 @@ export class ManufacturerService {
   ): Observable<SearchResponse<Manufacturer>> {
     return this.api
       .getAll(manufacturerRequest)
-      .pipe(map((response: SearchResponse<Manufacturer>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Manufacturer>));
   }
 
   createManufacturer(

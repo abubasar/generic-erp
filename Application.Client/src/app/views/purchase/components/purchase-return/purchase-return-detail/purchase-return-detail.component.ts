@@ -1,9 +1,10 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
 
 @Component({
     selector: "app-purchase-return-detail",
     templateUrl: "./purchase-return-detail.component.html",
     styleUrls: ["./purchase-return-detail.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class PurchaseReturnDetailComponent implements OnInit {

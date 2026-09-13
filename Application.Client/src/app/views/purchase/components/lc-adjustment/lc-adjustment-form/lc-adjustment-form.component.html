@@ -7,10 +7,10 @@
       <h3 class="m-0">LC Adjustment No: {{ data?.code }}</h3>
       <mat-chip
         class="align-middle py-4 px-8"
-        [color]="getLcAdjustmentStatus(data?.status).color"
+        [color]="getLcAdjustmentStatus($safeNavigationMigration(data?.status)).color"
         selected
       >
-        {{ getLcAdjustmentStatusName(data?.status)?.replaceAll("_", " ") }}
+        {{ getLcAdjustmentStatusName($safeNavigationMigration(data?.status))?.replaceAll("_", " ") }}
       </mat-chip>
       <button
         mat-icon-button
@@ -18,7 +18,7 @@
         matTooltip="print pdf"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printPdf(data?.id)"
+        (click)="printPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>print</mat-icon>
       </button>
@@ -49,7 +49,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck(data?.id, data?.code)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.code))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -72,7 +72,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove(data?.id, data?.code)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.code))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -99,7 +99,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.code, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.code), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -137,7 +137,7 @@
                 />
               </mat-form-field>
               <button
-                [hidden]="this.data?.id"
+                [hidden]="$safeNavigationMigration(this.data?.id)"
                 type="button"
                 mat-icon-button
                 color="primary"
@@ -274,7 +274,7 @@
                       <button
                         (click)="clearInputDetails($event, i)"
                         *ngIf="
-                          lcAdjustmentDetails?.at(i).get('accountId')?.value !==
+                          $safeNavigationMigration(lcAdjustmentDetails?.at(i).get('accountId')?.value) !==
                             null &&
                           lcAdjustmentDetails?.at(i).get('accountId')?.value !==
                             ''
@@ -318,7 +318,7 @@
                     <mat-select formControlName="postType" autoFocus>
                       <mat-option
                         *ngFor="let d of postTypes"
-                        [value]="d?.value"
+                        [value]="$safeNavigationMigration(d?.value)"
                       >
                         {{ getPostTypeName(d.value) }}
                       </mat-option>
@@ -347,7 +347,7 @@
                     mat-mini-fab
                     type="button"
                     color="warn"
-                    (click)="onDeleteItem(p?.get('id')?.value, i)"
+                    (click)="onDeleteItem($safeNavigationMigration(p?.get('id')?.value), i)"
                   >
                     <mat-icon>delete_forever</mat-icon>
                   </button>
@@ -434,7 +434,7 @@
               <span>
                 {{
                   getCostCenterName(
-                    lcAdjustmentForm?.get("costCenterId")?.value
+                    $safeNavigationMigration(lcAdjustmentForm?.get("costCenterId")?.value)
                   )
                 }}
               </span>

@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Department_Id_SALES_AND_MARKETING } from "app/shared/consts/const";
 import { UserProfile } from "app/shared/models/user-profile-model";
@@ -22,6 +22,7 @@ import { environment } from "environments/environment";
     styleUrls: [
         "./primary-marketing-officer-wise-sales-collection-and-due-report-short.component.scss",
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class PrimaryMarketingOfficerWiseSalesCollectionAndDueReportShortComponent

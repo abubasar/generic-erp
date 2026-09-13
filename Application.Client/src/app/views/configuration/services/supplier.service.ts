@@ -15,7 +15,7 @@ export class SupplierService {
   getAllSuppliers(): Observable<SearchResponse<Supplier>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<Supplier>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Supplier>));
   }
 
   getSuppliers(
@@ -23,7 +23,7 @@ export class SupplierService {
   ): Observable<SearchResponse<Supplier>> {
     return this.api
       .getAll(supplierRequest)
-      .pipe(map((response: SearchResponse<Supplier>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Supplier>));
   }
 
   createSupplier(supplier: Supplier): Observable<GeneralResponse<string>> {

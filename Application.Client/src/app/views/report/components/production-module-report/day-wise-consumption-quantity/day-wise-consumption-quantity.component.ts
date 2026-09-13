@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Inventory_Type_Id_Raw_Materials } from "app/shared/consts/const";
 import { ProductTypeRequest } from "app/views/configuration/models/product-type/product-type-request.model";
@@ -14,6 +14,7 @@ import { environment } from "environments/environment";
     selector: "app-day-wise-consumption-quantity",
     templateUrl: "./day-wise-consumption-quantity.component.html",
     styleUrls: ["./day-wise-consumption-quantity.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DayWiseConsumptionQuantityComponent implements OnInit {

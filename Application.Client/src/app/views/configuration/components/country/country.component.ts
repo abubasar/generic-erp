@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
@@ -17,6 +17,7 @@ import { CountryFormComponent } from "./country-form/country-form.component";
     selector: "app-country",
     templateUrl: "./country.component.html",
     styleUrls: ["./country.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CountryComponent implements OnInit {

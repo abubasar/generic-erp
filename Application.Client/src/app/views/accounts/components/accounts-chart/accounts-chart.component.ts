@@ -1,5 +1,5 @@
 import { FlatTreeControl } from "@angular/cdk/tree";
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import {
   MatTreeFlatDataSource,
   MatTreeFlattener,
@@ -18,6 +18,7 @@ interface ExampleFlatNode {
     selector: "app-accounts-chart",
     templateUrl: "./accounts-chart.component.html",
     styleUrls: ["./accounts-chart.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class AccountsChartComponent {

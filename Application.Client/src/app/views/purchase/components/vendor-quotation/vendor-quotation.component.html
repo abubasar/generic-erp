@@ -212,7 +212,7 @@
                 <ng-container matColumnDef="paymentMode">
                   <th mat-header-cell *matHeaderCellDef>Payment Mode</th>
                   <td mat-cell *matCellDef="let vendorQuotation">
-                    {{ getTransportName(vendorQuotation?.paymentMode) }}
+                    {{ getTransportName($safeNavigationMigration(vendorQuotation?.paymentMode)) }}
                   </td>
                 </ng-container>
                 <!-- paymentTermInDays Column -->
@@ -242,7 +242,7 @@
                 <ng-container matColumnDef="currencyId">
                   <th mat-header-cell *matHeaderCellDef>Currency</th>
                   <td mat-cell *matCellDef="let vendorQuotation">
-                    {{ getCurrencyName(vendorQuotation?.currencyId) }}
+                    {{ getCurrencyName($safeNavigationMigration(vendorQuotation?.currencyId)) }}
                   </td>
                 </ng-container>
                 <!-- importPurchaseIncoTerm Column -->
@@ -251,7 +251,7 @@
                   <td mat-cell *matCellDef="let vendorQuotation">
                     {{
                     getImportPurchaseIncoTermName(
-                    vendorQuotation?.importPurchaseIncoTerm
+                    $safeNavigationMigration(vendorQuotation?.importPurchaseIncoTerm)
                     )
                     }}
                   </td>
@@ -264,7 +264,7 @@
                   <td mat-cell *matCellDef="let vendorQuotation">
                     {{
                     getImportPurchasePaymentTermName(
-                    vendorQuotation?.importPurchasePaymentTerm
+                    $safeNavigationMigration(vendorQuotation?.importPurchasePaymentTerm)
                     )
                     }}
                   </td>
@@ -330,14 +330,14 @@
               <ng-container matColumnDef="createdOn">
                 <th mat-header-cell class="header" *matHeaderCellDef>Created On</th>
                 <td mat-cell *matCellDef="let element">
-                  {{ dateFormatService?.getDateAndTime(element?.createdOn) }}
+                  {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.createdOn)) }}
                 </td>
               </ng-container>
               <!-- Updated On Column -->
               <ng-container matColumnDef="updatedOn">
                 <th mat-header-cell class="header" *matHeaderCellDef>Updated On</th>
                 <td mat-cell *matCellDef="let element">
-                  {{ dateFormatService?.getDateAndTime(element?.updatedOn) }}
+                  {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.updatedOn)) }}
                 </td>
               </ng-container>
               <!-- Created By Column -->
@@ -393,8 +393,8 @@
                   matTooltipPosition="above"
                 (click)="
                   confirmDelete(
-                    vendorQuotation?.id,
-                    vendorQuotation?.quotationNo
+                    $safeNavigationMigration(vendorQuotation?.id),
+                    $safeNavigationMigration(vendorQuotation?.quotationNo)
                   )
                 "
                   >

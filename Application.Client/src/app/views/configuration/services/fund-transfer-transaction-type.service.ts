@@ -18,7 +18,7 @@ export class FundTransferTransactionTypeService {
     return this.api
       .getAlls()
       .pipe(
-        map((response: SearchResponse<FundTransferTransactionType>) => response)
+        map((response: any) => response as SearchResponse<FundTransferTransactionType>)
       );
   }
   getFundTransferTransactionTypes(
@@ -27,7 +27,7 @@ export class FundTransferTransactionTypeService {
     return this.api
       .getAll(fundTransferTransactionTypeRequest)
       .pipe(
-        map((response: SearchResponse<FundTransferTransactionType>) => response)
+        map((response: any) => response as SearchResponse<FundTransferTransactionType>)
       );
   }
 

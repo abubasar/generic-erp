@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Inventory_Type_Id_Raw_Materials } from "app/shared/consts/const";
 import { UserProfile } from "app/shared/models/user-profile-model";
@@ -19,6 +19,7 @@ import { environment } from "environments/environment";
     selector: "app-grn-item-supplier-wise-report",
     templateUrl: "./grn-item-supplier-wise-report.component.html",
     styleUrls: ["./grn-item-supplier-wise-report.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class GrnItemSupplierWiseReportComponent implements OnInit {

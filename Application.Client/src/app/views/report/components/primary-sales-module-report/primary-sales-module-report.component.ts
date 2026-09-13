@@ -1,9 +1,10 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 
 @Component({
     selector: "app-primary-sales-module-report",
     templateUrl: "./primary-sales-module-report.component.html",
     styleUrls: ["./primary-sales-module-report.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class PrimarySalesModuleReportComponent implements OnInit {

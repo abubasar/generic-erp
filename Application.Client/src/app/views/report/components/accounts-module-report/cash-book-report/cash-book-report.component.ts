@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Control_Accounts_Parent_Id } from "app/shared/consts/const";
 import { ControlAccount } from "app/views/configuration/models/account/control-account.model";
@@ -10,6 +10,7 @@ import { environment } from "environments/environment";
     selector: "app-cash-book-report",
     templateUrl: "./cash-book-report.component.html",
     styleUrls: ["./cash-book-report.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CashBookReportComponent implements OnInit {

@@ -15,7 +15,7 @@ export class TerritoryService {
   getAllTerritories(): Observable<SearchResponse<Territory>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<Territory>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Territory>));
   }
 
   getTerritories(
@@ -23,7 +23,7 @@ export class TerritoryService {
   ): Observable<SearchResponse<Territory>> {
     return this.api
       .getAll(territoryRequest)
-      .pipe(map((response: SearchResponse<Territory>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Territory>));
   }
 
   createTerritory(territory: Territory): Observable<GeneralResponse<string>> {

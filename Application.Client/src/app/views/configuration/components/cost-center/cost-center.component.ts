@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
@@ -17,6 +17,7 @@ import { CostCenterFormComponent } from "./cost-center-form/cost-center-form.com
     selector: "app-cost-center",
     templateUrl: "./cost-center.component.html",
     styleUrls: ["./cost-center.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CostCenterComponent implements OnInit {

@@ -17,7 +17,7 @@ export class DesignationService {
   ): Observable<SearchResponse<Designation>> {
     return this.api
       .getAll(designationRequest)
-      .pipe(map((response: SearchResponse<Designation>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Designation>));
   }
 
   createDesignation(

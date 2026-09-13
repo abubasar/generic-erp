@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatButton as MatButton } from "@angular/material/button";
 import { MatDialog as MatDialog } from "@angular/material/dialog";
@@ -49,6 +49,7 @@ import { PurchaseOrderListComponent } from "../purchase-order-list/purchase-orde
     selector: "app-goods-receive-note-form",
     templateUrl: "./goods-receive-note-form.component.html",
     styleUrls: ["./goods-receive-note-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class GoodsReceiveNoteFormComponent implements OnInit {

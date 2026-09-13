@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { MatMenuTrigger as MatMenuTrigger } from "@angular/material/menu";
@@ -33,6 +33,7 @@ import { FundTransferAggregatorModel } from "../../models/fund-transfer/fund-tra
     selector: "app-fund-transfer",
     templateUrl: "./fund-transfer.component.html",
     styleUrls: ["./fund-transfer.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class FundTransferComponent implements OnInit {

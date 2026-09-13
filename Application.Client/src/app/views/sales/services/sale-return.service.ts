@@ -20,7 +20,7 @@ export class SaleReturnService {
   ): Observable<SearchResponse<SaleReturnResponseDTO>> {
     return this.api
       .getAll(saleReturnRequest)
-      .pipe(map((response: SearchResponse<SaleReturnResponseDTO>) => response));
+      .pipe(map((response: any) => response as SearchResponse<SaleReturnResponseDTO>));
   }
 
   reportAggregates(

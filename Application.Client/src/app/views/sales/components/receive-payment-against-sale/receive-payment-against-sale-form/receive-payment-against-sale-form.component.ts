@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { MatStepper } from "@angular/material/stepper";
@@ -35,6 +35,7 @@ import { SaleInvoiceListComponent } from "../sale-invoice-list/sale-invoice-list
     selector: "app-receive-payment-against-sale-form",
     templateUrl: "./receive-payment-against-sale-form.component.html",
     styleUrls: ["./receive-payment-against-sale-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ReceivePaymentAgainstSaleFormComponent implements OnInit {

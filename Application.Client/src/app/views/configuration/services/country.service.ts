@@ -15,7 +15,7 @@ export class CountryService {
   getAllCountries(): Observable<SearchResponse<Country>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<Country>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Country>));
   }
 
   getCountries(
@@ -23,7 +23,7 @@ export class CountryService {
   ): Observable<SearchResponse<Country>> {
     return this.api
       .getAll(countryRequest)
-      .pipe(map((response: SearchResponse<Country>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Country>));
   }
 
   createCountry(country: Country): Observable<GeneralResponse<string>> {

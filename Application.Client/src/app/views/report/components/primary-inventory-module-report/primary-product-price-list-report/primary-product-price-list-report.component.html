@@ -8,7 +8,7 @@
           <mat-select formControlName="inventoryTypeId">
             <mat-option>-- None --</mat-option>
             @for (d of inventoryTypes; track d) {
-              <mat-option [value]="d?.id">
+              <mat-option [value]="$safeNavigationMigration(d?.id)">
                 {{ d?.name }}
               </mat-option>
             }
@@ -22,7 +22,7 @@
             <mat-select formControlName="categoryId">
               <mat-option>-- None --</mat-option>
               @for (d of categories; track d) {
-                <mat-option [value]="d?.id">
+                <mat-option [value]="$safeNavigationMigration(d?.id)">
                   {{ d?.name }}
                 </mat-option>
               }

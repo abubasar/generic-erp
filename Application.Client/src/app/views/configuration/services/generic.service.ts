@@ -15,7 +15,7 @@ export class GenericService {
   getAllGenerics(): Observable<SearchResponse<Generic>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<Generic>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Generic>));
   }
 
   getGenerics(
@@ -23,7 +23,7 @@ export class GenericService {
   ): Observable<SearchResponse<Generic>> {
     return this.api
       .getAll(genericRequest)
-      .pipe(map((response: SearchResponse<Generic>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Generic>));
   }
 
   createGeneric(generic: Generic): Observable<GeneralResponse<string>> {

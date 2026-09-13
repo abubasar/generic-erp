@@ -15,7 +15,7 @@ export class PackSizeService {
   getAllPackSizes(): Observable<SearchResponse<PackSize>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<PackSize>) => response));
+      .pipe(map((response: any) => response as SearchResponse<PackSize>));
   }
 
   getPackSizes(
@@ -23,7 +23,7 @@ export class PackSizeService {
   ): Observable<SearchResponse<PackSize>> {
     return this.api
       .getAll(packSizeRequest)
-      .pipe(map((response: SearchResponse<PackSize>) => response));
+      .pipe(map((response: any) => response as SearchResponse<PackSize>));
   }
 
   createPackSize(packSize: PackSize): Observable<GeneralResponse<string>> {

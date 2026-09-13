@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Inventory_Type_Id_Finished_Goods } from "app/shared/consts/const";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
@@ -17,6 +17,7 @@ import { environment } from "environments/environment";
     selector: "app-stock-depot-product-wise-short-report",
     templateUrl: "./stock-depot-product-wise-short-report.component.html",
     styleUrls: ["./stock-depot-product-wise-short-report.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class StockDepotProductWiseShortReportComponent implements OnInit {

@@ -7,10 +7,10 @@
       <h3 class="m-0">Cash Receipt Voucher No: {{ data?.voucherNo }}</h3>
       <mat-chip
         class="align-middle py-4 px-8"
-        [color]="getReceiveVoucherStatus(data?.status).color"
+        [color]="getReceiveVoucherStatus($safeNavigationMigration(data?.status)).color"
         selected
       >
-        {{ getReceiveVoucherStatusName(data?.status)?.replaceAll("_", " ") }}
+        {{ getReceiveVoucherStatusName($safeNavigationMigration(data?.status))?.replaceAll("_", " ") }}
       </mat-chip>
       <button
         mat-icon-button
@@ -18,7 +18,7 @@
         matTooltip="print pdf"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printPdf(data?.id)"
+        (click)="printPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>print</mat-icon>
       </button>
@@ -49,7 +49,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck(data?.id, data?.voucherNo)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.voucherNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -72,7 +72,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove(data?.id, data?.voucherNo)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.voucherNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -99,7 +99,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.voucherNo, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.voucherNo), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -294,7 +294,7 @@
                 >
                   <mat-option
                     *ngFor="let d of filteredCashBankAccounts"
-                    [value]="d?.id"
+                    [value]="$safeNavigationMigration(d?.id)"
                   >
                     {{ d.name }}
                   </mat-option>
@@ -356,8 +356,8 @@
                       <button
                         (click)="clearInputFromDetails($event, i)"
                         *ngIf="
-                          receiveVoucherDetails?.at(i).get('accountId')
-                            ?.value !== null &&
+                          $safeNavigationMigration(receiveVoucherDetails?.at(i).get('accountId')
+                            ?.value) !== null &&
                           receiveVoucherDetails?.at(i).get('accountId')
                             ?.value !== ''
                         "
@@ -415,7 +415,7 @@
                     mat-mini-fab
                     type="button"
                     color="warn"
-                    (click)="onDeleteItem(p?.get('id')?.value, i)"
+                    (click)="onDeleteItem($safeNavigationMigration(p?.get('id')?.value), i)"
                   >
                     <mat-icon>delete_forever</mat-icon>
                   </button>
@@ -507,8 +507,8 @@
               <span>
                 {{
                   getFundTransferTransactionTypeName(
-                    receiveVoucherForm?.get("fundTransferTransactionTypeId")
-                      ?.value
+                    $safeNavigationMigration(receiveVoucherForm?.get("fundTransferTransactionTypeId")
+                      ?.value)
                   )
                 }}
               </span>
@@ -536,7 +536,7 @@
               <span>
                 {{
                   getCostCenterName(
-                    receiveVoucherForm?.get("costCenterId")?.value
+                    $safeNavigationMigration(receiveVoucherForm?.get("costCenterId")?.value)
                   )
                 }}
               </span>
@@ -548,7 +548,7 @@
               <span>
                 {{
                   getPaymentModeName(
-                    receiveVoucherForm?.get("paymentModeId")?.value
+                    $safeNavigationMigration(receiveVoucherForm?.get("paymentModeId")?.value)
                   )
                 }}
               </span>
@@ -560,7 +560,7 @@
               <span>
                 {{
                   getCashBankAccountName(
-                    receiveVoucherForm?.get("cashBankAccountId")?.value
+                    $safeNavigationMigration(receiveVoucherForm?.get("cashBankAccountId")?.value)
                   )
                 }}
               </span>

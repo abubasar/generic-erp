@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ProductView } from "app/views/configuration/models/product/product-view.model";
 import { ProductService } from "app/views/configuration/services/product.service";
@@ -9,6 +9,7 @@ import { environment } from "environments/environment";
     selector: "app-product-audit-log-report",
     templateUrl: "./product-audit-log-report.component.html",
     styleUrls: ["./product-audit-log-report.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ProductAuditLogReportComponent implements OnInit {

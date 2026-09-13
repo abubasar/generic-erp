@@ -17,7 +17,7 @@ export class CustomerService {
   getAllCustomers(): Observable<SearchResponse<Customer>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<Customer>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Customer>));
   }
 
   getCustomers(
@@ -25,7 +25,7 @@ export class CustomerService {
   ): Observable<SearchResponse<Customer>> {
     return this.api
       .getAll(customerRequest)
-      .pipe(map((response: SearchResponse<Customer>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Customer>));
   }
 
   createCustomer(customer: Customer): Observable<GeneralResponse<string>> {

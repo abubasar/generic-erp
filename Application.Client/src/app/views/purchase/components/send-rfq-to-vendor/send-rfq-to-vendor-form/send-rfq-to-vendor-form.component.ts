@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatButton as MatButton } from "@angular/material/button";
 import { MatDialog as MatDialog } from "@angular/material/dialog";
@@ -47,6 +47,7 @@ import { SendRFQToVendorEmailComponent } from "../send-rfq-to-vendor-email/send-
     selector: "app-send-rfq-to-vendor-form",
     templateUrl: "./send-rfq-to-vendor-form.component.html",
     styleUrls: ["./send-rfq-to-vendor-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SendRFQToVendorFormComponent implements OnInit {

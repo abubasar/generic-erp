@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, Input, OnInit, Renderer2 } from "@angular/core";
+import { Component, Input, OnInit, Renderer2, ChangeDetectionStrategy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { JwtAuthService } from "../../services/auth/jwt-auth.service";
 import { LayoutService } from "../../services/layout.service";
@@ -11,6 +11,7 @@ import { environment } from "environments/environment";
 @Component({
     selector: "app-header-side",
     templateUrl: "./header-side.template.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class HeaderSideComponent implements OnInit {

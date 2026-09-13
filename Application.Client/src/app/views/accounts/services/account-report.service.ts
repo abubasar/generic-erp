@@ -14,6 +14,6 @@ export class AccountReportService {
   ): Observable<ChartOfAccount[]> {
     return this.api
       .getChartOfAccounts()
-      .pipe(map((response: ChartOfAccount[]) => response));
+      .pipe(map((response: any) => response as ChartOfAccount[]));
   }
 }

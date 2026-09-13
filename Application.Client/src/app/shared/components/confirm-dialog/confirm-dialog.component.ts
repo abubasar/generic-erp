@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Inject, OnInit, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, Inject, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { MatButton as MatButton } from "@angular/material/button";
 import { MAT_DIALOG_DATA as MAT_DIALOG_DATA, MatDialogRef as MatDialogRef } from "@angular/material/dialog";
 import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";
@@ -7,6 +7,7 @@ import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";
     selector: "app-confirm-dialog",
     templateUrl: "./confirm-dialog.component.html",
     styleUrls: ["./confirm-dialog.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ConfirmDialogComponent implements OnInit, AfterViewInit {

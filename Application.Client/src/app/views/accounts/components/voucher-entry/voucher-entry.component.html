@@ -28,7 +28,7 @@
             <mat-label>Select Voucher Type</mat-label>
             <mat-select formControlName="voucherType">
               @for (d of voucherTypes; track d) {
-                <mat-option [value]="d?.value">
+                <mat-option [value]="$safeNavigationMigration(d?.value)">
                   {{ d.name?.replaceAll("_", " ") }}
                 </mat-option>
               }
@@ -43,7 +43,7 @@
               <mat-option [value]="null">-- None --</mat-option>
               @for (d of voucherEntryStatuses; track d) {
                 <mat-option
-                  [value]="d?.value"
+                  [value]="$safeNavigationMigration(d?.value)"
                   >
                   {{ d?.name }}
                 </mat-option>
@@ -57,7 +57,7 @@
             <mat-select formControlName="costCenterId">
               <mat-option [value]="null">-- None --</mat-option>
               @for (d of costCenters; track d) {
-                <mat-option [value]="d?.id">
+                <mat-option [value]="$safeNavigationMigration(d?.id)">
                   {{ d?.name }}
                 </mat-option>
               }
@@ -70,7 +70,7 @@
             <mat-select formControlName="paymentModeId">
               <mat-option [value]="null">-- None --</mat-option>
               @for (d of paymentModes; track d) {
-                <mat-option [value]="d?.id">
+                <mat-option [value]="$safeNavigationMigration(d?.id)">
                   {{ d?.name }}
                 </mat-option>
               }
@@ -185,7 +185,7 @@
                     <mat-list-item
                       role="listitem"
                       >
-                      <mat-checkbox [formControlName]="cd?.def">
+                      <mat-checkbox [formControlName]="$safeNavigationMigration(cd?.def)">
                         {{ cd?.label }}
                       </mat-checkbox>
                     </mat-list-item>
@@ -254,7 +254,7 @@
                       Voucher Date
                     </th>
                     <td mat-cell *matCellDef="let voucherEntry">
-                      {{ dateFormatService?.getDateFormat(voucherEntry?.voucherDate) }}
+                      {{ dateFormatService?.getDateFormat($safeNavigationMigration(voucherEntry?.voucherDate)) }}
                     </td>
                   </ng-container>
                   <!-- costCenterId Column -->
@@ -291,7 +291,7 @@
                     </th>
                     <td mat-cell *matCellDef="let voucherEntry">
                       {{
-                      getVoucherTypeName(voucherEntry?.voucherType)?.replaceAll(
+                      getVoucherTypeName($safeNavigationMigration(voucherEntry?.voucherType))?.replaceAll(
                       "_",
                       " "
                       )
@@ -302,7 +302,7 @@
                   <ng-container matColumnDef="cashBankAccountId">
                     <th mat-header-cell class="header" *matHeaderCellDef>Cash/Bank</th>
                     <td mat-cell *matCellDef="let voucherEntry">
-                      {{ getCashBankAccountName(voucherEntry?.cashBankAccountId) }}
+                      {{ getCashBankAccountName($safeNavigationMigration(voucherEntry?.cashBankAccountId)) }}
                     </td>
                   </ng-container>
                   <!-- totalAmount Column -->
@@ -327,11 +327,11 @@
                     <td mat-cell *matCellDef="let voucherEntry">
                       <mat-chip
                         class="align-middle py-4 px-8"
-                        [color]="getVoucherEntryStatus(voucherEntry?.status)?.color"
+                        [color]="$safeNavigationMigration(getVoucherEntryStatus($safeNavigationMigration(voucherEntry?.status))?.color)"
                         selected
                         >
                         {{
-                        getVoucherEntryStatusName(voucherEntry?.status)?.replaceAll(
+                        getVoucherEntryStatusName($safeNavigationMigration(voucherEntry?.status))?.replaceAll(
                         "_",
                         " "
                         )
@@ -366,14 +366,14 @@
                   <ng-container matColumnDef="createdOn">
                     <th mat-header-cell class="header" *matHeaderCellDef>Created On</th>
                     <td mat-cell *matCellDef="let element">
-                      {{ dateFormatService?.getDateAndTime(element?.createdOn) }}
+                      {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.createdOn)) }}
                     </td>
                   </ng-container>
                   <!-- Updated On Column -->
                   <ng-container matColumnDef="updatedOn">
                     <th mat-header-cell class="header" *matHeaderCellDef>Updated On</th>
                     <td mat-cell *matCellDef="let element">
-                      {{ dateFormatService?.getDateAndTime(element?.updatedOn) }}
+                      {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.updatedOn)) }}
                     </td>
                   </ng-container>
                   <!-- Created By Column -->
@@ -423,7 +423,7 @@
                         matTooltipShowDelay="300"
                         matTooltipPosition="above"
                 (click)="
-                  confirmDelete(voucherEntry?.id, voucherEntry?.voucherNo)
+                  confirmDelete($safeNavigationMigration(voucherEntry?.id), $safeNavigationMigration(voucherEntry?.voucherNo))
                 "
                         >
                         <mat-icon>delete</mat-icon>
@@ -434,7 +434,7 @@
                         matTooltip="print pdf"
                         matTooltipShowDelay="300"
                         matTooltipPosition="above"
-                        (click)="printPdf(voucherEntry?.id)"
+                        (click)="printPdf($safeNavigationMigration(voucherEntry?.id))"
                         >
                         <mat-icon>print</mat-icon>
                       </button>
@@ -454,7 +454,7 @@
                 "
                         >
                         <app-voucher-entry-detail
-                          [data]="element?.voucherEntryDetails"
+                          [data]="$safeNavigationMigration(element?.voucherEntryDetails)"
                         ></app-voucher-entry-detail>
                       </div>
                     </td>

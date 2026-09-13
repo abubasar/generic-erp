@@ -5,6 +5,7 @@ import {
   Inject,
   OnInit,
   ViewChild,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import {
   FormArray,
@@ -31,6 +32,7 @@ import { ToastrService } from "ngx-toastr";
     selector: "app-supplier-form",
     templateUrl: "./supplier-form.component.html",
     styleUrls: ["./supplier-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SupplierFormComponent implements OnInit {

@@ -15,14 +15,14 @@ export class DeliveryPlaceService {
   getAllDeliveryPlaces(): Observable<SearchResponse<DeliveryPlace>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<DeliveryPlace>) => response));
+      .pipe(map((response: any) => response as SearchResponse<DeliveryPlace>));
   }
   getDeliveryPlaces(
     deliveryPlaceRequest: DeliveryPlaceRequest
   ): Observable<SearchResponse<DeliveryPlace>> {
     return this.api
       .getAll(deliveryPlaceRequest)
-      .pipe(map((response: SearchResponse<DeliveryPlace>) => response));
+      .pipe(map((response: any) => response as SearchResponse<DeliveryPlace>));
   }
 
   createDeliveryPlace(deliveryPlace: DeliveryPlace): Observable<GeneralResponse<string>> {

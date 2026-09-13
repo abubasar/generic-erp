@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { Router } from "@angular/router";
 import { VendorQuotationStatus } from "app/shared/enums/vendorQuotationStatus";
@@ -17,6 +17,7 @@ import { ToastrService } from "ngx-toastr";
     selector: "app-vendor-quote-comparison",
     templateUrl: "./vendor-quote-comparison.component.html",
     styleUrls: ["./vendor-quote-comparison.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class VendorQuoteComparisonComponent implements OnInit {

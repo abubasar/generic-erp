@@ -1,9 +1,10 @@
-import { Component, OnInit, Input } from "@angular/core";
+import { Component, OnInit, Input, ChangeDetectionStrategy } from "@angular/core";
 
 @Component({
     selector: "button-loading",
     templateUrl: "./button-loading.component.html",
     styleUrls: ["./button-loading.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ButtonLoadingComponent implements OnInit {

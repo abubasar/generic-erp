@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatButton as MatButton } from "@angular/material/button";
 import { MatDialog as MatDialog } from "@angular/material/dialog";
@@ -48,6 +48,7 @@ import { BillOfMaterialListComponent } from "../bill-of-material-list/bill-of-ma
     selector: "app-manufacturing-order-form",
     templateUrl: "./manufacturing-order-form.component.html",
     styleUrls: ["./manufacturing-order-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ManufacturingOrderFormComponent implements OnInit {

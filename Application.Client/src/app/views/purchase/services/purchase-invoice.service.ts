@@ -21,7 +21,7 @@ export class PurchaseInvoiceService {
     return this.api
       .getAll(purchaseInvoiceRequest)
       .pipe(
-        map((response: SearchResponse<PurchaseInvoiceResponseDTO>) => response)
+        map((response: any) => response as SearchResponse<PurchaseInvoiceResponseDTO>)
       );
   }
 

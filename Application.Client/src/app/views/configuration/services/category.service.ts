@@ -15,7 +15,7 @@ export class CategoryService {
   getAllCategories(): Observable<SearchResponse<Category>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<Category>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Category>));
   }
 
   getCategories(
@@ -23,7 +23,7 @@ export class CategoryService {
   ): Observable<SearchResponse<Category>> {
     return this.api
       .getAll(categoryRequest)
-      .pipe(map((response: SearchResponse<Category>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Category>));
   }
 
   createCategory(category: Category): Observable<GeneralResponse<string>> {

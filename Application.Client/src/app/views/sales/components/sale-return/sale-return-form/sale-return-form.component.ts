@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import {
   FormArray,
   FormBuilder,
@@ -57,6 +57,7 @@ import { SaleInvoiceDialogComponent } from "../sale-invoice-dialog/sale-invoice-
     selector: "app-sale-return-form",
     templateUrl: "./sale-return-form.component.html",
     styleUrls: ["./sale-return-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SaleReturnFormComponent implements OnInit {

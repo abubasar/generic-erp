@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Inventory_Type_Id_Raw_Materials } from "app/shared/consts/const";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
@@ -14,6 +14,7 @@ import { environment } from "environments/environment";
     selector: "app-current-stock-purchase-rate-and-quantity",
     templateUrl: "./current-stock-purchase-rate-and-quantity.component.html",
     styleUrls: ["./current-stock-purchase-rate-and-quantity.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CurrentStockPurchaseRateAndQuantityComponent implements OnInit {

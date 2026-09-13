@@ -20,7 +20,7 @@ export class JournalEntryService {
     return this.api
       .getAll(journalEntryRequest)
       .pipe(
-        map((response: SearchResponse<JournalEntryResponseDTO>) => response)
+        map((response: any) => response as SearchResponse<JournalEntryResponseDTO>)
       );
   }
 

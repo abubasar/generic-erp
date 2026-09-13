@@ -8,10 +8,10 @@
       <div>
         <mat-chip
           class="align-middle py-4 px-8"
-          [color]="getSaleInvoiceStatus(data?.status)?.color"
+          [color]="$safeNavigationMigration(getSaleInvoiceStatus($safeNavigationMigration(data?.status))?.color)"
           selected
           >{{
-            getSaleInvoiceStatusName(data?.status)?.replaceAll("_", " ")
+            getSaleInvoiceStatusName($safeNavigationMigration(data?.status))?.replaceAll("_", " ")
           }}</mat-chip
         >
       </div>
@@ -21,7 +21,7 @@
         matTooltip="print pdf"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printPdf(data?.id)"
+        (click)="printPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>print</mat-icon>
       </button>
@@ -31,7 +31,7 @@
         matTooltip="Print VAT Chalan"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printVatPdf(data?.id)"
+        (click)="printVatPdf($safeNavigationMigration(data?.id))"
       >
         VAT Chalan
       </button>
@@ -61,7 +61,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck(data?.id, data?.invoiceNo)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.invoiceNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -84,7 +84,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove(data?.id, data?.invoiceNo)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.invoiceNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -105,7 +105,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmSendToCustomer(data?.id, data?.invoiceNo)"
+        (click)="confirmSendToCustomer($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.invoiceNo))"
       >
         <ng-container *ngIf="isLoading; else sendText">
           <mat-icon>
@@ -133,7 +133,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.invoiceNo, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.invoiceNo), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -171,7 +171,7 @@
                 <mat-error>Delivery Note No is required</mat-error>
               </mat-form-field>
               <button
-                [hidden]="this.data?.id"
+                [hidden]="$safeNavigationMigration(this.data?.id)"
                 type="button"
                 mat-icon-button
                 color="primary"
@@ -248,7 +248,7 @@
               <mat-form-field class="full-width">
                 <mat-label>Select Payment Term</mat-label>
                 <mat-select formControlName="paymentTerm">
-                  <mat-option *ngFor="let d of paymentTerms" [value]="d?.value">
+                  <mat-option *ngFor="let d of paymentTerms" [value]="$safeNavigationMigration(d?.value)">
                     {{ d?.name }}
                   </mat-option>
                 </mat-select>
@@ -740,7 +740,7 @@
                 <span>Subtotal</span>
                 <span>
                   {{
-                    saleInvoiceForm?.get("subtotal")?.value
+                    $safeNavigationMigration(saleInvoiceForm?.get("subtotal")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -804,7 +804,7 @@
                 <span>Net Sale</span>
                 <span>
                   {{
-                    saleInvoiceForm?.get("total")?.value
+                    $safeNavigationMigration(saleInvoiceForm?.get("total")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -902,7 +902,7 @@
               <span>
                 {{
                   dateFormatService.getDateFormat(
-                    saleInvoiceForm.get("invoiceDate")?.value
+                    $safeNavigationMigration(saleInvoiceForm.get("invoiceDate")?.value)
                   )
                 }}
               </span>
@@ -912,7 +912,7 @@
               <span>Payment Term</span>
               <span>
                 {{
-                  getPaymentTermName(saleInvoiceForm.get("paymentTerm")?.value)
+                  getPaymentTermName($safeNavigationMigration(saleInvoiceForm.get("paymentTerm")?.value))
                 }}
               </span>
             </div>
@@ -920,7 +920,7 @@
             <div class="col label-data">
               <span>Customer</span>
               <span>
-                {{ getCustomerName(saleInvoiceForm?.get("customerId")?.value) }}
+                {{ getCustomerName($safeNavigationMigration(saleInvoiceForm?.get("customerId")?.value)) }}
               </span>
             </div>
             <!-- referenceNo -->
@@ -975,7 +975,7 @@
               <span>Subtotal</span>
               <span>
                 {{
-                  saleInvoiceForm?.get("subtotal")?.value
+                  $safeNavigationMigration(saleInvoiceForm?.get("subtotal")?.value)
                     | currency : "BDT" : "" : "1.2-2"
                 }}
               </span>
@@ -1039,7 +1039,7 @@
               <span>Net Sale</span>
               <span>
                 {{
-                  saleInvoiceForm?.get("total")?.value
+                  $safeNavigationMigration(saleInvoiceForm?.get("total")?.value)
                     | currency : "BDT" : "" : "1.2-2"
                 }}
               </span>
@@ -1053,7 +1053,7 @@
               <span>Transportation Cost</span>
               <span>
                 {{
-                  saleInvoiceForm?.get("transportationCost")?.value
+                  $safeNavigationMigration(saleInvoiceForm?.get("transportationCost")?.value)
                     | currency : "BDT" : "" : "1.2-2"
                 }}
               </span>
@@ -1075,7 +1075,7 @@
               <span>Total Payable</span>
               <span>
                 {{
-                  saleInvoiceForm?.get("netTotal")?.value
+                  $safeNavigationMigration(saleInvoiceForm?.get("netTotal")?.value)
                     | currency : "BDT" : "" : "1.2-2"
                 }}
               </span>

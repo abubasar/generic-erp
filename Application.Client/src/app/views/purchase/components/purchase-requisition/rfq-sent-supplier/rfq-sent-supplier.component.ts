@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { MatDialogRef as MatDialogRef, MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { PurchaseRequisitionResponseDTO } from "app/views/purchase/models/purchase-requisition/purchase-requisition-response-dto.model";
@@ -9,6 +9,7 @@ import { PurchaseRequisitionService } from "app/views/purchase/services/purchase
     selector: "app-rfq-sent-supplier",
     templateUrl: "./rfq-sent-supplier.component.html",
     styleUrls: ["./rfq-sent-supplier.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class RfqSentSupplierComponent implements OnInit {

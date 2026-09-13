@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { UserProfile } from "app/shared/models/user-profile-model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
 
@@ -6,6 +6,7 @@ import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
     selector: "app-sales-quotation-list-detail",
     templateUrl: "./sales-quotation-list-detail.component.html",
     styleUrls: ["./sales-quotation-list-detail.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SalesQuotationListDetailComponent implements OnInit {

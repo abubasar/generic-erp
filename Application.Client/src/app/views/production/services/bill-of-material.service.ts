@@ -20,7 +20,7 @@ export class BillOfMaterialService {
     return this.api
       .getAll(billOfMaterialRequest)
       .pipe(
-        map((response: SearchResponse<BillOfMaterialResponseDTO>) => response)
+        map((response: any) => response as SearchResponse<BillOfMaterialResponseDTO>)
       );
   }
 

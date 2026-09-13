@@ -9,10 +9,10 @@
         <h3 class="m-0">Vendor Quotation No: {{ data?.quotationNo }}</h3>
         <mat-chip
           class="align-middle py-4 px-8"
-          [color]="getVendorQuotationStatus(data?.status).color"
+          [color]="getVendorQuotationStatus($safeNavigationMigration(data?.status)).color"
           selected
           >
-          {{ getVendorQuotationStatusName(data?.status)?.replaceAll("_", " ") }}
+          {{ getVendorQuotationStatusName($safeNavigationMigration(data?.status))?.replaceAll("_", " ") }}
         </mat-chip>
         <button
           *appHasPermission="['Permissions.VendorQuotations.Edit']"
@@ -44,7 +44,7 @@
           matTooltipShowDelay="300"
           matTooltipPosition="above"
           [disabled]="isLoading"
-          (click)="unpost(data?.requisitionNo)"
+          (click)="unpost($safeNavigationMigration(data?.requisitionNo))"
           >
           @if (isLoading) {
             <mat-icon>
@@ -81,7 +81,7 @@
                   />
                 </mat-form-field>
                 <button
-                  [hidden]="this.data?.id"
+                  [hidden]="$safeNavigationMigration(this.data?.id)"
                   type="button"
                   mat-icon-button
                   color="primary"
@@ -110,7 +110,7 @@
                     <mat-select formControlName="storeId">
                       <mat-option [value]="null">-- None --</mat-option>
                       @for (d of stores; track d) {
-                        <mat-option [value]="d?.id">
+                        <mat-option [value]="$safeNavigationMigration(d?.id)">
                           {{ d?.name }}
                         </mat-option>
                       }
@@ -152,7 +152,7 @@
                     <mat-label>Select Payment Mode</mat-label>
                     <mat-select formControlName="paymentMode">
                       @for (d of paymentModes; track d) {
-                        <mat-option [value]="d?.value">
+                        <mat-option [value]="$safeNavigationMigration(d?.value)">
                           {{ d?.name }}
                         </mat-option>
                       }
@@ -293,7 +293,7 @@
                                   <mat-option
                                     [value]="d.value"
                                     >
-                                    {{ getImportPurchasePaymentTermName(d?.value) }}
+                                    {{ getImportPurchasePaymentTermName($safeNavigationMigration(d?.value)) }}
                                   </mat-option>
                                 }
                               </mat-select>
@@ -427,7 +427,7 @@
                                             mat-mini-fab
                                             type="button"
                                             color="warn"
-                                            (click)="onDeleteItem(p?.get('id')?.value, i)"
+                                            (click)="onDeleteItem($safeNavigationMigration(p?.get('id')?.value), i)"
                                             >
                                             <mat-icon>delete_forever</mat-icon>
                                           </button>
@@ -527,7 +527,7 @@
                                         <div class="col label-data">
                                           <span>Store</span>
                                           <span>
-                                            {{ getStoreName(vendorQuotationForm?.get("storeId")?.value) }}
+                                            {{ getStoreName($safeNavigationMigration(vendorQuotationForm?.get("storeId")?.value)) }}
                                           </span>
                                         </div>
                                         <!-- store -->
@@ -535,7 +535,7 @@
                                           <span>Supplier</span>
                                           <span>
                                             {{
-                                            getSupplierName(vendorQuotationForm?.get("supplierId")?.value)
+                                            getSupplierName($safeNavigationMigration(vendorQuotationForm?.get("supplierId")?.value))
                                             }}
                                           </span>
                                         </div>
@@ -617,7 +617,7 @@
                                               <span>
                                                 {{
                                                 getCurrencyName(
-                                                vendorQuotationForm?.get("currencyId")?.value
+                                                $safeNavigationMigration(vendorQuotationForm?.get("currencyId")?.value)
                                                 )
                                                 }}
                                               </span>
@@ -628,7 +628,7 @@
                                               <span>
                                                 {{
                                                 getImportPurchaseIncoTermName(
-                                                vendorQuotationForm?.get("importPurchaseIncoTerm")?.value
+                                                $safeNavigationMigration(vendorQuotationForm?.get("importPurchaseIncoTerm")?.value)
                                                 )
                                                 }}
                                               </span>
@@ -639,8 +639,8 @@
                                               <span>
                                                 {{
                                                 getImportPurchasePaymentTermName(
-                                                vendorQuotationForm?.get("importPurchasePaymentTerm")
-                                                ?.value
+                                                $safeNavigationMigration(vendorQuotationForm?.get("importPurchasePaymentTerm")
+                                                ?.value)
                                                 )
                                                 }}
                                               </span>
@@ -663,7 +663,7 @@
                                               <span>Total</span>
                                               <span>
                                                 {{
-                                                vendorQuotationForm?.get("totalAmount")?.value
+                                                $safeNavigationMigration(vendorQuotationForm?.get("totalAmount")?.value)
                                                 | currency : "BDT" : "" : "1.2-2"
                                                 }}
                                               </span>

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { PaymentMethod } from "app/views/configuration/models/payment-method/payment-method.model";
@@ -9,6 +9,7 @@ import { ToastrService } from "ngx-toastr";
     selector: "app-payment-method-form",
     templateUrl: "./payment-method-form.component.html",
     styleUrls: ["./payment-method-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class PaymentMethodFormComponent implements OnInit {

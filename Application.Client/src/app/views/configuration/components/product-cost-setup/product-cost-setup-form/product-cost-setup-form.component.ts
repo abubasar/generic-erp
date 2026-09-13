@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Inventory_Type_Id_Finished_Goods } from "app/shared/consts/const";
@@ -13,6 +13,7 @@ import { ToastrService } from "ngx-toastr";
     selector: "app-product-cost-setup-form",
     templateUrl: "./product-cost-setup-form.component.html",
     styleUrls: ["./product-cost-setup-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ProductCostSetupFormComponent implements OnInit {

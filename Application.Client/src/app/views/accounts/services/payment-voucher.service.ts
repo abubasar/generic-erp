@@ -21,7 +21,7 @@ export class PaymentVoucherService {
     return this.api
       .getAll(paymentVoucherRequest)
       .pipe(
-        map((response: SearchResponse<PaymentVoucherResponseDTO>) => response)
+        map((response: any) => response as SearchResponse<PaymentVoucherResponseDTO>)
       );
   }
 

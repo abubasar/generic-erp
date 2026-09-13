@@ -8,10 +8,10 @@
       <div>
         <mat-chip
           class="align-middle py-4 px-8"
-          [color]="getPurchaseInvoiceStatus(data?.status)?.color"
+          [color]="$safeNavigationMigration(getPurchaseInvoiceStatus($safeNavigationMigration(data?.status))?.color)"
           selected
           >{{
-            getPurchaseInvoiceStatusName(data?.status)?.replaceAll("_", " ")
+            getPurchaseInvoiceStatusName($safeNavigationMigration(data?.status))?.replaceAll("_", " ")
           }}</mat-chip
         >
       </div>
@@ -21,7 +21,7 @@
         matTooltip="print pdf"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printPdf(data?.id)"
+        (click)="printPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>print</mat-icon>
       </button>
@@ -51,7 +51,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck(data?.id, data?.purchaseInvoiceNo)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.purchaseInvoiceNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -74,7 +74,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove(data?.id, data?.purchaseInvoiceNo)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.purchaseInvoiceNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -102,7 +102,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.purchaseInvoiceNo, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.purchaseInvoiceNo), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -176,7 +176,7 @@
                   <mat-label>Select Currency</mat-label>
                   <mat-select [disabled]="true" formControlName="currencyId">
                     <mat-option [value]="null">-- None --</mat-option>
-                    <mat-option *ngFor="let d of currencies" [value]="d?.id">
+                    <mat-option *ngFor="let d of currencies" [value]="$safeNavigationMigration(d?.id)">
                       {{ d?.name }}
                     </mat-option>
                   </mat-select>
@@ -211,7 +211,7 @@
                     <mat-option [value]="null">-- None --</mat-option>
                     <mat-option
                       *ngFor="let d of importPurchaseIncoTerms"
-                      [value]="d?.value"
+                      [value]="$safeNavigationMigration(d?.value)"
                     >
                       {{ d?.name }}
                     </mat-option>
@@ -230,7 +230,7 @@
                     <mat-option [value]="null">-- None --</mat-option>
                     <mat-option
                       *ngFor="let d of importPurchasePaymentTerms"
-                      [value]="d?.value"
+                      [value]="$safeNavigationMigration(d?.value)"
                     >
                       {{ d?.name == "LCAtSite" ? "LC at Site" : d?.name }}
                     </mat-option>
@@ -278,7 +278,7 @@
                 <mat-error>GRN no is required</mat-error>
               </mat-form-field>
               <button
-                [hidden]="this.data?.id"
+                [hidden]="$safeNavigationMigration(this.data?.id)"
                 type="button"
                 mat-icon-button
                 color="primary"
@@ -362,7 +362,7 @@
                     hidden
                     (click)="clearInput($event, 'storeId')"
                     *ngIf="
-                      purchaseInvoiceForm?.get('storeId')?.value !== null &&
+                      $safeNavigationMigration(purchaseInvoiceForm?.get('storeId')?.value) !== null &&
                       purchaseInvoiceForm?.get('storeId')?.value !== ''
                     "
                     aria-label="Clear"
@@ -406,7 +406,7 @@
                     hidden
                     (click)="clearInput($event, 'supplierId')"
                     *ngIf="
-                      purchaseInvoiceForm?.get('supplierId')?.value !== null &&
+                      $safeNavigationMigration(purchaseInvoiceForm?.get('supplierId')?.value) !== null &&
                       purchaseInvoiceForm?.get('supplierId')?.value !== ''
                     "
                     aria-label="Clear"
@@ -606,8 +606,8 @@
                         hidden
                         (click)="clearInputFromDetails($event, i)"
                         *ngIf="
-                          purchaseInvoiceDetails?.at(i).get('productId')
-                            ?.value !== null &&
+                          $safeNavigationMigration(purchaseInvoiceDetails?.at(i).get('productId')
+                            ?.value) !== null &&
                           purchaseInvoiceDetails?.at(i).get('productId')
                             ?.value !== ''
                         "
@@ -826,7 +826,7 @@
                 <span>Subtotal</span>
                 <span>
                   {{
-                    purchaseInvoiceForm?.get("subtotal")?.value
+                    $safeNavigationMigration(purchaseInvoiceForm?.get("subtotal")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -881,7 +881,7 @@
                 <span>Total</span>
                 <span>
                   {{
-                    purchaseInvoiceForm?.get("total")?.value
+                    $safeNavigationMigration(purchaseInvoiceForm?.get("total")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -893,7 +893,7 @@
                   <div>
                     <span>Advance Supplier Payment</span>
                     <button
-                      [hidden]="this.data?.supplierPaymentCode"
+                      [hidden]="$safeNavigationMigration(this.data?.supplierPaymentCode)"
                       type="button"
                       mat-icon-button
                       matBadge="{{ totalSupplierPaymentCount }}"
@@ -913,7 +913,7 @@
                       color="warn"
                       matTooltip="Reset Supplier Payment Amount"
                       matTooltipPosition="above"
-                      (click)="confirmResetAdvanceAmount(data?.id)"
+                      (click)="confirmResetAdvanceAmount($safeNavigationMigration(data?.id))"
                     >
                       <mat-icon>undo</mat-icon>
                     </button>
@@ -941,7 +941,7 @@
                   </div>
                   <span>
                     {{
-                      purchaseInvoiceForm?.get("advancePaymentAmount")?.value
+                      $safeNavigationMigration(purchaseInvoiceForm?.get("advancePaymentAmount")?.value)
                         | currency : "BDT" : "" : "1.2-2"
                     }}
                   </span>
@@ -952,8 +952,8 @@
                   <span>Total GRN Adjustment Amount</span>
                   <span>
                     {{
-                      purchaseInvoiceForm?.get("totalGrnAdjustmentAmount")
-                        ?.value | currency : "BDT" : "" : "1.2-2"
+                      $safeNavigationMigration(purchaseInvoiceForm?.get("totalGrnAdjustmentAmount")
+                        ?.value) | currency : "BDT" : "" : "1.2-2"
                     }}
                   </span>
                 </div>
@@ -965,7 +965,7 @@
                   <span>Adjustment Value</span>
                   <span>
                     {{
-                      purchaseInvoiceForm?.get("adjustmentValue")?.value
+                      $safeNavigationMigration(purchaseInvoiceForm?.get("adjustmentValue")?.value)
                         | currency : "BDT" : "" : "1.2-2"
                     }}
                   </span>
@@ -977,7 +977,7 @@
                 <span>Net Payable</span>
                 <span>
                   {{
-                    purchaseInvoiceForm?.get("netPayable")?.value
+                    $safeNavigationMigration(purchaseInvoiceForm?.get("netPayable")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -1053,7 +1053,7 @@
                   {{
                     purchaseInvoiceForm?.get("currencyId")?.value
                       ? getCurrencyName(
-                          purchaseInvoiceForm?.get("currencyId")?.value
+                          $safeNavigationMigration(purchaseInvoiceForm?.get("currencyId")?.value)
                         )
                       : ""
                   }}
@@ -1075,8 +1075,8 @@
                   {{
                     purchaseInvoiceForm?.get("importPurchaseIncoTerm")?.value
                       ? getImportPurchaseIncoTermName(
-                          purchaseInvoiceForm?.get("importPurchaseIncoTerm")
-                            ?.value
+                          $safeNavigationMigration(purchaseInvoiceForm?.get("importPurchaseIncoTerm")
+                            ?.value)
                         )
                       : ""
                   }}
@@ -1090,8 +1090,8 @@
                   {{
                     purchaseInvoiceForm?.get("importPurchasePaymentTerm")?.value
                       ? getImportPurchasePaymentTermName(
-                          purchaseInvoiceForm?.get("importPurchasePaymentTerm")
-                            ?.value
+                          $safeNavigationMigration(purchaseInvoiceForm?.get("importPurchasePaymentTerm")
+                            ?.value)
                         )?.replaceAll("_", " ")
                       : ""
                   }}
@@ -1150,7 +1150,7 @@
               <span>
                 {{
                   dateFormatService.getDateFormat(
-                    purchaseInvoiceForm.get("invoiceDate")?.value
+                    $safeNavigationMigration(purchaseInvoiceForm.get("invoiceDate")?.value)
                   )
                 }}
               </span>
@@ -1159,7 +1159,7 @@
             <div class="col label-data">
               <span>Store</span>
               <span>
-                {{ getStoreName(purchaseInvoiceForm?.get("storeId")?.value) }}
+                {{ getStoreName($safeNavigationMigration(purchaseInvoiceForm?.get("storeId")?.value)) }}
               </span>
             </div>
 
@@ -1168,7 +1168,7 @@
               <span>Supplier</span>
               <span>
                 {{
-                  getSupplierName(purchaseInvoiceForm?.get("supplierId")?.value)
+                  getSupplierName($safeNavigationMigration(purchaseInvoiceForm?.get("supplierId")?.value))
                 }}
               </span>
             </div>
@@ -1187,7 +1187,7 @@
                 <span>
                   {{
                     dateFormatService.getDateFormat(
-                      purchaseInvoiceForm.get("supplierInvoiceDate")?.value
+                      $safeNavigationMigration(purchaseInvoiceForm.get("supplierInvoiceDate")?.value)
                     )
                   }}
                 </span>
@@ -1209,7 +1209,7 @@
                 <span>
                   {{
                     dateFormatService.getDateFormat(
-                      purchaseInvoiceForm.get("billOfEntryDate")?.value
+                      $safeNavigationMigration(purchaseInvoiceForm.get("billOfEntryDate")?.value)
                     )
                   }}
                 </span>
@@ -1253,7 +1253,7 @@
               <span>Subtotal</span>
               <span>
                 {{
-                  purchaseInvoiceForm?.get("subtotal")?.value
+                  $safeNavigationMigration(purchaseInvoiceForm?.get("subtotal")?.value)
                     | currency : "BDT" : "" : "1.2-2"
                 }}
               </span>
@@ -1276,7 +1276,7 @@
               <span>Total</span>
               <span>
                 {{
-                  purchaseInvoiceForm?.get("total")?.value
+                  $safeNavigationMigration(purchaseInvoiceForm?.get("total")?.value)
                     | currency : "BDT" : "" : "1.2-2"
                 }}
               </span>
@@ -1309,7 +1309,7 @@
                 <span>Total GRN Adjustment Amount</span>
                 <span>
                   {{
-                    purchaseInvoiceForm?.get("totalGrnAdjustmentAmount")?.value
+                    $safeNavigationMigration(purchaseInvoiceForm?.get("totalGrnAdjustmentAmount")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -1322,7 +1322,7 @@
                 <span>Adjustment Value</span>
                 <span>
                   {{
-                    purchaseInvoiceForm?.get("adjustmentValue")?.value
+                    $safeNavigationMigration(purchaseInvoiceForm?.get("adjustmentValue")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -1334,7 +1334,7 @@
               <span>Net Payable</span>
               <span>
                 {{
-                  purchaseInvoiceForm?.get("netPayable")?.value
+                  $safeNavigationMigration(purchaseInvoiceForm?.get("netPayable")?.value)
                     | currency : "BDT" : "" : "1.2-2"
                 }}
               </span>

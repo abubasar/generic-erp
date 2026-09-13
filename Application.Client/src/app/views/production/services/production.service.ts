@@ -20,7 +20,7 @@ export class ProductionService {
   ): Observable<SearchResponse<ProductionResponseDTO>> {
     return this.api
       .getAll(productionRequest)
-      .pipe(map((response: SearchResponse<ProductionResponseDTO>) => response));
+      .pipe(map((response: any) => response as SearchResponse<ProductionResponseDTO>));
   }
 
   reportAggregates(

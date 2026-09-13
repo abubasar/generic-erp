@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
@@ -15,6 +15,7 @@ import { TenantFormComponent } from "./tenant-form/tenant-form.component";
     selector: "app-tenant",
     templateUrl: "./tenant.component.html",
     styleUrls: ["./tenant.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TenantComponent implements OnInit {

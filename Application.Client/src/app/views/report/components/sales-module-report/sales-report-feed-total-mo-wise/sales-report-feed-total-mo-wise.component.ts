@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { environment } from "environments/environment";
 
@@ -7,6 +7,7 @@ import { environment } from "environments/environment";
     selector: "app-sales-report-feed-total-mo-wise",
     templateUrl: "./sales-report-feed-total-mo-wise.component.html",
     styleUrls: ["./sales-report-feed-total-mo-wise.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SalesReportFeedTotalMoWiseComponent implements OnInit {

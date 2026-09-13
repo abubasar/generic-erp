@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import {
   CustomerWiseProductDiscount,
@@ -31,6 +31,7 @@ import { finalize } from "rxjs";
     selector: "app-customer-wise-product-discount-edit-form",
     templateUrl: "./customer-wise-product-discount-edit-form.component.html",
     styleUrls: ["./customer-wise-product-discount-edit-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CustomerWiseProductDiscountEditFormComponent implements OnInit {

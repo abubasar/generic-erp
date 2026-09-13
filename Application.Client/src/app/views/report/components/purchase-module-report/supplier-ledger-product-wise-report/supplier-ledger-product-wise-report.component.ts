@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { CostCenter } from "app/views/configuration/models/cost-center/cost-center.model";
 import { Supplier } from "app/views/configuration/models/supplier/supplier.model";
@@ -11,6 +11,7 @@ import { environment } from "environments/environment";
     selector: "app-supplier-ledger-product-wise-report",
     templateUrl: "./supplier-ledger-product-wise-report.component.html",
     styleUrls: ["./supplier-ledger-product-wise-report.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SupplierLedgerProductWiseReportComponent implements OnInit {

@@ -17,6 +17,7 @@ import { JwtAuthService } from '../../../services/auth/jwt-auth.service';
 @Component({
     selector: 'app-admin-layout',
     templateUrl: './admin-layout.template.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class AdminLayoutComponent implements OnInit, AfterViewInit {

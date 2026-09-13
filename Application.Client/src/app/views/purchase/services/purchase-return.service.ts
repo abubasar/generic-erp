@@ -21,7 +21,7 @@ export class PurchaseReturnService {
     return this.api
       .getAll(saleReturnRequest)
       .pipe(
-        map((response: SearchResponse<PurchaseReturnResponseDTO>) => response)
+        map((response: any) => response as SearchResponse<PurchaseReturnResponseDTO>)
       );
   }
 

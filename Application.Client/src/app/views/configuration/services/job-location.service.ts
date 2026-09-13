@@ -17,7 +17,7 @@ export class JobLocationService {
   ): Observable<SearchResponse<JobLocation>> {
     return this.api
       .getAll(jobLocationRequest)
-      .pipe(map((response: SearchResponse<JobLocation>) => response));
+      .pipe(map((response: any) => response as SearchResponse<JobLocation>));
   }
 
   createJobLocation(

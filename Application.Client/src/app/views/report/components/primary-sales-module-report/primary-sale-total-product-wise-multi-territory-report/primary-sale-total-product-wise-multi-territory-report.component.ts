@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { UserProfile } from "app/shared/models/user-profile-model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
@@ -11,6 +11,7 @@ import { environment } from "environments/environment";
     styleUrls: [
         "./primary-sale-total-product-wise-multi-territory-report.component.scss",
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class PrimarySaleTotalProductWiseMultiTerritoryReportComponent

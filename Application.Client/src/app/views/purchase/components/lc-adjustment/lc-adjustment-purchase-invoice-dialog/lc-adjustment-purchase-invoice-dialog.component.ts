@@ -5,7 +5,7 @@ import {
   transition,
   trigger,
 } from "@angular/animations";
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { MatMenuTrigger as MatMenuTrigger } from "@angular/material/menu";
 import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
@@ -31,6 +31,7 @@ import { Observable, merge, of } from "rxjs";
             transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
         ]),
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class LcAdjustmentPurchaseInvoiceDialogComponent implements OnInit {

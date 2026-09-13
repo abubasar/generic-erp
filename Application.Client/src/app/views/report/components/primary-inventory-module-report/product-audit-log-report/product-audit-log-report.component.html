@@ -51,7 +51,7 @@
                 name="productId"
                 formControlName="productId"
                 [matAutocomplete]="product"
-                (keyup)="onProductChange($event?.target?.value)"
+                (keyup)="onProductChange($safeNavigationMigration($event?.target?.value))"
                 />
                 <div matSuffix>
                   @if (searchForm?.get('productId')?.value) {

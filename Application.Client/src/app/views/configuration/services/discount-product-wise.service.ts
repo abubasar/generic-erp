@@ -24,14 +24,14 @@ export class DiscountProductWiseService {
   > {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<DiscountProductWise>) => response));
+      .pipe(map((response: any) => response as SearchResponse<DiscountProductWise>));
   }
   getDiscountProductWises(
     discountProductWiseRequest: DiscountProductWiseRequest
   ): Observable<SearchResponse<DiscountProductWise>> {
     return this.api
       .getAll(discountProductWiseRequest)
-      .pipe(map((response: SearchResponse<DiscountProductWise>) => response));
+      .pipe(map((response: any) => response as SearchResponse<DiscountProductWise>));
   }
 
   createDiscountProductWise(

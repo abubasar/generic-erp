@@ -26,7 +26,7 @@
               <mat-option>-- None --</mat-option>
               @for (d of requisitionStatuses; track d) {
                 <mat-option
-                  [value]="[d?.value]"
+                  [value]="[$safeNavigationMigration(d?.value)]"
                   >
                   {{ d?.name }}
                 </mat-option>
@@ -142,7 +142,7 @@
                     <mat-list-item
                       role="listitem"
                       >
-                      <mat-checkbox [formControlName]="cd?.def">
+                      <mat-checkbox [formControlName]="$safeNavigationMigration(cd?.def)">
                         {{ cd?.label }}
                       </mat-checkbox>
                     </mat-list-item>
@@ -235,10 +235,10 @@
                     <td mat-cell *matCellDef="let requisition">
                       <mat-chip
                         class="align-middle py-4 px-8"
-                        [color]="getPriority(requisition?.priority)?.color"
+                        [color]="$safeNavigationMigration(getPriority($safeNavigationMigration(requisition?.priority))?.color)"
                         selected
                         >
-                        {{ getPriorityName(requisition?.priority) }}</mat-chip
+                        {{ getPriorityName($safeNavigationMigration(requisition?.priority)) }}</mat-chip
                         >
                       </td>
                     </ng-container>
@@ -251,14 +251,14 @@
                         <mat-chip
                           class="align-middle py-4 px-8"
                 [color]="
-                  getRequisitionStatus(requisition?.requisitionStatus)?.color
+                  $safeNavigationMigration(getRequisitionStatus($safeNavigationMigration(requisition?.requisitionStatus))?.color)
                 "
                           selected
                           >
                           <!-- {{ getRequisitionStatus(requisition?.requisitionStatus)?.status }} -->
                           {{
                           getRequisitionStatusName(
-                          requisition?.requisitionStatus
+                          $safeNavigationMigration(requisition?.requisitionStatus)
                           )?.replaceAll("_", " ")
                           }}
                         </mat-chip>
@@ -271,7 +271,7 @@
                       </th>
                       <td mat-cell *matCellDef="let requisition">
                         {{
-                        dateFormatService?.getDateFormat(requisition?.requisitionDate)
+                        dateFormatService?.getDateFormat($safeNavigationMigration(requisition?.requisitionDate))
                         }}
                       </td>
                     </ng-container>
@@ -283,7 +283,7 @@
                       <td mat-cell *matCellDef="let requisition">
                         {{
                         dateFormatService?.getDateFormat(
-                        requisition?.expectedDeliveryDate
+                        $safeNavigationMigration(requisition?.expectedDeliveryDate)
                         )
                         }}
                       </td>
@@ -308,14 +308,14 @@
                     <ng-container matColumnDef="createdOn">
                       <th mat-header-cell class="header" *matHeaderCellDef>Created On</th>
                       <td mat-cell *matCellDef="let element">
-                        {{ dateFormatService?.getDateAndTime(element?.createdOn) }}
+                        {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.createdOn)) }}
                       </td>
                     </ng-container>
                     <!-- Updated On Column -->
                     <ng-container matColumnDef="updatedOn">
                       <th mat-header-cell class="header" *matHeaderCellDef>Updated On</th>
                       <td mat-cell *matCellDef="let element">
-                        {{ dateFormatService?.getDateAndTime(element?.updatedOn) }}
+                        {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.updatedOn)) }}
                       </td>
                     </ng-container>
                     <!-- Created By Column -->
@@ -354,7 +354,7 @@
                           <mat-icon>published_with_changes</mat-icon>
                         </button>
                         <button
-                          [hidden]="requisition?.requisitionStatus < 5"
+                          [hidden]="$safeNavigationMigration(requisition?.requisitionStatus) < 5"
                           mat-icon-button
                           color="warn"
                           matTooltip="Supplier List"
@@ -376,7 +376,7 @@
                           matTooltipShowDelay="300"
                           matTooltipPosition="above"
                 (click)="
-                  confirmDelete(requisition?.id, requisition?.requisitionNo)
+                  confirmDelete($safeNavigationMigration(requisition?.id), $safeNavigationMigration(requisition?.requisitionNo))
                 "
                           >
                           <mat-icon>delete</mat-icon>
@@ -387,7 +387,7 @@
                           matTooltip="print pdf"
                           matTooltipShowDelay="300"
                           matTooltipPosition="above"
-                          (click)="printPdf(requisition?.id)"
+                          (click)="printPdf($safeNavigationMigration(requisition?.id))"
                           >
                           <mat-icon>print</mat-icon>
                         </button>
@@ -407,7 +407,7 @@
                 "
                           >
                           <app-purchase-requisition-detail
-                            [data]="element?.purchaseRequisitionDetails"
+                            [data]="$safeNavigationMigration(element?.purchaseRequisitionDetails)"
                           ></app-purchase-requisition-detail>
                         </div>
                       </td>

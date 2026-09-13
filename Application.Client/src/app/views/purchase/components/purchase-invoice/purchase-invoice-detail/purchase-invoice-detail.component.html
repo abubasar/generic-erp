@@ -24,7 +24,7 @@
   <ng-container matColumnDef="grndate">
     <th mat-header-cell *matHeaderCellDef>GRN Date</th>
     <td mat-cell *matCellDef="let element">
-      {{ dataFormatService.getDateFormat(element?.grndate) }}
+      {{ dataFormatService.getDateFormat($safeNavigationMigration(element?.grndate)) }}
     </td>
   </ng-container>
 

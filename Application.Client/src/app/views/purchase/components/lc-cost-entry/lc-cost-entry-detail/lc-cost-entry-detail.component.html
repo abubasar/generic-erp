@@ -32,7 +32,7 @@
       <mat-checkbox
         [disableRipple]="true"
         (click)="$event.preventDefault()"
-        [checked]="element?.isIncludedWithinLandedCost"
+        [checked]="$safeNavigationMigration(element?.isIncludedWithinLandedCost)"
       >
       </mat-checkbox>
     </td>

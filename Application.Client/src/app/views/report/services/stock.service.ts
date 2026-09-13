@@ -18,24 +18,24 @@ export class StockService {
   ): Observable<SearchResponse<StockResponseDTO>> {
     return this.api
       .getAll(stockSearchRequest)
-      .pipe(map((response: SearchResponse<StockResponseDTO>) => response));
+      .pipe(map((response: any) => response as SearchResponse<StockResponseDTO>));
   }
   getLowStockData(
     stockSearchRequest: StockSearchRequestDTO
   ): Observable<SearchResponse<StockResponseDTO>> {
     return this.api
       .getAllLowStock(stockSearchRequest)
-      .pipe(map((response: SearchResponse<StockResponseDTO>) => response));
+      .pipe(map((response: any) => response as SearchResponse<StockResponseDTO>));
   }
   getWorkInProcessInventoryStockData(): Observable<StockResponseDTO[]> {
     return this.api
       .getAllWorkInProcessInventoryStock()
-      .pipe(map((response: StockResponseDTO[]) => response));
+      .pipe(map((response: any) => response as StockResponseDTO[]));
   }
   getItemStock(productId: string, storeId: string): Observable<number> {
     return this.api
       .getItemStock(productId, storeId)
-      .pipe(map((response: number) => response));
+      .pipe(map((response: any) => response as number));
   }
 
   getStockLedger(
@@ -43,6 +43,6 @@ export class StockService {
   ): Observable<StockLedgerResponseDTO[]> {
     return this.api
       .getStockLedger(stockLedger)
-      .pipe(map((response: StockLedgerResponseDTO[]) => response));
+      .pipe(map((response: any) => response as StockLedgerResponseDTO[]));
   }
 }

@@ -1,9 +1,10 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 
 @Component({
     selector: "app-production-module-report",
     templateUrl: "./production-module-report.component.html",
     styleUrls: ["./production-module-report.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ProductionModuleReportComponent implements OnInit {

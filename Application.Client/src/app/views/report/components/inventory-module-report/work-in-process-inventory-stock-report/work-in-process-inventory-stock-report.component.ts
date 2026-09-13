@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { environment } from "environments/environment";
 import { StockResponseDTO } from "../../../models/stock-response-dto";
@@ -9,6 +9,7 @@ import { StockService } from "../../../services/stock.service";
     selector: "app-work-in-process-inventory-stock-report",
     templateUrl: "./work-in-process-inventory-stock-report.component.html",
     styleUrls: ["./work-in-process-inventory-stock-report.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class WorkInProcessInventoryStockReportComponent implements OnInit {

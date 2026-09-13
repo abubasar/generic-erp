@@ -15,14 +15,14 @@ export class ProductTypeService {
   getAllProductTypes(): Observable<SearchResponse<ProductType>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<ProductType>) => response));
+      .pipe(map((response: any) => response as SearchResponse<ProductType>));
   }
   getProductTypes(
     productTypeRequest: ProductTypeRequest
   ): Observable<SearchResponse<ProductType>> {
     return this.api
       .getAll(productTypeRequest)
-      .pipe(map((response: SearchResponse<ProductType>) => response));
+      .pipe(map((response: any) => response as SearchResponse<ProductType>));
   }
 
   createProductType(

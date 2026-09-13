@@ -17,7 +17,7 @@ export class CompanyService {
   ): Observable<SearchResponse<Company>> {
     return this.api
       .getAll(companyRequest)
-      .pipe(map((response: SearchResponse<Company>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Company>));
   }
 
   createCompany(company: Company): Observable<GeneralResponse<string>> {

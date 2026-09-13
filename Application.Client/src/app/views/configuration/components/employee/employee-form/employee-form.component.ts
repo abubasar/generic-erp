@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { EmployeeType } from "app/shared/enums/employeeTypes";
@@ -30,6 +30,7 @@ import { ToastrService } from "ngx-toastr";
     selector: "app-employee-form",
     templateUrl: "./employee-form.component.html",
     styleUrls: ["./employee-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class EmployeeFormComponent implements OnInit {

@@ -1,5 +1,5 @@
 import { SelectionModel } from "@angular/cdk/collections";
-import { Component, Inject, OnInit, ViewChild } from "@angular/core";
+import { Component, Inject, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { MAT_DIALOG_DATA as MAT_DIALOG_DATA, MatDialogRef as MatDialogRef } from "@angular/material/dialog";
 import { MatMenuTrigger as MatMenuTrigger } from "@angular/material/menu";
@@ -25,6 +25,7 @@ import { Observable, finalize, merge, of } from "rxjs";
     selector: "app-send-rfq-to-vendor-email",
     templateUrl: "./send-rfq-to-vendor-email.component.html",
     styleUrls: ["./send-rfq-to-vendor-email.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SendRFQToVendorEmailComponent implements OnInit {

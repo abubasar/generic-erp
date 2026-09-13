@@ -165,7 +165,7 @@
                   matTooltip="Delete"
                   matTooltipShowDelay="300"
                   matTooltipPosition="above"
-                  (click)="confirmDelete(account.id, account?.code)"
+                  (click)="confirmDelete(account.id, $safeNavigationMigration(account?.code))"
                   >
                   <mat-icon>delete</mat-icon>
                 </button>

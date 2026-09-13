@@ -24,7 +24,7 @@
               <mat-option [value]="null">-- None --</mat-option>
               @for (d of stockTransferStatuses; track d) {
                 <mat-option
-                  [value]="d?.value"
+                  [value]="$safeNavigationMigration(d?.value)"
                   >
                   {{ d?.name }}
                 </mat-option>
@@ -160,7 +160,7 @@
                     <mat-list-item
                       role="listitem"
                       >
-                      <mat-checkbox [formControlName]="cd?.def">
+                      <mat-checkbox [formControlName]="$safeNavigationMigration(cd?.def)">
                         {{ cd?.label }}
                       </mat-checkbox>
                     </mat-list-item>
@@ -240,7 +240,7 @@
                     <th mat-header-cell *matHeaderCellDef>Transfer Date</th>
                     <td mat-cell *matCellDef="let stockTransfer">
                       {{
-                      dateFormatService?.getDateFormat(stockTransfer?.transferDate)
+                      dateFormatService?.getDateFormat($safeNavigationMigration(stockTransfer?.transferDate))
                       }}
                     </td>
                   </ng-container>
@@ -257,7 +257,7 @@
                     <td mat-cell *matCellDef="let stockTransfer">
                       <mat-chip
                         class="align-middle py-4 px-8"
-                        [color]="getStockTransferStatus(stockTransfer?.status)?.color"
+                        [color]="$safeNavigationMigration(getStockTransferStatus($safeNavigationMigration(stockTransfer?.status))?.color)"
                         selected
                         >
                         <!-- {{
@@ -297,14 +297,14 @@
                   <ng-container matColumnDef="createdOn">
                     <th mat-header-cell class="header" *matHeaderCellDef>Created On</th>
                     <td mat-cell *matCellDef="let element">
-                      {{ dateFormatService?.getDateAndTime(element?.createdOn) }}
+                      {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.createdOn)) }}
                     </td>
                   </ng-container>
                   <!-- Updated On Column -->
                   <ng-container matColumnDef="updatedOn">
                     <th mat-header-cell class="header" *matHeaderCellDef>Updated On</th>
                     <td mat-cell *matCellDef="let element">
-                      {{ dateFormatService?.getDateAndTime(element?.updatedOn) }}
+                      {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.updatedOn)) }}
                     </td>
                   </ng-container>
                   <!-- Created By Column -->
@@ -354,7 +354,7 @@
                         matTooltipShowDelay="300"
                         matTooltipPosition="above"
                 (click)="
-                  confirmDelete(stockTransfer?.id, stockTransfer?.transferNo)
+                  confirmDelete($safeNavigationMigration(stockTransfer?.id), $safeNavigationMigration(stockTransfer?.transferNo))
                 "
                         >
                         <mat-icon>delete</mat-icon>
@@ -365,7 +365,7 @@
                         matTooltip="print pdf"
                         matTooltipShowDelay="300"
                         matTooltipPosition="above"
-                        (click)="printPdf(stockTransfer?.id)"
+                        (click)="printPdf($safeNavigationMigration(stockTransfer?.id))"
                         >
                         <mat-icon>print</mat-icon>
                       </button>
@@ -387,7 +387,7 @@
                         <app-stock-transfer-detail
                           [data]="element.stockTransferDetails"
                   [isFinishedGoodsInventoryType]="
-                    isFinishedGoodsInventory(element?.source?.inventoryTypeId)
+                    isFinishedGoodsInventory($safeNavigationMigration(element?.source?.inventoryTypeId))
                   "
                         ></app-stock-transfer-detail>
                       </div>

@@ -23,7 +23,7 @@
             <mat-select formControlName="status">
               <mat-option [value]="null">-- None --</mat-option>
               @for (d of bomStatuses; track d) {
-                <mat-option [value]="d?.value">
+                <mat-option [value]="$safeNavigationMigration(d?.value)">
                   {{ d?.name }}
                 </mat-option>
               }
@@ -114,7 +114,7 @@
                 <mat-list-item
                   role="listitem"
                   >
-                  <mat-checkbox [formControlName]="cd?.def">
+                  <mat-checkbox [formControlName]="$safeNavigationMigration(cd?.def)">
                     {{ cd?.label }}
                   </mat-checkbox>
                 </mat-list-item>
@@ -216,7 +216,7 @@
                     Dosage Quantity
                   </th>
                   <td mat-cell *matCellDef="let bom">
-                    {{ bom?.dosageQuantity | number : "1.2-2" }}
+                    {{ $safeNavigationMigration(bom?.dosageQuantity) | number : "1.2-2" }}
                   </td>
                 </ng-container>
                 <!--  Status -->
@@ -225,10 +225,10 @@
                   <td mat-cell *matCellDef="let bom">
                     <mat-chip
                       class="align-middle py-4 px-8"
-                      [color]="getBOMStatus(bom?.status)?.color"
+                      [color]="$safeNavigationMigration(getBOMStatus($safeNavigationMigration(bom?.status))?.color)"
                       selected
                       >
-                      {{ getBOMStatusName(bom?.status)?.replaceAll("_", " ") }}
+                      {{ getBOMStatusName($safeNavigationMigration(bom?.status))?.replaceAll("_", " ") }}
                     </mat-chip>
                   </td>
                 </ng-container>
@@ -259,14 +259,14 @@
                 <ng-container matColumnDef="createdOn">
                   <th mat-header-cell class="header" *matHeaderCellDef>Created On</th>
                   <td mat-cell *matCellDef="let element">
-                    {{ dateFormatService?.getDateAndTime(element?.createdOn) }}
+                    {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.createdOn)) }}
                   </td>
                 </ng-container>
                 <!-- Updated On Column -->
                 <ng-container matColumnDef="updatedOn">
                   <th mat-header-cell class="header" *matHeaderCellDef>Updated On</th>
                   <td mat-cell *matCellDef="let element">
-                    {{ dateFormatService?.getDateAndTime(element?.updatedOn) }}
+                    {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.updatedOn)) }}
                   </td>
                 </ng-container>
                 <!-- Created By Column -->
@@ -315,7 +315,7 @@
                       matTooltip="Delete"
                       matTooltipShowDelay="300"
                       matTooltipPosition="above"
-                      (click)="confirmDelete(bom?.id, bom?.bomNo)"
+                      (click)="confirmDelete($safeNavigationMigration(bom?.id), $safeNavigationMigration(bom?.bomNo))"
                       >
                       <mat-icon>delete</mat-icon>
                     </button>
@@ -326,7 +326,7 @@
                       matTooltip="Bill Of Material PDF"
                       matTooltipShowDelay="300"
                       matTooltipPosition="above"
-                      (click)="printBillOfMaterialPdf($event, bom?.id)"
+                      (click)="printBillOfMaterialPdf($event, $safeNavigationMigration(bom?.id))"
                       >
                       <mat-icon>picture_as_pdf</mat-icon>
                     </button>
@@ -337,7 +337,7 @@
                       matTooltip="Bill Of Material Excel"
                       matTooltipShowDelay="300"
                       matTooltipPosition="above"
-                      (click)="printBillOfMaterialPdf($event, bom?.id)"
+                      (click)="printBillOfMaterialPdf($event, $safeNavigationMigration(bom?.id))"
                       >
                       <mat-icon>table_view</mat-icon>
                     </button>
@@ -357,7 +357,7 @@
                 "
                       >
                       <app-bill-of-material-detail
-                        [data]="element?.billOfMaterialDetails"
+                        [data]="$safeNavigationMigration(element?.billOfMaterialDetails)"
                       ></app-bill-of-material-detail>
                     </div>
                   </td>

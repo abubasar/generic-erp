@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
@@ -17,6 +17,7 @@ import { PaymentMethodFormComponent } from "./payment-method-form/payment-method
     selector: "app-payment-method",
     templateUrl: "./payment-method.component.html",
     styleUrls: ["./payment-method.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class PaymentMethodComponent implements OnInit {

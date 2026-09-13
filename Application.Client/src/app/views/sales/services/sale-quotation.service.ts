@@ -22,7 +22,7 @@ export class SaleQuotationService {
     return this.api
       .getAll(saleQuotationRequest)
       .pipe(
-        map((response: SearchResponse<SaleQuotationResponseDTO>) => response)
+        map((response: any) => response as SearchResponse<SaleQuotationResponseDTO>)
       );
   }
 

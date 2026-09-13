@@ -21,7 +21,7 @@ export class DeliveryNoteService {
     return this.api
       .getAll(deliveryNoteRequest)
       .pipe(
-        map((response: SearchResponse<DeliveryNoteResponseDTO>) => response)
+        map((response: any) => response as SearchResponse<DeliveryNoteResponseDTO>)
       );
   }
 

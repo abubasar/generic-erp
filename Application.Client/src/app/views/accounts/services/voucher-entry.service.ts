@@ -21,7 +21,7 @@ export class VoucherEntryService {
     return this.api
       .getAll(voucherEntryRequest)
       .pipe(
-        map((response: SearchResponse<VoucherEntryResponseDTO>) => response)
+        map((response: any) => response as SearchResponse<VoucherEntryResponseDTO>)
       );
   }
 

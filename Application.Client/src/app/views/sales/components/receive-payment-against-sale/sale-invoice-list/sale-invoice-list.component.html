@@ -286,7 +286,7 @@
                 matTooltip="Delete"
                 matTooltipShowDelay="300"
                 matTooltipPosition="above"
-                (click)="confirmDelete(saleInvoice.id, saleInvoice?.invoiceNo)"
+                (click)="confirmDelete(saleInvoice.id, $safeNavigationMigration(saleInvoice?.invoiceNo))"
                 >
                 <mat-icon>delete</mat-icon>
               </button>

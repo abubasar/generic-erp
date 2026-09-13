@@ -7,10 +7,10 @@
       <h3 class="m-0">Sale Return No: {{ data?.saleReturnNo }}</h3>
       <mat-chip
         class="align-middle py-4 px-8"
-        [color]="getSaleReturnStatus(data?.status)?.color"
+        [color]="$safeNavigationMigration(getSaleReturnStatus($safeNavigationMigration(data?.status))?.color)"
         selected
       >
-        {{ getSaleReturnStatusName(data?.status)?.replaceAll("_", " ") }}
+        {{ getSaleReturnStatusName($safeNavigationMigration(data?.status))?.replaceAll("_", " ") }}
       </mat-chip>
       <button
         mat-icon-button
@@ -18,7 +18,7 @@
         matTooltip="print pdf"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printPdf(data?.id)"
+        (click)="printPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>print</mat-icon>
       </button>
@@ -48,7 +48,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck(data?.id, data?.saleReturnNo)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.saleReturnNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -71,7 +71,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove(data?.id, data?.saleReturnNo)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.saleReturnNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -98,7 +98,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.saleReturnNo, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.saleReturnNo), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -136,7 +136,7 @@
                 <mat-error>Sale Invoice No is required</mat-error>
               </mat-form-field>
               <button
-                [hidden]="this.data?.id"
+                [hidden]="$safeNavigationMigration(this.data?.id)"
                 type="button"
                 mat-icon-button
                 color="primary"
@@ -159,7 +159,7 @@
                 <mat-error>Delivery Note No is required</mat-error>
               </mat-form-field>
               <button
-                [hidden]="this.data?.id"
+                [hidden]="$safeNavigationMigration(this.data?.id)"
                 type="button"
                 mat-icon-button
                 color="primary"
@@ -393,7 +393,7 @@
                     >
                       <mat-option
                         *ngFor="let product of searchProducts"
-                        [value]="product?.id"
+                        [value]="$safeNavigationMigration(product?.id)"
                       >
                         {{ product.name }}
                         ({{
@@ -904,7 +904,7 @@
             <div class="col label-data">
               <span>Store</span>
               <span>
-                {{ getStoreName(saleReturnForm?.get("storeId")?.value) }}
+                {{ getStoreName($safeNavigationMigration(saleReturnForm?.get("storeId")?.value)) }}
               </span>
             </div>
 
@@ -912,7 +912,7 @@
             <div class="col label-data">
               <span>Customer</span>
               <span>
-                {{ getCustomerName(saleReturnForm?.get("customerId")?.value) }}
+                {{ getCustomerName($safeNavigationMigration(saleReturnForm?.get("customerId")?.value)) }}
               </span>
             </div>
 
@@ -922,7 +922,7 @@
               <span>
                 {{
                   dateFormatService.getDateFormat(
-                    saleReturnForm.get("saleReturnDate")?.value
+                    $safeNavigationMigration(saleReturnForm.get("saleReturnDate")?.value)
                   )
                 }}
               </span>

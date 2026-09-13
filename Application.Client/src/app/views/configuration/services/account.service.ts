@@ -17,7 +17,7 @@ export class AccountService {
   getAllAccounts(): Observable<SearchResponse<Account>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<Account>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Account>));
   }
 
   getAccounts(
@@ -25,7 +25,7 @@ export class AccountService {
   ): Observable<SearchResponse<Account>> {
     return this.api
       .getAll(accountRequest)
-      .pipe(map((response: SearchResponse<Account>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Account>));
   }
 
   createAccount(account: Account): Observable<GeneralResponse<string>> {

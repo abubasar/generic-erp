@@ -15,7 +15,7 @@ export class CostCenterService {
   getAllCostCenters(): Observable<SearchResponse<CostCenter>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<CostCenter>) => response));
+      .pipe(map((response: any) => response as SearchResponse<CostCenter>));
   }
 
   getCostCenters(
@@ -23,7 +23,7 @@ export class CostCenterService {
   ): Observable<SearchResponse<CostCenter>> {
     return this.api
       .getAll(costCenterRequest)
-      .pipe(map((response: SearchResponse<CostCenter>) => response));
+      .pipe(map((response: any) => response as SearchResponse<CostCenter>));
   }
 
   createCostCenter(

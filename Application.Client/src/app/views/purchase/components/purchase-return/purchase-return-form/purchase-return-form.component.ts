@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatButton as MatButton } from "@angular/material/button";
 import { MatDialog as MatDialog } from "@angular/material/dialog";
@@ -44,6 +44,7 @@ import { GRNDialogComponent } from "../grn-dialog/grn-dialog.component";
     selector: "app-purchase-return-form",
     templateUrl: "./purchase-return-form.component.html",
     styleUrls: ["./purchase-return-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class PurchaseReturnFormComponent implements OnInit {

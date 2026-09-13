@@ -8,9 +8,9 @@
       <div>
         <mat-chip
           class="align-middle py-4 px-8"
-          [color]="getGoodsReceiveNoteStatus(data?.status).color"
+          [color]="getGoodsReceiveNoteStatus($safeNavigationMigration(data?.status)).color"
           selected
-          >{{ getGoodsReceiveNoteName(data?.status) }}
+          >{{ getGoodsReceiveNoteName($safeNavigationMigration(data?.status)) }}
         </mat-chip>
       </div>
       <button
@@ -19,7 +19,7 @@
         matTooltip="print pdf"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printPdf(data?.id)"
+        (click)="printPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>print</mat-icon>
       </button>
@@ -49,7 +49,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck(data?.id, data?.grnno)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.grnno))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -72,7 +72,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove(data?.id, data?.grnno)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.grnno))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -100,7 +100,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.grnno, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.grnno), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -173,7 +173,7 @@
                   <mat-label>Select Currency</mat-label>
                   <mat-select [disabled]="true" formControlName="currencyId">
                     <mat-option [value]="null">-- None --</mat-option>
-                    <mat-option *ngFor="let d of currencies" [value]="d?.id">
+                    <mat-option *ngFor="let d of currencies" [value]="$safeNavigationMigration(d?.id)">
                       {{ d?.name }}
                     </mat-option>
                   </mat-select>
@@ -208,7 +208,7 @@
                     <mat-option [value]="null">-- None --</mat-option>
                     <mat-option
                       *ngFor="let d of importPurchaseIncoTerms"
-                      [value]="d?.value"
+                      [value]="$safeNavigationMigration(d?.value)"
                     >
                       {{ d?.name }}
                     </mat-option>
@@ -227,7 +227,7 @@
                     <mat-option [value]="null">-- None --</mat-option>
                     <mat-option
                       *ngFor="let d of importPurchasePaymentTerms"
-                      [value]="d?.value"
+                      [value]="$safeNavigationMigration(d?.value)"
                     >
                       {{ d?.name == "LCAtSite" ? "LC at Site" : d?.name }}
                     </mat-option>
@@ -322,7 +322,7 @@
                 />
               </mat-form-field>
               <button
-                [hidden]="this.data?.id"
+                [hidden]="$safeNavigationMigration(this.data?.id)"
                 type="button"
                 mat-icon-button
                 color="primary"
@@ -350,7 +350,7 @@
                     hidden
                     (click)="clearInput($event, 'storeId')"
                     *ngIf="
-                      goodsReceiveNoteForm?.get('storeId')?.value !== null &&
+                      $safeNavigationMigration(goodsReceiveNoteForm?.get('storeId')?.value) !== null &&
                       goodsReceiveNoteForm?.get('storeId')?.value !== ''
                     "
                     aria-label="Clear"
@@ -394,7 +394,7 @@
                     hidden
                     (click)="clearInput($event, 'supplierId')"
                     *ngIf="
-                      goodsReceiveNoteForm?.get('supplierId')?.value !== null &&
+                      $safeNavigationMigration(goodsReceiveNoteForm?.get('supplierId')?.value) !== null &&
                       goodsReceiveNoteForm?.get('supplierId')?.value !== ''
                     "
                     aria-label="Clear"
@@ -554,8 +554,8 @@
                         hidden
                         (click)="clearInputFromDetails($event, i)"
                         *ngIf="
-                          goodsReceiveNoteDetails?.at(i).get('productId')
-                            ?.value !== null &&
+                          $safeNavigationMigration(goodsReceiveNoteDetails?.at(i).get('productId')
+                            ?.value) !== null &&
                           goodsReceiveNoteDetails?.at(i).get('productId')
                             ?.value !== ''
                         "
@@ -947,7 +947,7 @@
                 <span>Subtotal</span>
                 <span>
                   {{
-                    goodsReceiveNoteForm?.get("subtotal")?.value
+                    $safeNavigationMigration(goodsReceiveNoteForm?.get("subtotal")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -1029,7 +1029,7 @@
                 <span>Total</span>
                 <span>
                   {{
-                    goodsReceiveNoteForm?.get("total")?.value
+                    $safeNavigationMigration(goodsReceiveNoteForm?.get("total")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -1104,7 +1104,7 @@
                   {{
                     goodsReceiveNoteForm?.get("currencyId")?.value
                       ? getCurrencyName(
-                          goodsReceiveNoteForm?.get("currencyId")?.value
+                          $safeNavigationMigration(goodsReceiveNoteForm?.get("currencyId")?.value)
                         )
                       : ""
                   }}
@@ -1126,8 +1126,8 @@
                   {{
                     goodsReceiveNoteForm?.get("importPurchaseIncoTerm")?.value
                       ? getImportPurchaseIncoTermName(
-                          goodsReceiveNoteForm?.get("importPurchaseIncoTerm")
-                            ?.value
+                          $safeNavigationMigration(goodsReceiveNoteForm?.get("importPurchaseIncoTerm")
+                            ?.value)
                         )
                       : ""
                   }}
@@ -1142,8 +1142,8 @@
                     goodsReceiveNoteForm?.get("importPurchasePaymentTerm")
                       ?.value
                       ? getImportPurchasePaymentTermName(
-                          goodsReceiveNoteForm?.get("importPurchasePaymentTerm")
-                            ?.value
+                          $safeNavigationMigration(goodsReceiveNoteForm?.get("importPurchasePaymentTerm")
+                            ?.value)
                         )?.replaceAll("_", " ")
                       : ""
                   }}
@@ -1190,7 +1190,7 @@
             <div class="col label-data">
               <span>Store</span>
               <span>
-                {{ getStoreName(goodsReceiveNoteForm?.get("storeId")?.value) }}
+                {{ getStoreName($safeNavigationMigration(goodsReceiveNoteForm?.get("storeId")?.value)) }}
               </span>
             </div>
 
@@ -1200,7 +1200,7 @@
               <span>
                 {{
                   getSupplierName(
-                    goodsReceiveNoteForm?.get("supplierId")?.value
+                    $safeNavigationMigration(goodsReceiveNoteForm?.get("supplierId")?.value)
                   )
                 }}
               </span>
@@ -1278,7 +1278,7 @@
               <span>Subtotal</span>
               <span>
                 {{
-                  goodsReceiveNoteForm?.get("subtotal")?.value
+                  $safeNavigationMigration(goodsReceiveNoteForm?.get("subtotal")?.value)
                     | currency : "BDT" : "" : "1.2-2"
                 }}
               </span>
@@ -1314,7 +1314,7 @@
               <span>Total</span>
               <span>
                 {{
-                  goodsReceiveNoteForm?.get("total")?.value
+                  $safeNavigationMigration(goodsReceiveNoteForm?.get("total")?.value)
                     | currency : "BDT" : "" : "1.2-2"
                 }}
               </span>

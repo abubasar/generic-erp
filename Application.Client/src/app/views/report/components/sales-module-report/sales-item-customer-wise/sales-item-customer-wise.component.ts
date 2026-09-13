@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import {
   Department_Id_SALES_AND_MARKETING,
@@ -27,6 +27,7 @@ import { environment } from "environments/environment";
     selector: "app-sales-item-customer-wise",
     templateUrl: "./sales-item-customer-wise.component.html",
     styleUrls: ["./sales-item-customer-wise.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SalesItemCustomerWiseComponent implements OnInit {

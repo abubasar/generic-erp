@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatButton as MatButton } from "@angular/material/button";
 import { MatDialog as MatDialog } from "@angular/material/dialog";
@@ -42,7 +42,7 @@ import { environment } from "environments/environment";
 import { ToastrService } from "ngx-toastr";
 import { finalize } from "rxjs";
 import { ManufacturingOrderListComponent } from "../manufacturing-order-list/manufacturing-order-list.component";
-import * as moment from "moment";
+import moment from "moment";
 
 // ngx-mat-timepicker reads/writes plain strings; accept either 12h or 24h
 // shape since the widget is configured for 12h ([format]="12") but this
@@ -53,6 +53,7 @@ const TIME_PART_FORMATS = ["hh:mm A", "h:mm A", "HH:mm"];
     selector: "app-production-form",
     templateUrl: "./production-form.component.html",
     styleUrls: ["./production-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ProductionFormComponent implements OnInit {

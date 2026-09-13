@@ -22,7 +22,7 @@ export class LcCostEntryService {
     return this.api
       .getAll(lcCostEntryRequest)
       .pipe(
-        map((response: SearchResponse<LCCostEntryResponseDTO>) => response)
+        map((response: any) => response as SearchResponse<LCCostEntryResponseDTO>)
       );
   }
 

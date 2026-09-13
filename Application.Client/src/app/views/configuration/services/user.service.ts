@@ -15,7 +15,7 @@ export class UserService {
   getUsers(userRequest: UserRequest): Observable<SearchResponse<User>> {
     return this.api
       .getAll(userRequest)
-      .pipe(map((response: SearchResponse<User>) => response));
+      .pipe(map((response: any) => response as SearchResponse<User>));
   }
 
   createUser(user: User): Observable<GeneralResponse<string>> {

@@ -15,14 +15,14 @@ export class EmployeeService {
   getAllEmployees(): Observable<SearchResponse<Employee>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<Employee>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Employee>));
   }
   getEmployees(
     employeeRequest: EmployeeRequest
   ): Observable<SearchResponse<Employee>> {
     return this.api
       .getAll(employeeRequest)
-      .pipe(map((response: SearchResponse<Employee>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Employee>));
   }
 
   createEmployee(employee: Employee): Observable<GeneralResponse<string>> {

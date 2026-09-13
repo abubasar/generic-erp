@@ -10,9 +10,9 @@
     <td align="right" mat-cell *matCellDef="let element">
       {{
         element?.column === "debit"
-          ? (element?.value | currency : "BDT" : "" : "1.2-2")
+          ? ($safeNavigationMigration(element?.value) | currency : "BDT" : "" : "1.2-2")
           : element?.row === "total"
-          ? (element?.value | currency : "BDT" : "" : "1.2-2")
+          ? ($safeNavigationMigration(element?.value) | currency : "BDT" : "" : "1.2-2")
           : "-"
       }}
     </td>
@@ -24,9 +24,9 @@
     <td align="right" mat-cell *matCellDef="let element">
       {{
         element?.column === "credit"
-          ? (element?.value | currency : "BDT" : "" : "1.2-2")
+          ? ($safeNavigationMigration(element?.value) | currency : "BDT" : "" : "1.2-2")
           : element?.row === "total"
-          ? (element?.value | currency : "BDT" : "" : "1.2-2")
+          ? ($safeNavigationMigration(element?.value) | currency : "BDT" : "" : "1.2-2")
           : "-"
       }}
     </td>

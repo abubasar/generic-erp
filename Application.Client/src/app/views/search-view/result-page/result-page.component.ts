@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from "@angular/core";
 import { SearchService } from "app/shared/search/search.service";
 import { Observable, Subscription } from "rxjs";
 import { CountryService } from "../country.service";
@@ -8,6 +8,7 @@ import { NavigationService } from "app/shared/services/navigation.service";
     selector: "app-result-page",
     templateUrl: "./result-page.component.html",
     styleUrls: ["./result-page.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ResultPageComponent implements OnInit, OnDestroy {

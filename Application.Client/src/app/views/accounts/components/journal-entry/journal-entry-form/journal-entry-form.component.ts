@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatButton as MatButton } from "@angular/material/button";
 import { MatStepper } from "@angular/material/stepper";
@@ -34,6 +34,7 @@ import { finalize } from "rxjs";
     selector: "app-journal-entry-form",
     templateUrl: "./journal-entry-form.component.html",
     styleUrls: ["./journal-entry-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class JournalEntryFormComponent implements OnInit {

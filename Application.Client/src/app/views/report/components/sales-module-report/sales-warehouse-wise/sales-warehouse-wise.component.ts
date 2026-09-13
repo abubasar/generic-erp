@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Customer } from "app/views/configuration/models/customer/customer.model";
 import { Store } from "app/views/configuration/models/store/store.model";
@@ -11,6 +11,7 @@ import { environment } from "environments/environment";
     selector: "app-sales-warehouse-wise",
     templateUrl: "./sales-warehouse-wise.component.html",
     styleUrls: ["./sales-warehouse-wise.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SalesWarehouseWiseComponent implements OnInit {

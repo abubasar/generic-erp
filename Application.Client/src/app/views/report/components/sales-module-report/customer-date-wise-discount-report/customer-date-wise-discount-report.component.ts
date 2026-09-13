@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Customer } from "app/views/configuration/models/customer/customer.model";
 import { CustomerService } from "app/views/configuration/services/customer.service";
@@ -9,6 +9,7 @@ import { environment } from "environments/environment";
     selector: "app-customer-date-wise-discount-report",
     templateUrl: "./customer-date-wise-discount-report.component.html",
     styleUrls: ["./customer-date-wise-discount-report.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CustomerDateWiseDiscountReportComponent implements OnInit {

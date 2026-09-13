@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { environment } from "environments/environment";
 
@@ -7,6 +7,7 @@ import { environment } from "environments/environment";
     selector: "app-primary-stock-report-whole",
     templateUrl: "./primary-stock-report-whole.component.html",
     styleUrls: ["./primary-stock-report-whole.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class PrimaryStockReportWholeComponent implements OnInit {

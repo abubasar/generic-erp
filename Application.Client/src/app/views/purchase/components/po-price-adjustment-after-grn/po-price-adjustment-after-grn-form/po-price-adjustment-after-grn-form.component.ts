@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatButton as MatButton } from "@angular/material/button";
 import { MatDialog as MatDialog } from "@angular/material/dialog";
@@ -43,6 +43,7 @@ import { GrnDialogComponent } from "../grn-dialog/grn-dialog.component";
     selector: "app-po-price-adjustment-after-grn-form",
     templateUrl: "./po-price-adjustment-after-grn-form.component.html",
     styleUrls: ["./po-price-adjustment-after-grn-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class PoPriceAdjustmentAfterGrnFormComponent implements OnInit {

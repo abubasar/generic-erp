@@ -17,7 +17,7 @@ export class ProductCostSetupService {
   ): Observable<SearchResponse<ProductCostSetup>> {
     return this.api
       .getAll(productCostSetupRequest)
-      .pipe(map((response: SearchResponse<ProductCostSetup>) => response));
+      .pipe(map((response: any) => response as SearchResponse<ProductCostSetup>));
   }
 
   createProductCostSetup(

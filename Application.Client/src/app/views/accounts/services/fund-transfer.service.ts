@@ -22,7 +22,7 @@ export class FundTransferService {
     return this.api
       .getAll(fundTransferRequest)
       .pipe(
-        map((response: SearchResponse<FundTransferResponseDTO>) => response)
+        map((response: any) => response as SearchResponse<FundTransferResponseDTO>)
       );
   }
 

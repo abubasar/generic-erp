@@ -15,7 +15,7 @@ export class DepartmentService {
   getAllDepartments(): Observable<SearchResponse<Department>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<Department>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Department>));
   }
 
   getDepartments(
@@ -23,7 +23,7 @@ export class DepartmentService {
   ): Observable<SearchResponse<Department>> {
     return this.api
       .getAll(departmentRequest)
-      .pipe(map((response: SearchResponse<Department>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Department>));
   }
 
   createDepartment(

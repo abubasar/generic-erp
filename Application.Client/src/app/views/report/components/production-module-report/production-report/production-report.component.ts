@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Inventory_Type_Id_Finished_Goods } from "app/shared/consts/const";
 import { ProductRequest } from "app/views/configuration/models/product/product-request.model";
@@ -13,6 +13,7 @@ import { environment } from "environments/environment";
     selector: "app-production-report",
     templateUrl: "./production-report.component.html",
     styleUrls: ["./production-report.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ProductionReportComponent implements OnInit {

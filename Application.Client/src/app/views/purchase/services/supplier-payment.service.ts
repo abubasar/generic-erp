@@ -21,7 +21,7 @@ export class SupplierPaymentService {
     return this.api
       .getAll(supplierPaymentRequest)
       .pipe(
-        map((response: SearchResponse<SupplierPaymentResponseDTO>) => response)
+        map((response: any) => response as SearchResponse<SupplierPaymentResponseDTO>)
       );
   }
 

@@ -55,7 +55,7 @@
           </h4>
           <h4 class="m-0">
             VQ No: {{ data.quotationNo }}({{ data.supplier.name }}) Total Amount:{{
-            getTotal(data?.vendorQuotationDetails)
+            getTotal($safeNavigationMigration(data?.vendorQuotationDetails))
             }}
           </h4>
           <div>
@@ -80,7 +80,7 @@
             matTooltip="Approve"
             matTooltipShowDelay="300"
             matTooltipPosition="above"
-            (click)="approve(data?.id, data?.requisitionNo)"
+            (click)="approve($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.requisitionNo))"
             >
             @if (isLoading) {
               <mat-icon>
@@ -99,7 +99,7 @@
             matTooltip="Undo"
             matTooltipShowDelay="300"
             matTooltipPosition="above"
-            (click)="unpost(data?.requisitionNo)"
+            (click)="unpost($safeNavigationMigration(data?.requisitionNo))"
             >
             @if (isLoading) {
               <mat-icon>
@@ -111,10 +111,10 @@
           </button>
           <mat-chip
             class="align-middle py-4 px-8"
-            [color]="getVendorQuotationStatus(data?.status).color"
+            [color]="getVendorQuotationStatus($safeNavigationMigration(data?.status)).color"
             selected
             >
-            {{ getVendorQuotationStatusName(data?.status)?.replaceAll("_", " ") }}
+            {{ getVendorQuotationStatusName($safeNavigationMigration(data?.status))?.replaceAll("_", " ") }}
           </mat-chip>
         </div>
       </div>

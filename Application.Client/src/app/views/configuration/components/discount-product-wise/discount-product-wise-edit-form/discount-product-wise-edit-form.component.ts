@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { Inventory_Type_Id_Finished_Goods } from "app/shared/consts/const";
@@ -17,6 +17,7 @@ import { ToastrService } from "ngx-toastr";
     selector: "app-discount-product-wise-edit-form",
     templateUrl: "./discount-product-wise-edit-form.component.html",
     styleUrls: ["./discount-product-wise-edit-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DiscountProductWiseEditFormComponent implements OnInit {

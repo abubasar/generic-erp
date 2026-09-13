@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Generic } from 'app/views/configuration/models/generic/generic.model';
@@ -12,6 +12,7 @@ import { ToastrService } from 'ngx-toastr';
     selector: "app-generic-form",
     templateUrl: "./generic-form.component.html",
     styleUrls: ["./generic-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class GenericFormComponent implements OnInit {

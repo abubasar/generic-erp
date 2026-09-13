@@ -15,12 +15,12 @@ export class RegionService {
   getAllRegions(): Observable<SearchResponse<Region>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<Region>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Region>));
   }
   getRegions(regionRequest: RegionRequest): Observable<SearchResponse<Region>> {
     return this.api
       .getAll(regionRequest)
-      .pipe(map((response: SearchResponse<Region>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Region>));
   }
 
   createRegion(region: Region): Observable<GeneralResponse<string>> {

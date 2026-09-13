@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { MAT_DIALOG_DATA as MAT_DIALOG_DATA, MatDialogRef as MatDialogRef } from "@angular/material/dialog";
 import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { PurchaseOrderResponseDTO } from "app/views/purchase/models/purchase-order/purchase-order-response-dto.model";
@@ -9,6 +9,7 @@ import { PurchaseOrderService } from "app/views/purchase/services/purchase-order
     selector: "app-supplier-transactions-against-po",
     templateUrl: "./supplier-transactions-against-po.component.html",
     styleUrls: ["./supplier-transactions-against-po.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SupplierTransactionsAgainstPOComponent implements OnInit {

@@ -57,7 +57,7 @@
             <button
               (click)="clearInput($event, 'customerRegionId')"
               *ngIf="
-                searchForm?.get('customerRegionId')?.value !== null &&
+                $safeNavigationMigration(searchForm?.get('customerRegionId')?.value) !== null &&
                 searchForm?.get('customerRegionId')?.value !== ''
               "
               aria-label="Clear"
@@ -98,7 +98,7 @@
             <button
               (click)="clearInput($event, 'customerZoneId')"
               *ngIf="
-                searchForm?.get('customerZoneId')?.value !== null &&
+                $safeNavigationMigration(searchForm?.get('customerZoneId')?.value) !== null &&
                 searchForm?.get('customerZoneId')?.value !== ''
               "
               aria-label="Clear"
@@ -139,7 +139,7 @@
             <button
               (click)="clearInput($event, 'customerAreaId')"
               *ngIf="
-                searchForm?.get('customerAreaId')?.value !== null &&
+                $safeNavigationMigration(searchForm?.get('customerAreaId')?.value) !== null &&
                 searchForm?.get('customerAreaId')?.value !== ''
               "
               aria-label="Clear"
@@ -181,7 +181,7 @@
               <button
                 (click)="clearInput($event, 'customerTerritoryId')"
                 *ngIf="
-                  searchForm?.get('customerTerritoryId')?.value !== null &&
+                  $safeNavigationMigration(searchForm?.get('customerTerritoryId')?.value) !== null &&
                   searchForm?.get('customerTerritoryId')?.value !== ''
                 "
                 aria-label="Clear"
@@ -222,7 +222,7 @@
             <button
               (click)="clearInput($event, 'customerMarketingOfficerId')"
               *ngIf="
-                searchForm?.get('customerMarketingOfficerId')?.value !== null &&
+                $safeNavigationMigration(searchForm?.get('customerMarketingOfficerId')?.value) !== null &&
                 searchForm?.get('customerMarketingOfficerId')?.value !== ''
               "
               aria-label="Clear"

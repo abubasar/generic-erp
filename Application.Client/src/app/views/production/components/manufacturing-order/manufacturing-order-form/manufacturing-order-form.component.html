@@ -9,11 +9,11 @@
       </h3>
       <mat-chip
         class="align-middle py-4 px-8"
-        [color]="getManufacturingOrderStatus(data?.status).color"
+        [color]="getManufacturingOrderStatus($safeNavigationMigration(data?.status)).color"
         selected
       >
         {{
-          getManufacturingOrderStatusName(data?.status)?.replaceAll("_", " ")
+          getManufacturingOrderStatusName($safeNavigationMigration(data?.status))?.replaceAll("_", " ")
         }}
       </mat-chip>
       <button
@@ -25,7 +25,7 @@
         matTooltip="Material Issue Summary PDF"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printManufacturingOrderSummaryPdf(data?.id)"
+        (click)="printManufacturingOrderSummaryPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>picture_as_pdf</mat-icon>
       </button>
@@ -38,7 +38,7 @@
         matTooltip="Material Issue Details PDF"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printManufacturingOrderDetailsPdf(data?.id)"
+        (click)="printManufacturingOrderDetailsPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>picture_as_pdf</mat-icon>
       </button>
@@ -69,7 +69,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck(data?.id, data?.manufacturingOrderNo)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.manufacturingOrderNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -92,7 +92,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove(data?.id, data?.manufacturingOrderNo)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.manufacturingOrderNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -120,7 +120,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.manufacturingOrderNo, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.manufacturingOrderNo), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -169,7 +169,7 @@
                 <input matInput name="bomNo" formControlName="bomNo" readonly />
               </mat-form-field>
               <button
-                [hidden]="this.data?.id"
+                [hidden]="$safeNavigationMigration(this.data?.id)"
                 type="button"
                 mat-icon-button
                 color="primary"
@@ -434,7 +434,7 @@
               <span>Total RM Used</span>
               <span>
                 {{
-                  manufacturingOrderForm?.get("totalRmused")?.value
+                  $safeNavigationMigration(manufacturingOrderForm?.get("totalRmused")?.value)
                     | currency : "BDT" : "" : "1.2-2"
                 }}
               </span>
@@ -510,7 +510,7 @@
               <span>
                 {{
                   getFinishedProductName(
-                    manufacturingOrderForm?.get("finishedProductId")?.value
+                    $safeNavigationMigration(manufacturingOrderForm?.get("finishedProductId")?.value)
                   )
                 }}
               </span>
@@ -528,7 +528,7 @@
               <span>
                 {{
                   getStoreName(
-                    manufacturingOrderForm?.get("rawMaterialStoreId")?.value
+                    $safeNavigationMigration(manufacturingOrderForm?.get("rawMaterialStoreId")?.value)
                   )
                 }}
               </span>
@@ -556,7 +556,7 @@
             <span>Total RM Used</span>
             <span>
               {{
-                manufacturingOrderForm?.get("totalRmused")?.value
+                $safeNavigationMigration(manufacturingOrderForm?.get("totalRmused")?.value)
                   | currency : "BDT" : "" : "1.2-2"
               }}
             </span>

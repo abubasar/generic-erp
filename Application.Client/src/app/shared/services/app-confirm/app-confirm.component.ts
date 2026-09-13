@@ -1,5 +1,5 @@
 import { MatDialogRef as MatDialogRef, MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
-import { Component, Inject } from "@angular/core";
+import { Component, Inject, ChangeDetectionStrategy } from "@angular/core";
 
 @Component({
     selector: "app-confirm",
@@ -25,6 +25,7 @@ import { Component, Inject } from "@angular/core";
         Cancel
       </button>
     </div>`,
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class AppConfirmComponent {

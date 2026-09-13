@@ -5,6 +5,7 @@ import {
   Component,
   OnInit,
   ViewChild,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatButton as MatButton } from "@angular/material/button";
@@ -65,6 +66,7 @@ import { VendorQuotationListComponent } from "../vendor-quotation-list/vendor-qu
     selector: "app-purchase-order-form",
     templateUrl: "./purchase-order-form.component.html",
     styleUrls: ["./purchase-order-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class PurchaseOrderFormComponent implements OnInit, AfterViewInit {

@@ -31,7 +31,7 @@
               />
               <div matSuffix>
                 @if (
-                  searchForm?.get('supplierId')?.value !== null &&
+                  $safeNavigationMigration(searchForm?.get('supplierId')?.value) !== null &&
                   searchForm?.get('supplierId')?.value !== ''
                   ) {
                   <button
@@ -66,7 +66,7 @@
                 <mat-option [value]="null">-- None --</mat-option>
                 @for (d of purchaseOrderStatuses; track d) {
                   <mat-option
-                    [value]="d?.value"
+                    [value]="$safeNavigationMigration(d?.value)"
                     >
                     {{ d?.name }}
                   </mat-option>
@@ -219,7 +219,7 @@
                       <mat-list-item
                         role="listitem"
                         >
-                        <mat-checkbox [formControlName]="cd?.def">
+                        <mat-checkbox [formControlName]="$safeNavigationMigration(cd?.def)">
                           {{ cd?.label }}
                         </mat-checkbox>
                       </mat-list-item>
@@ -312,7 +312,7 @@
                     <ng-container matColumnDef="podate">
                       <th mat-header-cell *matHeaderCellDef>PO Date</th>
                       <td mat-cell *matCellDef="let purchaseOrder">
-                        {{ dateFormatService.getDateFormat(purchaseOrder?.podate) }}
+                        {{ dateFormatService.getDateFormat($safeNavigationMigration(purchaseOrder?.podate)) }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef></td>
                     </ng-container>
@@ -376,7 +376,7 @@
                     <ng-container matColumnDef="transport">
                       <th mat-header-cell *matHeaderCellDef>Transport</th>
                       <td mat-cell *matCellDef="let purchaseOrder">
-                        {{ getTransportName(purchaseOrder?.transport)?.replaceAll("_", " ") }}
+                        {{ getTransportName($safeNavigationMigration(purchaseOrder?.transport))?.replaceAll("_", " ") }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef></td>
                     </ng-container>
@@ -400,7 +400,7 @@
                     <ng-container matColumnDef="deliveryDate">
                       <th mat-header-cell *matHeaderCellDef>Delivery Date</th>
                       <td mat-cell *matCellDef="let purchaseOrder">
-                        {{ dateFormatService.getDateFormat(purchaseOrder?.deliveryDate) }}
+                        {{ dateFormatService.getDateFormat($safeNavigationMigration(purchaseOrder?.deliveryDate)) }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef></td>
                     </ng-container>
@@ -408,7 +408,7 @@
                     <ng-container matColumnDef="paymentMode">
                       <th mat-header-cell *matHeaderCellDef>Payment Mode</th>
                       <td mat-cell *matCellDef="let purchaseOrder">
-                        {{ getPaymentModeName(purchaseOrder?.paymentMode) }}
+                        {{ getPaymentModeName($safeNavigationMigration(purchaseOrder?.paymentMode)) }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef></td>
                     </ng-container>
@@ -416,7 +416,7 @@
                     <ng-container matColumnDef="currencyId">
                       <th mat-header-cell *matHeaderCellDef>Currency</th>
                       <td mat-cell *matCellDef="let purchaseOrder">
-                        {{ getCurrencyName(purchaseOrder?.currencyId) }}
+                        {{ getCurrencyName($safeNavigationMigration(purchaseOrder?.currencyId)) }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef></td>
                     </ng-container>
@@ -426,7 +426,7 @@
                       <td mat-cell *matCellDef="let purchaseOrder">
                         {{
                         getImportPurchaseIncoTermName(
-                        purchaseOrder?.importPurchaseIncoTerm
+                        $safeNavigationMigration(purchaseOrder?.importPurchaseIncoTerm)
                         )
                         }}
                       </td>
@@ -440,7 +440,7 @@
                       <td mat-cell *matCellDef="let purchaseOrder">
                         {{
                         getImportPurchasePaymentTermName(
-                        purchaseOrder?.importPurchasePaymentTerm
+                        $safeNavigationMigration(purchaseOrder?.importPurchasePaymentTerm)
                         )
                         }}
                       </td>
@@ -452,12 +452,12 @@
                       <td mat-cell *matCellDef="let purchaseOrder">
                         <mat-chip
                           class="align-middle py-4 px-8"
-                          [color]="getPurchaseOrderStatus(purchaseOrder?.status)?.color"
+                          [color]="$safeNavigationMigration(getPurchaseOrderStatus($safeNavigationMigration(purchaseOrder?.status))?.color)"
                           selected
                           >
                           <!-- {{ getPurchaseOrderStatus(purchaseOrder?.status)?.status }} -->
                           {{
-                          getPurchaseOrderStatusName(purchaseOrder?.status)?.replaceAll(
+                          getPurchaseOrderStatusName($safeNavigationMigration(purchaseOrder?.status))?.replaceAll(
                           "_",
                           " "
                           )
@@ -470,11 +470,11 @@
                     <ng-container matColumnDef="subtotal">
                       <th mat-header-cell *matHeaderCellDef>Subtotal</th>
                       <td mat-cell *matCellDef="let purchaseOrder">
-                        {{ purchaseOrder?.subtotal | currency : "BDT" : "" : "1.2-2" }}
+                        {{ $safeNavigationMigration(purchaseOrder?.subtotal) | currency : "BDT" : "" : "1.2-2" }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef>
                         {{
-                        reportAggregator?.aggregatorSubTotal
+                        $safeNavigationMigration(reportAggregator?.aggregatorSubTotal)
                         | currency : "BDT" : "" : "1.2-2"
                         }}
                       </td>
@@ -483,11 +483,11 @@
                     <ng-container matColumnDef="discount">
                       <th mat-header-cell *matHeaderCellDef>Discount</th>
                       <td mat-cell *matCellDef="let purchaseOrder">
-                        {{ purchaseOrder?.discount | currency : "BDT" : "" : "1.2-2" }}
+                        {{ $safeNavigationMigration(purchaseOrder?.discount) | currency : "BDT" : "" : "1.2-2" }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef>
                         {{
-                        reportAggregator?.aggregatorDiscount
+                        $safeNavigationMigration(reportAggregator?.aggregatorDiscount)
                         | currency : "BDT" : "" : "1.2-2"
                         }}
                       </td>
@@ -496,11 +496,11 @@
                     <ng-container matColumnDef="total">
                       <th mat-header-cell *matHeaderCellDef>Total Amount</th>
                       <td mat-cell *matCellDef="let purchaseOrder">
-                        {{ purchaseOrder?.total | currency : "BDT" : "" : "1.2-2" }}
+                        {{ $safeNavigationMigration(purchaseOrder?.total) | currency : "BDT" : "" : "1.2-2" }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef>
                         {{
-                        reportAggregator?.aggregatorTotal
+                        $safeNavigationMigration(reportAggregator?.aggregatorTotal)
                         | currency : "BDT" : "" : "1.2-2"
                         }}
                       </td>
@@ -513,7 +513,7 @@
                       </td>
                       <td mat-footer-cell *matFooterCellDef>
                         {{
-                        reportAggregator?.aggregatorWeightVariance
+                        $safeNavigationMigration(reportAggregator?.aggregatorWeightVariance)
                         | currency : "BDT" : "" : "1.2-2"
                         }}
                       </td>
@@ -552,7 +552,7 @@
                       <th mat-header-cell *matHeaderCellDef>Exchange Rate</th>
                       <td mat-cell *matCellDef="let purchaseOrder">
                         {{
-                        purchaseOrder?.exchangeRate | currency : "BDT" : "" : "1.2-2"
+                        $safeNavigationMigration(purchaseOrder?.exchangeRate) | currency : "BDT" : "" : "1.2-2"
                         }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef></td>
@@ -616,7 +616,7 @@
                     <ng-container matColumnDef="createdOn">
                       <th mat-header-cell class="header" *matHeaderCellDef>Created On</th>
                       <td mat-cell *matCellDef="let element">
-                        {{ dateFormatService?.getDateAndTime(element?.createdOn) }}
+                        {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.createdOn)) }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef></td>
                     </ng-container>
@@ -624,7 +624,7 @@
                     <ng-container matColumnDef="updatedOn">
                       <th mat-header-cell class="header" *matHeaderCellDef>Updated On</th>
                       <td mat-cell *matCellDef="let element">
-                        {{ dateFormatService?.getDateAndTime(element?.updatedOn) }}
+                        {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.updatedOn)) }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef></td>
                     </ng-container>
@@ -661,7 +661,7 @@
                           <mat-icon>published_with_changes</mat-icon>
                         </button>
                         <button
-                          [hidden]="purchaseOrder?.status < 3"
+                          [hidden]="$safeNavigationMigration(purchaseOrder?.status) < 3"
                           mat-icon-button
                           color="warn"
                           matTooltip="Supplier Transactions Against PO List"
@@ -682,7 +682,7 @@
                           matTooltipPosition="above"
                           [disabled]="isLoadingClosePOButton"
                 (click)="
-                  confirmClose(purchaseOrder?.id, purchaseOrder?.ponumber)
+                  confirmClose($safeNavigationMigration(purchaseOrder?.id), $safeNavigationMigration(purchaseOrder?.ponumber))
                 "
                           >
                           @if (isLoading) {
@@ -706,7 +706,7 @@
                           matTooltipShowDelay="300"
                           matTooltipPosition="above"
                 (click)="
-                  confirmDelete(purchaseOrder?.id, purchaseOrder?.ponumber)
+                  confirmDelete($safeNavigationMigration(purchaseOrder?.id), $safeNavigationMigration(purchaseOrder?.ponumber))
                 "
                           >
                           <mat-icon>delete</mat-icon>
@@ -717,7 +717,7 @@
                           matTooltip="print pdf"
                           matTooltipShowDelay="300"
                           matTooltipPosition="above"
-                          (click)="printPdf(purchaseOrder?.id)"
+                          (click)="printPdf($safeNavigationMigration(purchaseOrder?.id))"
                           >
                           <mat-icon>print</mat-icon>
                         </button>
@@ -733,7 +733,7 @@
                           matTooltip="LC Cost PDF"
                           matTooltipShowDelay="300"
                           matTooltipPosition="above"
-                          (click)="printLcCostPdf(purchaseOrder?.id)"
+                          (click)="printLcCostPdf($safeNavigationMigration(purchaseOrder?.id))"
                           >
                           <mat-icon>print</mat-icon>
                         </button>
@@ -754,7 +754,7 @@
                 "
                           >
                           <app-purchase-order-detail
-                            [data]="element?.purchaseOrderDetails"
+                            [data]="$safeNavigationMigration(element?.purchaseOrderDetails)"
                           ></app-purchase-order-detail>
                         </div>
                       </td>

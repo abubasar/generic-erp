@@ -15,14 +15,14 @@ export class InventoryTypeService {
   getAllInventoryTypes(): Observable<SearchResponse<InventoryType>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<InventoryType>) => response));
+      .pipe(map((response: any) => response as SearchResponse<InventoryType>));
   }
   getInventoryTypes(
     inventoryTypeRequest: InventoryTypeRequest
   ): Observable<SearchResponse<InventoryType>> {
     return this.api
       .getAll(inventoryTypeRequest)
-      .pipe(map((response: SearchResponse<InventoryType>) => response));
+      .pipe(map((response: any) => response as SearchResponse<InventoryType>));
   }
 
   createInventoryType(

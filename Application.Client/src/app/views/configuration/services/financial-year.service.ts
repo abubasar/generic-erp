@@ -15,14 +15,14 @@ export class FinancialYearService {
   getAllFinancialYears(): Observable<SearchResponse<FinancialYear>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<FinancialYear>) => response));
+      .pipe(map((response: any) => response as SearchResponse<FinancialYear>));
   }
   getFinancialYears(
     financialYearRequest: FinancialYearRequest
   ): Observable<SearchResponse<FinancialYear>> {
     return this.api
       .getAll(financialYearRequest)
-      .pipe(map((response: SearchResponse<FinancialYear>) => response));
+      .pipe(map((response: any) => response as SearchResponse<FinancialYear>));
   }
 
   createFinancialYear(

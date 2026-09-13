@@ -45,7 +45,7 @@
             />
             <div matSuffix>
               @if (
-                searchForm?.get('supplierId')?.value !== null &&
+                $safeNavigationMigration(searchForm?.get('supplierId')?.value) !== null &&
                 searchForm?.get('supplierId')?.value !== ''
                 ) {
                 <button
@@ -80,7 +80,7 @@
             <mat-select formControlName="costCenterId">
               <mat-option [value]="null">-- None --</mat-option>
               @for (d of costCenters; track d) {
-                <mat-option [value]="d?.id">
+                <mat-option [value]="$safeNavigationMigration(d?.id)">
                   {{ d?.name }}
                 </mat-option>
               }
@@ -93,7 +93,7 @@
             <mat-select formControlName="paymentModeId">
               <mat-option [value]="null">-- None --</mat-option>
               @for (d of paymentModes; track d) {
-                <mat-option [value]="d?.id">
+                <mat-option [value]="$safeNavigationMigration(d?.id)">
                   {{ d?.name }}
                 </mat-option>
               }
@@ -107,7 +107,7 @@
               <mat-option [value]="null">-- None --</mat-option>
               @for (d of supplierPaymentStatuses; track d) {
                 <mat-option
-                  [value]="d?.value"
+                  [value]="$safeNavigationMigration(d?.value)"
                   >
                   {{ d?.name }}
                 </mat-option>
@@ -223,7 +223,7 @@
                     <mat-list-item
                       role="listitem"
                       >
-                      <mat-checkbox [formControlName]="cd?.def">
+                      <mat-checkbox [formControlName]="$safeNavigationMigration(cd?.def)">
                         {{ cd?.label }}
                       </mat-checkbox>
                     </mat-list-item>
@@ -321,7 +321,7 @@
                     </th>
                     <td mat-cell *matCellDef="let supplierPayment">
                       {{
-                      dateFormatService?.getDateFormat(supplierPayment?.paymentDate)
+                      dateFormatService?.getDateFormat($safeNavigationMigration(supplierPayment?.paymentDate))
                       }}
                     </td>
                     <td mat-footer-cell *matFooterCellDef></td>
@@ -384,12 +384,12 @@
                     </th>
                     <td mat-cell *matCellDef="let supplierPayment">
                       {{
-                      supplierPayment?.totalAmount | currency : "BDT" : "" : "1.2-2"
+                      $safeNavigationMigration(supplierPayment?.totalAmount) | currency : "BDT" : "" : "1.2-2"
                       }}
                     </td>
                     <td mat-footer-cell *matFooterCellDef>
                       {{
-                      reportAggregator?.aggregatorTotalAmount
+                      $safeNavigationMigration(reportAggregator?.aggregatorTotalAmount)
                       | currency : "BDT" : "" : "1.2-2"
                       }}
                     </td>
@@ -411,13 +411,13 @@
                       <mat-chip
                         class="align-middle py-4 px-8"
                 [color]="
-                  getSupplierPaymentStatus(supplierPayment?.status)?.color
+                  $safeNavigationMigration(getSupplierPaymentStatus($safeNavigationMigration(supplierPayment?.status))?.color)
                 "
                         selected
                         >
                         {{
                         getSupplierPaymentStatusName(
-                        supplierPayment?.status
+                        $safeNavigationMigration(supplierPayment?.status)
                         )?.replaceAll("_", " ")
                         }}
                       </mat-chip>
@@ -446,7 +446,7 @@
                   <ng-container matColumnDef="createdOn">
                     <th mat-header-cell class="header" *matHeaderCellDef>Created On</th>
                     <td mat-cell *matCellDef="let element">
-                      {{ dateFormatService?.getDateAndTime(element?.createdOn) }}
+                      {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.createdOn)) }}
                     </td>
                     <td mat-footer-cell *matFooterCellDef></td>
                   </ng-container>
@@ -454,7 +454,7 @@
                   <ng-container matColumnDef="updatedOn">
                     <th mat-header-cell class="header" *matHeaderCellDef>Updated On</th>
                     <td mat-cell *matCellDef="let element">
-                      {{ dateFormatService?.getDateAndTime(element?.updatedOn) }}
+                      {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.updatedOn)) }}
                     </td>
                     <td mat-footer-cell *matFooterCellDef></td>
                   </ng-container>
@@ -507,7 +507,7 @@
                         matTooltipShowDelay="300"
                         matTooltipPosition="above"
                 (click)="
-                  confirmDelete(supplierPayment?.id, supplierPayment?.code)
+                  confirmDelete($safeNavigationMigration(supplierPayment?.id), $safeNavigationMigration(supplierPayment?.code))
                 "
                         >
                         <mat-icon>delete</mat-icon>
@@ -518,7 +518,7 @@
                         matTooltip="print pdf"
                         matTooltipShowDelay="300"
                         matTooltipPosition="above"
-                        (click)="printPdf(supplierPayment?.id)"
+                        (click)="printPdf($safeNavigationMigration(supplierPayment?.id))"
                         >
                         <mat-icon>print</mat-icon>
                       </button>
@@ -539,7 +539,7 @@
                 "
                         >
                         <app-supplier-payment-detail
-                          [data]="element?.supplierPaymentDetails"
+                          [data]="$safeNavigationMigration(element?.supplierPaymentDetails)"
                         ></app-supplier-payment-detail>
                       </div>
                     </td>

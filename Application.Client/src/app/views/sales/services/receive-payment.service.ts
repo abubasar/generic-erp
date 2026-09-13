@@ -21,7 +21,7 @@ export class ReceivePaymentService {
     return this.api
       .getAll(receivePaymentRequest)
       .pipe(
-        map((response: SearchResponse<ReceivePaymentResponseDTO>) => response)
+        map((response: any) => response as SearchResponse<ReceivePaymentResponseDTO>)
       );
   }
 

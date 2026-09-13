@@ -45,7 +45,7 @@
               <mat-select formControlName="customerZoneId">
                 <mat-option>-- All --</mat-option>
                 @for (d of zones; track d) {
-                  <mat-option [value]="d?.id">
+                  <mat-option [value]="$safeNavigationMigration(d?.id)">
                     {{ d?.name }}
                   </mat-option>
                 }
@@ -63,7 +63,7 @@
                 name="customerMarketingOfficerId"
                 formControlName="customerMarketingOfficerId"
                 [matAutocomplete]="marketingOfficer"
-                (input)="onMarketingOfficerChange($event?.target?.value)"
+                (input)="onMarketingOfficerChange($safeNavigationMigration($event?.target?.value))"
                 />
                 <div matSuffix>
                   @if (searchForm?.get('customerMarketingOfficerId')?.value) {

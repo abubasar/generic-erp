@@ -10,11 +10,11 @@
       <h3 class="m-0">Requisition No: {{ data?.requisitionNo }}</h3>
       <mat-chip
         class="align-middle py-4 px-8"
-        [color]="getRequisitionStatus(data?.requisitionStatus).color"
+        [color]="getRequisitionStatus($safeNavigationMigration(data?.requisitionStatus)).color"
         selected
       >
         {{
-          getRequisitionStatusName(data?.requisitionStatus)?.replaceAll(
+          getRequisitionStatusName($safeNavigationMigration(data?.requisitionStatus))?.replaceAll(
             "_",
             " "
           )
@@ -26,7 +26,7 @@
         matTooltip="print pdf"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printPdf(data?.id)"
+        (click)="printPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>print</mat-icon>
       </button>
@@ -59,7 +59,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck(data?.id, data?.requisitionNo)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.requisitionNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -83,7 +83,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove(data?.id, data?.requisitionNo)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.requisitionNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -111,7 +111,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.requisitionNo, data?.requisitionStatus)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.requisitionNo), $safeNavigationMigration(data?.requisitionStatus))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -446,7 +446,7 @@
                     mat-mini-fab
                     type="button"
                     color="warn"
-                    (click)="onDeleteItem(p?.get('id')?.value, i)"
+                    (click)="onDeleteItem($safeNavigationMigration(p?.get('id')?.value), i)"
                   >
                     <mat-icon>delete_forever</mat-icon>
                   </button>
@@ -529,7 +529,7 @@
               <span>
                 {{
                   getDepartmentName(
-                    purchaseRequisitionForm?.get("departmentId")?.value
+                    $safeNavigationMigration(purchaseRequisitionForm?.get("departmentId")?.value)
                   )
                 }}
               </span>
@@ -539,7 +539,7 @@
               <span>Store</span>
               <span>
                 {{
-                  getStoreName(purchaseRequisitionForm?.get("storeId")?.value)
+                  getStoreName($safeNavigationMigration(purchaseRequisitionForm?.get("storeId")?.value))
                 }}
               </span>
             </div>
@@ -560,7 +560,7 @@
               <span>
                 {{
                   getPriorityName(
-                    purchaseRequisitionForm?.get("priority")?.value
+                    $safeNavigationMigration(purchaseRequisitionForm?.get("priority")?.value)
                   )
                 }}
               </span>

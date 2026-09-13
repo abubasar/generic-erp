@@ -15,14 +15,14 @@ export class PaymentModeService {
   getAllPaymentModes(): Observable<SearchResponse<PaymentMode>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<PaymentMode>) => response));
+      .pipe(map((response: any) => response as SearchResponse<PaymentMode>));
   }
   getPaymentModes(
     paymentModeRequest: PaymentModeRequest
   ): Observable<SearchResponse<PaymentMode>> {
     return this.api
       .getAll(paymentModeRequest)
-      .pipe(map((response: SearchResponse<PaymentMode>) => response));
+      .pipe(map((response: any) => response as SearchResponse<PaymentMode>));
   }
 
   createPaymentMode(

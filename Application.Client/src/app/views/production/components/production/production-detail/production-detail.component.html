@@ -19,19 +19,19 @@
   <ng-container matColumnDef="quantity">
     <th mat-header-cell *matHeaderCellDef>Issued Quantity</th>
     <td mat-cell *matCellDef="let element">
-      {{ element?.quantity | number : "1.2-2" }}
+      {{ $safeNavigationMigration(element?.quantity) | number : "1.2-2" }}
     </td>
   </ng-container>
   <ng-container matColumnDef="adjustmentQuantity">
     <th mat-header-cell *matHeaderCellDef>Adjust Quantity(+/-)</th>
     <td mat-cell *matCellDef="let element">
-      {{ element?.adjustmentQuantity | number : "1.2-2" }}
+      {{ $safeNavigationMigration(element?.adjustmentQuantity) | number : "1.2-2" }}
     </td>
   </ng-container>
   <ng-container matColumnDef="actualUsedQuantity">
     <th mat-header-cell *matHeaderCellDef>Actual Used Quantity</th>
     <td mat-cell *matCellDef="let element">
-      {{ (element?.actualUsedQuantity)| number : "1.2-2" }}
+      {{ ($safeNavigationMigration(element?.actualUsedQuantity))| number : "1.2-2" }}
     </td>
   </ng-container>
 

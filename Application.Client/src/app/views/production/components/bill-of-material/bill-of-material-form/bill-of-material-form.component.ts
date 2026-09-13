@@ -5,6 +5,7 @@ import {
   Component,
   OnInit,
   ViewChild,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatButton as MatButton } from "@angular/material/button";
@@ -45,6 +46,7 @@ import { BillOfMaterialListComponent } from "../../manufacturing-order/bill-of-m
     selector: "app-bill-of-material-form",
     templateUrl: "./bill-of-material-form.component.html",
     styleUrls: ["./bill-of-material-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class BillOfMaterialFormComponent implements OnInit, AfterViewInit {

@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Inventory_Type_Id_Finished_Goods } from "app/shared/consts/const";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
@@ -16,6 +16,7 @@ import { environment } from "environments/environment";
     selector: "app-item-stock-ledger",
     templateUrl: "./item-stock-ledger.component.html",
     styleUrls: ["./item-stock-ledger.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ItemStockLedgerComponent implements OnInit {

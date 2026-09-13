@@ -4,6 +4,7 @@ import {
   OnChanges,
   OnInit,
   SimpleChanges,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import { UserProfile } from "app/shared/models/user-profile-model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
@@ -12,6 +13,7 @@ import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
     selector: "app-stock-transfer-detail",
     templateUrl: "./stock-transfer-detail.component.html",
     styleUrls: ["./stock-transfer-detail.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class StockTransferDetailComponent implements OnInit, OnChanges {

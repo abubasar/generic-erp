@@ -41,7 +41,7 @@
                 />
                 <div matSuffix>
                   @if (
-                    searchForm?.get('customerId')?.value !== null &&
+                    $safeNavigationMigration(searchForm?.get('customerId')?.value) !== null &&
                     searchForm?.get('customerId')?.value !== ''
                     ) {
                     <button
@@ -87,7 +87,7 @@
                   />
                   <div matSuffix>
                     @if (
-                      searchForm?.get('saleOrderNo')?.value !== null &&
+                      $safeNavigationMigration(searchForm?.get('saleOrderNo')?.value) !== null &&
                       searchForm?.get('saleOrderNo')?.value !== ''
                       ) {
                       <button
@@ -251,14 +251,14 @@
             <ng-container matColumnDef="orderDate">
               <th mat-header-cell class="header" *matHeaderCellDef>Oder Date</th>
               <td mat-cell *matCellDef="let saleOrder">
-                {{ dateFormatService?.getDateFormat(saleOrder?.orderDate) }}
+                {{ dateFormatService?.getDateFormat($safeNavigationMigration(saleOrder?.orderDate)) }}
               </td>
             </ng-container>
             <!-- deliveryDate Column -->
             <ng-container matColumnDef="deliveryDate">
               <th mat-header-cell class="header" *matHeaderCellDef>Delivery Date</th>
               <td mat-cell *matCellDef="let saleOrder">
-                {{ dateFormatService?.getDateFormat(saleOrder?.deliveryDate) }}
+                {{ dateFormatService?.getDateFormat($safeNavigationMigration(saleOrder?.deliveryDate)) }}
               </td>
             </ng-container>
             <!-- customerId Column -->
@@ -346,10 +346,10 @@
               <td mat-cell *matCellDef="let saleOrder">
                 <mat-chip
                   class="align-middle py-4 px-8"
-                  [color]="getSaleOrderStatus(saleOrder?.status)?.color"
+                  [color]="$safeNavigationMigration(getSaleOrderStatus($safeNavigationMigration(saleOrder?.status))?.color)"
                   selected
                   >
-                  {{ getSaleOrderStatusName(saleOrder?.status)?.replaceAll("_", " ") }}
+                  {{ getSaleOrderStatusName($safeNavigationMigration(saleOrder?.status))?.replaceAll("_", " ") }}
                 </mat-chip>
               </td>
             </ng-container>
@@ -382,13 +382,13 @@
                   <mat-icon>published_with_changes</mat-icon>
                 </button>
                 <button
-                  [hidden]="saleOrder?.status >= 2"
+                  [hidden]="$safeNavigationMigration(saleOrder?.status) >= 2"
                   mat-icon-button
                   color="warn"
                   matTooltip="Delete"
                   matTooltipShowDelay="300"
                   matTooltipPosition="above"
-                  (click)="confirmDelete(saleOrder?.id, saleOrder?.saleOrderNo)"
+                  (click)="confirmDelete($safeNavigationMigration(saleOrder?.id), $safeNavigationMigration(saleOrder?.saleOrderNo))"
                   >
                   <mat-icon>delete</mat-icon>
                 </button>
@@ -408,7 +408,7 @@
           "
                   >
                   <app-sales-order-list-detail
-                    [data]="element?.saleOrderDetails"
+                    [data]="$safeNavigationMigration(element?.saleOrderDetails)"
                   ></app-sales-order-list-detail>
                 </div>
               </td>

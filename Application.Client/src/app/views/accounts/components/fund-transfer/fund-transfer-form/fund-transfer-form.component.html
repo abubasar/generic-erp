@@ -7,10 +7,10 @@
       <h3 class="m-0">Fund Transfer No: {{ data?.fundTransferNo }}</h3>
       <mat-chip
         class="align-middle py-4 px-8"
-        [color]="getFundTransferStatus(data?.status).color"
+        [color]="getFundTransferStatus($safeNavigationMigration(data?.status)).color"
         selected
       >
-        {{ getFundTransferStatusName(data?.status)?.replaceAll("_", " ") }}
+        {{ getFundTransferStatusName($safeNavigationMigration(data?.status))?.replaceAll("_", " ") }}
       </mat-chip>
 
       <button
@@ -19,7 +19,7 @@
         matTooltip="print pdf"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printPdf(data?.id)"
+        (click)="printPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>print</mat-icon>
       </button>
@@ -51,7 +51,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck(data?.id, data?.code)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.code))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -74,7 +74,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove(data?.id, data?.code)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.code))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -101,7 +101,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.code, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.code), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -244,7 +244,7 @@
                 >
                   <mat-option
                     *ngFor="let d of filteredCashBankAccounts"
-                    [value]="d?.id"
+                    [value]="$safeNavigationMigration(d?.id)"
                   >
                     {{ d.name }}
                   </mat-option>
@@ -285,7 +285,7 @@
                 >
                   <mat-option
                     *ngFor="let d of filteredCashBankAccounts"
-                    [value]="d?.id"
+                    [value]="$safeNavigationMigration(d?.id)"
                   >
                     {{ d.name }}
                   </mat-option>
@@ -393,8 +393,8 @@
               <span>
                 {{
                   getFundTransferTransactionTypeName(
-                    fundTransferForm?.get("fundTransferTransactionTypeId")
-                      ?.value
+                    $safeNavigationMigration(fundTransferForm?.get("fundTransferTransactionTypeId")
+                      ?.value)
                   )
                 }}
               </span>
@@ -406,7 +406,7 @@
               <span>
                 {{
                   getCostCenterName(
-                    fundTransferForm?.get("costCenterId")?.value
+                    $safeNavigationMigration(fundTransferForm?.get("costCenterId")?.value)
                   )
                 }}
               </span>
@@ -418,7 +418,7 @@
               <span>
                 {{
                   getCashBankFromAccountName(
-                    fundTransferForm?.get("transferFromAccountId")?.value
+                    $safeNavigationMigration(fundTransferForm?.get("transferFromAccountId")?.value)
                   )
                 }}
               </span>
@@ -430,7 +430,7 @@
               <span>
                 {{
                   getCashBankToAccountName(
-                    fundTransferForm?.get("transferToAccountId")?.value
+                    $safeNavigationMigration(fundTransferForm?.get("transferToAccountId")?.value)
                   )
                 }}
               </span>

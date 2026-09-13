@@ -7,10 +7,10 @@
       <h3 class="m-0">Money Receipt No: {{ data?.code }}</h3>
       <mat-chip
         class="align-middle py-4 px-8"
-        [color]="getReceivePaymentStatus(data?.status).color"
+        [color]="getReceivePaymentStatus($safeNavigationMigration(data?.status)).color"
         selected
       >
-        {{ getReceivePaymentStatusName(data?.status)?.replaceAll("_", " ") }}
+        {{ getReceivePaymentStatusName($safeNavigationMigration(data?.status))?.replaceAll("_", " ") }}
       </mat-chip>
       <button
         mat-icon-button
@@ -18,7 +18,7 @@
         matTooltip="print pdf"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printPdf(data?.id)"
+        (click)="printPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>print</mat-icon>
       </button>
@@ -31,7 +31,7 @@
         matTooltip="View Details"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="openPopup(data?.id)"
+        (click)="openPopup($safeNavigationMigration(data?.id))"
       >
         <mat-icon>blur_circular</mat-icon>
       </button>
@@ -62,7 +62,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck(data?.id, data?.code)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.code))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -85,7 +85,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove(data?.id, data?.code)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.code))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -106,7 +106,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmSendToCustomer(data?.id, data?.code)"
+        (click)="confirmSendToCustomer($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.code))"
       >
         <ng-container *ngIf="isLoading; else sendText">
           <mat-icon>
@@ -136,7 +136,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.code, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.code), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -232,7 +232,7 @@
                 </div>
                 <mat-autocomplete
                   #auto="matAutocomplete"
-                  (optionSelected)="onSelectedCustomer($event?.option?.value)"
+                  (optionSelected)="onSelectedCustomer($safeNavigationMigration($event?.option?.value))"
                   [displayWith]="getCustomerName.bind(this)"
                   [panelWidth]="'700px'"
                 >
@@ -436,8 +436,8 @@
                       <button
                         (click)="clearInputFromDetails($event, i)"
                         *ngIf="
-                          receivePaymentDetails?.at(i).get('accountId')
-                            ?.value !== null &&
+                          $safeNavigationMigration(receivePaymentDetails?.at(i).get('accountId')
+                            ?.value) !== null &&
                           receivePaymentDetails?.at(i).get('accountId')
                             ?.value !== ''
                         "
@@ -459,7 +459,7 @@
                     >
                       <mat-option
                         *ngFor="let d of filteredCashBankAccounts"
-                        [value]="d?.id"
+                        [value]="$safeNavigationMigration(d?.id)"
                       >
                         {{ d.name }}
                       </mat-option>
@@ -497,7 +497,7 @@
                     mat-mini-fab
                     type="button"
                     color="warn"
-                    (click)="onDeleteItem(p?.get('id')?.value, i)"
+                    (click)="onDeleteItem($safeNavigationMigration(p?.get('id')?.value), i)"
                   >
                     <mat-icon>delete_forever</mat-icon>
                   </button>
@@ -574,7 +574,7 @@
               <span>Customer</span>
               <span>
                 {{
-                  getCustomerName(receivePaymentForm?.get("customerId")?.value)
+                  getCustomerName($safeNavigationMigration(receivePaymentForm?.get("customerId")?.value))
                 }}
               </span>
             </div>
@@ -585,8 +585,8 @@
               <span>
                 {{
                   getFundTransferTransactionTypeName(
-                    receivePaymentForm?.get("fundTransferTransactionTypeId")
-                      ?.value
+                    $safeNavigationMigration(receivePaymentForm?.get("fundTransferTransactionTypeId")
+                      ?.value)
                   )
                 }}
               </span>
@@ -606,7 +606,7 @@
               <span>
                 {{
                   getCostCenterName(
-                    receivePaymentForm?.get("costCenterId")?.value
+                    $safeNavigationMigration(receivePaymentForm?.get("costCenterId")?.value)
                   )
                 }}
               </span>
@@ -618,7 +618,7 @@
               <span>
                 {{
                   getPaymentModeName(
-                    receivePaymentForm?.get("paymentModeId")?.value
+                    $safeNavigationMigration(receivePaymentForm?.get("paymentModeId")?.value)
                   )
                 }}
               </span>
@@ -637,7 +637,7 @@
               <span>Total Amount</span>
               <span>
                 {{
-                  receivePaymentForm?.get("totalAmount")?.value
+                  $safeNavigationMigration(receivePaymentForm?.get("totalAmount")?.value)
                     | currency : "BDT" : "" : "1.2-2"
                 }}
               </span>
@@ -646,7 +646,7 @@
               <span>Total Amount In Words</span>
               <span>
                 {{
-                  convertAmount(receivePaymentForm?.get("totalAmount")?.value)
+                  convertAmount($safeNavigationMigration(receivePaymentForm?.get("totalAmount")?.value))
                 }}
               </span>
             </div>

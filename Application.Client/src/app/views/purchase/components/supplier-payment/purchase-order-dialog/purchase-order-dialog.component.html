@@ -238,7 +238,7 @@
   </th>
   <td align="center" mat-cell *matCellDef="let purchaseOrder">
     <button
-      [hidden]="purchaseOrder?.status < 3"
+      [hidden]="$safeNavigationMigration(purchaseOrder?.status) < 3"
       mat-icon-button
       color="warn"
       matTooltip="Supplier Transactions Against PO List"

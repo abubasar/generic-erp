@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { matxAnimations } from "app/shared/animations/matx-animations";
 import { BdEastId, BdNorthId, BdSouthId } from "app/shared/consts/const";
@@ -17,6 +17,7 @@ import { DashboardDataService } from "../services/dashboard-data.service";
     templateUrl: "./analytics.component.html",
     styleUrls: ["./analytics.component.scss"],
     animations: matxAnimations,
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class AnalyticsComponent implements OnInit {

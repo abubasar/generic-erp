@@ -20,7 +20,7 @@ export class RoleService {
   getRoles(roleRequest: RoleRequest): Observable<SearchResponse<Role>> {
     return this.api
       .getAll(roleRequest)
-      .pipe(map((response: SearchResponse<Role>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Role>));
   }
 
   createRole(role: Role): Observable<GeneralResponse<string>> {

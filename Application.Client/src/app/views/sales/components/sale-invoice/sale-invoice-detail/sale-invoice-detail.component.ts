@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { UserProfile } from "app/shared/models/user-profile-model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
 import { DateTimeFormatService } from "app/shared/services/date-time-format.service";
@@ -7,6 +7,7 @@ import { DateTimeFormatService } from "app/shared/services/date-time-format.serv
     selector: "app-sale-invoice-detail",
     templateUrl: "./sale-invoice-detail.component.html",
     styleUrls: ["./sale-invoice-detail.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SaleInvoiceDetailComponent implements OnInit {

@@ -120,7 +120,7 @@
                             mat-mini-fab
                             type="button"
                             color="warn"
-                            (click)="onDeleteItem(p?.get('id')?.value, i)"
+                            (click)="onDeleteItem($safeNavigationMigration(p?.get('id')?.value), i)"
                             >
                             <mat-icon>delete_forever</mat-icon>
                           </button>

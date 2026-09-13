@@ -22,7 +22,7 @@ export class ManufacturingOrderService {
       .getAll(manufacturingOrderRequest)
       .pipe(
         map(
-          (response: SearchResponse<ManufacturingOrderResponseDTO>) => response
+          (response: any) => response as SearchResponse<ManufacturingOrderResponseDTO>
         )
       );
   }

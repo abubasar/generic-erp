@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { EmailAccountRequest } from "app/views/configuration/models/email-account/email-account-request.model";
@@ -10,6 +10,7 @@ import { ToastrService } from "ngx-toastr";
     selector: "app-email-account-form",
     templateUrl: "./email-account-form.component.html",
     styleUrls: ["./email-account-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class EmailAccountFormComponent implements OnInit {

@@ -22,8 +22,8 @@ export class PoPriceAdjustmentAfterGrnService {
       .getAll(poPriceAdjustmentAfterGrnRequest)
       .pipe(
         map(
-          (response: SearchResponse<PoPriceAdjustmentAfterGrnResponseDTO>) =>
-            response
+          (response: any) =>
+            response as SearchResponse<PoPriceAdjustmentAfterGrnResponseDTO>
         )
       );
   }

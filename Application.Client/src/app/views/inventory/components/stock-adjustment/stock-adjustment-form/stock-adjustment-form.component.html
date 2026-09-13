@@ -7,10 +7,10 @@
       <h3 class="m-0">Code: {{ data?.code }}</h3>
       <mat-chip
         class="align-middle py-4 px-8"
-        [color]="getStockAdjustmentStatus(data?.status).color"
+        [color]="getStockAdjustmentStatus($safeNavigationMigration(data?.status)).color"
         selected
       >
-        {{ getStockAdjustmentStatusName(data?.status)?.replaceAll("_", " ") }}
+        {{ getStockAdjustmentStatusName($safeNavigationMigration(data?.status))?.replaceAll("_", " ") }}
       </mat-chip>
       <button
         mat-icon-button
@@ -18,7 +18,7 @@
         matTooltip="print pdf"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printPdf(data?.id)"
+        (click)="printPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>print</mat-icon>
       </button>
@@ -49,7 +49,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck(data?.id, data?.code)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.code))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -72,7 +72,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove(data?.id, data?.code)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.code))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -100,7 +100,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.code, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.code), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -182,7 +182,7 @@
                   (selectionChange)="onSelectedStore($event.value)"
                 >
                   <mat-option [value]="null">-- None --</mat-option>
-                  <mat-option *ngFor="let d of stores" [value]="d?.id">
+                  <mat-option *ngFor="let d of stores" [value]="$safeNavigationMigration(d?.id)">
                     {{ d?.name }}
                   </mat-option>
                 </mat-select>
@@ -232,8 +232,8 @@
                     <button
                       (click)="clearInputFromDetails($event, i)"
                       *ngIf="
-                        stockAdjustmentDetails?.at(i).get('productId')
-                          ?.value !== null &&
+                        $safeNavigationMigration(stockAdjustmentDetails?.at(i).get('productId')
+                          ?.value) !== null &&
                         stockAdjustmentDetails?.at(i).get('productId')
                           ?.value !== ''
                       "
@@ -321,7 +321,7 @@
                   mat-mini-fab
                   type="button"
                   color="warn"
-                  (click)="onDeleteItem(p?.get('id')?.value, i)"
+                  (click)="onDeleteItem($safeNavigationMigration(p?.get('id')?.value), i)"
                 >
                   <mat-icon>delete_forever</mat-icon>
                 </button>
@@ -338,7 +338,7 @@
               <span>Total Adjustment Qty</span>
               <span>
                 {{
-                  stockAdjustmentForm?.get("totalAdjustmentQty")?.value
+                  $safeNavigationMigration(stockAdjustmentForm?.get("totalAdjustmentQty")?.value)
                     | currency : "BDT" : "" : "1.2-2"
                 }}
               </span>
@@ -403,7 +403,7 @@
               <span>
                 {{
                   dateFormatService.getDateFormat(
-                    stockAdjustmentForm.get("adjustmentDate")?.value
+                    $safeNavigationMigration(stockAdjustmentForm.get("adjustmentDate")?.value)
                   )
                 }}
               </span>
@@ -412,7 +412,7 @@
             <div class="col label-data">
               <span>Store</span>
               <span>
-                {{ getStoreName(stockAdjustmentForm?.get("storeId")?.value) }}
+                {{ getStoreName($safeNavigationMigration(stockAdjustmentForm?.get("storeId")?.value)) }}
               </span>
             </div>
             <!-- Remark -->
@@ -438,7 +438,7 @@
             <span>Total Adjustment Qty</span>
             <span>
               {{
-                stockAdjustmentForm?.get("totalAdjustmentQty")?.value
+                $safeNavigationMigration(stockAdjustmentForm?.get("totalAdjustmentQty")?.value)
                   | currency : "BDT" : "" : "1.2-2"
               }}
             </span>

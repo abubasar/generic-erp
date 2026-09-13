@@ -7,10 +7,10 @@
       <h3 class="m-0">Purchase Order No: {{ data?.ponumber }}</h3>
       <mat-chip
         class="align-middle py-4 px-8"
-        [color]="getPurchaseOrderStatus(data?.status)?.color"
+        [color]="$safeNavigationMigration(getPurchaseOrderStatus($safeNavigationMigration(data?.status))?.color)"
         selected
       >
-        {{ getPurchaseOrderStatusName(data?.status)?.replaceAll("_", " ") }}
+        {{ getPurchaseOrderStatusName($safeNavigationMigration(data?.status))?.replaceAll("_", " ") }}
       </mat-chip>
       <button
         mat-icon-button
@@ -18,7 +18,7 @@
         matTooltip="print pdf"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printPdf(data?.id)"
+        (click)="printPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>print</mat-icon>
       </button>
@@ -48,7 +48,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck(data?.id, data?.ponumber)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.ponumber))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -71,7 +71,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove(data?.id, data?.ponumber)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.ponumber))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -91,7 +91,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmReadyForGrn(data?.id, data?.ponumber)"
+        (click)="confirmReadyForGrn($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.ponumber))"
       >
         <ng-container *ngIf="isLoading; else readyForGrnText">
           <mat-icon>
@@ -115,7 +115,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmSendToSupplier(data?.id)"
+        (click)="confirmSendToSupplier($safeNavigationMigration(data?.id))"
       >
         <ng-container *ngIf="isLoading; else sendText">
           <mat-icon>
@@ -131,7 +131,7 @@
 
       <button
         *appHasPermission="['Permissions.PurchaseOrders.Unpost']"
-        [hidden]="shouldHideUnpostButton(data?.status)"
+        [hidden]="shouldHideUnpostButton($safeNavigationMigration(data?.status))"
         type="button"
         mat-mini-fab
         color="warn"
@@ -139,7 +139,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.ponumber, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.ponumber), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -167,7 +167,7 @@
           <ng-container>
             <mat-slide-toggle
               formControlName="isImportPurchase"
-              [disabled]="this.data?.id"
+              [disabled]="$safeNavigationMigration(this.data?.id)"
               (change)="toggleImportPurchase()"
               >Is Import Purchase</mat-slide-toggle
             >
@@ -217,7 +217,7 @@
                   <mat-label>Select Currency</mat-label>
                   <mat-select formControlName="currencyId">
                     <mat-option [value]="null">-- None --</mat-option>
-                    <mat-option *ngFor="let d of currencies" [value]="d?.id">
+                    <mat-option *ngFor="let d of currencies" [value]="$safeNavigationMigration(d?.id)">
                       {{ d?.name }}
                     </mat-option>
                   </mat-select>
@@ -268,7 +268,7 @@
                     <mat-option [value]="null">-- None --</mat-option>
                     <mat-option
                       *ngFor="let d of importPurchaseIncoTerms"
-                      [value]="d?.value"
+                      [value]="$safeNavigationMigration(d?.value)"
                     >
                       {{ d?.name }}
                     </mat-option>
@@ -284,7 +284,7 @@
                     <mat-option [value]="null">-- None --</mat-option>
                     <mat-option
                       *ngFor="let d of importPurchasePaymentTerms"
-                      [value]="d?.value"
+                      [value]="$safeNavigationMigration(d?.value)"
                     >
                       {{ d?.name == "LCAtSite" ? "LC at Site" : d?.name }}
                     </mat-option>
@@ -335,7 +335,7 @@
                 />
               </mat-form-field>
               <button
-                [hidden]="this.data?.id"
+                [hidden]="$safeNavigationMigration(this.data?.id)"
                 type="button"
                 mat-icon-button
                 color="primary"
@@ -357,7 +357,7 @@
                 />
               </mat-form-field>
               <button
-                [hidden]="this.data?.id"
+                [hidden]="$safeNavigationMigration(this.data?.id)"
                 type="button"
                 mat-icon-button
                 color="primary"
@@ -429,7 +429,7 @@
                   (selectionChange)="onSelectedStore($event.value)"
                 >
                   <mat-option [value]="null">-- None --</mat-option>
-                  <mat-option *ngFor="let d of stores" [value]="d?.id">
+                  <mat-option *ngFor="let d of stores" [value]="$safeNavigationMigration(d?.id)">
                     {{ d?.name }}
                   </mat-option>
                 </mat-select>
@@ -489,7 +489,7 @@
                 <mat-label>Select Delivery Place</mat-label>
                 <mat-select formControlName="deliveryPlaceId">
                   <mat-option [value]="null">-- None --</mat-option>
-                  <mat-option *ngFor="let d of deliveryPlaces" [value]="d?.id">
+                  <mat-option *ngFor="let d of deliveryPlaces" [value]="$safeNavigationMigration(d?.id)">
                     {{ d?.name }}
                   </mat-option>
                 </mat-select>
@@ -544,7 +544,7 @@
                     <mat-option [value]="null">-- None --</mat-option>
                     <mat-option
                       *ngFor="let d of paymentMethods"
-                      [value]="d?.id"
+                      [value]="$safeNavigationMigration(d?.id)"
                     >
                       {{ d?.name }}
                     </mat-option>
@@ -566,8 +566,8 @@
                 <mat-form-field class="full-width">
                   <mat-label>Select Transport</mat-label>
                   <mat-select formControlName="transport">
-                    <mat-option *ngFor="let d of transports" [value]="d?.value">
-                      {{ getTransportName(d?.value)?.replaceAll("_", " ") }}
+                    <mat-option *ngFor="let d of transports" [value]="$safeNavigationMigration(d?.value)">
+                      {{ getTransportName($safeNavigationMigration(d?.value))?.replaceAll("_", " ") }}
                     </mat-option>
                   </mat-select>
                   <mat-error
@@ -589,7 +589,7 @@
                   <mat-select formControlName="paymentMode">
                     <mat-option
                       *ngFor="let d of paymentModes"
-                      [value]="d?.value"
+                      [value]="$safeNavigationMigration(d?.value)"
                     >
                       {{ d?.name }}
                     </mat-option>
@@ -761,8 +761,8 @@
                         "
                         (click)="clearInputFromDetails($event, i)"
                         *ngIf="
-                          purchaseOrderDetails?.at(i).get('productId')
-                            ?.value !== null &&
+                          $safeNavigationMigration(purchaseOrderDetails?.at(i).get('productId')
+                            ?.value) !== null &&
                           purchaseOrderDetails?.at(i).get('productId')
                             ?.value !== ''
                         "
@@ -782,7 +782,7 @@
                     >
                       <mat-option
                         *ngFor="let product of searchProducts"
-                        [value]="product?.id"
+                        [value]="$safeNavigationMigration(product?.id)"
                       >
                         {{ product.name }}
                         {{
@@ -802,13 +802,13 @@
                     ><mat-chip
                       class="align-middle py-4 px-8"
                       [color]="
-                        getPurchaseOrderStatus(p.get('lastPoStatus')?.value)
-                          ?.color
+                        $safeNavigationMigration(getPurchaseOrderStatus($safeNavigationMigration(p.get('lastPoStatus')?.value))
+                          ?.color)
                       "
                     >
                       {{
                         getPurchaseOrderStatusName(
-                          p.get("lastPoStatus")?.value
+                          $safeNavigationMigration(p.get("lastPoStatus")?.value)
                         )?.replaceAll("_", " ")
                       }} </mat-chip
                     >{{ p.get("lastPoDetails")?.value }}
@@ -823,7 +823,7 @@
                     matTooltipShowDelay="300"
                     matTooltipPosition="above"
                     [disabled]="isDialogOpen || isLoading"
-                    (click)="confirmClose(p.get('poId')?.value, i)"
+                    (click)="confirmClose($safeNavigationMigration(p.get('poId')?.value), i)"
                     type="button"
                   >
                     <ng-container *ngIf="isLoading; else closePo">
@@ -955,7 +955,7 @@
                     mat-mini-fab
                     type="button"
                     color="warn"
-                    (click)="onDeleteItem(p?.get('id')?.value, i)"
+                    (click)="onDeleteItem($safeNavigationMigration(p?.get('id')?.value), i)"
                   >
                     <mat-icon>delete_forever</mat-icon>
                   </button>
@@ -1038,7 +1038,7 @@
                 <span>Total</span>
                 <span>
                   {{
-                    purchaseOrderForm?.get("total")?.value
+                    $safeNavigationMigration(purchaseOrderForm?.get("total")?.value)
                       | currency: "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -1114,7 +1114,7 @@
                   {{
                     purchaseOrderForm?.get("currencyId")?.value
                       ? getCurrencyName(
-                          purchaseOrderForm?.get("currencyId")?.value
+                          $safeNavigationMigration(purchaseOrderForm?.get("currencyId")?.value)
                         )
                       : ""
                   }}
@@ -1136,8 +1136,8 @@
                   {{
                     purchaseOrderForm?.get("importPurchaseIncoTerm")?.value
                       ? getImportPurchaseIncoTermName(
-                          purchaseOrderForm?.get("importPurchaseIncoTerm")
-                            ?.value
+                          $safeNavigationMigration(purchaseOrderForm?.get("importPurchaseIncoTerm")
+                            ?.value)
                         )
                       : ""
                   }}
@@ -1151,8 +1151,8 @@
                   {{
                     purchaseOrderForm?.get("importPurchasePaymentTerm")?.value
                       ? getImportPurchasePaymentTermName(
-                          purchaseOrderForm?.get("importPurchasePaymentTerm")
-                            ?.value
+                          $safeNavigationMigration(purchaseOrderForm?.get("importPurchasePaymentTerm")
+                            ?.value)
                         )?.replaceAll("_", " ")
                       : ""
                   }}
@@ -1204,7 +1204,7 @@
               <span>
                 {{
                   dateFormatService.getDateFormat(
-                    purchaseOrderForm.get("podate")?.value
+                    $safeNavigationMigration(purchaseOrderForm.get("podate")?.value)
                   )
                 }}
               </span>
@@ -1213,7 +1213,7 @@
             <div class="col label-data">
               <span>Store</span>
               <span>
-                {{ getStoreName(purchaseOrderForm?.get("storeId")?.value) }}
+                {{ getStoreName($safeNavigationMigration(purchaseOrderForm?.get("storeId")?.value)) }}
               </span>
             </div>
 
@@ -1222,7 +1222,7 @@
               <span>Supplier</span>
               <span>
                 {{
-                  getSupplierName(purchaseOrderForm?.get("supplierId")?.value)
+                  getSupplierName($safeNavigationMigration(purchaseOrderForm?.get("supplierId")?.value))
                 }}
               </span>
             </div>
@@ -1232,7 +1232,7 @@
               <span>
                 {{
                   getDeliveryPlaceName(
-                    purchaseOrderForm?.get("deliveryPlaceId")?.value
+                    $safeNavigationMigration(purchaseOrderForm?.get("deliveryPlaceId")?.value)
                   )
                 }}
               </span>
@@ -1265,7 +1265,7 @@
                 <span>
                   {{
                     getPaymentMethodName(
-                      purchaseOrderForm?.get("paymentMethodId")?.value
+                      $safeNavigationMigration(purchaseOrderForm?.get("paymentMethodId")?.value)
                     )
                   }}
                 </span>
@@ -1276,7 +1276,7 @@
                 <span>
                   {{
                     getTransportName(
-                      purchaseOrderForm.get("transport")?.value
+                      $safeNavigationMigration(purchaseOrderForm.get("transport")?.value)
                     )?.replaceAll("_", " ")
                   }}
                 </span>
@@ -1288,7 +1288,7 @@
                 <span>
                   {{
                     getPaymentModeName(
-                      purchaseOrderForm.get("paymentMode")?.value
+                      $safeNavigationMigration(purchaseOrderForm.get("paymentMode")?.value)
                     )
                   }}
                 </span>
@@ -1316,7 +1316,7 @@
               <span>
                 {{
                   dateFormatService.getDateFormat(
-                    purchaseOrderForm.get("deliveryDate")?.value
+                    $safeNavigationMigration(purchaseOrderForm.get("deliveryDate")?.value)
                   )
                 }}
               </span>
@@ -1393,7 +1393,7 @@
                 <span>Total</span>
                 <span>
                   {{
-                    purchaseOrderForm?.get("total")?.value
+                    $safeNavigationMigration(purchaseOrderForm?.get("total")?.value)
                       | currency: "BDT" : "" : "1.2-2"
                   }}
                 </span>

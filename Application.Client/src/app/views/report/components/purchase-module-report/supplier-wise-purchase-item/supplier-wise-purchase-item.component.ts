@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Inventory_Type_Id_Raw_Materials } from "app/shared/consts/const";
 import { StoreRequest } from "app/views/configuration/models/store/store-request.model";
@@ -13,6 +13,7 @@ import { environment } from "environments/environment";
     selector: "app-supplier-wise-purchase-item",
     templateUrl: "./supplier-wise-purchase-item.component.html",
     styleUrls: ["./supplier-wise-purchase-item.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SupplierWisePurchaseItemComponent implements OnInit {

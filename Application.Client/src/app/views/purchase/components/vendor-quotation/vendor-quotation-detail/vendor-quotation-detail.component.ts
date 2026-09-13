@@ -1,9 +1,10 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
 
 @Component({
     selector: "app-vendor-quotation-detail",
     templateUrl: "./vendor-quotation-detail.component.html",
     styleUrls: ["./vendor-quotation-detail.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class VendorQuotationDetailComponent implements OnInit {

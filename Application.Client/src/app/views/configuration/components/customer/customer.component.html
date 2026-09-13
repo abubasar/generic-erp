@@ -34,7 +34,7 @@
               />
               <div matSuffix>
                 @if (
-                  searchForm?.get('customerRegionId')?.value !== null &&
+                  $safeNavigationMigration(searchForm?.get('customerRegionId')?.value) !== null &&
                   searchForm?.get('customerRegionId')?.value !== ''
                   ) {
                   <button
@@ -78,7 +78,7 @@
                 />
                 <div matSuffix>
                   @if (
-                    searchForm?.get('customerZoneId')?.value !== null &&
+                    $safeNavigationMigration(searchForm?.get('customerZoneId')?.value) !== null &&
                     searchForm?.get('customerZoneId')?.value !== ''
                     ) {
                     <button
@@ -122,7 +122,7 @@
                   />
                   <div matSuffix>
                     @if (
-                      searchForm?.get('customerAreaId')?.value !== null &&
+                      $safeNavigationMigration(searchForm?.get('customerAreaId')?.value) !== null &&
                       searchForm?.get('customerAreaId')?.value !== ''
                       ) {
                       <button
@@ -167,7 +167,7 @@
                       />
                       <div matSuffix>
                         @if (
-                          searchForm?.get('customerTerritoryId')?.value !== null &&
+                          $safeNavigationMigration(searchForm?.get('customerTerritoryId')?.value) !== null &&
                           searchForm?.get('customerTerritoryId')?.value !== ''
                           ) {
                           <button
@@ -211,7 +211,7 @@
                       />
                       <div matSuffix>
                         @if (
-                          searchForm?.get('customerMarketingOfficerId')?.value !==
+                          $safeNavigationMigration(searchForm?.get('customerMarketingOfficerId')?.value) !==
                           null &&
                           searchForm?.get('customerMarketingOfficerId')?.value !== ''
                           ) {
@@ -519,7 +519,7 @@
                               matTooltip="Delete"
                               matTooltipShowDelay="300"
                               matTooltipPosition="above"
-                              (click)="confirmDelete(customer.id, customer?.code)"
+                              (click)="confirmDelete(customer.id, $safeNavigationMigration(customer?.code))"
                               >
                               <mat-icon>delete</mat-icon>
                             </button>
@@ -539,7 +539,7 @@
                 "
                               >
                               <app-customer-bank-account
-                                [data]="element?.bankAccounts"
+                                [data]="$safeNavigationMigration(element?.bankAccounts)"
                               ></app-customer-bank-account>
                             </div>
                           </td>

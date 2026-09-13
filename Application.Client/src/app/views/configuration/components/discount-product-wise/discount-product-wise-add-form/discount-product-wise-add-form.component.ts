@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Inventory_Type_Id_Finished_Goods } from "app/shared/consts/const";
 import { DiscountProductWise } from "app/views/configuration/models/discount-product-wise/discount-product-wise.model";
@@ -12,6 +12,7 @@ import { ToastrService } from "ngx-toastr";
     selector: "app-discount-product-wise-add-form",
     templateUrl: "./discount-product-wise-add-form.component.html",
     styleUrls: ["./discount-product-wise-add-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DiscountProductWiseAddFormComponent implements OnInit {

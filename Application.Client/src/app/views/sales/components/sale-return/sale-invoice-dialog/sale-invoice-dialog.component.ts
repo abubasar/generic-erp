@@ -5,7 +5,7 @@ import {
   transition,
   trigger,
 } from "@angular/animations";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { SaleInvoiceStatus } from "app/shared/enums/saleInvoiceStatus";
@@ -30,6 +30,7 @@ import { SaleInvoiceService } from "app/views/sales/services/sale-invoice.servic
             transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
         ]),
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SaleInvoiceDialogComponent implements OnInit {

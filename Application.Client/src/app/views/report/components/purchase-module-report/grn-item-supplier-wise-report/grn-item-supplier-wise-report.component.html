@@ -78,7 +78,7 @@
                   name="productId"
                   formControlName="productId"
                   [matAutocomplete]="product"
-                  (input)="onProductChange($event?.target?.value)"
+                  (input)="onProductChange($safeNavigationMigration($event?.target?.value))"
                   />
                   <div matSuffix>
                     @if (searchForm?.get('productId')?.value) {
@@ -119,7 +119,7 @@
                   <mat-select formControlName="storeId">
                     <mat-option>-- All --</mat-option>
                     @for (d of stores; track d) {
-                      <mat-option [value]="d?.id">
+                      <mat-option [value]="$safeNavigationMigration(d?.id)">
                         {{ d?.name }}
                       </mat-option>
                     }

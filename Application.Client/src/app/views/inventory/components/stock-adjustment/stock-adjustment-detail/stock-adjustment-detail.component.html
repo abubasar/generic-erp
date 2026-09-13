@@ -19,7 +19,7 @@
   <ng-container matColumnDef="adjustmentQty">
     <th mat-header-cell *matHeaderCellDef>Adjustment Qty</th>
     <td mat-cell *matCellDef="let element">
-      {{ element?.adjustmentQty | number : "1.2-3" }}
+      {{ $safeNavigationMigration(element?.adjustmentQty) | number : "1.2-3" }}
     </td>
   </ng-container>
 

@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
 import { RoutePartsService } from "app/shared/services/route-parts.service";
 import { Subscription, filter } from "rxjs";
@@ -7,6 +7,7 @@ import { Subscription, filter } from "rxjs";
     selector: "app-buts-breadcrumb",
     templateUrl: "./buts-breadcrumb.component.html",
     styleUrls: ["./buts-breadcrumb.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ButsBreadcrumbComponent implements OnInit {

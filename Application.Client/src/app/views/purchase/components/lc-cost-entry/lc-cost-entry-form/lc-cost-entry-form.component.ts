@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatButton as MatButton } from "@angular/material/button";
 import { MatDialog as MatDialog } from "@angular/material/dialog";
@@ -35,6 +35,7 @@ import { LcCostPurchaseOrderDialogComponent } from "../lc-cost-purchase-order-di
     selector: "app-lc-cost-entry-form",
     templateUrl: "./lc-cost-entry-form.component.html",
     styleUrls: ["./lc-cost-entry-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class LcCostEntryFormComponent implements OnInit {

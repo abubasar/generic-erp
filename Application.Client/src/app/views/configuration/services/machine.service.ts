@@ -15,14 +15,14 @@ export class MachineService {
   getAllMachines(): Observable<SearchResponse<Machine>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<Machine>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Machine>));
   }
   getMachines(
     machineRequest: MachineRequest
   ): Observable<SearchResponse<Machine>> {
     return this.api
       .getAll(machineRequest)
-      .pipe(map((response: SearchResponse<Machine>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Machine>));
   }
 
   createMachine(machine: Machine): Observable<GeneralResponse<string>> {

@@ -146,7 +146,7 @@
                                   >
                                   <mat-option>-- None --</mat-option>
                                   @for (d of zones; track d) {
-                                    <mat-option [value]="d?.id">
+                                    <mat-option [value]="$safeNavigationMigration(d?.id)">
                                       {{ d?.name }}
                                     </mat-option>
                                   }
@@ -165,7 +165,7 @@
                                   >
                                   <mat-option>-- None --</mat-option>
                                   @for (d of areas; track d) {
-                                    <mat-option [value]="d?.id">
+                                    <mat-option [value]="$safeNavigationMigration(d?.id)">
                                       {{ d?.name }}
                                     </mat-option>
                                   }
@@ -469,7 +469,7 @@
                                                       mat-mini-fab
                                                       type="button"
                                                       color="warn"
-                                                      (click)="onDeleteItem(p?.get('id')?.value, i)"
+                                                      (click)="onDeleteItem($safeNavigationMigration(p?.get('id')?.value), i)"
                                                       >
                                                       <mat-icon>delete_forever</mat-icon>
                                                     </button>

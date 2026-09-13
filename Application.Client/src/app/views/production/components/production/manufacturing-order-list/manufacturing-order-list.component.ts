@@ -5,7 +5,7 @@ import {
   transition,
   trigger,
 } from "@angular/animations";
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { MatPaginator as MatPaginator } from "@angular/material/paginator";
 import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
@@ -27,6 +27,7 @@ import { ManufacturingOrderService } from "app/views/production/services/manufac
             transition("expanded <=> collapsed", animate("225ms cubic-bezier(0.4, 0.0, 0.2, 1)")),
         ]),
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ManufacturingOrderListComponent implements OnInit {

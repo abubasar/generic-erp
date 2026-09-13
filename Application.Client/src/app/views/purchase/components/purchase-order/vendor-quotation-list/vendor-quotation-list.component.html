@@ -38,7 +38,7 @@
           <mat-autocomplete autoActiveFirstOption #quotation="matAutocomplete">
             @for (d of purchaseRequisitions; track d) {
               <mat-option
-                [value]="d?.requisitionNo"
+                [value]="$safeNavigationMigration(d?.requisitionNo)"
                 >
                 {{ d?.requisitionNo }}
               </mat-option>
@@ -164,7 +164,7 @@
         <ng-container matColumnDef="deliveryDate">
           <th mat-header-cell *matHeaderCellDef>Delivery Date</th>
           <td mat-cell *matCellDef="let vendorQuotation">
-            {{ dateFormatService.getDateFormat(vendorQuotation?.deliveryDate) }}
+            {{ dateFormatService.getDateFormat($safeNavigationMigration(vendorQuotation?.deliveryDate)) }}
           </td>
         </ng-container>
 
@@ -172,7 +172,7 @@
         <ng-container matColumnDef="totalAmount">
           <th mat-header-cell *matHeaderCellDef>Total Amount</th>
           <td mat-cell *matCellDef="let vendorQuotation">
-            {{ vendorQuotation?.totalAmount | currency : "BDT" : "" : "1.2-2" }}
+            {{ $safeNavigationMigration(vendorQuotation?.totalAmount) | currency : "BDT" : "" : "1.2-2" }}
           </td>
         </ng-container>
 
@@ -198,7 +198,7 @@
           "
               >
               <app-vendor-quotation-detail
-                [data]="element?.vendorQuotationDetails"
+                [data]="$safeNavigationMigration(element?.vendorQuotationDetails)"
               ></app-vendor-quotation-detail>
             </div>
           </td>

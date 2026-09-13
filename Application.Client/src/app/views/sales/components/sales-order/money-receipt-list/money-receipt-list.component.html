@@ -125,7 +125,7 @@
                   </th>
                   <td mat-cell *matCellDef="let receivePayment">
                     {{
-                    dateFormatService?.getDateFormat(receivePayment?.paymentDate)
+                    dateFormatService?.getDateFormat($safeNavigationMigration(receivePayment?.paymentDate))
                     }}
                   </td>
                 </ng-container>
@@ -178,12 +178,12 @@
                   <td mat-cell *matCellDef="let receivePayment">
                     <mat-chip
                       class="align-middle py-4 px-8"
-                      [color]="getReceivePaymentStatus(receivePayment?.status)?.color"
+                      [color]="$safeNavigationMigration(getReceivePaymentStatus($safeNavigationMigration(receivePayment?.status))?.color)"
                       selected
                       >
                       {{
                       getReceivePaymentStatusName(
-                      receivePayment?.status
+                      $safeNavigationMigration(receivePayment?.status)
                       )?.replaceAll("_", " ")
                       }}
                     </mat-chip>
@@ -203,7 +203,7 @@
                 "
                       >
                       <app-money-receipt-detail
-                        [data]="element?.receivePaymentDetails"
+                        [data]="$safeNavigationMigration(element?.receivePaymentDetails)"
                       ></app-money-receipt-detail>
                     </div>
                   </td>

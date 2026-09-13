@@ -37,7 +37,7 @@
               />
               <div matSuffix>
                 @if (
-                  searchForm?.get('supplierId')?.value !== null &&
+                  $safeNavigationMigration(searchForm?.get('supplierId')?.value) !== null &&
                   searchForm?.get('supplierId')?.value !== ''
                   ) {
                   <button
@@ -399,7 +399,7 @@
                     <ng-container matColumnDef="currencyId">
                       <th mat-header-cell *matHeaderCellDef>Currency</th>
                       <td mat-cell *matCellDef="let goodsReceiveNote">
-                        {{ getCurrencyName(goodsReceiveNote?.currencyId) }}
+                        {{ getCurrencyName($safeNavigationMigration(goodsReceiveNote?.currencyId)) }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef></td>
                     </ng-container>
@@ -408,7 +408,7 @@
                       <th mat-header-cell *matHeaderCellDef>Exchange Rate</th>
                       <td mat-cell *matCellDef="let goodsReceiveNote">
                         {{
-                        goodsReceiveNote?.exchangeRate | currency : "BDT" : "" : "1.2-2"
+                        $safeNavigationMigration(goodsReceiveNote?.exchangeRate) | currency : "BDT" : "" : "1.2-2"
                         }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef></td>
@@ -419,7 +419,7 @@
                       <td mat-cell *matCellDef="let goodsReceiveNote">
                         {{
                         getImportPurchaseIncoTermName(
-                        goodsReceiveNote?.importPurchaseIncoTerm
+                        $safeNavigationMigration(goodsReceiveNote?.importPurchaseIncoTerm)
                         )
                         }}
                       </td>
@@ -433,7 +433,7 @@
                       <td mat-cell *matCellDef="let goodsReceiveNote">
                         {{
                         getImportPurchasePaymentTermName(
-                        goodsReceiveNote?.importPurchasePaymentTerm
+                        $safeNavigationMigration(goodsReceiveNote?.importPurchasePaymentTerm)
                         )
                         }}
                       </td>
@@ -565,7 +565,7 @@
                     <ng-container matColumnDef="createdOn">
                       <th mat-header-cell class="header" *matHeaderCellDef>Created On</th>
                       <td mat-cell *matCellDef="let element">
-                        {{ dateFormatService?.getDateAndTime(element?.createdOn) }}
+                        {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.createdOn)) }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef></td>
                     </ng-container>
@@ -573,7 +573,7 @@
                     <ng-container matColumnDef="updatedOn">
                       <th mat-header-cell class="header" *matHeaderCellDef>Updated On</th>
                       <td mat-cell *matCellDef="let element">
-                        {{ dateFormatService?.getDateAndTime(element?.updatedOn) }}
+                        {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.updatedOn)) }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef></td>
                     </ng-container>
@@ -621,7 +621,7 @@
                           matTooltipShowDelay="300"
                           matTooltipPosition="above"
                 (click)="
-                  confirmDelete(goodsReceiveNote?.id, goodsReceiveNote?.grnno)
+                  confirmDelete($safeNavigationMigration(goodsReceiveNote?.id), $safeNavigationMigration(goodsReceiveNote?.grnno))
                 "
                           >
                           <mat-icon>delete</mat-icon>
@@ -632,7 +632,7 @@
                           matTooltip="print pdf"
                           matTooltipShowDelay="300"
                           matTooltipPosition="above"
-                          (click)="printPdf(goodsReceiveNote?.id)"
+                          (click)="printPdf($safeNavigationMigration(goodsReceiveNote?.id))"
                           >
                           <mat-icon>print</mat-icon>
                         </button>

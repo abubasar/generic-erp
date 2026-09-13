@@ -117,7 +117,7 @@
   <ng-container matColumnDef="deliveryDate">
     <th mat-header-cell *matHeaderCellDef>Delivery Date</th>
     <td mat-cell *matCellDef="let element">
-      {{ dateFormatService?.getDateFormat(element?.deliveryDate) }}
+      {{ dateFormatService?.getDateFormat($safeNavigationMigration(element?.deliveryDate)) }}
     </td>
   </ng-container>
 

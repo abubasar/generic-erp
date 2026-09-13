@@ -1,4 +1,4 @@
-<div class="app-admin-wrap" [dir]='layoutConf?.dir'>
+<div class="app-admin-wrap" [dir]='$safeNavigationMigration(layoutConf?.dir)'>
   <!-- Header for top navigation layout -->
   <!-- ONLY REQUIRED FOR **TOP** NAVIGATION LAYOUT -->
   @if (layoutConf.navigationPos === 'top') {

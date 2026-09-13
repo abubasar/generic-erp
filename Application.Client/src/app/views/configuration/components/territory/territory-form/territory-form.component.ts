@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA as MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { AreaRequest } from "app/views/configuration/models/area/area-request.model";
@@ -12,6 +12,7 @@ import { ToastrService } from "ngx-toastr";
     selector: "app-territory-form",
     templateUrl: "./territory-form.component.html",
     styleUrls: ["./territory-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TerritoryFormComponent implements OnInit {

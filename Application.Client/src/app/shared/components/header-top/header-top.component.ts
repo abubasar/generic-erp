@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy, Renderer2 } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, Renderer2, ChangeDetectionStrategy } from '@angular/core';
 import { NavigationService } from "../../../shared/services/navigation.service";
 import { Subscription } from 'rxjs';
 import { ThemeService } from '../../../shared/services/theme.service';
@@ -9,6 +9,7 @@ import { JwtAuthService } from 'app/shared/services/auth/jwt-auth.service';
 @Component({
     selector: 'app-header-top',
     templateUrl: './header-top.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class HeaderTopComponent implements OnInit, OnDestroy {

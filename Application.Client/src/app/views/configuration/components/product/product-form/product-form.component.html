@@ -53,7 +53,7 @@
               />
               <div matSuffix>
                 @if (
-                  productForm?.get('categoryId')?.value !== null &&
+                  $safeNavigationMigration(productForm?.get('categoryId')?.value) !== null &&
                   productForm?.get('categoryId')?.value !== ''
                   ) {
                   <button
@@ -166,7 +166,7 @@
                   />
                   <div matSuffix>
                     @if (
-                      productForm?.get('packSizeId')?.value !== null &&
+                      $safeNavigationMigration(productForm?.get('packSizeId')?.value) !== null &&
                       productForm?.get('packSizeId')?.value !== ''
                       ) {
                       <button
@@ -282,7 +282,7 @@
                           />
                           <div matSuffix>
                             @if (
-                              productForm?.get('genericId')?.value !== null &&
+                              $safeNavigationMigration(productForm?.get('genericId')?.value) !== null &&
                               productForm?.get('genericId')?.value !== ''
                               ) {
                               <button

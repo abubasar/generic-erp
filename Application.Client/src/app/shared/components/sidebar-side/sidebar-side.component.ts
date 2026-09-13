@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy, OnInit } from "@angular/core";
+import { AfterViewInit, Component, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { Router } from "@angular/router";
 import { UserProfile } from "app/shared/models/user-profile-model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
@@ -10,6 +10,7 @@ import { ThemeService } from "../../services/theme.service";
 @Component({
     selector: "app-sidebar-side",
     templateUrl: "./sidebar-side.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SidebarSideComponent implements OnInit, OnDestroy, AfterViewInit {

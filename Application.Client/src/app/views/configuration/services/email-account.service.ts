@@ -17,7 +17,7 @@ export class EmailAccountService {
   ): Observable<SearchResponse<EmailAccount>> {
     return this.api
       .getAll(emailAccountRequest)
-      .pipe(map((response: SearchResponse<EmailAccount>) => response));
+      .pipe(map((response: any) => response as SearchResponse<EmailAccount>));
   }
 
   createEmailAccount(

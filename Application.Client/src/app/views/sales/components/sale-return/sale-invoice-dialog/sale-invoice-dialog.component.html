@@ -51,7 +51,7 @@
             />
             <div matSuffix>
               @if (
-                searchForm?.get('customerId')?.value !== null &&
+                $safeNavigationMigration(searchForm?.get('customerId')?.value) !== null &&
                 searchForm?.get('customerId')?.value !== ''
                 ) {
                 <button
@@ -94,7 +94,7 @@
               />
               <div matSuffix>
                 @if (
-                  searchForm?.get('saleInvoiceNo')?.value !== null &&
+                  $safeNavigationMigration(searchForm?.get('saleInvoiceNo')?.value) !== null &&
                   searchForm?.get('saleInvoiceNo')?.value !== ''
                   ) {
                   <button
@@ -226,7 +226,7 @@
         <ng-container matColumnDef="invoiceDate">
           <th mat-header-cell *matHeaderCellDef>Invoice Date</th>
           <td mat-cell *matCellDef="let saleInvoice">
-            {{ dateFormatService.getDateFormat(saleInvoice?.invoiceDate) }}
+            {{ dateFormatService.getDateFormat($safeNavigationMigration(saleInvoice?.invoiceDate)) }}
           </td>
           <td mat-footer-cell *matFooterCellDef></td>
         </ng-container>

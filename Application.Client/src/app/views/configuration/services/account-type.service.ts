@@ -15,14 +15,14 @@ export class AccountTypeService {
   ): Observable<SearchResponse<AccountType>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<AccountType>) => response));
+      .pipe(map((response: any) => response as SearchResponse<AccountType>));
   }
   getAccountTypes(
     accountTypeRequest: AccountTypeRequest
   ): Observable<SearchResponse<AccountType>> {
     return this.api
       .getAll(accountTypeRequest)
-      .pipe(map((response: SearchResponse<AccountType>) => response));
+      .pipe(map((response: any) => response as SearchResponse<AccountType>));
   }
 
   createAccountType(

@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { StockResponseDTO } from "app/views/report/models/stock-response-dto";
@@ -9,6 +9,7 @@ import { StockService } from "app/views/report/services/stock.service";
     selector: "app-dashboard-low-stock-report",
     templateUrl: "./dashboard-low-stock-report.component.html",
     styleUrls: ["./dashboard-low-stock-report.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DashboardLowStockReportComponent implements OnInit {

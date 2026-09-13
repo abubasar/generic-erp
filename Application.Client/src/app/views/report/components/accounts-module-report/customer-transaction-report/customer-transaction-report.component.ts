@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Department_Id_SALES_AND_MARKETING } from "app/shared/consts/const";
 import { EmployeeRequest } from "app/views/configuration/models/employee/employee-request.model";
@@ -13,6 +13,7 @@ import { environment } from "environments/environment";
     selector: "app-customer-transaction-report",
     templateUrl: "./customer-transaction-report.component.html",
     styleUrls: ["./customer-transaction-report.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CustomerTransactionReportComponent implements OnInit {

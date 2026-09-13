@@ -26,7 +26,7 @@
   <div class="label-data justify-content-between">
     <span class="fw-bold">Total Amount : </span>
     <span class="fw-bold">
-      {{ data?.total | currency : "BDT" : "" : "1.2-2" }}
+      {{ $safeNavigationMigration(data?.total) | currency : "BDT" : "" : "1.2-2" }}
     </span>
   </div>
   <div class="label-data justify-content-between">
@@ -156,7 +156,7 @@
           <ng-container matColumnDef="paymentDate">
             <th mat-header-cell class="header" *matHeaderCellDef>Payment Date</th>
             <td mat-cell *matCellDef="let supplierPayment">
-              {{ dateFormatService?.getDateFormat(supplierPayment?.paymentDate) }}
+              {{ dateFormatService?.getDateFormat($safeNavigationMigration(supplierPayment?.paymentDate)) }}
             </td>
           </ng-container>
           <!-- supplierId Column -->
@@ -209,11 +209,11 @@
             <td mat-cell *matCellDef="let supplierPayment">
               <mat-chip
                 class="align-middle py-4 px-8"
-                [color]="getSupplierPaymentStatus(supplierPayment?.status)?.color"
+                [color]="$safeNavigationMigration(getSupplierPaymentStatus($safeNavigationMigration(supplierPayment?.status))?.color)"
                 selected
                 >
                 {{
-                getSupplierPaymentStatusName(supplierPayment?.status)?.replaceAll(
+                getSupplierPaymentStatusName($safeNavigationMigration(supplierPayment?.status))?.replaceAll(
                 "_",
                 " "
                 )
@@ -239,14 +239,14 @@
           <ng-container matColumnDef="createdOn">
             <th mat-header-cell class="header" *matHeaderCellDef>Created On</th>
             <td mat-cell *matCellDef="let element">
-              {{ dateFormatService?.getDateAndTime(element?.createdOn) }}
+              {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.createdOn)) }}
             </td>
           </ng-container>
           <!-- Updated On Column -->
           <ng-container matColumnDef="updatedOn">
             <th mat-header-cell class="header" *matHeaderCellDef>Updated On</th>
             <td mat-cell *matCellDef="let element">
-              {{ dateFormatService?.getDateAndTime(element?.updatedOn) }}
+              {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.updatedOn)) }}
             </td>
           </ng-container>
           <!-- Created By Column -->
@@ -277,7 +277,7 @@
           "
                 >
                 <app-supplier-payment-dialog-detail
-                  [data]="element?.supplierPaymentDetails"
+                  [data]="$safeNavigationMigration(element?.supplierPaymentDetails)"
                 ></app-supplier-payment-dialog-detail>
               </div>
             </td>

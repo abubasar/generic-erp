@@ -19,7 +19,7 @@
   <ng-container matColumnDef="quantity">
     <th mat-header-cell *matHeaderCellDef>Quantity</th>
     <td mat-cell *matCellDef="let element">
-      {{ element?.quantity | number : "1.2-2" }}
+      {{ $safeNavigationMigration(element?.quantity) | number : "1.2-2" }}
     </td>
   </ng-container>
 
@@ -45,7 +45,7 @@
   <ng-container matColumnDef="orderedQuantity">
     <th mat-header-cell *matHeaderCellDef>Ordered Quantity</th>
     <td mat-cell *matCellDef="let element">
-      {{ element?.orderedQuantity | number : "1.2-2" }}
+      {{ $safeNavigationMigration(element?.orderedQuantity) | number : "1.2-2" }}
     </td>
   </ng-container>
   <ng-container matColumnDef="alertQuantity">

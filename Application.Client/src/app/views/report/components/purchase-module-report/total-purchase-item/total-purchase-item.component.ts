@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { environment } from "environments/environment";
 
@@ -7,6 +7,7 @@ import { environment } from "environments/environment";
     selector: "app-total-purchase-item",
     templateUrl: "./total-purchase-item.component.html",
     styleUrls: ["./total-purchase-item.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TotalPurchaseItemComponent implements OnInit {

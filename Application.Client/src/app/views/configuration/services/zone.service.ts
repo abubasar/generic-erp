@@ -14,12 +14,12 @@ export class ZoneService {
   getAllZones(): Observable<SearchResponse<Zone>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<Zone>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Zone>));
   }
   getZones(zoneRequest: ZoneRequest): Observable<SearchResponse<Zone>> {
     return this.api
       .getAll(zoneRequest)
-      .pipe(map((response: SearchResponse<Zone>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Zone>));
   }
   createZone(zone: Zone): Observable<GeneralResponse<string>> {
     return this.api

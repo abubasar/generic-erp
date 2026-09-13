@@ -5,6 +5,7 @@ import {
   Component,
   OnInit,
   ViewChild,
+  ChangeDetectionStrategy
 } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatButton as MatButton } from "@angular/material/button";
@@ -52,6 +53,7 @@ import { SupplierPaymentDialogComponent } from "../supplier-payment-dialog/suppl
     selector: "app-purchase-invoice-form",
     templateUrl: "./purchase-invoice-form.component.html",
     styleUrls: ["./purchase-invoice-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class PurchaseInvoiceFormComponent implements OnInit, AfterViewInit {

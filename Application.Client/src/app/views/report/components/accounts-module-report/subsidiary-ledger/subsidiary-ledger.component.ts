@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ControlAccount } from "app/views/configuration/models/account/control-account.model";
 import { AccountService } from "app/views/configuration/services/account.service";
@@ -9,6 +9,7 @@ import { environment } from "environments/environment";
     selector: "app-subsidiary-ledger",
     templateUrl: "./subsidiary-ledger.component.html",
     styleUrls: ["./subsidiary-ledger.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SubsidiaryLedgerComponent implements OnInit {

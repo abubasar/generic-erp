@@ -15,14 +15,14 @@ export class CurrencyService {
   getAllCurrencies(): Observable<SearchResponse<Currency>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<Currency>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Currency>));
   }
   getCurrencies(
     currencyRequest: CurrencyRequest
   ): Observable<SearchResponse<Currency>> {
     return this.api
       .getAll(currencyRequest)
-      .pipe(map((response: SearchResponse<Currency>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Currency>));
   }
 
   createCurrency(currency: Currency): Observable<GeneralResponse<string>> {

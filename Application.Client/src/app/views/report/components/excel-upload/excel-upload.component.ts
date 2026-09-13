@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { environment } from 'environments/environment';
 import { ToastrService } from 'ngx-toastr';
 
@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
     selector: "app-excel-upload",
     templateUrl: "./excel-upload.component.html",
     styleUrls: ["./excel-upload.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ExcelUploadComponent implements OnInit {

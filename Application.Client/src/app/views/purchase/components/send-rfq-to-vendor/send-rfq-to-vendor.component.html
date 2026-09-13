@@ -158,7 +158,7 @@
                   <ng-container matColumnDef="transport">
                     <th mat-header-cell class="header" *matHeaderCellDef>Transport</th>
                     <td mat-cell *matCellDef="let requisition">
-                      {{ getTransportName(requisition?.transport) }}
+                      {{ getTransportName($safeNavigationMigration(requisition?.transport)) }}
                     </td>
                   </ng-container>
                   <!-- Payment Mode -->
@@ -167,7 +167,7 @@
                       Payment Mode
                     </th>
                     <td mat-cell *matCellDef="let requisition">
-                      {{ getPaymentModeName(requisition?.paymentMode) }}
+                      {{ getPaymentModeName($safeNavigationMigration(requisition?.paymentMode)) }}
                     </td>
                   </ng-container>
                   <!-- paymentTermInDays Column -->
@@ -188,7 +188,7 @@
                   <ng-container matColumnDef="currencyId">
                     <th mat-header-cell *matHeaderCellDef>Currency</th>
                     <td mat-cell *matCellDef="let requisition">
-                      {{ getCurrencyName(requisition?.currencyId) }}
+                      {{ getCurrencyName($safeNavigationMigration(requisition?.currencyId)) }}
                     </td>
                   </ng-container>
                   <!-- importPurchaseIncoTerm Column -->
@@ -197,7 +197,7 @@
                     <td mat-cell *matCellDef="let requisition">
                       {{
                       getImportPurchaseIncoTermName(
-                      requisition?.importPurchaseIncoTerm
+                      $safeNavigationMigration(requisition?.importPurchaseIncoTerm)
                       )
                       }}
                     </td>
@@ -210,7 +210,7 @@
                     <td mat-cell *matCellDef="let requisition">
                       {{
                       getImportPurchasePaymentTermName(
-                      requisition?.importPurchasePaymentTerm
+                      $safeNavigationMigration(requisition?.importPurchasePaymentTerm)
                       )
                       }}
                     </td>
@@ -220,7 +220,7 @@
                     <th mat-header-cell *matHeaderCellDef>Requisition Date</th>
                     <td mat-cell *matCellDef="let requisition">
                       {{
-                      dateFormatService?.getDateFormat(requisition?.requisitionDate)
+                      dateFormatService?.getDateFormat($safeNavigationMigration(requisition?.requisitionDate))
                       }}
                     </td>
                   </ng-container>
@@ -230,7 +230,7 @@
                     <td mat-cell *matCellDef="let requisition">
                       {{
                       dateFormatService?.getDateFormat(
-                      requisition?.expectedDeliveryDate
+                      $safeNavigationMigration(requisition?.expectedDeliveryDate)
                       )
                       }}
                     </td>
@@ -242,13 +242,13 @@
                       <mat-chip
                         class="align-middle py-4 px-8"
                 [color]="
-                  getRequisitionStatus(requisition?.requisitionStatus)?.color
+                  $safeNavigationMigration(getRequisitionStatus($safeNavigationMigration(requisition?.requisitionStatus))?.color)
                 "
                         selected
                         >
                         {{
                         getRequisitionStatusName(
-                        requisition?.requisitionStatus
+                        $safeNavigationMigration(requisition?.requisitionStatus)
                         )?.replaceAll("_", " ")
                         }}
                       </mat-chip>

@@ -7,10 +7,10 @@
       <h3 class="m-0">Purchase Return No: {{ data?.purchaseReturnNo }}</h3>
       <mat-chip
         class="align-middle py-4 px-8"
-        [color]="getPurchaseReturnStatus(data?.status)?.color"
+        [color]="$safeNavigationMigration(getPurchaseReturnStatus($safeNavigationMigration(data?.status))?.color)"
         selected
       >
-        {{ getPurchaseReturnStatusName(data?.status)?.replaceAll("_", " ") }}
+        {{ getPurchaseReturnStatusName($safeNavigationMigration(data?.status))?.replaceAll("_", " ") }}
       </mat-chip>
       <button
         mat-icon-button
@@ -18,7 +18,7 @@
         matTooltip="print pdf"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printPdf(data?.id)"
+        (click)="printPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>print</mat-icon>
       </button>
@@ -48,7 +48,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck(data?.id, data?.purchaseReturnNo)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.purchaseReturnNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -71,7 +71,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove(data?.id, data?.purchaseReturnNo)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.purchaseReturnNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -98,7 +98,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.purchaseReturnNo, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.purchaseReturnNo), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -130,7 +130,7 @@
                 <input matInput name="grnno" formControlName="grnno" />
               </mat-form-field>
               <button
-                [hidden]="this.data?.id"
+                [hidden]="$safeNavigationMigration(this.data?.id)"
                 type="button"
                 mat-icon-button
                 color="primary"
@@ -159,7 +159,7 @@
                 <mat-label>Select Store</mat-label>
                 <mat-select formControlName="storeId">
                   <mat-option [value]="null">-- None --</mat-option>
-                  <mat-option *ngFor="let d of stores" [value]="d?.id">
+                  <mat-option *ngFor="let d of stores" [value]="$safeNavigationMigration(d?.id)">
                     {{ d?.name }}
                   </mat-option>
                 </mat-select>
@@ -318,7 +318,7 @@
                     >
                       <mat-option
                         *ngFor="let product of searchProducts"
-                        [value]="product?.id"
+                        [value]="$safeNavigationMigration(product?.id)"
                       >
                         {{ product.name }}
                         {{
@@ -511,7 +511,7 @@
                     mat-mini-fab
                     type="button"
                     color="warn"
-                    (click)="onDeleteItem(p?.get('id')?.value, i)"
+                    (click)="onDeleteItem($safeNavigationMigration(p?.get('id')?.value), i)"
                   >
                     <mat-icon>delete_forever</mat-icon>
                   </button>
@@ -538,7 +538,7 @@
                 <span>Total</span>
                 <span>
                   {{
-                    purchaseReturnForm?.get("totalAmount")?.value
+                    $safeNavigationMigration(purchaseReturnForm?.get("totalAmount")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>
@@ -596,7 +596,7 @@
             <div class="col label-data">
               <span>Store</span>
               <span>
-                {{ getStoreName(purchaseReturnForm?.get("storeId")?.value) }}
+                {{ getStoreName($safeNavigationMigration(purchaseReturnForm?.get("storeId")?.value)) }}
               </span>
             </div>
 
@@ -605,7 +605,7 @@
               <span>Supplier</span>
               <span>
                 {{
-                  getSupplierName(purchaseReturnForm?.get("supplierId")?.value)
+                  getSupplierName($safeNavigationMigration(purchaseReturnForm?.get("supplierId")?.value))
                 }}
               </span>
             </div>
@@ -616,7 +616,7 @@
               <span>
                 {{
                   dateFormatService.getDateFormat(
-                    purchaseReturnForm.get("purchaseReturnDate")?.value
+                    $safeNavigationMigration(purchaseReturnForm.get("purchaseReturnDate")?.value)
                   )
                 }}
               </span>
@@ -648,7 +648,7 @@
                 <span>Total</span>
                 <span>
                   {{
-                    purchaseReturnForm?.get("totalAmount")?.value
+                    $safeNavigationMigration(purchaseReturnForm?.get("totalAmount")?.value)
                       | currency : "BDT" : "" : "1.2-2"
                   }}
                 </span>

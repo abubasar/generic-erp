@@ -35,7 +35,7 @@
             <mat-select formControlName="storeId">
               <mat-option [value]="null">-- None --</mat-option>
               @for (d of stores; track d) {
-                <mat-option [value]="d?.id">
+                <mat-option [value]="$safeNavigationMigration(d?.id)">
                   {{ d?.name }}
                 </mat-option>
               }
@@ -56,7 +56,7 @@
               />
               <div matSuffix>
                 @if (
-                  searchForm?.get('customerId')?.value !== null &&
+                  $safeNavigationMigration(searchForm?.get('customerId')?.value) !== null &&
                   searchForm?.get('customerId')?.value !== ''
                   ) {
                   <button
@@ -91,7 +91,7 @@
                 <mat-option [value]="null">-- None --</mat-option>
                 @for (d of deliveryNoteStatuses; track d) {
                   <mat-option
-                    [value]="d?.value"
+                    [value]="$safeNavigationMigration(d?.value)"
                     >
                     {{ d?.name }}
                   </mat-option>
@@ -227,7 +227,7 @@
                       <mat-list-item
                         role="listitem"
                         >
-                        <mat-checkbox [formControlName]="cd?.def">
+                        <mat-checkbox [formControlName]="$safeNavigationMigration(cd?.def)">
                           {{ cd?.label }}
                         </mat-checkbox>
                       </mat-list-item>
@@ -327,7 +327,7 @@
                     <ng-container matColumnDef="orderDate">
                       <th mat-header-cell class="header" *matHeaderCellDef>Oder Date</th>
                       <td mat-cell *matCellDef="let deliveryNote">
-                        {{ dateFormatService?.getDateFormat(deliveryNote?.orderDate) }}
+                        {{ dateFormatService?.getDateFormat($safeNavigationMigration(deliveryNote?.orderDate)) }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef></td>
                     </ng-container>
@@ -337,7 +337,7 @@
                         Delivery Date
                       </th>
                       <td mat-cell *matCellDef="let deliveryNote">
-                        {{ dateFormatService?.getDateFormat(deliveryNote?.deliveryDate) }}
+                        {{ dateFormatService?.getDateFormat($safeNavigationMigration(deliveryNote?.deliveryDate)) }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef></td>
                     </ng-container>
@@ -419,11 +419,11 @@
                     <ng-container matColumnDef="subtotal">
                       <th mat-header-cell class="header" *matHeaderCellDef>Subtotal</th>
                       <td mat-cell *matCellDef="let deliveryNote">
-                        {{ deliveryNote?.subtotal | currency : "BDT" : "" : "1.2-2" }}
+                        {{ $safeNavigationMigration(deliveryNote?.subtotal) | currency : "BDT" : "" : "1.2-2" }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef>
                         {{
-                        reportAggregator?.aggregatorSubTotal
+                        $safeNavigationMigration(reportAggregator?.aggregatorSubTotal)
                         | currency : "BDT" : "" : "1.2-2"
                         }}
                       </td>
@@ -432,11 +432,11 @@
                     <ng-container matColumnDef="discount">
                       <th mat-header-cell class="header" *matHeaderCellDef>Discount</th>
                       <td mat-cell *matCellDef="let deliveryNote">
-                        {{ deliveryNote?.discount | currency : "BDT" : "" : "1.2-2" }}
+                        {{ $safeNavigationMigration(deliveryNote?.discount) | currency : "BDT" : "" : "1.2-2" }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef>
                         {{
-                        reportAggregator?.aggregatorDiscount
+                        $safeNavigationMigration(reportAggregator?.aggregatorDiscount)
                         | currency : "BDT" : "" : "1.2-2"
                         }}
                       </td>
@@ -448,12 +448,12 @@
                       </th>
                       <td mat-cell *matCellDef="let deliveryNote">
                         {{
-                        deliveryNote?.offerDiscount | currency : "BDT" : "" : "1.2-2"
+                        $safeNavigationMigration(deliveryNote?.offerDiscount) | currency : "BDT" : "" : "1.2-2"
                         }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef>
                         {{
-                        reportAggregator?.aggregatorOfferDiscount
+                        $safeNavigationMigration(reportAggregator?.aggregatorOfferDiscount)
                         | currency : "BDT" : "" : "1.2-2"
                         }}
                       </td>
@@ -465,12 +465,12 @@
                       </th>
                       <td mat-cell *matCellDef="let deliveryNote">
                         {{
-                        deliveryNote?.otherDiscount | currency : "BDT" : "" : "1.2-2"
+                        $safeNavigationMigration(deliveryNote?.otherDiscount) | currency : "BDT" : "" : "1.2-2"
                         }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef>
                         {{
-                        reportAggregator?.aggregatorOtherDiscount
+                        $safeNavigationMigration(reportAggregator?.aggregatorOtherDiscount)
                         | currency : "BDT" : "" : "1.2-2"
                         }}
                       </td>
@@ -479,11 +479,11 @@
                     <ng-container matColumnDef="total">
                       <th mat-header-cell class="header" *matHeaderCellDef>Net Sale</th>
                       <td mat-cell *matCellDef="let deliveryNote">
-                        {{ deliveryNote?.total | currency : "BDT" : "" : "1.2-2" }}
+                        {{ $safeNavigationMigration(deliveryNote?.total) | currency : "BDT" : "" : "1.2-2" }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef>
                         {{
-                        reportAggregator?.aggregatorTotal
+                        $safeNavigationMigration(reportAggregator?.aggregatorTotal)
                         | currency : "BDT" : "" : "1.2-2"
                         }}
                       </td>
@@ -495,13 +495,13 @@
                       </th>
                       <td mat-cell *matCellDef="let deliveryNote">
                         {{
-                        deliveryNote?.transportationCost
+                        $safeNavigationMigration(deliveryNote?.transportationCost)
                         | currency : "BDT" : "" : "1.2-2"
                         }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef>
                         {{
-                        reportAggregator?.aggregatorTransportationCost
+                        $safeNavigationMigration(reportAggregator?.aggregatorTransportationCost)
                         | currency : "BDT" : "" : "1.2-2"
                         }}
                       </td>
@@ -512,11 +512,11 @@
                         Depo Charge
                       </th>
                       <td mat-cell *matCellDef="let deliveryNote">
-                        {{ deliveryNote?.depoCharge | currency : "BDT" : "" : "1.2-2" }}
+                        {{ $safeNavigationMigration(deliveryNote?.depoCharge) | currency : "BDT" : "" : "1.2-2" }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef>
                         {{
-                        reportAggregator?.aggregatorDepoCharge
+                        $safeNavigationMigration(reportAggregator?.aggregatorDepoCharge)
                         | currency : "BDT" : "" : "1.2-2"
                         }}
                       </td>
@@ -527,11 +527,11 @@
                         Total Payable
                       </th>
                       <td mat-cell *matCellDef="let deliveryNote">
-                        {{ deliveryNote?.netTotal | currency : "BDT" : "" : "1.2-2" }}
+                        {{ $safeNavigationMigration(deliveryNote?.netTotal) | currency : "BDT" : "" : "1.2-2" }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef>
                         {{
-                        reportAggregator?.aggregatorNetTotal
+                        $safeNavigationMigration(reportAggregator?.aggregatorNetTotal)
                         | currency : "BDT" : "" : "1.2-2"
                         }}
                       </td>
@@ -542,11 +542,11 @@
                       <td mat-cell *matCellDef="let deliveryNote">
                         <mat-chip
                           class="align-middle py-4 px-8"
-                          [color]="getDeliveryNoteStatus(deliveryNote?.status)?.color"
+                          [color]="$safeNavigationMigration(getDeliveryNoteStatus($safeNavigationMigration(deliveryNote?.status))?.color)"
                           selected
                           >
                           {{
-                          getDeliveryNoteStatusName(deliveryNote?.status)?.replaceAll(
+                          getDeliveryNoteStatusName($safeNavigationMigration(deliveryNote?.status))?.replaceAll(
                           "_",
                           " "
                           )
@@ -585,7 +585,7 @@
                     <ng-container matColumnDef="createdOn">
                       <th mat-header-cell class="header" *matHeaderCellDef>Created On</th>
                       <td mat-cell *matCellDef="let element">
-                        {{ dateFormatService?.getDateAndTime(element?.createdOn) }}
+                        {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.createdOn)) }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef></td>
                     </ng-container>
@@ -593,7 +593,7 @@
                     <ng-container matColumnDef="updatedOn">
                       <th mat-header-cell class="header" *matHeaderCellDef>Updated On</th>
                       <td mat-cell *matCellDef="let element">
-                        {{ dateFormatService?.getDateAndTime(element?.updatedOn) }}
+                        {{ dateFormatService?.getDateAndTime($safeNavigationMigration(element?.updatedOn)) }}
                       </td>
                       <td mat-footer-cell *matFooterCellDef></td>
                     </ng-container>
@@ -646,7 +646,7 @@
                           matTooltipShowDelay="300"
                           matTooltipPosition="above"
                 (click)="
-                  confirmDelete(deliveryNote?.id, deliveryNote?.deliveryNoteNo)
+                  confirmDelete($safeNavigationMigration(deliveryNote?.id), $safeNavigationMigration(deliveryNote?.deliveryNoteNo))
                 "
                           >
                           <mat-icon>delete</mat-icon>
@@ -657,7 +657,7 @@
                           matTooltip="print pdf"
                           matTooltipShowDelay="300"
                           matTooltipPosition="above"
-                          (click)="printPdf(deliveryNote?.id)"
+                          (click)="printPdf($safeNavigationMigration(deliveryNote?.id))"
                           >
                           <mat-icon>print</mat-icon>
                         </button>
@@ -667,7 +667,7 @@
                           matTooltip="Gate Pass PDF"
                           matTooltipShowDelay="300"
                           matTooltipPosition="above"
-                          (click)="printGatePassPdf(deliveryNote?.id)"
+                          (click)="printGatePassPdf($safeNavigationMigration(deliveryNote?.id))"
                           >
                           <mat-icon>print</mat-icon>
                         </button>
@@ -677,7 +677,7 @@
                           matTooltip="Print VAT Chalan"
                           matTooltipShowDelay="300"
                           matTooltipPosition="above"
-                          (click)="printVatPdf(deliveryNote?.id)"
+                          (click)="printVatPdf($safeNavigationMigration(deliveryNote?.id))"
                           >
                           VAT Chalan
                         </button>
@@ -698,7 +698,7 @@
                 "
                           >
                           <app-delivery-note-detail
-                            [data]="element?.deliveryNoteDetails"
+                            [data]="$safeNavigationMigration(element?.deliveryNoteDetails)"
                           ></app-delivery-note-detail>
                         </div>
                       </td>

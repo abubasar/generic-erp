@@ -23,7 +23,7 @@
             <mat-select formControlName="productTypeId">
               <mat-option>-- None --</mat-option>
               @for (d of productTypes; track d) {
-                <mat-option [value]="d?.id">
+                <mat-option [value]="$safeNavigationMigration(d?.id)">
                   {{ d?.name }}
                 </mat-option>
               }

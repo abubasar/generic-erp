@@ -20,7 +20,7 @@ export class StockTransferService {
     return this.api
       .getAll(stockTransferRequest)
       .pipe(
-        map((response: SearchResponse<StockTransferResponseDTO>) => response)
+        map((response: any) => response as SearchResponse<StockTransferResponseDTO>)
       );
   }
 

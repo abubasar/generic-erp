@@ -1,14 +1,15 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, ViewChild, Input } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, ChangeDetectionStrategy } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Router, NavigationEnd } from '@angular/router';
 //import { SignalrService } from 'app/shared/services/signalr/signalr.service';
 import { environment } from 'environments/environment';
-import * as moment from 'moment';
+import moment from 'moment';
 
 @Component({
     selector: 'app-notifications',
     templateUrl: './notifications.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class NotificationsComponent implements OnInit {

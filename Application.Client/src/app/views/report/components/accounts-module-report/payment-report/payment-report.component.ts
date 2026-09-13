@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { PaymentReportFilterType } from "app/shared/enums/paymentReportFilterType";
 import { CostCenter } from "app/views/configuration/models/cost-center/cost-center.model";
@@ -14,6 +14,7 @@ import { environment } from "environments/environment";
     selector: "app-payment-report",
     templateUrl: "./payment-report.component.html",
     styleUrls: ["./payment-report.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class PaymentReportComponent implements OnInit {

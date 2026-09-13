@@ -7,10 +7,10 @@
       <h3 class="m-0">Supplier Payment No: {{ data?.code }}</h3>
       <mat-chip
         class="align-middle py-4 px-8"
-        [color]="getSupplierPaymentStatus(data?.status).color"
+        [color]="getSupplierPaymentStatus($safeNavigationMigration(data?.status)).color"
         selected
       >
-        {{ getSupplierPaymentStatusName(data?.status)?.replaceAll("_", " ") }}
+        {{ getSupplierPaymentStatusName($safeNavigationMigration(data?.status))?.replaceAll("_", " ") }}
       </mat-chip>
       <button
         mat-icon-button
@@ -18,7 +18,7 @@
         matTooltip="print pdf"
         matTooltipShowDelay="300"
         matTooltipPosition="above"
-        (click)="printPdf(data?.id)"
+        (click)="printPdf($safeNavigationMigration(data?.id))"
       >
         <mat-icon>print</mat-icon>
       </button>
@@ -49,7 +49,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck(data?.id, data?.code)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.code))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -72,7 +72,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove(data?.id, data?.code)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.code))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -100,7 +100,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.code, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.code), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -131,7 +131,7 @@
               <mat-form-field class="full-width">
                 <mat-label>Select Supplier Payment Type</mat-label>
                 <mat-select
-                  [disabled]="this.data?.id"
+                  [disabled]="$safeNavigationMigration(this.data?.id)"
                   formControlName="supplierPaymentType"
                   (selectionChange)="OnChangePaymentType($event.value)"
                 >
@@ -151,7 +151,7 @@
               <mat-form-field class="full-width">
                 <mat-label>Select Supplier</mat-label>
                 <input
-                  [readonly]="this.data?.id"
+                  [readonly]="$safeNavigationMigration(this.data?.id)"
                   type="text"
                   matInput
                   name="supplierId"
@@ -201,7 +201,7 @@
                 <mat-error>please select PO</mat-error>
               </mat-form-field>
               <button
-                [hidden]="this.data?.id"
+                [hidden]="$safeNavigationMigration(this.data?.id)"
                 type="button"
                 mat-icon-button
                 color="primary"
@@ -372,8 +372,8 @@
                       <button
                         (click)="clearInputFromDetails($event, i)"
                         *ngIf="
-                          supplierPaymentDetails?.at(i).get('accountId')
-                            ?.value !== null &&
+                          $safeNavigationMigration(supplierPaymentDetails?.at(i).get('accountId')
+                            ?.value) !== null &&
                           supplierPaymentDetails?.at(i).get('accountId')
                             ?.value !== ''
                         "
@@ -395,7 +395,7 @@
                     >
                       <mat-option
                         *ngFor="let d of filteredCashBankAccounts"
-                        [value]="d?.id"
+                        [value]="$safeNavigationMigration(d?.id)"
                       >
                         {{ d.name }}
                       </mat-option>
@@ -455,7 +455,7 @@
                     mat-mini-fab
                     type="button"
                     color="warn"
-                    (click)="onDeleteItem(p?.get('id')?.value, i)"
+                    (click)="onDeleteItem($safeNavigationMigration(p?.get('id')?.value), i)"
                   >
                     <mat-icon>delete_forever</mat-icon>
                   </button>
@@ -522,7 +522,7 @@
               <span>Supplier</span>
               <span>
                 {{
-                  getSupplierName(supplierPaymentForm?.get("supplierId")?.value)
+                  getSupplierName($safeNavigationMigration(supplierPaymentForm?.get("supplierId")?.value))
                 }}
               </span>
             </div>
@@ -533,7 +533,7 @@
               <span>
                 {{
                   getSupplierPaymentTypeName(
-                    supplierPaymentForm?.get("supplierPaymentType")?.value
+                    $safeNavigationMigration(supplierPaymentForm?.get("supplierPaymentType")?.value)
                   )
                 }}
               </span>
@@ -573,8 +573,8 @@
               <span>
                 {{
                   getFundTransferTransactionTypeName(
-                    supplierPaymentForm?.get("fundTransferTransactionTypeId")
-                      ?.value
+                    $safeNavigationMigration(supplierPaymentForm?.get("fundTransferTransactionTypeId")
+                      ?.value)
                   )
                 }}
               </span>
@@ -594,7 +594,7 @@
               <span>
                 {{
                   getCostCenterName(
-                    supplierPaymentForm?.get("costCenterId")?.value
+                    $safeNavigationMigration(supplierPaymentForm?.get("costCenterId")?.value)
                   )
                 }}
               </span>
@@ -606,7 +606,7 @@
               <span>
                 {{
                   getPaymentModeName(
-                    supplierPaymentForm?.get("paymentModeId")?.value
+                    $safeNavigationMigration(supplierPaymentForm?.get("paymentModeId")?.value)
                   )
                 }}
               </span>

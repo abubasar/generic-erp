@@ -15,12 +15,12 @@ export class StoreService {
   getAllStores(): Observable<SearchResponse<Store>> {
     return this.api
       .getAlls()
-      .pipe(map((response: SearchResponse<Store>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Store>));
   }
   getStores(storeRequest: StoreRequest): Observable<SearchResponse<Store>> {
     return this.api
       .getAll(storeRequest)
-      .pipe(map((response: SearchResponse<Store>) => response));
+      .pipe(map((response: any) => response as SearchResponse<Store>));
   }
 
   createStore(store: Store): Observable<GeneralResponse<string>> {

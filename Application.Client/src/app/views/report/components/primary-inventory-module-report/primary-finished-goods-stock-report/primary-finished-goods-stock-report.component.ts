@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Inventory_Type_Id_Finished_Goods } from "app/shared/consts/const";
 import { StoreRequest } from "app/views/configuration/models/store/store-request.model";
@@ -11,6 +11,7 @@ import { environment } from "environments/environment";
     selector: "app-primary-finished-goods-stock-report",
     templateUrl: "./primary-finished-goods-stock-report.component.html",
     styleUrls: ["./primary-finished-goods-stock-report.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class PrimaryFinishedGoodsStockReportComponent implements OnInit {

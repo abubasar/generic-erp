@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { MatStepper } from "@angular/material/stepper";
@@ -45,6 +45,7 @@ import { PurchaseRequisitionListComponent } from "../purchase-requisition-list/p
     selector: "app-vendor-quotation-form",
     templateUrl: "./vendor-quotation-form.component.html",
     styleUrls: ["./vendor-quotation-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class VendorQuotationFormComponent implements OnInit {

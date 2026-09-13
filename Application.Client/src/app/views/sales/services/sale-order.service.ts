@@ -21,7 +21,7 @@ export class SaleOrderService {
   ): Observable<SearchResponse<SaleOrderResponseDTO>> {
     return this.api
       .getAll(saleOrderRequest)
-      .pipe(map((response: SearchResponse<SaleOrderResponseDTO>) => response));
+      .pipe(map((response: any) => response as SearchResponse<SaleOrderResponseDTO>));
   }
 
   reportAggregates(

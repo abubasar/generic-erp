@@ -42,7 +42,7 @@
               />
               <div matSuffix>
                 @if (
-                  searchForm?.get('supplierId')?.value !== null &&
+                  $safeNavigationMigration(searchForm?.get('supplierId')?.value) !== null &&
                   searchForm?.get('supplierId')?.value !== ''
                   ) {
                   <button
@@ -64,7 +64,7 @@
                 @for (d of filterSuppliers; track d) {
                   <mat-option
                     matTooltip="{{ d?.supplier?.address }}"
-                    [value]="d?.supplierId"
+                    [value]="$safeNavigationMigration(d?.supplierId)"
                     >
                     {{ d?.supplier?.name }} ({{ d?.supplier?.code.slice(-4) }})
                     {{ d?.supplier?.address }}

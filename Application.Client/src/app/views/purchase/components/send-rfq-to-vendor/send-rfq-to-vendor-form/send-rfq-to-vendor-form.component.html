@@ -7,11 +7,11 @@
       <h3 class="m-0">Requisition No: {{ data?.requisitionNo }}</h3>
       <mat-chip
         class="align-middle py-4 px-8"
-        [color]="getRequisitionStatus(data?.requisitionStatus).color"
+        [color]="getRequisitionStatus($safeNavigationMigration(data?.requisitionStatus)).color"
         selected
       >
         {{
-          getRequisitionStatusName(data?.requisitionStatus)?.replaceAll(
+          getRequisitionStatusName($safeNavigationMigration(data?.requisitionStatus))?.replaceAll(
             "_",
             " "
           )
@@ -46,7 +46,7 @@
         type="button"
         color="accent"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmCheck(data?.id, data?.requisitionNo)"
+        (click)="confirmCheck($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.requisitionNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -70,7 +70,7 @@
         color="primary"
         type="button"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmApprove(data?.id, data?.requisitionNo)"
+        (click)="confirmApprove($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.requisitionNo))"
       >
         <ng-container *ngIf="isLoading; else saveText">
           <mat-icon>
@@ -122,7 +122,7 @@
         matTooltipShowDelay="300"
         matTooltipPosition="above"
         [disabled]="isDialogOpen || isLoading"
-        (click)="confirmUnpost(data?.id, data?.requisitionNo, data?.status)"
+        (click)="confirmUnpost($safeNavigationMigration(data?.id), $safeNavigationMigration(data?.requisitionNo), $safeNavigationMigration(data?.status))"
       >
         <ng-container *ngIf="isLoading; else undo">
           <mat-icon>
@@ -272,7 +272,7 @@
               <mat-form-field class="full-width">
                 <mat-label>Select Payment Mode</mat-label>
                 <mat-select formControlName="paymentMode">
-                  <mat-option *ngFor="let d of paymentModes" [value]="d?.value">
+                  <mat-option *ngFor="let d of paymentModes" [value]="$safeNavigationMigration(d?.value)">
                     {{ d?.name }}
                   </mat-option>
                 </mat-select>
@@ -593,7 +593,7 @@
               <span>
                 {{
                   getDepartmentName(
-                    purchaseRequisitionForm?.get("departmentId")?.value
+                    $safeNavigationMigration(purchaseRequisitionForm?.get("departmentId")?.value)
                   )
                 }}
               </span>
@@ -603,7 +603,7 @@
               <span>Store</span>
               <span>
                 {{
-                  getStoreName(purchaseRequisitionForm?.get("storeId")?.value)
+                  getStoreName($safeNavigationMigration(purchaseRequisitionForm?.get("storeId")?.value))
                 }}
               </span>
             </div>
@@ -624,7 +624,7 @@
               <span>
                 {{
                   getPriorityName(
-                    purchaseRequisitionForm?.get("priority")?.value
+                    $safeNavigationMigration(purchaseRequisitionForm?.get("priority")?.value)
                   )
                 }}
               </span>
@@ -703,7 +703,7 @@
                 <span>
                   {{
                     getCurrencyName(
-                      purchaseRequisitionForm?.get("currencyId")?.value
+                      $safeNavigationMigration(purchaseRequisitionForm?.get("currencyId")?.value)
                     )
                   }}
                 </span>
@@ -714,8 +714,8 @@
                 <span>
                   {{
                     getImportPurchaseIncoTermName(
-                      purchaseRequisitionForm?.get("importPurchaseIncoTerm")
-                        ?.value
+                      $safeNavigationMigration(purchaseRequisitionForm?.get("importPurchaseIncoTerm")
+                        ?.value)
                     )
                   }}
                 </span>
@@ -726,8 +726,8 @@
                 <span>
                   {{
                     getImportPurchasePaymentTermName(
-                      purchaseRequisitionForm?.get("importPurchasePaymentTerm")
-                        ?.value
+                      $safeNavigationMigration(purchaseRequisitionForm?.get("importPurchasePaymentTerm")
+                        ?.value)
                     )
                   }}
                 </span>

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatDialog as MatDialog } from "@angular/material/dialog";
 import { MatStepper } from "@angular/material/stepper";
@@ -36,6 +36,7 @@ import { finalize } from "rxjs";
     selector: "app-fund-transfer-form",
     templateUrl: "./fund-transfer-form.component.html",
     styleUrls: ["./fund-transfer-form.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class FundTransferFormComponent implements OnInit {

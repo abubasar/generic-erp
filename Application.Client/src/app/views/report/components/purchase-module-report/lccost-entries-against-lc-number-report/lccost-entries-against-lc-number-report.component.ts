@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { PurchaseOrderResponseDTO } from "app/views/purchase/models/purchase-order/purchase-order-response-dto.model";
 import { PurchaseOrderSearchRequestDTO } from "app/views/purchase/models/purchase-order/purchase-order-search-request-dto.model";
@@ -10,6 +10,7 @@ import { environment } from "environments/environment";
     selector: "app-lccost-entries-against-lc-number-report",
     templateUrl: "./lccost-entries-against-lc-number-report.component.html",
     styleUrls: ["./lccost-entries-against-lc-number-report.component.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class LccostEntriesAgainstLcNumberReportComponent implements OnInit {

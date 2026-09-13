@@ -1,9 +1,6 @@
 import { NgModule, ErrorHandler } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import {
-  BrowserModule,
-  HAMMER_GESTURE_CONFIG,
-} from "@angular/platform-browser";
+import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 // import { GestureConfig } from '@angular/material/core';
 import {
@@ -16,7 +13,7 @@ import { rootRouterConfig } from "./app.routing";
 import { SharedModule } from "./shared/shared.module";
 import { AppComponent } from "./app.component";
 
-import { HttpClient, HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
+import { HttpClient, HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withXhr } from "@angular/common/http";
 import { TranslateModule, TranslateLoader } from "@ngx-translate/core";
 import { TranslateHttpLoader } from "@ngx-translate/http-loader";
 import { ErrorHandlerService } from "./shared/services/error-handler.service";
@@ -110,6 +107,6 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         },
         // Required to Mat Date Picker Date Format
         { provide: MAT_DATE_LOCALE, useValue: "en-GB" },
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
     ] })
 export class AppModule {}
