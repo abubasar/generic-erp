@@ -97,10 +97,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "matx-angular-latest-test:build:production"
+              "buildTarget": "matx-angular-latest-test:build:production"
             },
             "development": {
-              "browserTarget": "matx-angular-latest-test:build:development"
+              "buildTarget": "matx-angular-latest-test:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -108,7 +108,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "matx-angular-latest-test:build"
+            "buildTarget": "matx-angular-latest-test:build"
           }
         },
         "test": {
