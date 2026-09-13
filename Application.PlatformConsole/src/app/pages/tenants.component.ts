@@ -25,7 +25,7 @@ import { TenantListItem, BusinessTemplateDto, PlanDto, CreateTenantResult } from
       </select>
       <button class="ghost" (click)="load()">Refresh</button>
       @if (auth.hasRole('Admin')) {
-        <button style="margin-left:auto" (click)="showNew.set(!showNew())">{{ showNew() ? 'Cancel' : 'New tenant' }}</button>
+        <button style="margin-left:auto" (click)="toggleNew()">{{ showNew() ? 'Cancel' : 'New tenant' }}</button>
       }
     </div>
 
@@ -111,14 +111,25 @@ export class TenantsComponent {
 
   constructor() {
     this.load();
-    this.api.templates().then((t) => { this.templates.set(t); if (t[0]) this.nt.businessTemplateKey = t[0].key; });
-    this.api.plans().then((p) => this.plans.set(p));
+    this.loadCatalog();
   }
 
   load(): void {
     this.error.set('');
     this.api.tenants(this.search.trim() || undefined, this.status || undefined)
       .then((r) => this.rows.set(r)).catch((e) => this.error.set(e.message));
+  }
+
+  private loadCatalog(): void {
+    this.api.templates()
+      .then((t) => { this.templates.set(t); if (t[0]) this.nt.businessTemplateKey = t[0].key; })
+      .catch((e) => this.error.set(e.message));
+    this.api.plans().then((p) => this.plans.set(p)).catch((e) => this.error.set(e.message));
+  }
+
+  toggleNew(): void {
+    this.showNew.set(!this.showNew());
+    if (this.showNew() && this.templates().length === 0) this.loadCatalog();
   }
 
   open(t: TenantListItem): void { this.router.navigate(['/tenants', t.id]); }

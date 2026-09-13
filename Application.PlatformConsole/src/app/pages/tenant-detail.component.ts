@@ -127,9 +127,13 @@ export class TenantDetailComponent {
 
   constructor() {
     this.reload();
-    this.api.modules().then((m) => this.allModules.set(m));
-    this.api.plans().then((p) => this.plans.set(p));
+    this.loadCatalog();
     this.loadProvisioning();
+  }
+
+  private loadCatalog(): void {
+    this.api.modules().then((m) => this.allModules.set(m)).catch((e) => this.error.set(e.message));
+    this.api.plans().then((p) => this.plans.set(p)).catch((e) => this.error.set(e.message));
   }
 
   private loadProvisioning(): void {
