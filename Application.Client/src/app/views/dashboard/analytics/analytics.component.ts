@@ -3,8 +3,7 @@ import { ActivatedRoute } from "@angular/router";
 import { matxAnimations } from "app/shared/animations/matx-animations";
 import { BdEastId, BdNorthId, BdSouthId } from "app/shared/consts/const";
 import { DashboardFilterType } from "app/shared/enums/dashboardFilterType";
-import { UserProfile } from "app/shared/models/user-profile-model";
-import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { ITheme, ThemeService } from "app/shared/services/theme.service";
 import { DashboardLastMonthSaleViewModel } from "../models/dashboard-last-month-sale-view-model";
 import { DashboardSalesFinancialYearViewModel } from "../models/dashboard-sales-financial-year-view-model";
@@ -46,12 +45,11 @@ export class AnalyticsComponent implements OnInit {
   filterTypeName: string = "Today";
   options: any;
   zoneOptions: any;
-  businessType: string;
   constructor(
     private themeService: ThemeService,
     private dashboardDataService: DashboardDataService,
     private activatedRoute: ActivatedRoute,
-    private jwtAuth: JwtAuthService
+    public industryProfile: IndustryProfileService
   ) {}
 
   ngOnInit(): void {
@@ -61,10 +59,6 @@ export class AnalyticsComponent implements OnInit {
     this.getDashboardThisMonthSales();
     this.getDashboardLastMonthSales();
     this.getDashboardSalesFinancialYear();
-    // this.getData();
-    this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
-      this.businessType = res.businesstype;
-    });
     this.themeService.onThemeChange.subscribe((activeTheme) => {
       this.initLineChart(
         activeTheme,
