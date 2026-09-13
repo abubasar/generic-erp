@@ -32,7 +32,7 @@ public partial class Employee : ITenantScoped { }
 public partial class EventLog : ITenantScoped { }
 public partial class FinancialYear : ITenantScoped { }
 public partial class FundTransfer : ITenantScoped { }
-public partial class FundTransferTransactionType : ITenantScoped { }
+public partial class FundTransferTransactionType : ITenantSharable { } // the system "Reverse" transaction type (hardcoded in the Angular client) is shared; tenant-created types stay tenant-scoped
 public partial class Generic : ITenantScoped { }
 public partial class GoodsReceiveNote : ITenantScoped { }
 public partial class GoodsReceiveNoteDetail : ITenantScoped { }
@@ -82,7 +82,7 @@ public partial class ReceivePaymentPictureMapping : ITenantScoped { }
 public partial class ReceiveVoucher : ITenantScoped { }
 public partial class ReceiveVoucherDetail : ITenantScoped { }
 public partial class RefreshToken : ITenantScoped { }
-public partial class Region : ITenantScoped { }
+public partial class Region : ITenantSharable { } // parent of the shared BD-North/East/South zones — must be shared too, or Zone's .Include(x => x.Region) silently drops the shared zones for every other tenant
 public partial class RfqSent : ITenantScoped { }
 public partial class Role : ITenantScoped { }
 public partial class RoleClaim : ITenantScoped { }
@@ -113,4 +113,4 @@ public partial class VendorQuotation : ITenantScoped { }
 public partial class VendorQuotationDetail : ITenantScoped { }
 public partial class VoucherEntry : ITenantScoped { }
 public partial class VoucherEntryDetail : ITenantScoped { }
-public partial class Zone : ITenantScoped { }
+public partial class Zone : ITenantSharable { } // the system BD-North/East/South zones (hardcoded in the Angular client) are shared; tenant-created zones stay tenant-scoped
