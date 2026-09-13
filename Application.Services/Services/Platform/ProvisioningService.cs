@@ -1,8 +1,10 @@
+using Application.Core.Common;
 using Application.Core.Constants;
 using Application.Core.Data;
 using Application.Core.Entities;
 using Application.Core.Entities.Platform;
 using Application.Core.Exceptions;
+using Application.Core.Interfaces;
 using Application.Core.PermissionHelpers;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,11 +22,13 @@ namespace Application.Services.Services.Platform
     {
         private readonly DataContext _db;
         private readonly IPlatformAuditWriter _audit;
+        private readonly IMailService _mail;
 
-        public ProvisioningService(DataContext db, IPlatformAuditWriter audit)
+        public ProvisioningService(DataContext db, IPlatformAuditWriter audit, IMailService mail)
         {
             _db = db;
             _audit = audit;
+            _mail = mail;
         }
 
         private static readonly string[] BaseUnits =
@@ -36,6 +40,7 @@ namespace Application.Services.Services.Platform
                 ?? throw new BadRequestException("Tenant not found.");
 
             string? username = null, tempPassword = null;
+            var ownerUserCreated = false;
 
             await RunStep(tenantId, "subdomain", () => EnsureSubdomain(tenant));
             await RunStep(tenantId, "subscription", () => EnsureSubscription(tenantId));
@@ -47,7 +52,7 @@ namespace Application.Services.Services.Platform
             await RunStep(tenantId, "owner-role", async () => roleId = await EnsureOwnerRole(tenant));
             await RunStep(tenantId, "owner-user", async () =>
             {
-                (username, tempPassword) = await EnsureOwnerUser(tenant, request, roleId);
+                (username, tempPassword, ownerUserCreated) = await EnsureOwnerUser(tenant, request, roleId);
             });
 
             await _db.SaveChangesAsync();
@@ -56,6 +61,12 @@ namespace Application.Services.Services.Platform
             var complete = steps.All(s => s.Status == "Done");
             _audit.Add("tenant.provision", tenantId, $"complete={complete}; steps={string.Join(',', steps.Where(s => s.Status != "Done").Select(s => s.StepKey))}");
             await _db.SaveChangesAsync();
+
+            // Best-effort, not a tracked step: only fires the one time the owner user is
+            // actually created (not on a provisioning re-run), and never blocks or fails
+            // the signup — the wizard already shows the credentials in-browser regardless.
+            if (ownerUserCreated && username is not null && !string.IsNullOrWhiteSpace(request.OwnerEmail))
+                await SendWelcomeEmailBestEffort(tenant, username, request.OwnerEmail!, tenantId);
 
             // If owner-user was already Done on a prior run we won't have a fresh password.
             return new ProvisioningResult(tenantId, complete, username ?? await ExistingOwnerUsername(tenantId, roleId), tempPassword, steps);
@@ -214,7 +225,7 @@ namespace Application.Services.Services.Platform
             return role.Id;
         }
 
-        private async Task<(string username, string? tempPassword)> EnsureOwnerUser(Tenant tenant, ProvisionRequest request, Guid roleId)
+        private async Task<(string username, string? tempPassword, bool created)> EnsureOwnerUser(Tenant tenant, ProvisionRequest request, Guid roleId)
         {
             if (roleId == Guid.Empty)
                 roleId = await _db.Set<Role>().IgnoreQueryFilters()
@@ -225,7 +236,7 @@ namespace Application.Services.Services.Platform
             var existing = await _db.Set<User>().IgnoreQueryFilters()
                 .FirstOrDefaultAsync(u => u.TenantId == tenant.Id && u.Username == username && !u.Deleted);
             if (existing is not null)
-                return (existing.Username, null);
+                return (existing.Username, null, false);
 
             var password = string.IsNullOrWhiteSpace(request.OwnerPassword) ? GeneratePassword() : request.OwnerPassword;
             var (hash, salt) = PlatformPasswordHasher.Create(password);
@@ -236,7 +247,7 @@ namespace Application.Services.Services.Platform
                 PasswordHash = hash, PasswordSalt = salt, Deleted = false,
                 CreatedOn = DateTime.UtcNow, UpdatedOn = DateTime.UtcNow, CreatedBy = "provisioning", UpdatedBy = "provisioning",
             });
-            return (username, string.IsNullOrWhiteSpace(request.OwnerPassword) ? password : null);
+            return (username, string.IsNullOrWhiteSpace(request.OwnerPassword) ? password : null, true);
         }
 
         private async Task<string?> ExistingOwnerUsername(Guid tenantId, Guid roleId)
@@ -244,6 +255,49 @@ namespace Application.Services.Services.Platform
             var q = _db.Set<User>().IgnoreQueryFilters().Where(u => u.TenantId == tenantId && !u.Deleted);
             if (roleId != Guid.Empty) q = q.Where(u => u.RoleId == roleId);
             return await q.Select(u => u.Username).FirstOrDefaultAsync();
+        }
+
+        /// <summary>
+        /// docs/saas-platform-plan.md §08 Phase 2 — provisioning's last step, "send welcome
+        /// email". Uses IMailService.SendEmailAsync (the plain, _mailSettings-based
+        /// overload) deliberately, not SendEmailFromDefaultEmailAddressAsync — that one
+        /// looks up a tenant-scoped default EmailAccount via IUnitOfWork, which doesn't
+        /// exist yet for a brand-new tenant and wouldn't resolve correctly from this
+        /// tenant-less (platform) context anyway. Never throws: a failed send shouldn't
+        /// fail a signup whose tenant, modules and owner login already exist — the wizard
+        /// shows the credentials in-browser regardless, this is a courtesy copy.
+        /// </summary>
+        private async Task SendWelcomeEmailBestEffort(Tenant tenant, string username, string toEmail, Guid tenantId)
+        {
+            try
+            {
+                var trialEndsOn = await _db.Subscriptions.Where(s => s.TenantId == tenantId)
+                    .OrderByDescending(s => s.PeriodEnd).Select(s => s.TrialEndsOn).FirstOrDefaultAsync();
+
+                var trialLine = trialEndsOn is { } end
+                    ? $"<p>You're on a free trial until <b>{end:MMMM d, yyyy}</b> — no card needed, cancel any time.</p>"
+                    : "";
+
+                var body = $"""
+                    <p>Hi,</p>
+                    <p>Your ERP for <b>{tenant.Name}</b> is ready to go.</p>
+                    <p>Sign in with your username: <b>{username}</b></p>
+                    {trialLine}
+                    <p>— The BUTS ERP team</p>
+                    """;
+
+                await _mail.SendEmailAsync(new MailRequest
+                {
+                    ToEmail = toEmail,
+                    Subject = $"Welcome to BUTS ERP, {tenant.Name}!",
+                    Body = body,
+                });
+                _audit.Add("tenant.welcome-email", tenantId, $"to={toEmail}");
+            }
+            catch (Exception ex)
+            {
+                _audit.Add("tenant.welcome-email-failed", tenantId, ex.Message.Length > 500 ? ex.Message[..500] : ex.Message);
+            }
         }
 
         // ---- helpers ----
