@@ -22,7 +22,7 @@ public partial class CustomerWiseProductDiscountUsageHistory : ITenantScoped { }
 public partial class DeliveryNote : ITenantScoped { }
 public partial class DeliveryNoteDetail : ITenantScoped { }
 public partial class DeliveryPlace : ITenantScoped { }
-public partial class Department : ITenantScoped { }
+public partial class Department : ITenantSharable { } // the system "Sales & Marketing" department (hardcoded in the Angular client) is shared; tenant-created departments stay tenant-scoped
 public partial class Designation : ITenantScoped { }
 public partial class DiscountProductWise : ITenantScoped { }
 public partial class DiscountProductWiseDetail : ITenantScoped { }
