@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, Resolve } from "@angular/router";
+import { ActivatedRouteSnapshot } from "@angular/router";
 import { Observable, of } from "rxjs";
 import { catchError } from "rxjs/operators";
 import { DashboardDataService } from "../services/dashboard-data.service";
@@ -7,7 +7,7 @@ import { DashboardDataService } from "../services/dashboard-data.service";
 @Injectable({
   providedIn: "root",
 })
-export class DashboardResolver implements Resolve<any> {
+export class DashboardResolver  {
   constructor(private dashboardDataService: DashboardDataService) {}
 
   resolve(route: ActivatedRouteSnapshot): Observable<any> {

@@ -1,12 +1,12 @@
 import { Injectable } from "@angular/core";
-import { Resolve, ActivatedRouteSnapshot } from "@angular/router";
+import { ActivatedRouteSnapshot } from "@angular/router";
 import { Observable, catchError, of } from "rxjs";
 import { VendorQuotationService } from "../services/vendor-quotation.service";
 
 @Injectable({
   providedIn: "root",
 })
-export class VendorQuotationResolverService implements Resolve<any> {
+export class VendorQuotationResolverService  {
   constructor(private vendorQuotationService: VendorQuotationService) {}
   resolve(route: ActivatedRouteSnapshot): Observable<any> {
     const id = route.paramMap.get("id");

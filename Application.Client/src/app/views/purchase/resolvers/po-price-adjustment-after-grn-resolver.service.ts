@@ -1,12 +1,12 @@
 import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, Resolve } from "@angular/router";
+import { ActivatedRouteSnapshot } from "@angular/router";
 import { PoPriceAdjustmentAfterGrnService } from "../services/po-price-adjustment-after-grn.service";
 import { Observable, catchError, of } from "rxjs";
 
 @Injectable({
   providedIn: "root",
 })
-export class PoPriceAdjustmentAfterGrnResolverService implements Resolve<any> {
+export class PoPriceAdjustmentAfterGrnResolverService  {
   constructor(
     private poPriceAdjustmentAfterGrnService: PoPriceAdjustmentAfterGrnService
   ) {}

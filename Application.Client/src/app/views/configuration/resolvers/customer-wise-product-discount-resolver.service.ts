@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, Resolve } from "@angular/router";
+import { ActivatedRouteSnapshot } from "@angular/router";
 import { catchError, Observable, of } from "rxjs";
 import { CustomerWiseProductDiscountService } from "../services/customer-wise-product-discount.service";
 
@@ -7,7 +7,7 @@ import { CustomerWiseProductDiscountService } from "../services/customer-wise-pr
   providedIn: "root",
 })
 export class CustomerWiseProductDiscountResolverService
-  implements Resolve<any>
+  
 {
   constructor(
     private customerWiseProductDiscountService: CustomerWiseProductDiscountService
