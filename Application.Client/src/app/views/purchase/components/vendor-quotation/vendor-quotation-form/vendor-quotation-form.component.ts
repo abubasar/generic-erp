@@ -16,6 +16,7 @@ import { ENUM } from "app/shared/models/enum-value/enum.model";
 import { UserProfile } from "app/shared/models/user-profile-model";
 import { GeneralResponse } from "app/shared/models/wrappers/generalResponse.model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { DateTimeFormatService } from "app/shared/services/date-time-format.service";
 import { EnumValueService } from "app/shared/services/enum-value/enum-value.service";
 import { SnackBarService } from "app/shared/services/snack-bar.service";
@@ -67,7 +68,6 @@ export class VendorQuotationFormComponent implements OnInit {
   currencies: Currency[];
 
   data: VendorQuotationResponseDTO;
-  businessType: string;
   // Define financial year date range here
   financialYearStartDate: Date; // Jul 1, 2023
   financialYearEndDate: Date; // Jun 30, 2024
@@ -89,6 +89,7 @@ export class VendorQuotationFormComponent implements OnInit {
     private productService: ProductService,
     public dateFormatService: DateTimeFormatService,
     private jwtAuth: JwtAuthService,
+    public industryProfile: IndustryProfileService,
     private fb: FormBuilder,
     private toastr: ToastrService,
     private activatedRoute: ActivatedRoute,
@@ -108,7 +109,6 @@ export class VendorQuotationFormComponent implements OnInit {
       this.financialYearStartDate = new Date(res.fystartdate);
       this.financialYearEndDate = new Date(res.fyenddate);
       this.currentFinancialYearId = res.fyid;
-      this.businessType = res.businesstype;
     });
 
     this.initializeForm();
@@ -318,7 +318,7 @@ export class VendorQuotationFormComponent implements OnInit {
       if (!product) return "";
       return (
         product?.name +
-        (this.businessType === "2" ? "" : ` (${product?.packSize?.name})`)
+        (this.industryProfile.isFeed ? "" : ` (${product?.packSize?.name})`)
       );
     }
   }

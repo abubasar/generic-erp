@@ -27,6 +27,7 @@ import { ENUM } from "app/shared/models/enum-value/enum.model";
 import { UserProfile } from "app/shared/models/user-profile-model";
 import { GeneralResponse } from "app/shared/models/wrappers/generalResponse.model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { ConfirmDialogService } from "app/shared/services/confirm-dialog.service";
 import { ConfirmReadyForGrnDialogService } from "app/shared/services/confirm-ready-for-grn-dialog.service";
 import { DateTimeFormatService } from "app/shared/services/date-time-format.service";
@@ -94,8 +95,6 @@ export class PurchaseOrderFormComponent implements OnInit, AfterViewInit {
   purchaseOrderDetailsData: any[] = [];
 
   data: PurchaseOrderResponseDTO;
-
-  businessType: string;
   // Define financial year date range here
   financialYearStartDate: Date; // Jul 1, 2023
   financialYearEndDate: Date; // Jun 30, 2024
@@ -110,6 +109,7 @@ export class PurchaseOrderFormComponent implements OnInit, AfterViewInit {
   constructor(
     public dateFormatService: DateTimeFormatService,
     private jwtAuth: JwtAuthService,
+    public industryProfile: IndustryProfileService,
     public dialog: MatDialog,
     private purchaseOrderService: PurchaseOrderService,
     private storeService: StoreService,
@@ -137,17 +137,12 @@ export class PurchaseOrderFormComponent implements OnInit, AfterViewInit {
     this.activatedRoute.data.subscribe((response: any) => {
       this.data = response?.purchaseOrder?.data;
     });
-    let isDataLoaded = false;
     this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
       this.financialYearStartDate = new Date(res.fystartdate);
       this.financialYearEndDate = new Date(res.fyenddate);
       this.currentFinancialYearId = res.fyid;
-      this.businessType = res.businesstype;
-      if (!isDataLoaded) {
-        this.getData(res.businesstype);
-        isDataLoaded = true;
-      }
     });
+    this.getData();
     this.initializeForm();
   }
 
@@ -172,8 +167,8 @@ export class PurchaseOrderFormComponent implements OnInit, AfterViewInit {
     this.initializeForm();
   }
 
-  getData(businessType: string) {
-    this.getAllStores(businessType);
+  getData() {
+    this.getAllStores();
     this.getAllDeliveryPlaces();
     this.getAllPaymentMethods();
     this.getAllSuppliers();
@@ -391,20 +386,15 @@ export class PurchaseOrderFormComponent implements OnInit, AfterViewInit {
     return status == undefined || this.hiddenStatuses.includes(status);
   }
 
-  getAllStores(businessType: string): void {
+  getAllStores(): void {
     let storeRequest = new StoreRequest();
     storeRequest.page = -1;
-    if (businessType === "1") {
-      this.storeService.getStores(storeRequest).subscribe((res) => {
-        this.stores = res?.data?.item1;
-      });
-    }
-    if (businessType === "2") {
+    if (this.industryProfile.isFeed) {
       storeRequest.inventoryTypeId = Inventory_Type_Id_Raw_Materials;
-      this.storeService.getStores(storeRequest).subscribe((res) => {
-        this.stores = res?.data?.item1;
-      });
     }
+    this.storeService.getStores(storeRequest).subscribe((res) => {
+      this.stores = res?.data?.item1;
+    });
   }
 
   getAllDeliveryPlaces(): void {
@@ -595,7 +585,7 @@ export class PurchaseOrderFormComponent implements OnInit, AfterViewInit {
     if (!product) return "";
     return (
       product?.name +
-      (this.businessType === "2" ? "" : ` (${product?.packSize?.name})`)
+      (this.industryProfile.isFeed ? "" : ` (${product?.packSize?.name})`)
     );
   }
 

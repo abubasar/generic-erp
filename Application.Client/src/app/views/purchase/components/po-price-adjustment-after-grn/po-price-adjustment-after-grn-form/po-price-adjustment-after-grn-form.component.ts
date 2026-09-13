@@ -11,6 +11,7 @@ import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";
 import { UserProfile } from "app/shared/models/user-profile-model";
 import { GeneralResponse } from "app/shared/models/wrappers/generalResponse.model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { ConfirmDialogService } from "app/shared/services/confirm-dialog.service";
 import { DateTimeFormatService } from "app/shared/services/date-time-format.service";
 import { SnackBarService } from "app/shared/services/snack-bar.service";
@@ -64,7 +65,6 @@ export class PoPriceAdjustmentAfterGrnFormComponent implements OnInit {
   searchProducts: ProductView[];
   poPriceAdjustmentAfterGrnDetailsData: any[] = [];
   data: PoPriceAdjustmentAfterGrnResponseDTO;
-  businessType: string;
   // Define financial year date range here
   financialYearStartDate: Date; // Jul 1, 2023
   financialYearEndDate: Date; // Jun 30, 2024
@@ -85,6 +85,7 @@ export class PoPriceAdjustmentAfterGrnFormComponent implements OnInit {
     private poPriceAdjustmentAfterGrnService: PoPriceAdjustmentAfterGrnService,
     private dateFormatService: DateTimeFormatService,
     private jwtAuth: JwtAuthService,
+    public industryProfile: IndustryProfileService,
     private toastr: ToastrService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -104,7 +105,6 @@ export class PoPriceAdjustmentAfterGrnFormComponent implements OnInit {
       this.financialYearStartDate = new Date(res.fystartdate);
       this.financialYearEndDate = new Date(res.fyenddate);
       this.currentFinancialYearId = res.fyid;
-      this.businessType = res.businesstype;
     });
     this.initializeForm();
   }
@@ -335,7 +335,7 @@ export class PoPriceAdjustmentAfterGrnFormComponent implements OnInit {
     if (!product) return "";
     return (
       product?.name +
-      (this.businessType === "2" ? "" : ` (${product?.packSize?.name})`)
+      (this.industryProfile.isFeed ? "" : ` (${product?.packSize?.name})`)
     );
   }
 

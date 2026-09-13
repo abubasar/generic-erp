@@ -12,6 +12,7 @@ import { ImportPurchasePaymentTerm } from "app/shared/enums/importPurchasePaymen
 import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";
 import { ENUM } from "app/shared/models/enum-value/enum.model";
 import { UserProfile } from "app/shared/models/user-profile-model";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { GeneralResponse } from "app/shared/models/wrappers/generalResponse.model";
 import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
 import { ConfirmDialogService } from "app/shared/services/confirm-dialog.service";
@@ -77,7 +78,6 @@ export class GoodsReceiveNoteFormComponent implements OnInit {
   data: GoodsReceiveNoteResponseDTO;
   transactionalJournalAccounts: any[];
 
-  businessType: string;
   // Define financial year date range here
   financialYearStartDate: Date; // Jul 1, 2023
   financialYearEndDate: Date; // Jun 30, 2024
@@ -101,6 +101,7 @@ export class GoodsReceiveNoteFormComponent implements OnInit {
     private productService: ProductService,
     private dateFormatService: DateTimeFormatService,
     private jwtAuth: JwtAuthService,
+    public industryProfile: IndustryProfileService,
     private fb: FormBuilder,
     private toastr: ToastrService,
     private http: HttpClient,
@@ -117,18 +118,12 @@ export class GoodsReceiveNoteFormComponent implements OnInit {
     this.activatedRoute.data.subscribe((response: any) => {
       this.data = response?.goodsReceiveNote?.data;
     });
-    let isDataLoaded = false;
-    // this.getData();
     this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
       this.financialYearStartDate = new Date(res.fystartdate);
       this.financialYearEndDate = new Date(res.fyenddate);
       this.currentFinancialYearId = res.fyid;
-      this.businessType = res.businesstype;
-      if (!isDataLoaded) {
-        this.getData(res.businesstype);
-        isDataLoaded = true;
-      }
     });
+    this.getData();
     this.initializeForm();
   }
 
@@ -157,11 +152,11 @@ export class GoodsReceiveNoteFormComponent implements OnInit {
   //   this.localStorageService.removeItem(this.activatedRoute.snapshot.paramMap.get("id"));
   // }
 
-  getData(businessType: string) {
+  getData() {
     // let id = this.activatedRoute.snapshot.paramMap.get("id");
     // if (id) this.data = this.localStorageService.getItem(id);
 
-    this.getAllStores(businessType);
+    this.getAllStores();
     this.getAllCurrencies();
     this.getAllImportPurchaseIncoTerms();
     this.getAllImportPurchasePaymentTerms();
@@ -318,20 +313,15 @@ export class GoodsReceiveNoteFormComponent implements OnInit {
     });
   }
 
-  getAllStores(businessType: string): void {
+  getAllStores(): void {
     let storeRequest = new StoreRequest();
     storeRequest.page = -1;
-    if (businessType === "1") {
-      this.storeService.getStores(storeRequest).subscribe((res) => {
-        this.filterStores = this.stores = res?.data?.item1;
-      });
-    }
-    if (businessType === "2") {
+    if (this.industryProfile.isFeed) {
       storeRequest.inventoryTypeId = Inventory_Type_Id_Raw_Materials;
-      this.storeService.getStores(storeRequest).subscribe((res) => {
-        this.filterStores = this.stores = res?.data?.item1;
-      });
     }
+    this.storeService.getStores(storeRequest).subscribe((res) => {
+      this.filterStores = this.stores = res?.data?.item1;
+    });
   }
 
   clearInput(evt: any, fieldName: string): void {
@@ -554,7 +544,7 @@ export class GoodsReceiveNoteFormComponent implements OnInit {
     if (!product) return "";
     return (
       product?.name +
-      (this.businessType === "2" ? "" : ` (${product?.packSize?.name})`)
+      (this.industryProfile.isFeed ? "" : ` (${product?.packSize?.name})`)
     );
   }
 
