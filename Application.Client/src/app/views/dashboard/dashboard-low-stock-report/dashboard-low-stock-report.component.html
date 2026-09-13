@@ -24,15 +24,16 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
-      <mat-paginator
-        *ngIf="totalCount > 0"
-        [length]="totalCount"
-        [pageSizeOptions]="[5, 10, 20]"
-        (page)="onPageChange($event)"
-        showFirstLastButtons
-        aria-label="Select page of stock list"
-      >
-      </mat-paginator>
+      @if (totalCount > 0) {
+        <mat-paginator
+          [length]="totalCount"
+          [pageSizeOptions]="[5, 10, 20]"
+          (page)="onPageChange($event)"
+          showFirstLastButtons
+          aria-label="Select page of stock list"
+          >
+        </mat-paginator>
+      }
     </div>
   </mat-card-content>
 </mat-card>

@@ -10,13 +10,12 @@
         matTooltipPosition="above"
         (click)="printPdf('pdf')"
         [disabled]="isLoading1"
-      >
-        <ng-container *ngIf="isLoading1; else saveText">
+        >
+        @if (isLoading1) {
           {{ "Processing..." }}
-        </ng-container>
-        <ng-template #saveText>
+        } @else {
           <mat-icon>picture_as_pdf</mat-icon>
-        </ng-template>
+        }
       </button>
       <button
         mat-raised-button
@@ -26,13 +25,12 @@
         color="warn"
         (click)="printPdf('excel')"
         [disabled]="isLoading2"
-      >
-        <ng-container *ngIf="isLoading2; else saveText2">
+        >
+        @if (isLoading2) {
           {{ "Processing..." }}
-        </ng-container>
-        <ng-template #saveText2>
+        } @else {
           <mat-icon>insert_drive_file</mat-icon>
-        </ng-template>
+        }
       </button>
     </div>
     <div class="mat-elevation-z0">

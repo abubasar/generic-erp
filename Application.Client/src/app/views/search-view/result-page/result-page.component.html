@@ -3,19 +3,29 @@
 </div>
 
 <div class="mat-box-shadow m-16">
-  <div *ngFor="let item of menuItems" class="d-flex p-16">
-     <ng-container *appHasPermission="[item.permission]">
-        <a routerLink="/{{item.state}}"
-          *ngIf="item.type !== 'extLink' && item.type !== 'dropDown'" routerLinkActive="open">
-          <mat-icon *ngIf="item.icon" class="sidenav-mat-icon">{{item.icon}}</mat-icon>
-          <mat-icon *ngIf="item.svgIcon" [svgIcon]="item.svgIcon" class="svgIcon"></mat-icon>
-          <span class="item-name lvl1">{{item.name }}</span>
-          <span fxFlex></span>
-          <span class="menuitem-badge mat-bg-{{ badge.color }}" [ngStyle]="{background: badge.color}"
-            *ngFor="let badge of item.badges">{{ badge.value }}</span>
-        </a>
-        </ng-container>
-  </div>
+  @for (item of menuItems; track item) {
+    <div class="d-flex p-16">
+      <ng-container *appHasPermission="[item.permission]">
+        @if (item.type !== 'extLink' && item.type !== 'dropDown') {
+          <a routerLink="/{{item.state}}"
+            routerLinkActive="open">
+            @if (item.icon) {
+              <mat-icon class="sidenav-mat-icon">{{item.icon}}</mat-icon>
+            }
+            @if (item.svgIcon) {
+              <mat-icon [svgIcon]="item.svgIcon" class="svgIcon"></mat-icon>
+            }
+            <span class="item-name lvl1">{{item.name }}</span>
+            <span fxFlex></span>
+            @for (badge of item.badges; track badge) {
+              <span class="menuitem-badge mat-bg-{{ badge.color }}" [ngStyle]="{background: badge.color}"
+              >{{ badge.value }}</span>
+            }
+          </a>
+        }
+      </ng-container>
+    </div>
+  }
 
 </div>
 

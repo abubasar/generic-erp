@@ -36,10 +36,12 @@
           <mat-select
             formControlName="financialYearId"
             (selectionChange)="handleFinancialYearChange($event.value)"
-          >
-            <mat-option *ngFor="let d of financialYears" [value]="d?.id">
-              {{ d?.name }}
-            </mat-option>
+            >
+            @for (d of financialYears; track d) {
+              <mat-option [value]="d?.id">
+                {{ d?.name }}
+              </mat-option>
+            }
           </mat-select>
         </mat-form-field>
       </div>
@@ -50,93 +52,92 @@
             [rangePicker]="picker"
             [min]="financialYearStartDate"
             [max]="financialYearEndDate"
-          >
+            >
             <input
               #input2
               matStartDate
               formControlName="fromDate"
               placeholder="Start date"
               (focus)="picker.open()"
-            />
-            <input
-              matEndDate
-              formControlName="toDate"
-              placeholder="End date"
-              (focus)="picker.open()"
-            />
-          </mat-date-range-input>
-          <mat-datepicker-toggle
-            matSuffix
-            [for]="picker"
-          ></mat-datepicker-toggle>
-          <mat-date-range-picker #picker></mat-date-range-picker>
-          <mat-error
-            *ngIf="
-              searchForm.get('fromDate').hasError('required') ||
-              searchForm.get('toDate').hasError('required')
-            "
+              />
+              <input
+                matEndDate
+                formControlName="toDate"
+                placeholder="End date"
+                (focus)="picker.open()"
+                />
+              </mat-date-range-input>
+              <mat-datepicker-toggle
+                matSuffix
+                [for]="picker"
+              ></mat-datepicker-toggle>
+              <mat-date-range-picker #picker></mat-date-range-picker>
+              @if (
+                searchForm.get('fromDate').hasError('required') ||
+                searchForm.get('toDate').hasError('required')
+                ) {
+                <mat-error
+                  >
+                  Date range is required.
+                </mat-error>
+              }
+              @if (
+                searchForm.get('fromDate').hasError('inFinancialYear') ||
+                searchForm.get('toDate').hasError('inFinancialYear')
+                ) {
+                <mat-error
+                  >
+                  Please choose a date within the financial year period:
+                  {{ financialYearStartDate | date : "mediumDate" }} -
+                  {{ financialYearEndDate | date : "mediumDate" }}.
+                </mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </div>
+        <button
+          [style.marginRight]="'3px'"
+          mat-raised-button
+          color="primary"
+          type="submit"
+          name="trial-balance-print"
+          [disabled]="isLoading1 || this.searchForm.invalid"
           >
-            Date range is required.
-          </mat-error>
-          <mat-error
-            *ngIf="
-              searchForm.get('fromDate').hasError('inFinancialYear') ||
-              searchForm.get('toDate').hasError('inFinancialYear')
-            "
+          @if (isLoading1) {
+            {{ "Processing..." }}
+          } @else {
+            <mat-icon>picture_as_pdf</mat-icon>
+            {{ "Trial Balance" }}
+          }
+        </button>
+        <button
+          [style.marginRight]="'3px'"
+          mat-raised-button
+          color="primary"
+          type="submit"
+          name="balance-sheet-print"
+          [disabled]="isLoading2 || this.searchForm.invalid"
           >
-            Please choose a date within the financial year period:
-            {{ financialYearStartDate | date : "mediumDate" }} -
-            {{ financialYearEndDate | date : "mediumDate" }}.
-          </mat-error>
-        </mat-form-field>
-      </div>
-    </div>
-    <button
-      [style.marginRight]="'3px'"
-      mat-raised-button
-      color="primary"
-      type="submit"
-      name="trial-balance-print"
-      [disabled]="isLoading1 || this.searchForm.invalid"
-    >
-      <ng-container *ngIf="isLoading1; else saveText1">
-        {{ "Processing..." }}
-      </ng-container>
-      <ng-template #saveText1>
-        <mat-icon>picture_as_pdf</mat-icon>
-        {{ "Trial Balance" }}
-      </ng-template>
-    </button>
-    <button
-      [style.marginRight]="'3px'"
-      mat-raised-button
-      color="primary"
-      type="submit"
-      name="balance-sheet-print"
-      [disabled]="isLoading2 || this.searchForm.invalid"
-    >
-      <ng-container *ngIf="isLoading2; else saveText2">
-        {{ "Processing..." }}
-      </ng-container>
-      <ng-template #saveText2>
-        <mat-icon>picture_as_pdf</mat-icon>
-        {{ "Balance Sheet" }}
-      </ng-template>
-    </button>
-    <button
-      mat-raised-button
-      color="primary"
-      type="submit"
-      name="income-statement-print"
-      [disabled]="isLoading3 || this.searchForm.invalid"
-    >
-      <ng-container *ngIf="isLoading3; else saveText3">
-        {{ "Processing..." }}
-      </ng-container>
-      <ng-template #saveText3>
-        <mat-icon>picture_as_pdf</mat-icon>
-        {{ "Income Statement" }}
-      </ng-template>
-    </button>
-  </form>
-</mat-card>
+          @if (isLoading2) {
+            {{ "Processing..." }}
+          } @else {
+            <mat-icon>picture_as_pdf</mat-icon>
+            {{ "Balance Sheet" }}
+          }
+        </button>
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          name="income-statement-print"
+          [disabled]="isLoading3 || this.searchForm.invalid"
+          >
+          @if (isLoading3) {
+            {{ "Processing..." }}
+          } @else {
+            <mat-icon>picture_as_pdf</mat-icon>
+            {{ "Income Statement" }}
+          }
+        </button>
+      </form>
+    </mat-card>

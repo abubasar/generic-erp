@@ -9,10 +9,16 @@
     'mat-button': !raised,
     'mat-raised-button': raised
   }"
->
-  <div class="btn-spinner" *ngIf="loading"></div>
-  <span *ngIf="!loading">
-    <ng-content></ng-content>
-  </span>
-  <span *ngIf="loading">{{ loadingText }}</span>
+  >
+  @if (loading) {
+    <div class="btn-spinner"></div>
+  }
+  @if (!loading) {
+    <span>
+      <ng-content></ng-content>
+    </span>
+  }
+  @if (loading) {
+    <span>{{ loadingText }}</span>
+  }
 </button>

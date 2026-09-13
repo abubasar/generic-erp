@@ -9,38 +9,41 @@
         autocomplete="off"
         placeholder="Enter designation name"
         formControlName="name"
-      />
-      <mat-error
-        *ngIf="
+        />
+        @if (
           designationForm.controls['name'].hasError('required') &&
           designationForm.controls['name'].touched
-        "
-      >
-        Designation name is required
-      </mat-error>
-    </mat-form-field>
-    <mat-form-field class="full-width">
-      <mat-label>Select Department</mat-label>
-      <mat-select formControlName="departmentId">
-        <mat-option>-- None --</mat-option>
-        <mat-option *ngFor="let d of departments" [value]="d.id">
-          {{ d.name }}
-        </mat-option>
-      </mat-select>
-      <mat-error>Department is required</mat-error>
-    </mat-form-field>
-  </mat-dialog-content>
-  <mat-dialog-actions align="end">
-    <button mat-raised-button mat-dialog-close>Cancel</button>
-    <button
-      mat-raised-button
-      [mat-dialog-close]="true"
-      cdkFocusInitial
-      color="primary"
-      [disabled]="!designationForm.dirty || !designationForm.valid"
-      type="submit"
-    >
-      Save
-    </button>
-  </mat-dialog-actions>
-</form>
+          ) {
+          <mat-error
+            >
+            Designation name is required
+          </mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field class="full-width">
+        <mat-label>Select Department</mat-label>
+        <mat-select formControlName="departmentId">
+          <mat-option>-- None --</mat-option>
+          @for (d of departments; track d) {
+            <mat-option [value]="d.id">
+              {{ d.name }}
+            </mat-option>
+          }
+        </mat-select>
+        <mat-error>Department is required</mat-error>
+      </mat-form-field>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-raised-button mat-dialog-close>Cancel</button>
+      <button
+        mat-raised-button
+        [mat-dialog-close]="true"
+        cdkFocusInitial
+        color="primary"
+        [disabled]="!designationForm.dirty || !designationForm.valid"
+        type="submit"
+        >
+        Save
+      </button>
+    </mat-dialog-actions>
+  </form>

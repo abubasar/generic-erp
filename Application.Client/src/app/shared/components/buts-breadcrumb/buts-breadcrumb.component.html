@@ -3,18 +3,22 @@
     <h1 class="bc-title">
       {{ data?.child?.[data?.child?.length - 1]?.title }}
     </h1>
-    <ul class="breadcrumb" *ngIf="data?.child?.length > 0">
-      <li *ngFor="let child of data?.child; let i = index">
-        <!-- // matTooltip can be used to check the url -->
-        <!-- [matTooltip]="i === 1 ? child.url : null" -->
-        <span
-          [routerLink]="i === 1 ? child.url : null"
-          [class.cursor]="i == 1"
-          class="text-muted"
-        >
-          {{ child.title }}
-        </span>
-      </li>
-    </ul>
+    @if (data?.child?.length > 0) {
+      <ul class="breadcrumb">
+        @for (child of data?.child; track child; let i = $index) {
+          <li>
+            <!-- // matTooltip can be used to check the url -->
+            <!-- [matTooltip]="i === 1 ? child.url : null" -->
+            <span
+              [routerLink]="i === 1 ? child.url : null"
+              [class.cursor]="i == 1"
+              class="text-muted"
+              >
+              {{ child.title }}
+            </span>
+          </li>
+        }
+      </ul>
+    }
   </div>
 </div>

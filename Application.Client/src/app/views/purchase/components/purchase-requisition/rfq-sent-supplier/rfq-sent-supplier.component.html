@@ -33,7 +33,7 @@
   </table>
 </div>
 <!-- loader start -->
-<ng-container *ngIf="loading;">
+@if (loading;) {
   <app-loading-skeleton skeletonRowsCount="3"></app-loading-skeleton>
-</ng-container>
+}
 <!-- loader end -->

@@ -3,7 +3,7 @@
     class="mat-elevation-z0"
     (opened)="panelOpenState = true"
     (closed)="panelOpenState = false"
-  >
+    >
     <mat-expansion-panel-header>
       <mat-panel-title>
         <mat-icon>search_icon</mat-icon> Search
@@ -28,7 +28,7 @@
         mat-raised-button
         color="primary"
         (click)="openForm()"
-      >
+        >
         <!-- + Add New Payment Method -->
         <mat-icon>add_box</mat-icon>
         Add New
@@ -40,31 +40,31 @@
           (click)="reload()"
           matTooltip="Reload"
           matTooltipPosition="above"
-        >
+          >
           <mat-icon>refresh</mat-icon>
         </button>
         <!-- <button
-          mat-icon-button
-          color="primary"
-          matTooltip="print pdf"
-          matTooltipShowDelay="300"
-          matTooltipPosition="above"
-          (click)="printPdf()"
+        mat-icon-button
+        color="primary"
+        matTooltip="print pdf"
+        matTooltipShowDelay="300"
+        matTooltipPosition="above"
+        (click)="printPdf()"
         >
-          <mat-icon>print</mat-icon>
-        </button> -->
-      </div>
+        <mat-icon>print</mat-icon>
+      </button> -->
     </div>
-    <ng-container *ngIf="!loading; else loadingSkeleton">
+  </div>
+  @if (!loading) {
+    @if (dataSource.data.length > 0) {
       <div
         class="table-responsive"
-        *ngIf="dataSource.data.length > 0; else noDataFound"
-      >
+        >
         <table
           class="border border-1 table-bordered"
           mat-table
           [dataSource]="dataSource"
-        >
+          >
           <!-- Name Column -->
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef>Name</th>
@@ -72,7 +72,6 @@
               {{ paymentMethod.name }}
             </td>
           </ng-container>
-
           <!-- Actions Column -->
           <ng-container matColumnDef="actions">
             <th style="text-align: center" mat-header-cell *matHeaderCellDef>
@@ -87,7 +86,7 @@
                 matTooltipShowDelay="300"
                 matTooltipPosition="above"
                 (click)="openForm(paymentMethod)"
-              >
+                >
                 <mat-icon>edit</mat-icon>
               </button>
               <button
@@ -98,12 +97,11 @@
                 matTooltipShowDelay="300"
                 matTooltipPosition="above"
                 (click)="confirmDelete(paymentMethod.id)"
-              >
+                >
                 <mat-icon>delete</mat-icon>
               </button>
             </td>
           </ng-container>
-
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr
             mat-row
@@ -113,25 +111,24 @@
           ></tr>
         </table>
       </div>
-
+    } @else {
+      <app-no-data-found></app-no-data-found>
+    }
+    @if (totalCount > 0) {
       <mat-paginator
-        *ngIf="totalCount > 0"
         [length]="totalCount"
         [pageSizeOptions]="pageSizeOptions"
         (page)="onPageChange($event)"
         showFirstLastButtons
         aria-label="Select page of paymentMethod list"
-      >
+        >
       </mat-paginator>
-    </ng-container>
-  </mat-card-content>
+    }
+  } @else {
+    <app-loading-skeleton></app-loading-skeleton>
+  }
+</mat-card-content>
 </mat-card>
 
 <!-- loader start -->
-<ng-template #loadingSkeleton>
-  <app-loading-skeleton></app-loading-skeleton>
-</ng-template>
 <!-- No Data Found -->
-<ng-template #noDataFound>
-  <app-no-data-found></app-no-data-found>
-</ng-template>

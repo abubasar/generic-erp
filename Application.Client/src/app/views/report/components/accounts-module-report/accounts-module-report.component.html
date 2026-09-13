@@ -5,7 +5,7 @@
         *appHasPermission="['Permissions.AccountsModuleReports.General_Ledger']"
         [ngClass]="getButtonClasses('form1')"
         (click)="loadForm('form1')"
-      >
+        >
         General Ledger
       </button>
 
@@ -15,7 +15,7 @@
         ]"
         [ngClass]="getButtonClasses('form5')"
         (click)="loadForm('form5')"
-      >
+        >
         Account Ledger (Day Wise)
       </button>
 
@@ -25,7 +25,7 @@
         ]"
         [ngClass]="getButtonClasses('form6')"
         (click)="loadForm('form6')"
-      >
+        >
         Supplier Transaction : Report
       </button>
 
@@ -35,7 +35,7 @@
         ]"
         [ngClass]="getButtonClasses('form7')"
         (click)="loadForm('form7')"
-      >
+        >
         Customer Transaction : Report
       </button>
 
@@ -45,7 +45,7 @@
         ]"
         [ngClass]="getButtonClasses('form8')"
         (click)="loadForm('form8')"
-      >
+        >
         Daily Transaction : Report
       </button>
 
@@ -55,7 +55,7 @@
         ]"
         [ngClass]="getButtonClasses('form9')"
         (click)="loadForm('form9')"
-      >
+        >
         Daily Transaction Detail : Report
       </button>
 
@@ -65,7 +65,7 @@
         ]"
         [ngClass]="getButtonClasses('Cash_Bank_Balance_Report')"
         (click)="loadForm('Cash_Bank_Balance_Report')"
-      >
+        >
         Cash & Bank Balance : Report
       </button>
 
@@ -75,7 +75,7 @@
         ]"
         [ngClass]="getButtonClasses('form10')"
         (click)="loadForm('form10')"
-      >
+        >
         Cash Book : Report
       </button>
 
@@ -83,7 +83,7 @@
         *appHasPermission="['Permissions.AccountsModuleReports.Payment_Report']"
         [ngClass]="getButtonClasses('form2')"
         (click)="loadForm('form2')"
-      >
+        >
         Payment Report
       </button>
 
@@ -93,7 +93,7 @@
         ]"
         [ngClass]="getButtonClasses('form3')"
         (click)="loadForm('form3')"
-      >
+        >
         Collection Report
       </button>
 
@@ -103,7 +103,7 @@
         ]"
         [ngClass]="getButtonClasses('form11')"
         (click)="loadForm('form11')"
-      >
+        >
         COGS Calculation : Report
       </button>
 
@@ -113,7 +113,7 @@
         ]"
         [ngClass]="getButtonClasses('form4')"
         (click)="loadForm('form4')"
-      >
+        >
         Financial Statement
       </button>
     </div>
@@ -121,41 +121,65 @@
   </div>
 
   <div class="col-md-8">
-    <div *ngIf="selectedForm === 'form1'">
-      <app-subsidiary-ledger></app-subsidiary-ledger>
-    </div>
-    <div *ngIf="selectedForm === 'form5'">
-      <app-day-wise-account-ledger></app-day-wise-account-ledger>
-    </div>
-    <div *ngIf="selectedForm === 'form6'">
-      <app-supplier-transaction-report></app-supplier-transaction-report>
-    </div>
-    <div *ngIf="selectedForm === 'form7'">
-      <app-customer-transaction-report></app-customer-transaction-report>
-    </div>
-    <div *ngIf="selectedForm === 'form8'">
-      <app-daily-transaction-report></app-daily-transaction-report>
-    </div>
-    <div *ngIf="selectedForm === 'form9'">
-      <app-daily-transaction-detail-report></app-daily-transaction-detail-report>
-    </div>
-    <div *ngIf="selectedForm === 'Cash_Bank_Balance_Report'">
-      <app-cash-bank-balance-report></app-cash-bank-balance-report>
-    </div>
-    <div *ngIf="selectedForm === 'form10'">
-      <app-cash-book-report></app-cash-book-report>
-    </div>
-    <div *ngIf="selectedForm === 'form2'">
-      <app-payment-report></app-payment-report>
-    </div>
-    <div *ngIf="selectedForm === 'form3'">
-      <app-payment-collection-report></app-payment-collection-report>
-    </div>
-    <div *ngIf="selectedForm === 'form11'">
-      <app-cogs-calculation></app-cogs-calculation>
-    </div>
-    <div *ngIf="selectedForm === 'form4'">
-      <app-accounts-report></app-accounts-report>
-    </div>
+    @if (selectedForm === 'form1') {
+      <div>
+        <app-subsidiary-ledger></app-subsidiary-ledger>
+      </div>
+    }
+    @if (selectedForm === 'form5') {
+      <div>
+        <app-day-wise-account-ledger></app-day-wise-account-ledger>
+      </div>
+    }
+    @if (selectedForm === 'form6') {
+      <div>
+        <app-supplier-transaction-report></app-supplier-transaction-report>
+      </div>
+    }
+    @if (selectedForm === 'form7') {
+      <div>
+        <app-customer-transaction-report></app-customer-transaction-report>
+      </div>
+    }
+    @if (selectedForm === 'form8') {
+      <div>
+        <app-daily-transaction-report></app-daily-transaction-report>
+      </div>
+    }
+    @if (selectedForm === 'form9') {
+      <div>
+        <app-daily-transaction-detail-report></app-daily-transaction-detail-report>
+      </div>
+    }
+    @if (selectedForm === 'Cash_Bank_Balance_Report') {
+      <div>
+        <app-cash-bank-balance-report></app-cash-bank-balance-report>
+      </div>
+    }
+    @if (selectedForm === 'form10') {
+      <div>
+        <app-cash-book-report></app-cash-book-report>
+      </div>
+    }
+    @if (selectedForm === 'form2') {
+      <div>
+        <app-payment-report></app-payment-report>
+      </div>
+    }
+    @if (selectedForm === 'form3') {
+      <div>
+        <app-payment-collection-report></app-payment-collection-report>
+      </div>
+    }
+    @if (selectedForm === 'form11') {
+      <div>
+        <app-cogs-calculation></app-cogs-calculation>
+      </div>
+    }
+    @if (selectedForm === 'form4') {
+      <div>
+        <app-accounts-report></app-accounts-report>
+      </div>
+    }
   </div>
 </div>

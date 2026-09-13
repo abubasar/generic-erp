@@ -13,36 +13,38 @@
             formControlName="accountId"
             [matAutocomplete]="auto"
             (keyup)="handleSupplierSearch($event)"
-          />
-          <div matSuffix>
-            <button
-              (click)="clearInput($event, 'accountId')"
-              *ngIf="searchForm?.get('accountId')?.value"
-              aria-label="Clear"
-              mat-icon-button
-              type="button"
-            >
-              <mat-icon>clear</mat-icon>
-            </button>
-            <mat-icon>keyboard_arrow_down</mat-icon>
-          </div>
+            />
+            <div matSuffix>
+              @if (searchForm?.get('accountId')?.value) {
+                <button
+                  (click)="clearInput($event, 'accountId')"
+                  aria-label="Clear"
+                  mat-icon-button
+                  type="button"
+                  >
+                  <mat-icon>clear</mat-icon>
+                </button>
+              }
+              <mat-icon>keyboard_arrow_down</mat-icon>
+            </div>
 
-          <mat-autocomplete
-            #auto="matAutocomplete"
-            [displayWith]="getSupplierName.bind(this)"
-          >
-            <mat-option
-              matTooltip="{{ d.address }}"
-              *ngFor="let d of filterSuppliers"
-              [value]="d.id"
-            >
-              {{ d.name }} ({{ d.code.slice(-4) }}) {{ d.address }}
-            </mat-option>
-          </mat-autocomplete>
-          <mat-error>Supplier is required</mat-error>
-        </mat-form-field>
-      </div>
-      <!-- <div class="col">
+            <mat-autocomplete
+              #auto="matAutocomplete"
+              [displayWith]="getSupplierName.bind(this)"
+              >
+              @for (d of filterSuppliers; track d) {
+                <mat-option
+                  matTooltip="{{ d.address }}"
+                  [value]="d.id"
+                  >
+                  {{ d.name }} ({{ d.code.slice(-4) }}) {{ d.address }}
+                </mat-option>
+              }
+            </mat-autocomplete>
+            <mat-error>Supplier is required</mat-error>
+          </mat-form-field>
+        </div>
+        <!-- <div class="col">
         <mat-form-field class="full-width">
           <mat-label>Select Cost Center</mat-label>
           <mat-select formControlName="costCenterId">
@@ -63,62 +65,61 @@
               formControlName="fromDate"
               placeholder="Start date"
               (focus)="picker.open()"
-            />
-            <input
-              matEndDate
-              formControlName="toDate"
-              placeholder="End date"
-              (focus)="picker.open()"
-            />
-          </mat-date-range-input>
-          <mat-datepicker-toggle
-            matSuffix
-            [for]="picker"
-          ></mat-datepicker-toggle>
-          <mat-error
-            *ngIf="
-              searchForm.get('fromDate').hasError('required') ||
-              searchForm.get('toDate').hasError('required')
-            "
-          >
-            Date range is required.
-          </mat-error>
-          <mat-date-range-picker #picker></mat-date-range-picker>
-        </mat-form-field>
-      </div>
-    </div>
-    <div class="col">
-      <button
-        [style.marginRight]="'5px'"
-        mat-raised-button
-        matTooltip="PDF"
-        name="pdf"
-        color="primary"
-        type="submit"
-        [disabled]="isLoading1 || this.searchForm.invalid"
-      >
-        <ng-container *ngIf="isLoading1; else saveText">
-          {{ "Processing..." }}
-        </ng-container>
-        <ng-template #saveText>
-          <mat-icon>picture_as_pdf</mat-icon>
-        </ng-template>
-      </button>
-      <button
-        mat-raised-button
-        matTooltip="EXCEL"
-        name="excel"
-        color="warn"
-        type="submit"
-        [disabled]="isLoading2 || this.searchForm.invalid"
-      >
-        <ng-container *ngIf="isLoading2; else saveText2">
-          {{ "Processing..." }}
-        </ng-container>
-        <ng-template #saveText2>
-          <mat-icon>insert_drive_file</mat-icon>
-        </ng-template>
-      </button>
-    </div>
-  </form>
-</mat-card>
+              />
+              <input
+                matEndDate
+                formControlName="toDate"
+                placeholder="End date"
+                (focus)="picker.open()"
+                />
+              </mat-date-range-input>
+              <mat-datepicker-toggle
+                matSuffix
+                [for]="picker"
+              ></mat-datepicker-toggle>
+              @if (
+                searchForm.get('fromDate').hasError('required') ||
+                searchForm.get('toDate').hasError('required')
+                ) {
+                <mat-error
+                  >
+                  Date range is required.
+                </mat-error>
+              }
+              <mat-date-range-picker #picker></mat-date-range-picker>
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="col">
+          <button
+            [style.marginRight]="'5px'"
+            mat-raised-button
+            matTooltip="PDF"
+            name="pdf"
+            color="primary"
+            type="submit"
+            [disabled]="isLoading1 || this.searchForm.invalid"
+            >
+            @if (isLoading1) {
+              {{ "Processing..." }}
+            } @else {
+              <mat-icon>picture_as_pdf</mat-icon>
+            }
+          </button>
+          <button
+            mat-raised-button
+            matTooltip="EXCEL"
+            name="excel"
+            color="warn"
+            type="submit"
+            [disabled]="isLoading2 || this.searchForm.invalid"
+            >
+            @if (isLoading2) {
+              {{ "Processing..." }}
+            } @else {
+              <mat-icon>insert_drive_file</mat-icon>
+            }
+          </button>
+        </div>
+      </form>
+    </mat-card>

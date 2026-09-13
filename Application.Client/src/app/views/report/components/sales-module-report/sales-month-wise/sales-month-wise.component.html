@@ -4,9 +4,9 @@
     autocomplete="off"
     [formGroup]="searchForm"
     (ngSubmit)="printPdf($event)"
-  >
+    >
     <div class="row row-cols-2 gx-5">
-      
+
       <div class="col">
         <button
           [style.marginRight]="'5px'"
@@ -16,13 +16,12 @@
           color="primary"
           type="submit"
           [disabled]="isLoading1 || this.searchForm.invalid"
-        >
-          <ng-container *ngIf="isLoading1; else saveText">
+          >
+          @if (isLoading1) {
             {{ "Processing..." }}
-          </ng-container>
-          <ng-template #saveText>
+          } @else {
             <mat-icon>picture_as_pdf</mat-icon>
-          </ng-template>
+          }
         </button>
         <button
           mat-raised-button
@@ -31,13 +30,12 @@
           color="warn"
           type="submit"
           [disabled]="isLoading2 || this.searchForm.invalid"
-        >
-          <ng-container *ngIf="isLoading2; else saveText2">
+          >
+          @if (isLoading2) {
             {{ "Processing..." }}
-          </ng-container>
-          <ng-template #saveText2>
+          } @else {
             <mat-icon>insert_drive_file</mat-icon>
-          </ng-template>
+          }
         </button>
       </div>
     </div>

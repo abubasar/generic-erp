@@ -8,7 +8,7 @@
         ]"
         [ngClass]="getButtonClasses('primarySaleTotalProductWise')"
         (click)="loadForm('primarySaleTotalProductWise')"
-      >
+        >
         Product Wise Sales
       </button>
       <!-- primarySaleTotalProductWiseMultiTerritory -->
@@ -20,7 +20,7 @@
           getButtonClasses('primarySaleTotalProductWiseMultiTerritory')
         "
         (click)="loadForm('primarySaleTotalProductWiseMultiTerritory')"
-      >
+        >
         Territory Wise Product Sales (Pivot Report)
       </button>
       <!-- primarySaleTotalProductWiseMultiOfficer -->
@@ -30,7 +30,7 @@
         ]"
         [ngClass]="getButtonClasses('primarySaleTotalProductWiseMultiOfficer')"
         (click)="loadForm('primarySaleTotalProductWiseMultiOfficer')"
-      >
+        >
         MO Wise Product Sales (Pivot Report)
       </button>
       <!-- primaryCustomerWiseProductWiseSalesQuantity -->
@@ -42,7 +42,7 @@
           getButtonClasses('primaryCustomerWiseProductWiseSalesQuantity')
         "
         (click)="loadForm('primaryCustomerWiseProductWiseSalesQuantity')"
-      >
+        >
         Customer Wise Product Wise Sales Quantity
       </button>
       <!-- primaryAgingReport -->
@@ -52,7 +52,7 @@
         ]"
         [ngClass]="getButtonClasses('primaryAgingReport')"
         (click)="loadForm('primaryAgingReport')"
-      >
+        >
         Aging Report
       </button>
       <!-- primaryCustomerWiseSalesAndCollectionReport -->
@@ -64,7 +64,7 @@
           getButtonClasses('primaryCustomerWiseSalesAndCollectionReport')
         "
         (click)="loadForm('primaryCustomerWiseSalesAndCollectionReport')"
-      >
+        >
         Customer Wise Sales And Collection : Report
       </button>
       <!-- primaryNationalWiseSalesCollectionAndDueReport -->
@@ -76,7 +76,7 @@
           getButtonClasses('primaryNationalWiseSalesCollectionAndDueReport')
         "
         (click)="loadForm('primaryNationalWiseSalesCollectionAndDueReport')"
-      >
+        >
         National Wise Sales, Collection & Due: Report
       </button>
       <!-- primaryMarketingOfficerWiseSalesCollectionAndDueReport -->
@@ -92,7 +92,7 @@
         (click)="
           loadForm('primaryMarketingOfficerWiseSalesCollectionAndDueReport')
         "
-      >
+        >
         MO Wise Sales, Collection & Due: Report
       </button>
       <!-- primaryMarketingOfficerWiseSalesCollectionAndDueReportShort -->
@@ -110,7 +110,7 @@
             'primaryMarketingOfficerWiseSalesCollectionAndDueReportShort'
           )
         "
-      >
+        >
         MO Wise Sales, Collection & Due: Report (Short)
       </button>
       <!-- primaryMonthWiseSalesCollectionAndDueReport -->
@@ -122,69 +122,86 @@
           getButtonClasses('primaryMonthWiseSalesCollectionAndDueReport')
         "
         (click)="loadForm('primaryMonthWiseSalesCollectionAndDueReport')"
-      >
+        >
         Month Wise Sales, Collection & Due: Report
       </button>
     </div>
   </div>
   <div class="col-md-8">
     <!-- primarySaleTotalProductWise -->
-    <div *ngIf="selectedForm === 'primarySaleTotalProductWise'">
-      <app-primary-sale-total-product-wise-report></app-primary-sale-total-product-wise-report>
-    </div>
+    @if (selectedForm === 'primarySaleTotalProductWise') {
+      <div>
+        <app-primary-sale-total-product-wise-report></app-primary-sale-total-product-wise-report>
+      </div>
+    }
 
     <!-- primarySaleTotalProductWiseMultiTerritory -->
-    <div *ngIf="selectedForm === 'primarySaleTotalProductWiseMultiTerritory'">
-      <app-primary-sale-total-product-wise-multi-territory-report></app-primary-sale-total-product-wise-multi-territory-report>
-    </div>
+    @if (selectedForm === 'primarySaleTotalProductWiseMultiTerritory') {
+      <div>
+        <app-primary-sale-total-product-wise-multi-territory-report></app-primary-sale-total-product-wise-multi-territory-report>
+      </div>
+    }
 
     <!-- primarySaleTotalProductWiseMultiOfficer -->
-    <div *ngIf="selectedForm === 'primarySaleTotalProductWiseMultiOfficer'">
-      <app-primary-sale-total-product-wise-multi-officer-report></app-primary-sale-total-product-wise-multi-officer-report>
-    </div>
+    @if (selectedForm === 'primarySaleTotalProductWiseMultiOfficer') {
+      <div>
+        <app-primary-sale-total-product-wise-multi-officer-report></app-primary-sale-total-product-wise-multi-officer-report>
+      </div>
+    }
 
     <!-- primaryCustomerWiseProductWiseSalesQuantity -->
-    <div *ngIf="selectedForm === 'primaryCustomerWiseProductWiseSalesQuantity'">
-      <app-primary-customer-wise-product-wise-sales-quantity-report></app-primary-customer-wise-product-wise-sales-quantity-report>
-    </div>
+    @if (selectedForm === 'primaryCustomerWiseProductWiseSalesQuantity') {
+      <div>
+        <app-primary-customer-wise-product-wise-sales-quantity-report></app-primary-customer-wise-product-wise-sales-quantity-report>
+      </div>
+    }
 
     <!-- primaryAgingReport -->
-    <div *ngIf="selectedForm === 'primaryAgingReport'">
-      <app-primary-aging-report></app-primary-aging-report>
-    </div>
+    @if (selectedForm === 'primaryAgingReport') {
+      <div>
+        <app-primary-aging-report></app-primary-aging-report>
+      </div>
+    }
 
     <!-- primaryCustomerWiseSalesAndCollectionReport -->
-    <div *ngIf="selectedForm === 'primaryCustomerWiseSalesAndCollectionReport'">
-      <app-primary-customer-wise-sales-and-collection-report></app-primary-customer-wise-sales-and-collection-report>
-    </div>
+    @if (selectedForm === 'primaryCustomerWiseSalesAndCollectionReport') {
+      <div>
+        <app-primary-customer-wise-sales-and-collection-report></app-primary-customer-wise-sales-and-collection-report>
+      </div>
+    }
 
     <!-- primaryNationalWiseSalesCollectionAndDueReport -->
-    <div
-      *ngIf="selectedForm === 'primaryNationalWiseSalesCollectionAndDueReport'"
-    >
-      <app-primary-national-wise-sales-collection-and-due-report></app-primary-national-wise-sales-collection-and-due-report>
-    </div>
+    @if (selectedForm === 'primaryNationalWiseSalesCollectionAndDueReport') {
+      <div
+        >
+        <app-primary-national-wise-sales-collection-and-due-report></app-primary-national-wise-sales-collection-and-due-report>
+      </div>
+    }
     <!-- primaryMarketingOfficerWiseSalesCollectionAndDueReport -->
-    <div
-      *ngIf="
-        selectedForm ===
-        'primaryMarketingOfficerWiseSalesCollectionAndDueReport'
-      "
-    >
-      <app-primary-marketing-officer-wise-sales-collection-and-due-report></app-primary-marketing-officer-wise-sales-collection-and-due-report>
-    </div>
+    @if (
+      selectedForm ===
+      'primaryMarketingOfficerWiseSalesCollectionAndDueReport'
+      ) {
+      <div
+        >
+        <app-primary-marketing-officer-wise-sales-collection-and-due-report></app-primary-marketing-officer-wise-sales-collection-and-due-report>
+      </div>
+    }
     <!-- primaryMarketingOfficerWiseSalesCollectionAndDueReportShort -->
-    <div
-      *ngIf="
-        selectedForm ===
-        'primaryMarketingOfficerWiseSalesCollectionAndDueReportShort'
-      "
-    >
-      <app-primary-marketing-officer-wise-sales-collection-and-due-report-short></app-primary-marketing-officer-wise-sales-collection-and-due-report-short>
-    </div>
+    @if (
+      selectedForm ===
+      'primaryMarketingOfficerWiseSalesCollectionAndDueReportShort'
+      ) {
+      <div
+        >
+        <app-primary-marketing-officer-wise-sales-collection-and-due-report-short></app-primary-marketing-officer-wise-sales-collection-and-due-report-short>
+      </div>
+    }
     <!-- primaryMonthWiseSalesCollectionAndDueReport -->
-    <div *ngIf="selectedForm === 'primaryMonthWiseSalesCollectionAndDueReport'">
-      <app-primary-month-wise-sales-collection-and-due-report></app-primary-month-wise-sales-collection-and-due-report>
-    </div>
+    @if (selectedForm === 'primaryMonthWiseSalesCollectionAndDueReport') {
+      <div>
+        <app-primary-month-wise-sales-collection-and-due-report></app-primary-month-wise-sales-collection-and-due-report>
+      </div>
+    }
   </div>
 </div>

@@ -7,7 +7,7 @@
         ]"
         [ngClass]="getButtonClasses('form1')"
         (click)="loadForm('form1')"
-      >
+        >
         Purchase: Supplier, Item Wise
       </button>
 
@@ -17,7 +17,7 @@
         ]"
         [ngClass]="getButtonClasses('form2')"
         (click)="loadForm('form2')"
-      >
+        >
         Purchase: Item, Supplier Wise
       </button>
 
@@ -27,7 +27,7 @@
         ]"
         [ngClass]="getButtonClasses('form3')"
         (click)="loadForm('form3')"
-      >
+        >
         Supplier Ledger : Product Wise
       </button>
 
@@ -37,7 +37,7 @@
         ]"
         [ngClass]="getButtonClasses('form4')"
         (click)="loadForm('form4')"
-      >
+        >
         Purchase : Total Qty, Value, Average Price
       </button>
 
@@ -47,7 +47,7 @@
         ]"
         [ngClass]="getButtonClasses('form5')"
         (click)="loadForm('form5')"
-      >
+        >
         Purchase : Report
       </button>
 
@@ -57,7 +57,7 @@
         ]"
         [ngClass]="getButtonClasses('form6')"
         (click)="loadForm('form6')"
-      >
+        >
         GRN: Supplier, Item Wise
       </button>
 
@@ -67,7 +67,7 @@
         ]"
         [ngClass]="getButtonClasses('form7')"
         (click)="loadForm('form7')"
-      >
+        >
         GRN: Item, Supplier Wise
       </button>
 
@@ -77,7 +77,7 @@
         ]"
         [ngClass]="getButtonClasses('form8')"
         (click)="loadForm('form8')"
-      >
+        >
         GRN : Total Qty, Value, Average Price
       </button>
       <button
@@ -86,7 +86,7 @@
         ]"
         [ngClass]="getButtonClasses('form9')"
         (click)="loadForm('form9')"
-      >
+        >
         LC Cost Entries Against LC Number
       </button>
       <button
@@ -95,7 +95,7 @@
         ]"
         [ngClass]="getButtonClasses('CurrentStock_PurchaseRate_And_Quantity')"
         (click)="loadForm('CurrentStock_PurchaseRate_And_Quantity')"
-      >
+        >
         Summary Report of Current Stock Purchase Rate & Quantity
       </button>
     </div>
@@ -103,35 +103,55 @@
   </div>
 
   <div class="col-md-8">
-    <div *ngIf="selectedForm === 'form1'">
-      <app-supplier-wise-purchase-item></app-supplier-wise-purchase-item>
-    </div>
-    <div *ngIf="selectedForm === 'form2'">
-      <app-purchase-item-wise-supplier></app-purchase-item-wise-supplier>
-    </div>
-    <div *ngIf="selectedForm === 'form3'">
-      <app-supplier-ledger-product-wise-report></app-supplier-ledger-product-wise-report>
-    </div>
-    <div *ngIf="selectedForm === 'form4'">
-      <app-total-purchase-item></app-total-purchase-item>
-    </div>
-    <div *ngIf="selectedForm === 'form5'">
-      <app-purchase-summary-report></app-purchase-summary-report>
-    </div>
-    <div *ngIf="selectedForm === 'form6'">
-      <app-grn-supplier-item-wise-report></app-grn-supplier-item-wise-report>
-    </div>
-    <div *ngIf="selectedForm === 'form7'">
-      <app-grn-item-supplier-wise-report></app-grn-item-supplier-wise-report>
-    </div>
-    <div *ngIf="selectedForm === 'form8'">
-      <app-grn-total-qty-value-average-price-report></app-grn-total-qty-value-average-price-report>
-    </div>
-    <div *ngIf="selectedForm === 'form9'">
-      <app-lccost-entries-against-lc-number-report></app-lccost-entries-against-lc-number-report>
-    </div>
-    <div *ngIf="selectedForm === 'CurrentStock_PurchaseRate_And_Quantity'">
-      <app-current-stock-purchase-rate-and-quantity></app-current-stock-purchase-rate-and-quantity>
-    </div>
+    @if (selectedForm === 'form1') {
+      <div>
+        <app-supplier-wise-purchase-item></app-supplier-wise-purchase-item>
+      </div>
+    }
+    @if (selectedForm === 'form2') {
+      <div>
+        <app-purchase-item-wise-supplier></app-purchase-item-wise-supplier>
+      </div>
+    }
+    @if (selectedForm === 'form3') {
+      <div>
+        <app-supplier-ledger-product-wise-report></app-supplier-ledger-product-wise-report>
+      </div>
+    }
+    @if (selectedForm === 'form4') {
+      <div>
+        <app-total-purchase-item></app-total-purchase-item>
+      </div>
+    }
+    @if (selectedForm === 'form5') {
+      <div>
+        <app-purchase-summary-report></app-purchase-summary-report>
+      </div>
+    }
+    @if (selectedForm === 'form6') {
+      <div>
+        <app-grn-supplier-item-wise-report></app-grn-supplier-item-wise-report>
+      </div>
+    }
+    @if (selectedForm === 'form7') {
+      <div>
+        <app-grn-item-supplier-wise-report></app-grn-item-supplier-wise-report>
+      </div>
+    }
+    @if (selectedForm === 'form8') {
+      <div>
+        <app-grn-total-qty-value-average-price-report></app-grn-total-qty-value-average-price-report>
+      </div>
+    }
+    @if (selectedForm === 'form9') {
+      <div>
+        <app-lccost-entries-against-lc-number-report></app-lccost-entries-against-lc-number-report>
+      </div>
+    }
+    @if (selectedForm === 'CurrentStock_PurchaseRate_And_Quantity') {
+      <div>
+        <app-current-stock-purchase-rate-and-quantity></app-current-stock-purchase-rate-and-quantity>
+      </div>
+    }
   </div>
 </div>

@@ -3,82 +3,88 @@
   <form autocomplete="off" [formGroup]="searchForm" (ngSubmit)="onSearch()">
     <div class="row row-cols-2 gx-5">
       <!-- <div class="col">
-          <mat-form-field class="full-width">
-            <mat-label>Select Store</mat-label>
-            <mat-select formControlName="storeId">
-              <mat-option>-- None --</mat-option>
-              <mat-option *ngFor="let d of stores" [value]="d?.id">
-                {{ d?.name }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div> -->
-      <div class="col">
-        <mat-form-field class="full-width">
-          <mat-label>Select Inventory Type</mat-label>
-          <mat-select
-            formControlName="inventoryTypeId"
-            (selectionChange)="onSelectedInventoryType($event.value)"
+      <mat-form-field class="full-width">
+        <mat-label>Select Store</mat-label>
+        <mat-select formControlName="storeId">
+          <mat-option>-- None --</mat-option>
+          <mat-option *ngFor="let d of stores" [value]="d?.id">
+            {{ d?.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div> -->
+    <div class="col">
+      <mat-form-field class="full-width">
+        <mat-label>Select Inventory Type</mat-label>
+        <mat-select
+          formControlName="inventoryTypeId"
+          (selectionChange)="onSelectedInventoryType($event.value)"
           >
-            <mat-option>-- All --</mat-option>
-            <mat-option *ngFor="let d of inventoryTypes" [value]="d?.id">
+          <mat-option>-- All --</mat-option>
+          @for (d of inventoryTypes; track d) {
+            <mat-option [value]="d?.id">
               {{ d?.name }}
             </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-      <div class="col">
-        <mat-form-field class="full-width">
-          <mat-label>Select Product Type</mat-label>
-          <mat-select
-            formControlName="productTypeId"
-            (selectionChange)="onSelectedProductType($event.value)"
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="col">
+      <mat-form-field class="full-width">
+        <mat-label>Select Product Type</mat-label>
+        <mat-select
+          formControlName="productTypeId"
+          (selectionChange)="onSelectedProductType($event.value)"
           >
-            <mat-option>-- All --</mat-option>
-            <mat-option *ngFor="let d of mapProductTypes" [value]="d?.id">
+          <mat-option>-- All --</mat-option>
+          @for (d of mapProductTypes; track d) {
+            <mat-option [value]="d?.id">
               {{ d?.name }}
             </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-      <!-- Product Autocomplete -->
-      <div class="col">
-        <mat-form-field class="full-width">
-          <mat-label>Product</mat-label>
-          <input
-            type="text"
-            placeholder="Search Product"
-            aria-label="Filter Product"
-            matInput
-            name="productId"
-            formControlName="productId"
-            [matAutocomplete]="product"
-            (keyup)="onProductChange($event?.target?.value)"
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <!-- Product Autocomplete -->
+    <div class="col">
+      <mat-form-field class="full-width">
+        <mat-label>Product</mat-label>
+        <input
+          type="text"
+          placeholder="Search Product"
+          aria-label="Filter Product"
+          matInput
+          name="productId"
+          formControlName="productId"
+          [matAutocomplete]="product"
+          (keyup)="onProductChange($event?.target?.value)"
           />
           <mat-icon matSuffix>keyboard_arrow_down</mat-icon>
           <mat-autocomplete
             autoActiveFirstOption
             #product="matAutocomplete"
             [displayWith]="getProductName.bind(this)"
-          >
-            <mat-option
-              *ngFor="let product of filterProducts"
-              [value]="product.id"
             >
-              {{ product.name }}
-              <span
-                *ngIf="
+            @for (product of filterProducts; track product) {
+              <mat-option
+                [value]="product.id"
+                >
+                {{ product.name }}
+                @if (
                   product?.inventoryType?.id ===
                   Inventory_Type_Id_Finished_Goods_ID
-                "
-              >
-                ({{
-                  businessType === "2"
+                  ) {
+                  <span
+                    >
+                    ({{
+                    businessType === "2"
                     ? product?.bagWeight + " " + product?.measurementUnit?.name
                     : product?.packSize?.name
-                }})
-              </span>
-            </mat-option>
+                    }})
+                  </span>
+                }
+              </mat-option>
+            }
           </mat-autocomplete>
           <mat-error>Product is required</mat-error>
         </mat-form-field>
@@ -88,9 +94,11 @@
           <mat-label>Select Store</mat-label>
           <mat-select formControlName="storeId">
             <mat-option>-- All --</mat-option>
-            <mat-option *ngFor="let d of filteredStores" [value]="d?.id">
-              {{ d?.name }}
-            </mat-option>
+            @for (d of filteredStores; track d) {
+              <mat-option [value]="d?.id">
+                {{ d?.name }}
+              </mat-option>
+            }
           </mat-select>
         </mat-form-field>
       </div>
@@ -111,13 +119,12 @@
         matTooltipPosition="above"
         (click)="printPdf('pdf')"
         [disabled]="isLoading1"
-      >
-        <ng-container *ngIf="isLoading1; else saveText">
+        >
+        @if (isLoading1) {
           {{ "Processing..." }}
-        </ng-container>
-        <ng-template #saveText>
+        } @else {
           <mat-icon>picture_as_pdf</mat-icon>
-        </ng-template>
+        }
       </button>
       <button
         mat-raised-button
@@ -127,13 +134,12 @@
         color="warn"
         (click)="printPdf('excel')"
         [disabled]="isLoading2"
-      >
-        <ng-container *ngIf="isLoading2; else saveText2">
+        >
+        @if (isLoading2) {
           {{ "Processing..." }}
-        </ng-container>
-        <ng-template #saveText2>
+        } @else {
           <mat-icon>insert_drive_file</mat-icon>
-        </ng-template>
+        }
       </button>
     </div>
     <div class="mat-elevation-z0">
@@ -165,15 +171,16 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
-      <mat-paginator
-        *ngIf="totalCount > 0"
-        [length]="totalCount"
-        [pageSizeOptions]="pageSizeOptions"
-        (page)="onPageChange($event)"
-        showFirstLastButtons
-        aria-label="Select page of stock list"
-      >
-      </mat-paginator>
+      @if (totalCount > 0) {
+        <mat-paginator
+          [length]="totalCount"
+          [pageSizeOptions]="pageSizeOptions"
+          (page)="onPageChange($event)"
+          showFirstLastButtons
+          aria-label="Select page of stock list"
+          >
+        </mat-paginator>
+      }
     </div>
   </mat-card-content>
 </mat-card>
