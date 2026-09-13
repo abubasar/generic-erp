@@ -1,10 +1,5 @@
 import { Injectable } from "@angular/core";
-import {
-  HttpEvent,
-  HttpInterceptor,
-  HttpHandler,
-  HttpRequest
-} from "@angular/common/http";
+import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest } from "@angular/common/http";
 import { Observable, catchError, switchMap, throwError } from "rxjs";
 import { JwtAuthService } from "../services/auth/jwt-auth.service";
 import { JwtHelperService } from "@auth0/angular-jwt";

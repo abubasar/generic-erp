@@ -16,11 +16,7 @@ import { rootRouterConfig } from "./app.routing";
 import { SharedModule } from "./shared/shared.module";
 import { AppComponent } from "./app.component";
 
-import {
-  HttpClient,
-  HttpClientModule,
-  HTTP_INTERCEPTORS,
-} from "@angular/common/http";
+import { HttpClient, HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 import { TranslateModule, TranslateLoader } from "@ngx-translate/core";
 import { TranslateHttpLoader } from "@ngx-translate/http-loader";
 import { ErrorHandlerService } from "./shared/services/error-handler.service";
@@ -56,75 +52,67 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
   suppressScrollX: true,
 };
 
-@NgModule({
-  imports: [
-    BrowserModule,
-    BrowserAnimationsModule,
-    SharedModule,
-    HttpClientModule,
-    PerfectScrollbarModule,
-    NgxMatTimepickerModule.setLocale("en-GB"),
-    NgxMatDatetimePickerModule,
-    NgxMatNativeDateModule,
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
-        deps: [HttpClient],
-      },
-    }),
-
-    RouterModule.forRoot(rootRouterConfig, {
-      useHash: true,
-    }),
-    ToastrModule.forRoot(),
-    JwtModule.forRoot({
-      jwtOptionsProvider: {
-        provide: JWT_OPTIONS,
-        useFactory: jwtOptionFactor,
-        deps: [JwtAuthService],
-      },
-    }),
-    ServiceWorkerModule.register("ngsw-worker.js", {
-      enabled: environment.production,
-      // Register the ServiceWorker as soon as the application is stable
-      // or after 30 seconds (whichever comes first).
-      registrationStrategy: "registerWhenStable:30000",
-    }),
-  ],
-  declarations: [AppComponent],
-  providers: [
-    { provide: ErrorHandler, useClass: ErrorHandlerService },
-    // { provide: HAMMER_GESTURE_CONFIG, useClass: GestureConfig },
-    {
-      provide: PERFECT_SCROLLBAR_CONFIG,
-      useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG,
-    },
-    // REQUIRED IF YOU USE JWT AUTHENTICATION
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: TokenInterceptor,
-      multi: true,
-    },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: ValidationErrorInterceptor,
-      multi: true,
-    },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: TooManyRequestInterceptor,
-      multi: true,
-    },
-
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: Status412PreconditionFailed,
-      multi: true,
-    },
-    // Required to Mat Date Picker Date Format
-    { provide: MAT_DATE_LOCALE, useValue: "en-GB" },
-  ],
-  bootstrap: [AppComponent],
-})
+@NgModule({ declarations: [AppComponent],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        BrowserAnimationsModule,
+        SharedModule,
+        PerfectScrollbarModule,
+        NgxMatTimepickerModule.setLocale("en-GB"),
+        NgxMatDatetimePickerModule,
+        NgxMatNativeDateModule,
+        TranslateModule.forRoot({
+            loader: {
+                provide: TranslateLoader,
+                useFactory: HttpLoaderFactory,
+                deps: [HttpClient],
+            },
+        }),
+        RouterModule.forRoot(rootRouterConfig, {
+            useHash: true,
+        }),
+        ToastrModule.forRoot(),
+        JwtModule.forRoot({
+            jwtOptionsProvider: {
+                provide: JWT_OPTIONS,
+                useFactory: jwtOptionFactor,
+                deps: [JwtAuthService],
+            },
+        }),
+        ServiceWorkerModule.register("ngsw-worker.js", {
+            enabled: environment.production,
+            // Register the ServiceWorker as soon as the application is stable
+            // or after 30 seconds (whichever comes first).
+            registrationStrategy: "registerWhenStable:30000",
+        })], providers: [
+        { provide: ErrorHandler, useClass: ErrorHandlerService },
+        // { provide: HAMMER_GESTURE_CONFIG, useClass: GestureConfig },
+        {
+            provide: PERFECT_SCROLLBAR_CONFIG,
+            useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG,
+        },
+        // REQUIRED IF YOU USE JWT AUTHENTICATION
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: TokenInterceptor,
+            multi: true,
+        },
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: ValidationErrorInterceptor,
+            multi: true,
+        },
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: TooManyRequestInterceptor,
+            multi: true,
+        },
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: Status412PreconditionFailed,
+            multi: true,
+        },
+        // Required to Mat Date Picker Date Format
+        { provide: MAT_DATE_LOCALE, useValue: "en-GB" },
+        provideHttpClient(withInterceptorsFromDi()),
+    ] })
 export class AppModule {}
