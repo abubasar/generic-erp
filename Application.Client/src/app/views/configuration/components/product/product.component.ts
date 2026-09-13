@@ -6,8 +6,7 @@ import { MatMenuTrigger as MatMenuTrigger } from "@angular/material/menu";
 import { MatTableDataSource as MatTableDataSource } from "@angular/material/table";
 import { Page_Size_Options } from "app/shared/consts/const";
 import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";
-import { UserProfile } from "app/shared/models/user-profile-model";
-import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { ConfirmDialogService } from "app/shared/services/confirm-dialog.service";
 import { environment } from "environments/environment";
 import { ToastrService } from "ngx-toastr";
@@ -42,7 +41,6 @@ export class ProductComponent implements OnInit {
   isLoading1: boolean = false;
   isLoading2: boolean = false;
   panelOpenState: boolean;
-  businessType: string;
   searchForm: FormGroup;
   viewColumnForm: FormGroup;
   dataSource: MatTableDataSource<ProductView>;
@@ -95,19 +93,16 @@ export class ProductComponent implements OnInit {
     private fb: FormBuilder,
     public toastr: ToastrService,
     private http: HttpClient,
-    private jwtAuth: JwtAuthService,
+    public industryProfile: IndustryProfileService,
     private confirmDialogService: ConfirmDialogService,
   ) {}
 
   ngOnInit(): void {
-    this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
-      this.businessType = res.businesstype;
-    });
     this.initializeForm();
     this.getProducts(this.productRequest);
     this.getAllProductTypes();
     this.getAllGenerics();
-    if (this.businessType === "1") {
+    if (this.industryProfile.isPharma) {
       this.getAllCategories();
       this.getAllPackSizes();
     }

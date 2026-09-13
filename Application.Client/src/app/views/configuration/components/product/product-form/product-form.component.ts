@@ -3,8 +3,7 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA as MAT_DIALOG_DATA, MatDialog as MatDialog } from "@angular/material/dialog";
 import { Inventory_Type_Id_Finished_Goods } from "app/shared/consts/const";
 import settingConstants from "app/shared/consts/setting-constant";
-import { UserProfile } from "app/shared/models/user-profile-model";
-import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { Category } from "app/views/configuration/models/category/category.model";
 import { Country } from "app/views/configuration/models/country/country.model";
 import { GenericRequest } from "app/views/configuration/models/generic/generic-request.model";
@@ -40,7 +39,6 @@ export class ProductFormComponent implements OnInit {
   Inventory_Type_Id_Finished_Goods = Inventory_Type_Id_Finished_Goods;
   Allow_Bag_Weight_Field_Show_When_Product_Entry =
     settingConstants.Allow_Bag_Weight_Field_Show_When_Product_Entry;
-  businessType: string;
   formTitle: string;
   productForm: FormGroup;
   inventoryTypes: InventoryType[];
@@ -70,17 +68,14 @@ export class ProductFormComponent implements OnInit {
     private manufacturerService: ManufacturerService,
     private countryService: CountryService,
     private measurementUnitService: MeasurementUnitService,
-    private jwtAuth: JwtAuthService,
+    public industryProfile: IndustryProfileService,
 
     private fb: FormBuilder,
     private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
-    this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
-      this.businessType = res.businesstype;
-    });
-    if (this.businessType === "1") {
+    if (this.industryProfile.isPharma) {
       this.getAllCategories();
       this.getAllPackSizes();
     }

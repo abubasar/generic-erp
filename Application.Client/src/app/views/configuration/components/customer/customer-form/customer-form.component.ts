@@ -2,8 +2,7 @@ import { Component, Inject, OnInit, ChangeDetectionStrategy } from "@angular/cor
 import { FormArray, FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MAT_DIALOG_DATA as MAT_DIALOG_DATA, MatDialog as MatDialog } from "@angular/material/dialog";
 import { Department_Id_SALES_AND_MARKETING } from "app/shared/consts/const";
-import { UserProfile } from "app/shared/models/user-profile-model";
-import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { AreaRequest } from "app/views/configuration/models/area/area-request.model";
 import { Area } from "app/views/configuration/models/area/area.model";
 import {
@@ -45,7 +44,6 @@ export class CustomerFormComponent implements OnInit {
   territories: Territory[];
   marketingOfficers: Employee[];
   filteredMarketingOfficers: Employee[];
-  businessType: string;
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -57,24 +55,15 @@ export class CustomerFormComponent implements OnInit {
     private areaService: AreaService,
     private territoryService: TerritoryService,
     private employeeService: EmployeeService,
-    private jwtAuth: JwtAuthService,
+    public industryProfile: IndustryProfileService,
     private fb: FormBuilder,
     private toastr: ToastrService
   ) {}
 
   ngOnInit() {
-    // this.initializeForm();
     this.getAllRegions();
     this.getAllMarketingOfficers();
-    // this.getAllZones();
-    let isDataLoaded = false;
-    this.jwtAuth.userProfile.subscribe((res: UserProfile) => {
-      this.businessType = res.businesstype;
-      if (!isDataLoaded) {
-        isDataLoaded = true;
-        this.initializeForm();
-      }
-    });
+    this.initializeForm();
   }
 
   initializeForm() {
@@ -90,7 +79,7 @@ export class CustomerFormComponent implements OnInit {
       this.getAllAreasByZoneId(this.data.customerZoneId);
     }
     if (this.data?.customerAreaId) {
-      if (this.businessType === "1") {
+      if (this.industryProfile.isPharma) {
         this.isAreaSelected = true;
         this.getAllTerritoriesByAreaId(this.data.customerAreaId);
       }
@@ -122,7 +111,7 @@ export class CustomerFormComponent implements OnInit {
       customerAreaId: [this.data?.customerAreaId, Validators.required],
       customerTerritoryId: [
         this.data?.customerTerritoryId,
-        this.businessType == "1" ? Validators.required : null,
+        this.industryProfile.isPharma ? Validators.required : null,
       ],
       customerMarketingOfficerId: [
         this.data?.customerMarketingOfficerId,
@@ -240,7 +229,7 @@ export class CustomerFormComponent implements OnInit {
     this.customerForm.patchValue({
       customerTerritoryId: null,
     });
-    if (this.businessType === "1") {
+    if (this.industryProfile.isPharma) {
       this.isAreaSelected = true;
       this.getAllTerritoriesByAreaId(id);
     }

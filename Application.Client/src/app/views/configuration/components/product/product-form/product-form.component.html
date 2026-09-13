@@ -39,7 +39,7 @@
       </div>
 
       <!-- Category -->
-      @if (businessType === '1') {
+      @if (industryProfile.isPharma) {
         <div class="col">
           <mat-form-field class="full-width">
             <mat-label>Select Category</mat-label>
@@ -116,7 +116,7 @@
               <mat-error>Product name is required</mat-error>
             </mat-form-field>
           </div>
-          @if (businessType === '2' && isProductFinishedGoods()) {
+          @if (industryProfile.isFeed && isProductFinishedGoods()) {
             <div class="col">
               <!-- bagWeight -->
               <mat-form-field>
@@ -152,7 +152,7 @@
             </mat-form-field>
           </div>
           <!-- PackSize -->
-          @if (businessType === '1') {
+          @if (industryProfile.isPharma) {
             <div class="col">
               <mat-form-field class="full-width">
                 <mat-label>Select Pack Size</mat-label>
@@ -314,7 +314,7 @@
                       </div>
 
                       <!-- composition -->
-                      @if (businessType === '1') {
+                      @if (industryProfile.isPharma) {
                         <div class="col">
                           <mat-form-field class="full-width">
                             <mat-label>Composition</mat-label>

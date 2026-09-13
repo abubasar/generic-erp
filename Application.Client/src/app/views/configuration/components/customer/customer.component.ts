@@ -16,12 +16,11 @@ import {
   Page_Size_Options,
 } from "app/shared/consts/const";
 import { ConfirmDialogModel } from "app/shared/models/confirm-dialog.model";
-import { UserProfile } from "app/shared/models/user-profile-model";
-import { JwtAuthService } from "app/shared/services/auth/jwt-auth.service";
+import { IndustryProfileService } from "app/shared/services/industry-profile/industry-profile.service";
 import { ConfirmDialogService } from "app/shared/services/confirm-dialog.service";
 import { environment } from "environments/environment";
 import { ToastrService } from "ngx-toastr";
-import { Observable, distinctUntilChanged, merge, of } from "rxjs";
+import { Observable, merge, of } from "rxjs";
 import { Area } from "../../models/area/area.model";
 import { CustomerRequest } from "../../models/customer/customer-request.model";
 import { Customer } from "../../models/customer/customer.model";
@@ -53,7 +52,6 @@ import { CustomerFormComponent } from "./customer-form/customer-form.component";
     standalone: false
 })
 export class CustomerComponent implements OnInit {
-  businessType: string;
   loading: boolean = true;
   panelOpenState: boolean;
   searchForm: FormGroup;
@@ -120,7 +118,7 @@ export class CustomerComponent implements OnInit {
     public toastr: ToastrService,
     private http: HttpClient,
     private confirmDialogService: ConfirmDialogService,
-    private jwtAuth: JwtAuthService
+    public industryProfile: IndustryProfileService
   ) {}
 
   ngOnInit(): void {
@@ -128,18 +126,9 @@ export class CustomerComponent implements OnInit {
     this.getAllRegions();
     this.getAllZones();
     this.getAllAreas();
-    this.jwtAuth.userProfile
-      .pipe(
-        distinctUntilChanged(
-          (prev, curr) => prev.businesstype === curr.businesstype
-        )
-      )
-      .subscribe((res: UserProfile) => {
-        this.businessType = res.businesstype;
-        if (this.businessType === "1") {
-          this.getAllTerritories();
-        }
-      });
+    if (this.industryProfile.isPharma) {
+      this.getAllTerritories();
+    }
 
     this.getAllMarketingOfficers();
     this.getCustomers(this.customerRequest);
