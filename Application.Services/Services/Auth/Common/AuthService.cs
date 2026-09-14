@@ -257,10 +257,18 @@ namespace Application.Services.Services.Auth.Common
 
         public virtual async Task<string> DeleteRefreshTokenAsync(string refreshToken)
         {
+            // Sign-out (like refresh) must work with no ambient tenant: the client's
+            // TokenInterceptor deliberately omits the Authorization header for this call
+            // (its URL match for "refresh-token" also catches "delete-refresh-token"), so
+            // TenantScope.CurrentTenantId is empty here. TableUnfiltered() already bypasses
+            // the tenant filter to locate the row; deleting the fetched entity directly
+            // (instead of Repository.DeleteAsync(Guid), which re-fetches through
+            // DbSet.FindAsync and applies the tenant filter to that lookup) avoids a
+            // spurious "Entity not found" on that re-fetch.
             var refreshTokenEntity = await _unitOfWork.Repository<RefreshToken>().TableUnfiltered().FirstOrDefaultAsync(x => x.TokenId == refreshToken);
             if (refreshTokenEntity is not null)
             {
-                await _unitOfWork.Repository<RefreshToken>().DeleteAsync(refreshTokenEntity.Id);
+                await _unitOfWork.Repository<RefreshToken>().DeleteAsync(refreshTokenEntity);
                 await _unitOfWork.RefreshTokenSaveChangesAsync();
             }
             return refreshToken;
